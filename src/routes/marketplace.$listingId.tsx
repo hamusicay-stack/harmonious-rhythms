@@ -258,7 +258,7 @@ function ListingDetailPage() {
             </div>
 
             {seller && (
-              <div className="rounded-2xl border bg-card p-5 space-y-3">
+              <Link to="/seller/$sellerId" params={{ sellerId: listing.seller_id }} className="block rounded-2xl border bg-card p-5 space-y-3 hover:border-primary/50 transition">
                 <div className="flex items-center gap-3">
                   {seller.avatar_url ? <img src={seller.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover" /> : <div className="h-12 w-12 rounded-full bg-muted" />}
                   <div className="flex-1">
@@ -273,7 +273,8 @@ function ListingDetailPage() {
                   <div>{sellerListingsCount} מודעות פעילות</div>
                   {avgRating > 0 && <div className="flex items-center gap-1"><Star className="h-3 w-3 fill-primary text-primary" />דירוג: {avgRating.toFixed(1)} ({reviews.length})</div>}
                 </div>
-              </div>
+                <div className="text-xs text-primary font-medium">צפה בכל המודעות של המוכר ←</div>
+              </Link>
             )}
           </aside>
         </div>
