@@ -124,11 +124,19 @@ function ListingDetailPage() {
           <div className="space-y-6">
             {/* Gallery */}
             {listing.images?.length > 0 && (
-              <Carousel className="rounded-2xl overflow-hidden border bg-muted">
+              <Carousel className="rounded-2xl overflow-hidden border bg-black/5">
                 <CarouselContent>
                   {listing.images.map((url: string, i: number) => (
                     <CarouselItem key={i}>
-                      <img src={url} alt={`${listing.title} ${i + 1}`} className="w-full aspect-video object-contain bg-black/5" />
+                      <div className="flex items-center justify-center bg-black/5" style={{ minHeight: "60vh" }}>
+                        <img
+                          src={url}
+                          alt={`${listing.title} ${i + 1}`}
+                          className="max-h-[70vh] w-full object-contain"
+                          loading={i === 0 ? "eager" : "lazy"}
+                          decoding="async"
+                        />
+                      </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
