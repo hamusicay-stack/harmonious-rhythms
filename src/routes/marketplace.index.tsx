@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight, ChevronDown, Flame, BadgeCheck, X } from "lucide-react";
+import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight, ChevronDown, Flame, BadgeCheck, X, LayoutGrid, List as ListIcon, ArrowUpDown, Check } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
