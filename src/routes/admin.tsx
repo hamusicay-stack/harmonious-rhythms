@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Users, Building2, ClipboardList, TrendingUp, Loader2, Plus, Save, ShieldAlert,
-  CheckCircle2, Circle, Clock,
+  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
