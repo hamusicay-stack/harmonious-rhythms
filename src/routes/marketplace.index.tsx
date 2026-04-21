@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp } from "lucide-react";
+import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -192,13 +192,16 @@ function MarketplacePage() {
             <div className="mt-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
               <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">תתי-קטגוריות של {expandedCategory.label}</Label>
-                <button
+                <Button
                   type="button"
+                  size="sm"
+                  variant="outline"
                   onClick={() => { setExpandedCat(null); setCategories(new Set()); setSubcategories(new Set()); }}
-                  className="text-xs text-muted-foreground hover:text-primary"
+                  className="gap-1"
                 >
-                  ← הצג את כל הקטגוריות
-                </button>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                  חזרה לכל הקטגוריות
+                </Button>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button

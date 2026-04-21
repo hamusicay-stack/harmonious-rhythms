@@ -120,9 +120,13 @@ function NewListingPage() {
     try {
       const urls: string[] = [];
       for (const file of files) {
-        if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name}: מעל 5MB`); continue; }
+        if (file.size > 15 * 1024 * 1024) { toast.error(`${file.name}: מעל 15MB`); continue; }
         const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-        const { error } = await supabase.storage.from("marketplace").upload(path, file);
+        const { error } = await supabase.storage.from("marketplace").upload(path, file, {
+          cacheControl: "31536000",
+          contentType: file.type || "image/jpeg",
+          upsert: false,
+        });
         if (error) { toast.error(error.message); continue; }
         const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
         urls.push(data.publicUrl);
