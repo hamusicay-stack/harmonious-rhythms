@@ -144,41 +144,100 @@ function MarketplacePage() {
     />
   );
 
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const applySearch = () => setSearch(searchInput);
+
+  const expandedCategory = expandedCat ? categoriesList.find((c) => c.slug === expandedCat) : null;
+  const visibleCategories = expandedCategory ? [expandedCategory] : categoriesList;
+
   return (
     <ModulePlaceholder icon={Tags} title="לוח יד 2" subtitle="קונים, מוכרים ומחליפים — בתוך הקהילה.">
       {/* Category Banner */}
       {categoriesList.length > 0 && (
-        <div className="mb-6 -mx-2 px-2 overflow-x-auto">
-          <div className="flex gap-4 pb-2 min-w-max">
-            {categoriesList.map((c) => (
-              <Link
-                key={c.slug}
-                to="/marketplace/category/$slug"
-                params={{ slug: c.slug }}
-                className="flex flex-col items-center gap-2 group shrink-0 w-20 sm:w-24"
-              >
-                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden border-2 border-border group-hover:border-primary transition bg-muted flex items-center justify-center">
-                  {c.image_url ? (
-                    <img src={c.image_url} alt={c.label} className="w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <Tags className="h-8 w-8 text-muted-foreground" />
-                  )}
-                </div>
-                <span className="text-xs text-center font-medium line-clamp-2 group-hover:text-primary transition">{c.label}</span>
-              </Link>
-            ))}
+        <div className="mb-6">
+          <div className="-mx-2 px-2 overflow-x-auto">
+            <div className="flex gap-4 pb-2 min-w-max items-start">
+              {visibleCategories.map((c) => (
+                <button
+                  key={c.slug}
+                  type="button"
+                  onClick={() => {
+                    if (expandedCat === c.slug) {
+                      setExpandedCat(null);
+                      setCategories(new Set());
+                      setSubcategories(new Set());
+                    } else {
+                      setExpandedCat(c.slug);
+                      setCategories(new Set([c.slug]));
+                      setSubcategories(new Set());
+                    }
+                  }}
+                  className="flex flex-col items-center gap-2 group shrink-0 w-20 sm:w-24"
+                >
+                  <div className={`h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden border-2 transition flex items-center justify-center bg-muted ${expandedCat === c.slug ? "border-primary ring-2 ring-primary/30" : "border-border group-hover:border-primary"}`}>
+                    {c.image_url ? (
+                      <img src={c.image_url} alt={c.label} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <Tags className="h-8 w-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <span className={`text-xs text-center font-medium line-clamp-2 transition ${expandedCat === c.slug ? "text-primary" : "group-hover:text-primary"}`}>{c.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
+
+          {expandedCategory && expandedCategory.subcategories.length > 0 && (
+            <div className="mt-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">תתי-קטגוריות של {expandedCategory.label}</Label>
+                <button
+                  type="button"
+                  onClick={() => { setExpandedCat(null); setCategories(new Set()); setSubcategories(new Set()); }}
+                  className="text-xs text-muted-foreground hover:text-primary"
+                >
+                  ← הצג את כל הקטגוריות
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSubcategories(new Set())}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition ${subcategories.size === 0 ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary"}`}
+                >
+                  הכל
+                </button>
+                {expandedCategory.subcategories.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSubcategories(new Set([s]))}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition ${subcategories.has(s) ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary"}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+      <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="mb-6 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="חפש לפי שם, מותג או דגם..." className="pr-10" />
+          <Input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="חפש לפי שם, מותג או דגם... (Enter לחיפוש)"
+            className="pr-10"
+          />
         </div>
+        <Button type="submit" variant="secondary" className="hidden sm:inline-flex">חפש</Button>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="lg:hidden">סינון</Button>
+            <Button type="button" variant="outline" className="lg:hidden">סינון</Button>
           </SheetTrigger>
           <SheetContent side="right" className="overflow-y-auto w-[320px] sm:w-[380px]">
             <SheetHeader><SheetTitle>סינון מודעות</SheetTitle></SheetHeader>
@@ -186,9 +245,9 @@ function MarketplacePage() {
           </SheetContent>
         </Sheet>
         <Link to="/marketplace/new">
-          <Button className="w-full sm:w-auto"><Plus className="h-4 w-4" />פרסם מודעה</Button>
+          <Button type="button" className="w-full sm:w-auto"><Plus className="h-4 w-4" />פרסם מודעה</Button>
         </Link>
-      </div>
+      </form>
 
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
         <aside className="hidden lg:block">
