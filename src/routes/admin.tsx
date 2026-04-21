@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Users, Building2, ClipboardList, TrendingUp, Loader2, Plus, Save, ShieldAlert,
-  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone, Package, Zap, LayoutDashboard,
+  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone, Package, Zap, LayoutDashboard, Tags,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +29,7 @@ import { BannersManager } from "@/components/admin/BannersManager";
 import { SupplierOrdersManager } from "@/components/admin/SupplierOrdersManager";
 import { AutomationsManager } from "@/components/admin/AutomationsManager";
 import { DashboardOverview } from "@/components/admin/DashboardOverview";
+import { MarketplaceManager } from "@/components/admin/MarketplaceManager";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -199,13 +200,14 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-10">
             <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
             <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+            <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
             <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
             <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
@@ -376,6 +378,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="purchase_orders" className="mt-6">
             <SupplierOrdersManager />
+          </TabsContent>
+          <TabsContent value="marketplace" className="mt-6">
+            <MarketplaceManager />
           </TabsContent>
           <TabsContent value="automations" className="mt-6">
             <AutomationsManager />

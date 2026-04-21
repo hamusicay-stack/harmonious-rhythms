@@ -19,6 +19,8 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
+import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
@@ -72,6 +74,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => MarketplaceRoute,
+} as any)
+const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
+  id: '/$listingId',
+  path: '/$listingId',
+  getParentRoute: () => MarketplaceRoute,
+} as any)
 const AdminCustomersCustomerIdRoute =
   AdminCustomersCustomerIdRouteImport.update({
     id: '/customers/$customerId',
@@ -93,9 +105,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
-  '/marketplace': typeof MarketplaceRoute
+  '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/new': typeof MarketplaceNewRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -107,9 +121,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
-  '/marketplace': typeof MarketplaceRoute
+  '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/new': typeof MarketplaceNewRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -122,9 +138,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
-  '/marketplace': typeof MarketplaceRoute
+  '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/new': typeof MarketplaceNewRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -141,6 +159,8 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/store'
+    | '/marketplace/$listingId'
+    | '/marketplace/new'
     | '/admin/customers/$customerId'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
@@ -155,6 +175,8 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/store'
+    | '/marketplace/$listingId'
+    | '/marketplace/new'
     | '/admin/customers/$customerId'
     | '/lovable/email/queue/process'
   id:
@@ -169,6 +191,8 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/store'
+    | '/marketplace/$listingId'
+    | '/marketplace/new'
     | '/admin/customers/$customerId'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
@@ -181,7 +205,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForumRoute: typeof ForumRoute
-  MarketplaceRoute: typeof MarketplaceRoute
+  MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   StoreRoute: typeof StoreRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -259,6 +283,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace/new': {
+      id: '/marketplace/new'
+      path: '/new'
+      fullPath: '/marketplace/new'
+      preLoaderRoute: typeof MarketplaceNewRouteImport
+      parentRoute: typeof MarketplaceRoute
+    }
+    '/marketplace/$listingId': {
+      id: '/marketplace/$listingId'
+      path: '/$listingId'
+      fullPath: '/marketplace/$listingId'
+      preLoaderRoute: typeof MarketplaceListingIdRouteImport
+      parentRoute: typeof MarketplaceRoute
+    }
     '/admin/customers/$customerId': {
       id: '/admin/customers/$customerId'
       path: '/customers/$customerId'
@@ -286,6 +324,20 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface MarketplaceRouteChildren {
+  MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
+  MarketplaceNewRoute: typeof MarketplaceNewRoute
+}
+
+const MarketplaceRouteChildren: MarketplaceRouteChildren = {
+  MarketplaceListingIdRoute: MarketplaceListingIdRoute,
+  MarketplaceNewRoute: MarketplaceNewRoute,
+}
+
+const MarketplaceRouteWithChildren = MarketplaceRoute._addFileChildren(
+  MarketplaceRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -294,7 +346,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForumRoute: ForumRoute,
-  MarketplaceRoute: MarketplaceRoute,
+  MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   StoreRoute: StoreRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,

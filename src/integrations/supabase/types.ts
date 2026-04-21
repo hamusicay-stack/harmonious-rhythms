@@ -602,6 +602,143 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_listings: {
+        Row: {
+          admin_notes: string | null
+          brand: string | null
+          category: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          images: string[] | null
+          item_condition: string
+          model: string | null
+          phone: string | null
+          price: number
+          region: string | null
+          seller_id: string
+          specs: Json | null
+          status: string
+          subcategory: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+          views_count: number
+          whatsapp: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          brand?: string | null
+          category: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          item_condition?: string
+          model?: string | null
+          phone?: string | null
+          price?: number
+          region?: string | null
+          seller_id: string
+          specs?: Json | null
+          status?: string
+          subcategory?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+          views_count?: number
+          whatsapp?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          brand?: string | null
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          item_condition?: string
+          model?: string | null
+          phone?: string | null
+          price?: number
+          region?: string | null
+          seller_id?: string
+          specs?: Json | null
+          status?: string
+          subcategory?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+          views_count?: number
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      marketplace_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          listing_id: string | null
+          rating: number
+          reviewer_id: string
+          seller_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          rating: number
+          reviewer_id: string
+          seller_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          rating?: number
+          reviewer_id?: string
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_trusted_sellers: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
