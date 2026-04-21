@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
+import { ImageLightbox } from "@/components/marketplace/ImageLightbox";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
@@ -32,6 +33,8 @@ function ListingDetailPage() {
   const [likesCount, setLikesCount] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [likeBusy, setLikeBusy] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -128,7 +131,7 @@ function ListingDetailPage() {
                 <CarouselContent>
                   {listing.images.map((url: string, i: number) => (
                     <CarouselItem key={i}>
-                      <div className="flex items-center justify-center bg-black/5" style={{ minHeight: "60vh" }}>
+                      <div className="flex items-center justify-center bg-black/5 cursor-zoom-in" style={{ minHeight: "60vh" }} onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}>
                         <img
                           src={url}
                           alt={`${listing.title} ${i + 1}`}
@@ -143,6 +146,7 @@ function ListingDetailPage() {
                 {listing.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}
               </Carousel>
             )}
+            <ImageLightbox images={listing.images ?? []} open={lightboxOpen} initialIndex={lightboxIndex} onOpenChange={setLightboxOpen} alt={listing.title} />
 
             {/* Video */}
             {listing.video_url && (
