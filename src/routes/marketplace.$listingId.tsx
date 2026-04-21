@@ -41,21 +41,41 @@ function ListingDetailPage() {
       // Increment views (best-effort)
       supabase.from("marketplace_listings").update({ views_count: (l.views_count || 0) + 1 }).eq("id", listingId);
 
-      const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }] = await Promise.all([
+      const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }, { count: likesC }, { data: myLike }] = await Promise.all([
         supabase.from("profiles").select("id, display_name, avatar_url").eq("id", l.seller_id).maybeSingle(),
         supabase.from("marketplace_trusted_sellers").select("user_id").eq("user_id", l.seller_id).maybeSingle(),
         supabase.from("marketplace_reviews").select("id, rating, comment, created_at, reviewer_id").eq("seller_id", l.seller_id).order("created_at", { ascending: false }),
         supabase.from("marketplace_listings").select("id", { count: "exact", head: true }).eq("seller_id", l.seller_id).eq("status", "approved"),
         supabase.from("marketplace_listings").select("id, title, price, images, brand, model").eq("category", l.category).eq("status", "approved").neq("id", l.id).limit(4),
+        supabase.from("marketplace_likes").select("id", { count: "exact", head: true }).eq("listing_id", l.id),
+        user ? supabase.from("marketplace_likes").select("id").eq("listing_id", l.id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null } as any),
       ]);
       setSeller(prof);
       setTrusted(!!trustedRow);
       setReviews(revs ?? []);
       setSellerListingsCount(count ?? 0);
       setSimilar(sim ?? []);
+      setLikesCount(likesC ?? 0);
+      setHasLiked(!!myLike);
       setLoading(false);
     })();
-  }, [listingId]);
+  }, [listingId, user]);
+
+  const toggleLike = async () => {
+    if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
+    if (likeBusy) return;
+    setLikeBusy(true);
+    if (hasLiked) {
+      const { error } = await supabase.from("marketplace_likes").delete().eq("listing_id", listingId).eq("user_id", user.id);
+      if (!error) { setHasLiked(false); setLikesCount((c) => Math.max(0, c - 1)); }
+      else toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("marketplace_likes").insert({ listing_id: listingId, user_id: user.id });
+      if (!error) { setHasLiked(true); setLikesCount((c) => c + 1); }
+      else toast.error(error.message);
+    }
+    setLikeBusy(false);
+  };
 
   if (loading) return <ModulePlaceholder icon={Loader2} title="טוען..." subtitle=""><div /></ModulePlaceholder>;
   if (!listing) return (
