@@ -57,7 +57,9 @@ export type ListingInitial = {
   whatsapp?: string | null;
   images?: string[] | null;
   video_url?: string | null;
-  specs?: { year?: string | null; has_rhythms?: boolean; has_samples?: boolean } | null;
+  audio_url?: string | null;
+  is_urgent?: boolean | null;
+  specs?: { year?: string | null; has_rhythms?: boolean; has_samples?: boolean } | null | Record<string, unknown>;
   status?: string;
 };
 
@@ -78,7 +80,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [videoFile, setVideoFile] = useState<string>(initial?.video_url ?? "");
-  const [audioFile, setAudioFile] = useState<string>((initial as any)?.audio_url ?? "");
+  const [audioFile, setAudioFile] = useState<string>(initial?.audio_url ?? "");
   const [sellerType, setSellerType] = useState<SellerType>(
     (initial?.seller_type as SellerType) ?? null
   );
@@ -87,13 +89,14 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [businessForm, setBusinessForm] = useState({ business_name: "", contact_name: "", phone: "", email: "" });
   const [registeringBusiness, setRegisteringBusiness] = useState(false);
   const [promoOption, setPromoOption] = useState<"none" | "bump24" | "bump48">("none");
-  const [isUrgent, setIsUrgent] = useState<boolean>(!!(initial as any)?.is_urgent);
+  const [isUrgent, setIsUrgent] = useState<boolean>(!!initial?.is_urgent);
   const initialPhone = initial?.phone ?? "";
   const initialWa = initial?.whatsapp ?? "";
   const [phoneHasWhatsapp, setPhoneHasWhatsapp] = useState(
-    isEdit ? !!initialPhone && initialWa === initialPhone : true
+    isEdit ? (!initialWa && !!initialPhone) || initialWa === initialPhone : true
   );
-  const [form, setForm] = useState<any>({
+  const specs = (initial?.specs ?? {}) as { year?: string | null; has_rhythms?: boolean; has_samples?: boolean };
+  const [form, setForm] = useState<Record<string, unknown>>({
     title: initial?.title ?? "",
     description: initial?.description ?? "",
     category: initial?.category ?? prefillCategory ?? "",
@@ -103,15 +106,15 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     brand: initial?.brand ?? "",
     customBrand: initial?.custom_brand ?? "",
     model: initial?.model ?? "",
-    year: initial?.specs?.year ?? "",
+    year: specs?.year ?? "",
     item_condition: initial?.item_condition ?? "used_good",
-    price: initial?.price?.toString() ?? "",
+    price: initial?.price != null ? String(initial.price) : "",
     city: initial?.city ?? "",
     customCity: "",
     phone: initialPhone,
-    whatsapp: isEdit && initialWa !== initialPhone ? initialWa : "",
-    has_rhythms: !!initial?.specs?.has_rhythms,
-    has_samples: !!initial?.specs?.has_samples,
+    whatsapp: isEdit && initialWa && initialWa !== initialPhone ? initialWa : "",
+    has_rhythms: !!specs?.has_rhythms,
+    has_samples: !!specs?.has_samples,
     video_url: initial?.video_url ?? "",
   });
 
@@ -138,7 +141,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
 
   const cat = CATEGORIES.find((c) => c.value === form.category);
   const isKeyboard = form.category === "keyboards" || form.category === "pianos";
-  const update = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
+  const update = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+  const f = form as Record<string, string | boolean | undefined>;
 
   const registerBusiness = async () => {
     if (!user) return;
@@ -250,50 +254,57 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     if (!isEdit && !sellerType) return;
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "מלא את כל השדות הדרושים");
+      const issue = parsed.error.issues[0];
+      const fieldPath = issue?.path?.join(".") ?? "";
+      toast.error(`${issue?.message ?? "שגיאה בטופס"}${fieldPath ? ` (${fieldPath})` : ""}`);
       return;
     }
+    const ff = form as Record<string, string | undefined | boolean>;
     if (images.length === 0) { toast.error("יש להעלות לפחות תמונה אחת"); return; }
-    if (form.category === "other" && !form.customCategory?.trim()) { toast.error("נא לציין שם קטגוריה"); return; }
-    if (form.brand === "אחר" && !form.customBrand?.trim()) { toast.error("נא לציין שם מותג"); return; }
-    if (form.city === "אחר" && !form.customCity?.trim()) { toast.error("נא לציין שם עיר"); return; }
-    if (form.subcategory === "אחר" && !form.customSubcategory?.trim()) { toast.error("נא לציין תת-קטגוריה"); return; }
+    if (ff.category === "other" && !(ff.customCategory as string)?.trim()) { toast.error("נא לציין שם קטגוריה"); return; }
+    if (ff.brand === "אחר" && !(ff.customBrand as string)?.trim()) { toast.error("נא לציין שם מותג"); return; }
+    if (ff.city === "אחר" && !(ff.customCity as string)?.trim()) { toast.error("נא לציין שם עיר"); return; }
+    if (ff.subcategory === "אחר" && !(ff.customSubcategory as string)?.trim()) { toast.error("נא לציין תת-קטגוריה"); return; }
 
     setSubmitting(true);
-    const finalBrand = form.brand === "אחר" ? form.customBrand?.trim() : (form.brand || null);
-    const finalCity = form.city === "אחר" ? form.customCity?.trim() : (form.city || null);
+    const s = (k: string) => ((ff[k] as string) ?? "").trim();
+    const finalBrand = ff.brand === "אחר" ? s("customBrand") : (s("brand") || null);
+    const finalCity = ff.city === "אחר" ? s("customCity") : (s("city") || null);
 
     const basePayload = {
-      title: form.title.trim(),
-      description: form.description?.trim() || null,
-      category: form.category,
-      custom_category: form.category === "other" ? form.customCategory?.trim() : null,
-      subcategory: form.subcategory || null,
-      custom_subcategory: form.subcategory === "אחר" ? form.customSubcategory?.trim() : null,
+      title: s("title"),
+      description: s("description") || null,
+      category: ff.category as string,
+      custom_category: ff.category === "other" ? s("customCategory") : null,
+      subcategory: s("subcategory") || null,
+      custom_subcategory: ff.subcategory === "אחר" ? s("customSubcategory") : null,
       brand: finalBrand,
-      custom_brand: form.brand === "אחר" ? form.customBrand?.trim() : null,
-      model: form.model?.trim() || null,
-      item_condition: form.item_condition,
-      price: Number(form.price),
+      custom_brand: ff.brand === "אחר" ? s("customBrand") : null,
+      model: s("model") || null,
+      item_condition: ff.item_condition as string,
+      price: Number(ff.price),
       city: finalCity,
-      phone: form.phone.trim(),
-      whatsapp: phoneHasWhatsapp ? form.phone.trim() : (form.whatsapp?.trim() || null),
+      phone: s("phone"),
+      whatsapp: phoneHasWhatsapp ? s("phone") : (s("whatsapp") || null),
       images,
-      video_url: form.video_url || null,
+      video_url: s("video_url") || null,
       audio_url: audioFile || null,
       is_urgent: isUrgent,
-      specs: { year: form.year || null, has_rhythms: !!form.has_rhythms, has_samples: !!form.has_samples },
+      specs: { year: s("year") || null, has_rhythms: !!ff.has_rhythms, has_samples: !!ff.has_samples },
     };
 
     if (isEdit && initial?.id) {
-      const { error } = await supabase
+      const { error, data: updated } = await supabase
         .from("marketplace_listings")
         .update(basePayload)
         .eq("id", initial.id)
-        .eq("seller_id", user.id);
+        .eq("seller_id", user.id)
+        .select("id")
+        .maybeSingle();
       setSubmitting(false);
-      if (error) { toast.error(error.message); return; }
-      toast.success("המודעה עודכנה!");
+      if (error) { toast.error(`שגיאה בעדכון: ${error.message}`); return; }
+      if (!updated) { toast.error("העדכון נכשל - אין הרשאה או שהמודעה לא נמצאה"); return; }
+      toast.success("המודעה עודכנה בהצלחה!");
       navigate({ to: "/marketplace/$listingId", params: { listingId: initial.id } });
       return;
     }
