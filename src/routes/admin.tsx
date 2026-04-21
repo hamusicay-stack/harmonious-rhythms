@@ -240,7 +240,14 @@ function AdminPage() {
                         <TableCell>{c.organ_model || "—"}</TableCell>
                         <TableCell><Badge>{c.subscription_tier}</Badge></TableCell>
                         <TableCell className="text-end">
-                          <CustomerEditDialog customer={c} onSaved={loadAll} />
+                          <div className="flex justify-end gap-2">
+                            <Button asChild size="sm" variant="ghost">
+                              <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
+                                <Eye className="ml-1 h-4 w-4" />כרטיס 360°
+                              </Link>
+                            </Button>
+                            <CustomerEditDialog customer={c} onSaved={loadAll} />
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
