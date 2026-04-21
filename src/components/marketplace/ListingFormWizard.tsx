@@ -78,6 +78,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [videoFile, setVideoFile] = useState<string>(initial?.video_url ?? "");
+  const [audioFile, setAudioFile] = useState<string>((initial as any)?.audio_url ?? "");
   const [sellerType, setSellerType] = useState<SellerType>(
     (initial?.seller_type as SellerType) ?? null
   );
@@ -86,6 +87,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [businessForm, setBusinessForm] = useState({ business_name: "", contact_name: "", phone: "", email: "" });
   const [registeringBusiness, setRegisteringBusiness] = useState(false);
   const [promoOption, setPromoOption] = useState<"none" | "bump24" | "bump48">("none");
+  const [isUrgent, setIsUrgent] = useState<boolean>(!!(initial as any)?.is_urgent);
   const initialPhone = initial?.phone ?? "";
   const initialWa = initial?.whatsapp ?? "";
   const [phoneHasWhatsapp, setPhoneHasWhatsapp] = useState(
