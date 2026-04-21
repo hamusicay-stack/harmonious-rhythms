@@ -77,6 +77,66 @@ export type Database = {
           },
         ]
       }
+      customer_interactions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          description: string | null
+          id: string
+          occurred_at: string
+          title: string
+          type: Database["public"]["Enums"]["interaction_type"]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          description?: string | null
+          id?: string
+          occurred_at?: string
+          title: string
+          type?: Database["public"]["Enums"]["interaction_type"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          description?: string | null
+          id?: string
+          occurred_at?: string
+          title?: string
+          type?: Database["public"]["Enums"]["interaction_type"]
+        }
+        Relationships: []
+      }
+      customer_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          tag?: string
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           clicked_at: string | null
@@ -461,6 +521,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_assign_role_by_email: {
+        Args: {
+          _email: string
+          _revoke?: boolean
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: string
+      }
+      admin_list_admins: {
+        Args: never
+        Returns: {
+          email: string
+          granted_at: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -472,6 +548,15 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       email_status: "queued" | "sent" | "failed" | "bounced"
+      interaction_type:
+        | "note"
+        | "call"
+        | "email"
+        | "meeting"
+        | "purchase"
+        | "lesson"
+        | "signup"
+        | "other"
       lead_source:
         | "website"
         | "whatsapp"
@@ -613,6 +698,16 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       email_status: ["queued", "sent", "failed", "bounced"],
+      interaction_type: [
+        "note",
+        "call",
+        "email",
+        "meeting",
+        "purchase",
+        "lesson",
+        "signup",
+        "other",
+      ],
       lead_source: [
         "website",
         "whatsapp",
