@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_logs: {
+        Row: {
+          clicked_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          opened_at: string | null
+          recipient_email: string
+          recipient_user_id: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["email_status"]
+          subject: string
+          template: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          opened_at?: string | null
+          recipient_email: string
+          recipient_user_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["email_status"]
+          subject: string
+          template?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          opened_at?: string | null
+          recipient_email?: string
+          recipient_user_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["email_status"]
+          subject?: string
+          template?: string | null
+        }
+        Relationships: []
+      }
       forum_categories: {
         Row: {
           created_at: string
@@ -136,17 +178,115 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          source: Database["public"]["Enums"]["lead_source"]
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_id: string | null
+          external_payment_id: string | null
+          id: string
+          notes: string | null
+          payment_method: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          product_name: string
+          supplier_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          external_payment_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          product_name: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          external_payment_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          product_name?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
           created_at: string
           display_name: string | null
+          email: string | null
+          full_name: string | null
           id: string
           instagram: string | null
           location: string | null
+          organ_model: string | null
+          phone: string | null
           specialties: string[] | null
+          subscription_tier: string
           updated_at: string
+          user_type: string
           username: string | null
           website: string | null
           youtube: string | null
@@ -156,11 +296,17 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          email?: string | null
+          full_name?: string | null
           id: string
           instagram?: string | null
           location?: string | null
+          organ_model?: string | null
+          phone?: string | null
           specialties?: string[] | null
+          subscription_tier?: string
           updated_at?: string
+          user_type?: string
           username?: string | null
           website?: string | null
           youtube?: string | null
@@ -170,14 +316,59 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          email?: string | null
+          full_name?: string | null
           id?: string
           instagram?: string | null
           location?: string | null
+          organ_model?: string | null
+          phone?: string | null
           specialties?: string[] | null
+          subscription_tier?: string
           updated_at?: string
+          user_type?: string
           username?: string | null
           website?: string | null
           youtube?: string | null
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          category: Database["public"]["Enums"]["supplier_category"]
+          company_name: string
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          payment_notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["supplier_category"]
+          company_name: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          payment_notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["supplier_category"]
+          company_name?: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          payment_notes?: string | null
+          phone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -217,6 +408,17 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      email_status: "queued" | "sent" | "failed" | "bounced"
+      lead_source:
+        | "website"
+        | "whatsapp"
+        | "facebook"
+        | "phone"
+        | "referral"
+        | "other"
+      lead_status: "new" | "in_progress" | "converted" | "lost"
+      payment_status: "pending" | "paid" | "cancelled" | "refunded"
+      supplier_category: "rhythms" | "equipment" | "courses" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -345,6 +547,18 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      email_status: ["queued", "sent", "failed", "bounced"],
+      lead_source: [
+        "website",
+        "whatsapp",
+        "facebook",
+        "phone",
+        "referral",
+        "other",
+      ],
+      lead_status: ["new", "in_progress", "converted", "lost"],
+      payment_status: ["pending", "paid", "cancelled", "refunded"],
+      supplier_category: ["rhythms", "equipment", "courses", "other"],
     },
   },
 } as const
