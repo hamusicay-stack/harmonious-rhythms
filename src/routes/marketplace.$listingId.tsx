@@ -14,12 +14,7 @@ export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
 });
 
-const CONDITION_LABELS: Record<string, string> = {
-  new_sealed: "חדש באריזה", like_new: "משומש כחדש", used_good: "תקין", for_parts: "לחלקים",
-};
-const CATEGORY_LABELS: Record<string, string> = {
-  keyboards: "אורגנים ומקלדות", amplification: "ציוד הגברה", wind: "כלי נשיפה", studio: "אולפן ביתי",
-};
+import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
