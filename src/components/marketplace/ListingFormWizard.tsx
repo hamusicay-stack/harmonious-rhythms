@@ -96,7 +96,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     isEdit ? (!initialWa && !!initialPhone) || initialWa === initialPhone : true
   );
   const specs = (initial?.specs ?? {}) as { year?: string | null; has_rhythms?: boolean; has_samples?: boolean };
-  const [form, setForm] = useState<Record<string, unknown>>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [form, setForm] = useState<any>({
     title: initial?.title ?? "",
     description: initial?.description ?? "",
     category: initial?.category ?? prefillCategory ?? "",
@@ -141,8 +142,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
 
   const cat = CATEGORIES.find((c) => c.value === form.category);
   const isKeyboard = form.category === "keyboards" || form.category === "pianos";
-  const update = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
-  const f = form as Record<string, string | boolean | undefined>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const update = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
 
   const registerBusiness = async () => {
     if (!user) return;
