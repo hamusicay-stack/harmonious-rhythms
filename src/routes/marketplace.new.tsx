@@ -186,7 +186,15 @@ function NewListingPage() {
     navigate({ to: "/marketplace" });
   };
 
-  if (authLoading || !user) return null;
+  if (authLoading) return <ModulePlaceholder icon={Plus} title="טוען..." subtitle="" />;
+  if (!user) return (
+    <ModulePlaceholder icon={Plus} title="פרסם מודעה" subtitle="יש להתחבר כדי לפרסם מודעה">
+      <div className="max-w-md mx-auto text-center space-y-4 py-8">
+        <p className="text-muted-foreground">כדי לפרסם מודעה בלוח יד 2 צריך להתחבר תחילה (חינם, לוקח שניה).</p>
+        <Link to="/auth"><Button size="lg">התחבר / הירשם</Button></Link>
+      </div>
+    </ModulePlaceholder>
+  );
 
   return (
     <ModulePlaceholder icon={Plus} title="פרסם מודעה" subtitle={`שלב ${step} מתוך 4`}>
