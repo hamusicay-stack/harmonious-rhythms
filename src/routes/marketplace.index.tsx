@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight } from "lucide-react";
+import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight, ChevronDown, Flame, BadgeCheck, X } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES as FALLBACK_CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
+import { SaveSearchDialog } from "@/components/marketplace/SaveSearchDialog";
 
 export const Route = createFileRoute("/marketplace/")({
   head: () => ({
@@ -37,6 +39,8 @@ type Listing = {
   seller_type: string;
   bump_expires_at: string | null;
   created_at: string;
+  is_urgent?: boolean;
+  audio_url?: string | null;
 };
 
 type CategoryRow = {
