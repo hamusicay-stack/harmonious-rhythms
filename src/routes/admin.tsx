@@ -19,13 +19,14 @@ import {
 } from "@/components/ui/dialog";
 import {
   Users, Building2, ClipboardList, TrendingUp, Loader2, Plus, Save, ShieldAlert,
-  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone,
+  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone, Package,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { LeadCreateDialog } from "@/components/admin/LeadCreateDialog";
 import { BannersManager } from "@/components/admin/BannersManager";
+import { SupplierOrdersManager } from "@/components/admin/SupplierOrdersManager";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -196,10 +197,11 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="customers" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7">
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
+            <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
             <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
             <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
@@ -363,6 +365,9 @@ function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="purchase_orders" className="mt-6">
+            <SupplierOrdersManager />
           </TabsContent>
           <TabsContent value="banners" className="mt-6">
             <BannersManager />
