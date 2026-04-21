@@ -194,11 +194,12 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="customers" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+            <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
           </TabsList>
 
           <TabsContent value="customers" className="mt-6">
