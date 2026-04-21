@@ -331,15 +331,23 @@ function MarketplacePage() {
                 const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
                 return (
                   <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
-                    <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
+                    <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
                       <div className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
                         {l.images?.[0] ? (
                           <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">אין תמונה</div>
                         )}
-                        {bumped && (
-                          <Badge className="absolute top-2 right-2 gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
+                        <div className="absolute top-2 right-2 flex flex-col gap-1">
+                          {l.is_urgent && (
+                            <Badge className="gap-1 shadow-md bg-rose-500 hover:bg-rose-600"><Flame className="h-3 w-3" />דחוף</Badge>
+                          )}
+                          {bumped && (
+                            <Badge className="gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
+                          )}
+                        </div>
+                        {l.audio_url && (
+                          <Badge variant="secondary" className="absolute bottom-2 left-2 gap-1 shadow-md">🎵 השמעה</Badge>
                         )}
                       </div>
                       <div className="p-4 space-y-2">
@@ -350,7 +358,7 @@ function MarketplacePage() {
                               {isBusiness ? <><Briefcase className="h-3 w-3" />עסקי</> : "פרטי"}
                             </Badge>
                             {trustedSellers.has(l.seller_id) && (
-                              <Badge variant="secondary" className="gap-1 text-[10px]"><ShieldCheck className="h-3 w-3" />נבחרת</Badge>
+                              <Badge variant="secondary" className="gap-1 text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><BadgeCheck className="h-3 w-3" />מאומת</Badge>
                             )}
                           </div>
                         </div>
