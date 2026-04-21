@@ -23,6 +23,7 @@ import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
 
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
@@ -96,6 +97,12 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMarketplaceFollowupRoute =
+  ApiPublicMarketplaceFollowupRouteImport.update({
+    id: '/api/public/marketplace/followup',
+    path: '/api/public/marketplace/followup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -127,6 +135,7 @@ export interface FileRoutesByTo {
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -144,6 +153,7 @@ export interface FileRoutesById {
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/admin/customers/$customerId'
+    | '/api/public/marketplace/followup'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/admin/customers/$customerId'
+    | '/api/public/marketplace/followup'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -194,6 +206,7 @@ export interface FileRouteTypes {
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/admin/customers/$customerId'
+    | '/api/public/marketplace/followup'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -208,6 +221,7 @@ export interface RootRouteChildren {
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   StoreRoute: typeof StoreRoute
+  ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -311,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/marketplace/followup': {
+      id: '/api/public/marketplace/followup'
+      path: '/api/public/marketplace/followup'
+      fullPath: '/api/public/marketplace/followup'
+      preLoaderRoute: typeof ApiPublicMarketplaceFollowupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -349,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   StoreRoute: StoreRoute,
+  ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
