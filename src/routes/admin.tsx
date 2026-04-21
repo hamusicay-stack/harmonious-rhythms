@@ -461,7 +461,7 @@ function CustomerEditDialog({ customer, onSaved }: { customer: Customer; onSaved
 
 function LeadStatusSelect({ lead, onChanged }: { lead: Lead; onChanged: () => void }) {
   const update = async (status: string) => {
-    const { error } = await supabase.from("leads").update({ status: status as Lead["status"] }).eq("id", lead.id);
+    const { error } = await supabase.from("leads").update({ status: status as "new" | "in_progress" | "converted" | "lost" }).eq("id", lead.id);
     if (error) { toast.error(error.message); return; }
     onChanged();
   };
@@ -499,7 +499,7 @@ function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier; onSave
       contact_name: form.contact_name || null,
       email: form.email || null,
       phone: form.phone || null,
-      category: form.category as Supplier["category"],
+      category: form.category as "rhythms" | "equipment" | "courses" | "other",
       is_active: form.is_active,
       payment_notes: form.payment_notes || null,
     };
