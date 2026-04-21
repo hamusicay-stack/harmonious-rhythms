@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { MessageSquare, ShoppingBag, GraduationCap, Tags, Sparkles, Users, ShieldCheck, Headphones, ArrowLeft } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
+import { BannerSlot } from "@/components/BannerSlot";
 
 export const Route = createFileRoute("/")({
   head: () => ({
