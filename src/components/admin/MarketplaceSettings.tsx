@@ -14,17 +14,19 @@ export function MarketplaceSettings() {
   const [running, setRunning] = useState(false);
   const [days, setDays] = useState(30);
   const [enabled, setEnabled] = useState(true);
+  const [autoApprove, setAutoApprove] = useState(false);
 
   const load = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("marketplace_settings")
-      .select("followup_days, followup_enabled")
+      .select("followup_days, followup_enabled, auto_approve_listings")
       .eq("id", 1)
       .maybeSingle();
     if (data) {
       setDays(data.followup_days);
       setEnabled(data.followup_enabled);
+      setAutoApprove((data as any).auto_approve_listings ?? false);
     }
     setLoading(false);
   };
@@ -38,7 +40,7 @@ export function MarketplaceSettings() {
     setSaving(true);
     const { error } = await supabase
       .from("marketplace_settings")
-      .update({ followup_days: days, followup_enabled: enabled, updated_at: new Date().toISOString() })
+      .update({ followup_days: days, followup_enabled: enabled, auto_approve_listings: autoApprove, updated_at: new Date().toISOString() } as any)
       .eq("id", 1);
     setSaving(false);
     if (error) return toast.error("שגיאה בשמירה: " + error.message);
@@ -72,9 +74,17 @@ export function MarketplaceSettings() {
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex items-center justify-between rounded-md border p-3 bg-primary/5">
+          <div>
+            <Label className="text-base">אישור אוטומטי לכל מודעה חדשה</Label>
+            <p className="text-xs text-muted-foreground">כשדלוק — כל מודעה חדשה מתפרסמת מיידית בלי המתנה לאישור ידני.</p>
+          </div>
+          <Switch checked={autoApprove} onCheckedChange={setAutoApprove} />
+        </div>
+
         <div className="flex items-center justify-between rounded-md border p-3">
           <div>
-            <Label className="text-base">פעיל</Label>
+            <Label className="text-base">מעקב מודעות פעיל</Label>
             <p className="text-xs text-muted-foreground">כיבוי יעצור שליחת מיילי מעקב</p>
           </div>
           <Switch checked={enabled} onCheckedChange={setEnabled} />
