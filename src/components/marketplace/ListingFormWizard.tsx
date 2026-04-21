@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle } from "lucide-react";
+import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -541,6 +541,39 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <Label className="text-xs text-muted-foreground">או הדבק קישור YouTube/Instagram</Label>
                 <Input value={form.video_url} onChange={(e) => update("video_url", e.target.value)} placeholder="https://..." />
               </div>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t">
+              <Label className="flex items-center gap-2"><Music className="h-4 w-4 text-primary" />דגימת אודיו של הכלי (אופציונלי)</Label>
+              <p className="text-xs text-muted-foreground">קובץ סאונד קצר (עד 10MB) — קונים יוכלו לשמוע את הכלי מנגן</p>
+              {audioFile && (
+                <div className="flex items-center gap-2">
+                  <audio src={audioFile} controls className="flex-1" />
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setAudioFile("")}><X className="h-4 w-4" /></Button>
+                </div>
+              )}
+              {!audioFile && (
+                <label className="cursor-pointer inline-block">
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <span><Upload className="h-4 w-4" />העלה דגימת אודיו</span>
+                  </Button>
+                  <input type="file" accept="audio/*" className="hidden" onChange={handleAudioUpload} disabled={uploading} />
+                </label>
+              )}
+            </div>
+
+            <div className="pt-4 border-t">
+              <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition ${isUrgent ? "border-orange-500 bg-orange-500/5" : "border-border hover:border-orange-500/50"}`}>
+                <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="h-5 w-5 mt-0.5" />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <Flame className="h-4 w-4 text-orange-500" />סמן כ"מכירה דחופה"
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    המודעה תופיע עם תג בולט בכתום וחשיפה גבוהה יותר ללוח. מתאים למוכרים שצריכים למכור מהר.
+                  </p>
+                </div>
+              </label>
             </div>
           </>
         )}
