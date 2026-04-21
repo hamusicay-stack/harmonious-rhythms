@@ -11,39 +11,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
 
 export const Route = createFileRoute("/marketplace/new")({
   head: () => ({ meta: [{ title: "פרסם מודעה — המוזיקאי" }] }),
   component: NewListingPage,
 });
 
-const CATEGORIES = [
-  { value: "keyboards", label: "אורגנים ומקלדות", subs: ["אורגן", "פסנתר חשמלי", "סינתיסייזר", "MIDI Controller", "אחר"] },
-  { value: "amplification", label: "ציוד הגברה", subs: ["מגבר", "רמקולים", "מיקסר", "מיקרופון", "אחר"] },
-  { value: "wind", label: "כלי נשיפה", subs: ["סקסופון", "חצוצרה", "קלרינט", "חליל", "אחר"] },
-  { value: "studio", label: "אולפן ביתי", subs: ["כרטיס קול", "אזניות אולפן", "מוניטורים", "פרוססורים", "אחר"] },
-];
-const BRANDS = ["Korg", "Yamaha", "Roland", "Casio", "Nord", "Kurzweil", "Behringer", "Shure", "Other"];
-const CONDITIONS = [
-  { value: "new_sealed", label: "חדש באריזה" },
-  { value: "like_new", label: "משומש כחדש" },
-  { value: "used_good", label: "תקין" },
-  { value: "for_parts", label: "לחלקים" },
-];
-const REGIONS = ["צפון", "חיפה והקריות", "שרון", "מרכז", "תל אביב", "ירושלים", "שפלה", "דרום", "אילת"];
-
 const schema = z.object({
   title: z.string().trim().min(3, "כותרת קצרה מדי").max(120),
   description: z.string().trim().max(2000).optional(),
   category: z.string().min(1, "בחר קטגוריה"),
+  customCategory: z.string().optional(),
   subcategory: z.string().optional(),
+  customSubcategory: z.string().optional(),
   brand: z.string().optional(),
   customBrand: z.string().optional(),
   model: z.string().max(80).optional(),
   year: z.string().optional(),
   item_condition: z.string().min(1),
   price: z.coerce.number().min(1, "הזן מחיר").max(1000000),
-  region: z.string().optional(),
+  city: z.string().optional(),
+  customCity: z.string().optional(),
   phone: z.string().trim().min(9).max(20),
   whatsapp: z.string().trim().max(20).optional(),
   has_rhythms: z.boolean().optional(),
@@ -61,9 +50,11 @@ function NewListingPage() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [videoFile, setVideoFile] = useState<string>("");
+  const [isBusiness, setIsBusiness] = useState(false);
   const [form, setForm] = useState<any>({
-    title: "", description: "", category: "", subcategory: "", brand: "", customBrand: "",
-    model: "", year: "", item_condition: "used_good", price: "", region: "",
+    title: "", description: "", category: "", customCategory: "", subcategory: "", customSubcategory: "",
+    brand: "", customBrand: "", model: "", year: "", item_condition: "used_good", price: "",
+    city: "", customCity: "",
     phone: "", whatsapp: "", has_rhythms: false, has_samples: false, video_url: "",
   });
 
@@ -71,11 +62,16 @@ function NewListingPage() {
     if (!authLoading && !user) {
       toast.error("יש להתחבר כדי לפרסם מודעה");
       navigate({ to: "/auth" });
+      return;
+    }
+    if (user) {
+      supabase.from("marketplace_business_sellers").select("user_id").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle()
+        .then(({ data }) => setIsBusiness(!!data));
     }
   }, [authLoading, user, navigate]);
 
   const cat = CATEGORIES.find((c) => c.value === form.category);
-  const isKeyboard = form.category === "keyboards";
+  const isKeyboard = form.category === "keyboards" || form.category === "pianos";
 
   const update = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
 
@@ -158,21 +154,30 @@ function NewListingPage() {
       return;
     }
     if (images.length === 0) { toast.error("יש להעלות לפחות תמונה אחת"); return; }
+    if (form.category === "other" && !form.customCategory?.trim()) { toast.error("נא לציין שם קטגוריה"); return; }
+    if (form.brand === "אחר" && !form.customBrand?.trim()) { toast.error("נא לציין שם מותג"); return; }
+    if (form.city === "אחר" && !form.customCity?.trim()) { toast.error("נא לציין שם עיר"); return; }
+    if (form.subcategory === "אחר" && !form.customSubcategory?.trim()) { toast.error("נא לציין תת-קטגוריה"); return; }
 
     setSubmitting(true);
-    const finalBrand = form.brand === "Other" ? form.customBrand?.trim() || "אחר" : form.brand || null;
+    const finalBrand = form.brand === "אחר" ? form.customBrand?.trim() : (form.brand || null);
+    const finalCity = form.city === "אחר" ? form.customCity?.trim() : (form.city || null);
 
     const { error } = await supabase.from("marketplace_listings").insert({
       seller_id: user.id,
+      seller_type: isBusiness ? "business" : "private",
       title: form.title.trim(),
       description: form.description?.trim() || null,
       category: form.category,
+      custom_category: form.category === "other" ? form.customCategory?.trim() : null,
       subcategory: form.subcategory || null,
+      custom_subcategory: form.subcategory === "אחר" ? form.customSubcategory?.trim() : null,
       brand: finalBrand,
+      custom_brand: form.brand === "אחר" ? form.customBrand?.trim() : null,
       model: form.model?.trim() || null,
       item_condition: form.item_condition,
       price: Number(form.price),
-      region: form.region || null,
+      city: finalCity,
       phone: form.phone.trim(),
       whatsapp: form.whatsapp?.trim() || form.phone.trim(),
       images,
@@ -191,7 +196,6 @@ function NewListingPage() {
   return (
     <ModulePlaceholder icon={Plus} title="פרסם מודעה" subtitle={`שלב ${step} מתוך 4`}>
       <div className="max-w-2xl mx-auto">
-        {/* Progress */}
         <div className="mb-8 flex gap-2">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className={`h-2 flex-1 rounded-full ${s <= step ? "bg-primary" : "bg-muted"}`} />
@@ -209,13 +213,25 @@ function NewListingPage() {
                   <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              {cat && (
+              {form.category === "other" && (
+                <div className="space-y-2">
+                  <Label>פרט שם הקטגוריה *</Label>
+                  <Input value={form.customCategory} onChange={(e) => update("customCategory", e.target.value)} placeholder="לדוגמה: ציוד DJ" />
+                </div>
+              )}
+              {cat && cat.value !== "other" && (
                 <div className="space-y-2">
                   <Label>תת-קטגוריה</Label>
                   <Select value={form.subcategory} onValueChange={(v) => update("subcategory", v)}>
                     <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
                     <SelectContent>{cat.subs.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                   </Select>
+                </div>
+              )}
+              {form.subcategory === "אחר" && (
+                <div className="space-y-2">
+                  <Label>פרט תת-קטגוריה *</Label>
+                  <Input value={form.customSubcategory} onChange={(e) => update("customSubcategory", e.target.value)} />
                 </div>
               )}
               <div className="space-y-2">
@@ -230,7 +246,7 @@ function NewListingPage() {
               <h2 className="text-lg font-semibold">פרטים טכניים</h2>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>מותג</Label>
+                  <Label>יצרן</Label>
                   <Select value={form.brand} onValueChange={(v) => update("brand", v)}>
                     <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
                     <SelectContent>{BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
@@ -241,9 +257,9 @@ function NewListingPage() {
                   <Input value={form.model} onChange={(e) => update("model", e.target.value)} placeholder="למשל: Pa1000" />
                 </div>
               </div>
-              {form.brand === "Other" && (
+              {form.brand === "אחר" && (
                 <div className="space-y-2">
-                  <Label>שם המותג</Label>
+                  <Label>שם היצרן *</Label>
                   <Input value={form.customBrand} onChange={(e) => update("customBrand", e.target.value)} />
                 </div>
               )}
@@ -262,7 +278,7 @@ function NewListingPage() {
               </div>
               {isKeyboard && (
                 <div className="space-y-2 rounded-lg bg-muted/50 p-3">
-                  <Label>תכונות מיוחדות (אורגנים)</Label>
+                  <Label>תכונות מיוחדות</Label>
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" checked={form.has_rhythms} onChange={(e) => update("has_rhythms", e.target.checked)} />
                     סט מקצבים מובנה
@@ -283,13 +299,19 @@ function NewListingPage() {
                   <Input type="number" value={form.price} onChange={(e) => update("price", e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>אזור</Label>
-                  <Select value={form.region} onValueChange={(v) => update("region", v)}>
-                    <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
-                    <SelectContent>{REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+                  <Label>עיר</Label>
+                  <Select value={form.city} onValueChange={(v) => update("city", v)}>
+                    <SelectTrigger><SelectValue placeholder="בחר עיר" /></SelectTrigger>
+                    <SelectContent className="max-h-60">{CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
               </div>
+              {form.city === "אחר" && (
+                <div className="space-y-2">
+                  <Label>שם העיר *</Label>
+                  <Input value={form.customCity} onChange={(e) => update("customCity", e.target.value)} />
+                </div>
+              )}
             </>
           )}
 
@@ -343,6 +365,11 @@ function NewListingPage() {
           {step === 4 && (
             <>
               <h2 className="text-lg font-semibold">פרטי קשר</h2>
+              {isBusiness && (
+                <div className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm">
+                  ✓ זוהית כמוכר עסקי. המודעה תפורסם עם תג "עסקי".
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>טלפון *</Label>
                 <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="050-1234567" />
@@ -354,7 +381,7 @@ function NewListingPage() {
               <div className="rounded-lg bg-muted p-4 text-sm space-y-1">
                 <p className="font-semibold">לפני שליחה:</p>
                 <p>• המודעה תישלח לאישור מנהל ותפורסם תוך 24 שעות</p>
-                <p>• ודא שכל הפרטים נכונים — תוכל לערוך אחר כך</p>
+                <p>• ניתן יהיה להקפיץ את המודעה לראש הלוח דרך עמוד המודעה</p>
               </div>
             </>
           )}
