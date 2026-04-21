@@ -1,11 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Music2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Music2, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: (search.mode as string) === "signup" ? "signup" : "login",
+  }),
   head: () => ({
     meta: [
       { title: "התחברות / הרשמה — המוזיקאי" },
@@ -18,7 +25,53 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [mode, setMode] = useState<"login" | "signup">(search.mode as "login" | "signup");
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user) navigate({ to: "/" });
+  }, [user, authLoading, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { display_name: displayName },
+          },
+        });
+        if (error) throw error;
+        toast.success("ברוכים הבאים! נרשמתם בהצלחה");
+        navigate({ to: "/" });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        toast.success("התחברתם בהצלחה");
+        navigate({ to: "/" });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "אירעה שגיאה";
+      const friendly =
+        message.includes("Invalid login credentials") ? "מייל או סיסמה שגויים" :
+        message.includes("already registered") || message.includes("User already") ? "המייל כבר רשום" :
+        message.includes("Password") ? "הסיסמה לא תקינה (לפחות 6 תווים)" :
+        message;
+      toast.error(friendly);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SiteLayout>
@@ -36,11 +89,50 @@ function AuthPage() {
             </p>
           </div>
 
-          <form className="space-y-3">
-            {mode === "signup" && <Input placeholder="שם מלא" />}
-            <Input type="email" placeholder="כתובת מייל" />
-            <Input type="password" placeholder="סיסמה" />
-            <Button className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "signup" && (
+              <div className="space-y-2">
+                <Label htmlFor="name">שם מלא</Label>
+                <Input
+                  id="name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="הזינו את שמכם"
+                  required
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="email">כתובת מייל</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                required
+                dir="ltr"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">סיסמה</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="לפחות 6 תווים"
+                minLength={6}
+                required
+                dir="ltr"
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold"
+            >
+              {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
               {mode === "login" ? "התחברות" : "הרשמה"}
             </Button>
           </form>
@@ -50,6 +142,7 @@ function AuthPage() {
             <button
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
               className="text-primary hover:underline"
+              type="button"
             >
               {mode === "login" ? "הירשמו" : "התחברו"}
             </button>

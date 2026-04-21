@@ -1,7 +1,18 @@
-import { Link } from "@tanstack/react-router";
-import { Music2, Search, Menu, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Music2, Search, Menu, X, LogOut, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
 const navItems = [
   { to: "/forum", label: "פורום" },
@@ -13,6 +24,21 @@ const navItems = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("התנתקת בהצלחה");
+    navigate({ to: "/" });
+  };
+
+  const initials = (profile?.display_name || user?.email || "?")
+    .split(/\s+/)
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -43,14 +69,48 @@ export function SiteHeader() {
           <Button variant="ghost" size="icon" aria-label="חיפוש">
             <Search className="h-4 w-4" />
           </Button>
-          <Link to="/auth">
-            <Button variant="ghost" size="sm">התחברות</Button>
-          </Link>
-          <Link to="/auth">
-            <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold hover:opacity-90">
-              הרשמה
-            </Button>
-          </Link>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-full transition-smooth hover:opacity-80">
+                  <Avatar className="h-9 w-9 border border-border/60">
+                    <AvatarImage src={profile?.avatar_url ?? undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-xs font-semibold text-primary-foreground">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="text-right">
+                  <div className="font-semibold">{profile?.display_name ?? "משתמש"}</div>
+                  <div className="text-xs font-normal text-muted-foreground">{user.email}</div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: "/profile" })} className="cursor-pointer">
+                  <UserIcon className="ml-2 h-4 w-4" />
+                  הפרופיל שלי
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="ml-2 h-4 w-4" />
+                  התנתקות
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">התחברות</Button>
+              </Link>
+              <Link to="/auth" search={{ mode: "signup" }}>
+                <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold hover:opacity-90">
+                  הרשמה
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <Button
@@ -78,14 +138,31 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-border/40 pt-4">
-              <Link to="/auth" onClick={() => setOpen(false)}>
-                <Button variant="outline" className="w-full">התחברות</Button>
-              </Link>
-              <Link to="/auth" onClick={() => setOpen(false)}>
-                <Button className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                  הרשמה
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/profile" onClick={() => setOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      <UserIcon className="ml-2 h-4 w-4" />
+                      הפרופיל שלי
+                    </Button>
+                  </Link>
+                  <Button onClick={() => { handleSignOut(); setOpen(false); }} variant="ghost" className="w-full text-destructive">
+                    <LogOut className="ml-2 h-4 w-4" />
+                    התנתקות
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" onClick={() => setOpen(false)}>
+                    <Button variant="outline" className="w-full">התחברות</Button>
+                  </Link>
+                  <Link to="/auth" onClick={() => setOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
+                      הרשמה
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>
