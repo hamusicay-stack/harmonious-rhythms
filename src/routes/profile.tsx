@@ -320,7 +320,10 @@ function MyListings({ userId }: { userId: string }) {
                       </Button>
                     )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
-                      <Button size="sm" variant="outline"><Pencil className="h-3 w-3" />צפה / ערוך</Button>
+                      <Button size="sm" variant="outline">צפה</Button>
+                    </Link>
+                    <Link to="/marketplace/$listingId/edit" params={{ listingId: l.id }}>
+                      <Button size="sm" variant="outline"><Pencil className="h-3 w-3" />ערוך</Button>
                     </Link>
                     <Button size="sm" variant="ghost" onClick={() => remove(l.id)} className="text-destructive">
                       <Trash2 className="h-3 w-3" />מחק
