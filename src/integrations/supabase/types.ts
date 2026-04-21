@@ -163,6 +163,89 @@ export type Database = {
           },
         ]
       }
+      automation_rules: {
+        Row: {
+          action_config: Json
+          action_type: Database["public"]["Enums"]["automation_action"]
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          name: string
+          run_count: number
+          trigger_condition: Json
+          trigger_type: Database["public"]["Enums"]["automation_trigger"]
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          action_type: Database["public"]["Enums"]["automation_action"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          name: string
+          run_count?: number
+          trigger_condition?: Json
+          trigger_type: Database["public"]["Enums"]["automation_trigger"]
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          action_type?: Database["public"]["Enums"]["automation_action"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          name?: string
+          run_count?: number
+          trigger_condition?: Json
+          trigger_type?: Database["public"]["Enums"]["automation_trigger"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      automation_runs: {
+        Row: {
+          context: Json | null
+          created_at: string
+          error_message: string | null
+          id: string
+          rule_id: string
+          status: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          rule_id: string
+          status: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          rule_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_runs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_interactions: {
         Row: {
           created_at: string
@@ -838,6 +921,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      automation_action: "send_email" | "open_whatsapp" | "create_task"
+      automation_trigger:
+        | "lead_status_changed"
+        | "order_paid"
+        | "subscription_expiring"
+        | "supplier_order_status_changed"
+        | "new_lead_created"
       email_status: "queued" | "sent" | "failed" | "bounced"
       interaction_type:
         | "note"
@@ -994,6 +1084,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      automation_action: ["send_email", "open_whatsapp", "create_task"],
+      automation_trigger: [
+        "lead_status_changed",
+        "order_paid",
+        "subscription_expiring",
+        "supplier_order_status_changed",
+        "new_lead_created",
+      ],
       email_status: ["queued", "sent", "failed", "bounced"],
       interaction_type: [
         "note",
