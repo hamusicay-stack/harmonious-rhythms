@@ -193,8 +193,11 @@ function ListingDetailPage() {
           <aside className="space-y-4 lg:sticky lg:top-24 self-start">
             <div className="rounded-2xl border bg-card-elevated p-5 space-y-4">
               <div className="text-3xl font-bold text-primary">₪{Number(listing.price).toLocaleString()}</div>
-              {listing.region && <div className="text-sm text-muted-foreground flex items-center gap-1"><MapPin className="h-4 w-4" />{listing.region}</div>}
-              <Badge variant="secondary">{CONDITION_LABELS[listing.item_condition]}</Badge>
+              {(listing.city || listing.region) && <div className="text-sm text-muted-foreground flex items-center gap-1"><MapPin className="h-4 w-4" />{[listing.city, listing.region].filter(Boolean).join(", ")}</div>}
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">{CONDITION_LABELS[listing.item_condition] || listing.item_condition}</Badge>
+                {listing.seller_type === "business" && <Badge variant="default">מוכר עסקי</Badge>}
+              </div>
 
               <div className="grid grid-cols-2 gap-2 pt-2">
                 <a href={`tel:${listing.phone}`}><Button className="w-full" size="sm"><Phone className="h-4 w-4" />חיוג</Button></a>
