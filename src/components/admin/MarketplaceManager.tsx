@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, X, ShieldCheck, Trash2, Eye, Loader2 } from "lucide-react";
+import { Check, X, ShieldCheck, Trash2, Eye, Loader2, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -49,6 +49,14 @@ export function MarketplaceManager() {
     const { error } = await supabase.from("marketplace_listings").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("נמחק");
+    load();
+  };
+
+  const bumpListing = async (id: string, hours: number) => {
+    const expires = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+    const { error } = await supabase.from("marketplace_listings").update({ bumped_at: new Date().toISOString(), bump_expires_at: expires }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`המודעה הוקפצה ל-${hours} שעות`);
     load();
   };
 
@@ -117,7 +125,11 @@ export function MarketplaceManager() {
                       </>
                     )}
                     {l.status === "approved" && (
-                      <Button size="sm" variant="outline" onClick={() => updateStatus(l.id, "pending")}>החזר לממתין</Button>
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => updateStatus(l.id, "pending")}>החזר לממתין</Button>
+                        <Button size="sm" variant="outline" onClick={() => bumpListing(l.id, 24)}><ArrowUp className="h-3 w-3" />הקפץ 24ש</Button>
+                        <Button size="sm" variant="outline" onClick={() => bumpListing(l.id, 48)}><ArrowUp className="h-3 w-3" />הקפץ 48ש</Button>
+                      </>
                     )}
                     <Button size="sm" variant={isTrusted ? "secondary" : "outline"} onClick={() => toggleTrusted(l.seller_id)}>
                       <ShieldCheck className="h-3 w-3" />{isTrusted ? "הסר נבחרת" : "סמן כנבחרת"}

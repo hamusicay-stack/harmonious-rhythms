@@ -602,13 +602,61 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_business_sellers: {
+        Row: {
+          business_name: string
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          subscription_expires_at: string | null
+          subscription_status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_name: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_name?: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketplace_listings: {
         Row: {
           admin_notes: string | null
           brand: string | null
+          bump_expires_at: string | null
+          bumped_at: string | null
           category: string
+          city: string | null
           created_at: string
           currency: string
+          custom_brand: string | null
+          custom_category: string | null
+          custom_subcategory: string | null
           description: string | null
           followup_sent_at: string | null
           id: string
@@ -619,6 +667,7 @@ export type Database = {
           price: number
           region: string | null
           seller_id: string
+          seller_type: string
           specs: Json | null
           status: string
           subcategory: string | null
@@ -631,9 +680,15 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           brand?: string | null
+          bump_expires_at?: string | null
+          bumped_at?: string | null
           category: string
+          city?: string | null
           created_at?: string
           currency?: string
+          custom_brand?: string | null
+          custom_category?: string | null
+          custom_subcategory?: string | null
           description?: string | null
           followup_sent_at?: string | null
           id?: string
@@ -644,6 +699,7 @@ export type Database = {
           price?: number
           region?: string | null
           seller_id: string
+          seller_type?: string
           specs?: Json | null
           status?: string
           subcategory?: string | null
@@ -656,9 +712,15 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           brand?: string | null
+          bump_expires_at?: string | null
+          bumped_at?: string | null
           category?: string
+          city?: string | null
           created_at?: string
           currency?: string
+          custom_brand?: string | null
+          custom_category?: string | null
+          custom_subcategory?: string | null
           description?: string | null
           followup_sent_at?: string | null
           id?: string
@@ -669,6 +731,7 @@ export type Database = {
           price?: number
           region?: string | null
           seller_id?: string
+          seller_type?: string
           specs?: Json | null
           status?: string
           subcategory?: string | null
