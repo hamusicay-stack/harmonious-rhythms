@@ -9,12 +9,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
 });
-
-import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
