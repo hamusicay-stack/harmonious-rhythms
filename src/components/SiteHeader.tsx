@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Music2, Search, Menu, X, LogOut, User as UserIcon } from "lucide-react";
+import { Music2, Search, Menu, X, LogOut, User as UserIcon, Shield } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,7 +24,7 @@ const navItems = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -92,6 +92,12 @@ export function SiteHeader() {
                   <UserIcon className="ml-2 h-4 w-4" />
                   הפרופיל שלי
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
+                    <Shield className="ml-2 h-4 w-4 text-primary" />
+                    ניהול המערכת
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
                   <LogOut className="ml-2 h-4 w-4" />
