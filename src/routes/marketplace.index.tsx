@@ -270,6 +270,24 @@ function MarketplacePage() {
       {/* Modern filter chips bar */}
       <div className="mb-4 flex flex-wrap gap-2 items-center">
         <FilterChip
+          label="קטגוריה"
+          count={categories.size}
+          options={categoriesList.map((c) => ({ value: c.slug, label: c.label, count: listings.filter((l) => l.category === c.slug).length }))}
+          selected={categories}
+          onToggle={(v) => toggleSet(categories, v, setCategories)}
+          onClear={() => { setCategories(new Set()); setSubcategories(new Set()); setExpandedCat(null); }}
+        />
+        {availableSubs.length > 0 && (
+          <FilterChip
+            label="תת-קטגוריה"
+            count={subcategories.size}
+            options={availableSubs.map((s) => ({ value: s, label: s, count: listings.filter((l) => l.subcategory === s).length }))}
+            selected={subcategories}
+            onToggle={(v) => toggleSet(subcategories, v, setSubcategories)}
+            onClear={() => setSubcategories(new Set())}
+          />
+        )}
+        <FilterChip
           label="מצב המוצר"
           count={conditions.size}
           options={CONDITIONS.map((c) => ({ value: c.value, label: c.label, count: listings.filter((l) => l.item_condition === c.value).length }))}
@@ -302,6 +320,19 @@ function MarketplacePage() {
           <Flame className="h-3.5 w-3.5" />מכירה דחופה
         </button>
         <SellerTypeChip value={sellerTypeFilter} onChange={setSellerTypeFilter} />
+        {(categories.size + subcategories.size + brands.size + cities.size + conditions.size > 0 || minPrice || maxPrice || urgentOnly || sellerTypeFilter !== "all" || search) && (
+          <button
+            type="button"
+            onClick={() => {
+              setCategories(new Set()); setSubcategories(new Set()); setBrands(new Set());
+              setCities(new Set()); setConditions(new Set()); setMinPrice(""); setMaxPrice("");
+              setUrgentOnly(false); setSellerTypeFilter("all"); setSearch(""); setSearchInput(""); setExpandedCat(null);
+            }}
+            className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs text-muted-foreground hover:text-foreground transition"
+          >
+            <X className="h-3 w-3" />נקה הכל
+          </button>
+        )}
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row gap-3">
