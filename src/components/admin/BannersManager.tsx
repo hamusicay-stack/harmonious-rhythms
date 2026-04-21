@@ -32,11 +32,23 @@ type Banner = {
 };
 
 const POSITIONS = [
+  { value: "global_top", label: "ראש כל הדפים (גלובלי)" },
+  { value: "global_bottom", label: "תחתית כל הדפים (גלובלי)" },
   { value: "home_top", label: "ראש עמוד הבית" },
   { value: "home_middle", label: "אמצע עמוד הבית" },
-  { value: "sidebar", label: "סרגל צד" },
+  { value: "home_bottom", label: "תחתית עמוד הבית" },
+  { value: "sidebar_right", label: "סרגל צד ימין" },
+  { value: "sidebar_left", label: "סרגל צד שמאל" },
   { value: "forum_top", label: "ראש הפורום" },
+  { value: "forum_bottom", label: "תחתית הפורום" },
   { value: "store_top", label: "ראש החנות" },
+  { value: "store_bottom", label: "תחתית החנות" },
+  { value: "academy_top", label: "ראש האקדמיה" },
+  { value: "academy_bottom", label: "תחתית האקדמיה" },
+  { value: "marketplace_top", label: "ראש המרקטפלייס" },
+  { value: "marketplace_bottom", label: "תחתית המרקטפלייס" },
+  { value: "about_top", label: "ראש דף אודות" },
+  { value: "contact_top", label: "ראש דף יצירת קשר" },
 ];
 
 const positionLabel = (v: string) => POSITIONS.find((p) => p.value === v)?.label ?? v;

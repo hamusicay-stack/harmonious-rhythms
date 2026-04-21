@@ -30,14 +30,19 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
     email: "",
     phone: "",
     source: "website",
+    customSource: "",
     notes: "",
   });
 
-  const reset = () => setForm({ name: "", email: "", phone: "", source: "website", notes: "" });
+  const reset = () => setForm({ name: "", email: "", phone: "", source: "website", customSource: "", notes: "" });
 
   const handleSave = async () => {
     if (!form.name.trim()) {
       toast.error("יש להזין שם");
+      return;
+    }
+    if (form.source === "other" && !form.customSource.trim()) {
+      toast.error("יש לציין מקור מותאם");
       return;
     }
     setSaving(true);
@@ -46,6 +51,7 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
       email: form.email.trim() || null,
       phone: form.phone.trim() || null,
       source: form.source as "website" | "whatsapp" | "facebook" | "phone" | "referral" | "other",
+      custom_source: form.source === "other" ? form.customSource.trim() : null,
       notes: form.notes.trim() || null,
     });
     setSaving(false);
@@ -94,6 +100,14 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
                 {SOURCES.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
               </SelectContent>
             </Select>
+            {form.source === "other" && (
+              <Input
+                className="mt-2"
+                placeholder="פרט מקור..."
+                value={form.customSource}
+                onChange={(e) => setForm({ ...form, customSource: e.target.value })}
+              />
+            )}
           </div>
           <div>
             <Label>הערות</Label>
