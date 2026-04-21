@@ -819,18 +819,21 @@ export type Database = {
       }
       marketplace_settings: {
         Row: {
+          auto_approve_listings: boolean
           followup_days: number
           followup_enabled: boolean
           id: number
           updated_at: string
         }
         Insert: {
+          auto_approve_listings?: boolean
           followup_days?: number
           followup_enabled?: boolean
           id?: number
           updated_at?: string
         }
         Update: {
+          auto_approve_listings?: boolean
           followup_days?: number
           followup_enabled?: boolean
           id?: number
