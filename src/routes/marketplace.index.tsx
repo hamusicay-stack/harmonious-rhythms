@@ -237,6 +237,43 @@ function MarketplacePage() {
         </div>
       )}
 
+      {/* Modern filter chips bar */}
+      <div className="mb-4 flex flex-wrap gap-2 items-center">
+        <FilterChip
+          label="מצב המוצר"
+          count={conditions.size}
+          options={CONDITIONS.map((c) => ({ value: c.value, label: c.label, count: listings.filter((l) => l.item_condition === c.value).length }))}
+          selected={conditions}
+          onToggle={(v) => toggleSet(conditions, v, setConditions)}
+          onClear={() => setConditions(new Set())}
+        />
+        <FilterChip
+          label="יצרן"
+          count={brands.size}
+          options={BRANDS.map((b) => ({ value: b, label: b, count: listings.filter((l) => l.brand === b).length })).filter((b) => b.count > 0)}
+          selected={brands}
+          onToggle={(v) => toggleSet(brands, v, setBrands)}
+          onClear={() => setBrands(new Set())}
+        />
+        <FilterChip
+          label="עיר מכירה"
+          count={cities.size}
+          options={CITIES.map((c) => ({ value: c, label: c, count: listings.filter((l) => l.city === c).length })).filter((c) => c.count > 0)}
+          selected={cities}
+          onToggle={(v) => toggleSet(cities, v, setCities)}
+          onClear={() => setCities(new Set())}
+        />
+        <PriceChip minPrice={minPrice} maxPrice={maxPrice} setMinPrice={setMinPrice} setMaxPrice={setMaxPrice} />
+        <button
+          type="button"
+          onClick={() => setUrgentOnly((v) => !v)}
+          className={`inline-flex items-center gap-1 rounded-full border px-4 py-2 text-sm transition ${urgentOnly ? "bg-rose-500 text-white border-rose-500" : "bg-background border-border hover:border-rose-400"}`}
+        >
+          <Flame className="h-3.5 w-3.5" />מכירה דחופה
+        </button>
+        <SellerTypeChip value={sellerTypeFilter} onChange={setSellerTypeFilter} />
+      </div>
+
       <div className="mb-6 flex flex-col sm:flex-row gap-3">
         <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="flex flex-1 gap-3">
           <div className="relative flex-1">
@@ -250,9 +287,16 @@ function MarketplacePage() {
           </div>
           <Button type="submit" variant="secondary" className="hidden sm:inline-flex">חפש</Button>
         </form>
+        <SaveSearchDialog
+          filters={{
+            search, categories: Array.from(categories), subcategories: Array.from(subcategories),
+            brands: Array.from(brands), cities: Array.from(cities), conditions: Array.from(conditions),
+            minPrice, maxPrice, urgentOnly, sellerTypeFilter,
+          }}
+        />
         <Sheet>
           <SheetTrigger asChild>
-            <Button type="button" variant="outline" className="lg:hidden">סינון</Button>
+            <Button type="button" variant="outline" className="lg:hidden">סינון מלא</Button>
           </SheetTrigger>
           <SheetContent side="right" className="overflow-y-auto w-[320px] sm:w-[380px]">
             <SheetHeader><SheetTitle>סינון מודעות</SheetTitle></SheetHeader>
