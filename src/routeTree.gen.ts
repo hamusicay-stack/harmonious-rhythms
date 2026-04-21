@@ -20,9 +20,11 @@ import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
+import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace.$listingId.edit'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
@@ -82,6 +84,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   path: '/',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const SellerSellerIdRoute = SellerSellerIdRouteImport.update({
+  id: '/seller/$sellerId',
+  path: '/seller/$sellerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -97,6 +104,12 @@ const MarketplaceCategorySlugRoute = MarketplaceCategorySlugRouteImport.update({
   path: '/category/$slug',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const MarketplaceListingIdEditRoute =
+  MarketplaceListingIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => MarketplaceListingIdRoute,
+  } as any)
 const AdminCustomersCustomerIdRoute =
   AdminCustomersCustomerIdRouteImport.update({
     id: '/customers/$customerId',
@@ -127,10 +140,12 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
-  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/seller/$sellerId': typeof SellerSellerIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -145,10 +160,12 @@ export interface FileRoutesByTo {
   '/forum': typeof ForumRoute
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
-  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/seller/$sellerId': typeof SellerSellerIdRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -165,10 +182,12 @@ export interface FileRoutesById {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
-  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/seller/$sellerId': typeof SellerSellerIdRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -188,8 +207,10 @@ export interface FileRouteTypes {
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/seller/$sellerId'
     | '/marketplace/'
     | '/admin/customers/$customerId'
+    | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/api/public/marketplace/followup'
     | '/lovable/email/queue/process'
@@ -206,8 +227,10 @@ export interface FileRouteTypes {
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/seller/$sellerId'
     | '/marketplace'
     | '/admin/customers/$customerId'
+    | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/api/public/marketplace/followup'
     | '/lovable/email/queue/process'
@@ -225,8 +248,10 @@ export interface FileRouteTypes {
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/seller/$sellerId'
     | '/marketplace/'
     | '/admin/customers/$customerId'
+    | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/api/public/marketplace/followup'
     | '/lovable/email/queue/process'
@@ -243,6 +268,7 @@ export interface RootRouteChildren {
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   StoreRoute: typeof StoreRoute
+  SellerSellerIdRoute: typeof SellerSellerIdRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
@@ -326,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof MarketplaceRoute
     }
+    '/seller/$sellerId': {
+      id: '/seller/$sellerId'
+      path: '/seller/$sellerId'
+      fullPath: '/seller/$sellerId'
+      preLoaderRoute: typeof SellerSellerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketplace/new': {
       id: '/marketplace/new'
       path: '/new'
@@ -346,6 +379,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/category/$slug'
       preLoaderRoute: typeof MarketplaceCategorySlugRouteImport
       parentRoute: typeof MarketplaceRoute
+    }
+    '/marketplace/$listingId/edit': {
+      id: '/marketplace/$listingId/edit'
+      path: '/edit'
+      fullPath: '/marketplace/$listingId/edit'
+      preLoaderRoute: typeof MarketplaceListingIdEditRouteImport
+      parentRoute: typeof MarketplaceListingIdRoute
     }
     '/admin/customers/$customerId': {
       id: '/admin/customers/$customerId'
@@ -381,15 +421,26 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface MarketplaceListingIdRouteChildren {
+  MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
+}
+
+const MarketplaceListingIdRouteChildren: MarketplaceListingIdRouteChildren = {
+  MarketplaceListingIdEditRoute: MarketplaceListingIdEditRoute,
+}
+
+const MarketplaceListingIdRouteWithChildren =
+  MarketplaceListingIdRoute._addFileChildren(MarketplaceListingIdRouteChildren)
+
 interface MarketplaceRouteChildren {
-  MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
+  MarketplaceListingIdRoute: typeof MarketplaceListingIdRouteWithChildren
   MarketplaceNewRoute: typeof MarketplaceNewRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   MarketplaceCategorySlugRoute: typeof MarketplaceCategorySlugRoute
 }
 
 const MarketplaceRouteChildren: MarketplaceRouteChildren = {
-  MarketplaceListingIdRoute: MarketplaceListingIdRoute,
+  MarketplaceListingIdRoute: MarketplaceListingIdRouteWithChildren,
   MarketplaceNewRoute: MarketplaceNewRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   MarketplaceCategorySlugRoute: MarketplaceCategorySlugRoute,
@@ -410,6 +461,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   StoreRoute: StoreRoute,
+  SellerSellerIdRoute: SellerSellerIdRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
