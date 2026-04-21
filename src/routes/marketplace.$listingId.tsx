@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2 } from "lucide-react";
+import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,9 @@ function ListingDetailPage() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [likeBusy, setLikeBusy] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -38,21 +41,41 @@ function ListingDetailPage() {
       // Increment views (best-effort)
       supabase.from("marketplace_listings").update({ views_count: (l.views_count || 0) + 1 }).eq("id", listingId);
 
-      const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }] = await Promise.all([
+      const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }, { count: likesC }, { data: myLike }] = await Promise.all([
         supabase.from("profiles").select("id, display_name, avatar_url").eq("id", l.seller_id).maybeSingle(),
         supabase.from("marketplace_trusted_sellers").select("user_id").eq("user_id", l.seller_id).maybeSingle(),
         supabase.from("marketplace_reviews").select("id, rating, comment, created_at, reviewer_id").eq("seller_id", l.seller_id).order("created_at", { ascending: false }),
         supabase.from("marketplace_listings").select("id", { count: "exact", head: true }).eq("seller_id", l.seller_id).eq("status", "approved"),
         supabase.from("marketplace_listings").select("id, title, price, images, brand, model").eq("category", l.category).eq("status", "approved").neq("id", l.id).limit(4),
+        supabase.from("marketplace_likes").select("id", { count: "exact", head: true }).eq("listing_id", l.id),
+        user ? supabase.from("marketplace_likes").select("id").eq("listing_id", l.id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null } as any),
       ]);
       setSeller(prof);
       setTrusted(!!trustedRow);
       setReviews(revs ?? []);
       setSellerListingsCount(count ?? 0);
       setSimilar(sim ?? []);
+      setLikesCount(likesC ?? 0);
+      setHasLiked(!!myLike);
       setLoading(false);
     })();
-  }, [listingId]);
+  }, [listingId, user]);
+
+  const toggleLike = async () => {
+    if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
+    if (likeBusy) return;
+    setLikeBusy(true);
+    if (hasLiked) {
+      const { error } = await supabase.from("marketplace_likes").delete().eq("listing_id", listingId).eq("user_id", user.id);
+      if (!error) { setHasLiked(false); setLikesCount((c) => Math.max(0, c - 1)); }
+      else toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("marketplace_likes").insert({ listing_id: listingId, user_id: user.id });
+      if (!error) { setHasLiked(true); setLikesCount((c) => c + 1); }
+      else toast.error(error.message);
+    }
+    setLikeBusy(false);
+  };
 
   if (loading) return <ModulePlaceholder icon={Loader2} title="טוען..." subtitle=""><div /></ModulePlaceholder>;
   if (!listing) return (
@@ -199,13 +222,27 @@ function ListingDetailPage() {
                 {listing.seller_type === "business" && <Badge variant="default">מוכר עסקי</Badge>}
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className={`grid gap-2 pt-2 ${listing.whatsapp ? "grid-cols-2" : "grid-cols-1"}`}>
                 <a href={`tel:${listing.phone}`}><Button className="w-full" size="sm"><Phone className="h-4 w-4" />חיוג</Button></a>
-                <a href={waLink} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="w-full" size="sm"><MessageCircle className="h-4 w-4" />וואטסאפ</Button>
-                </a>
+                {listing.whatsapp && (
+                  <a href={waLink} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" className="w-full" size="sm"><MessageCircle className="h-4 w-4" />וואטסאפ</Button>
+                  </a>
+                )}
               </div>
-              <Button variant="ghost" size="sm" className="w-full" onClick={share}><Share2 className="h-4 w-4" />שתף מודעה</Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={hasLiked ? "default" : "outline"}
+                  size="sm"
+                  onClick={toggleLike}
+                  disabled={likeBusy}
+                  className={hasLiked ? "bg-rose-500 hover:bg-rose-600 text-white" : ""}
+                >
+                  <Heart className={`h-4 w-4 ${hasLiked ? "fill-current" : ""}`} />
+                  {hasLiked ? "אהבתי" : "סמן לייק"} {likesCount > 0 && `(${likesCount})`}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={share}><Share2 className="h-4 w-4" />שתף</Button>
+              </div>
             </div>
 
             {seller && (

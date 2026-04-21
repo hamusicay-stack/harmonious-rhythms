@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { z } from "zod";
-import { Plus, Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check } from "lucide-react";
+import { Plus, Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +60,7 @@ function NewListingPage() {
   const [businessForm, setBusinessForm] = useState({ business_name: "", contact_name: "", phone: "", email: "" });
   const [registeringBusiness, setRegisteringBusiness] = useState(false);
   const [promoOption, setPromoOption] = useState<"none" | "bump24" | "bump48">("none");
+  const [phoneHasWhatsapp, setPhoneHasWhatsapp] = useState(true);
   const [form, setForm] = useState<any>({
     title: "", description: "", category: "", customCategory: "", subcategory: "", customSubcategory: "",
     brand: "", customBrand: "", model: "", year: "", item_condition: "used_good", price: "",
@@ -215,7 +216,7 @@ function NewListingPage() {
       price: Number(form.price),
       city: finalCity,
       phone: form.phone.trim(),
-      whatsapp: form.whatsapp?.trim() || form.phone.trim(),
+      whatsapp: phoneHasWhatsapp ? form.phone.trim() : (form.whatsapp?.trim() || null),
       images,
       video_url: form.video_url || null,
       specs: { year: form.year || null, has_rhythms: !!form.has_rhythms, has_samples: !!form.has_samples },
@@ -518,10 +519,23 @@ function NewListingPage() {
                   <Label>טלפון *</Label>
                   <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="050-1234567" />
                 </div>
-                <div className="space-y-2">
-                  <Label>וואטסאפ (אם שונה)</Label>
-                  <Input value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="050-1234567" />
-                </div>
+                <label className="flex items-center gap-2 text-sm cursor-pointer rounded-lg bg-muted/50 p-3 border">
+                  <input
+                    type="checkbox"
+                    checked={phoneHasWhatsapp}
+                    onChange={(e) => setPhoneHasWhatsapp(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <MessageCircle className="h-4 w-4 text-primary" />
+                  <span>למספר זה יש וואטסאפ</span>
+                </label>
+                {!phoneHasWhatsapp && (
+                  <div className="space-y-2">
+                    <Label>מספר וואטסאפ (אופציונלי)</Label>
+                    <Input value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="050-1234567" />
+                    <p className="text-xs text-muted-foreground">אם לא תזין מספר נפרד, כפתור הוואטסאפ לא יוצג למודעה</p>
+                  </div>
+                )}
                 <div className="rounded-lg bg-muted p-4 text-sm space-y-1">
                   <p className="font-semibold">לפני שליחה:</p>
                   <p>• המודעה תישלח לאישור מנהל ותפורסם תוך 24 שעות (או מיידית אם הוגדר אישור אוטומטי)</p>
