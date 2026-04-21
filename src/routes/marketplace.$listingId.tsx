@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2 } from "lucide-react";
+import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,9 @@ function ListingDetailPage() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [likeBusy, setLikeBusy] = useState(false);
 
   useEffect(() => {
     (async () => {
