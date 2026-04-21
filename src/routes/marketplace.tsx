@@ -26,6 +26,7 @@ type Listing = {
   seller_id: string;
   title: string;
   category: string;
+  subcategory: string | null;
   brand: string | null;
   model: string | null;
   item_condition: string;
@@ -59,7 +60,7 @@ function MarketplacePage() {
       const [{ data: list }, { data: trusted }, { data: business }] = await Promise.all([
         supabase
           .from("marketplace_listings")
-          .select("id, seller_id, title, category, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at")
+          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at")
           .eq("status", "approved")
           .order("bump_expires_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false }),
@@ -84,6 +85,7 @@ function MarketplacePage() {
     return listings.filter((l) => {
       if (search && !`${l.title} ${l.brand ?? ""} ${l.model ?? ""}`.toLowerCase().includes(search.toLowerCase())) return false;
       if (categories.size > 0 && !categories.has(l.category)) return false;
+      if (subcategories.size > 0 && (!l.subcategory || !subcategories.has(l.subcategory))) return false;
       if (brands.size > 0 && (!l.brand || !brands.has(l.brand))) return false;
       if (cities.size > 0 && (!l.city || !cities.has(l.city))) return false;
       if (conditions.size > 0 && !conditions.has(l.item_condition)) return false;
@@ -91,7 +93,7 @@ function MarketplacePage() {
       if (maxPrice && l.price > Number(maxPrice)) return false;
       return true;
     });
-  }, [listings, search, categories, brands, cities, conditions, minPrice, maxPrice]);
+  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice]);
 
   const toggleSet = (set: Set<string>, value: string, setter: (s: Set<string>) => void) => {
     const next = new Set(set);
