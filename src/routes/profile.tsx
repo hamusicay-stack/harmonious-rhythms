@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
-  Trash2, Pencil, Plus, CheckCircle2, Clock, XCircle,
+  Trash2, Pencil, Plus, CheckCircle2, Clock, XCircle, Bell, Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,10 +77,11 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="listings" className="gap-1"><Tags className="h-4 w-4" />המודעות שלי</TabsTrigger>
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
+            <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים שמורים</TabsTrigger>
             <TabsTrigger value="business" className="gap-1"><Building2 className="h-4 w-4" />עסקי</TabsTrigger>
           </TabsList>
 
@@ -94,6 +95,10 @@ function ProfilePage() {
 
           <TabsContent value="liked" className="mt-6">
             <LikedListings userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="searches" className="mt-6">
+            <SavedSearches userId={user.id} />
           </TabsContent>
 
           <TabsContent value="business" className="mt-6">
