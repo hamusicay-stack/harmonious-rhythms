@@ -142,26 +142,33 @@ function ListingDetailPage() {
           <div className="space-y-6">
             {/* Gallery */}
             {listing.images?.length > 0 && (
-              <Carousel className="rounded-2xl overflow-hidden border bg-black/5">
-                <CarouselContent>
-                  {listing.images.map((url: string, i: number) => (
-                    <CarouselItem key={i}>
-                      <div className="flex items-center justify-center bg-black/5 cursor-zoom-in" style={{ minHeight: "60vh" }} onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}>
-                        <img
-                          src={url}
-                          alt={`${listing.title} ${i + 1}`}
-                          className="max-h-[70vh] w-full object-contain"
-                          loading={i === 0 ? "eager" : "lazy"}
-                          decoding="async"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                {listing.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}
-              </Carousel>
+              <div className="relative">
+                <Carousel className="rounded-2xl overflow-hidden border bg-black/5">
+                  <CarouselContent>
+                    {listing.images.map((url: string, i: number) => (
+                      <CarouselItem key={i}>
+                        <div className="flex items-center justify-center bg-black/5 cursor-zoom-in" style={{ minHeight: "60vh" }} onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}>
+                          <img src={url} alt={`${listing.title} ${i + 1}`} className="max-h-[70vh] w-full object-contain" loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {listing.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}
+                </Carousel>
+                <Button size="sm" variant="secondary" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} className="absolute bottom-3 right-3 gap-1 shadow-lg">
+                  <Images className="h-4 w-4" />כל התמונות ({listing.images.length})
+                </Button>
+              </div>
             )}
             <ImageLightbox images={listing.images ?? []} open={lightboxOpen} initialIndex={lightboxIndex} onOpenChange={setLightboxOpen} alt={listing.title} />
+
+            {/* Audio sample */}
+            {listing.audio_url && (
+              <div className="rounded-2xl overflow-hidden border bg-card p-4">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">🎵 השמעה של הכלי</h3>
+                <audio src={listing.audio_url} controls className="w-full" />
+              </div>
+            )}
 
             {/* Video */}
             {listing.video_url && (
