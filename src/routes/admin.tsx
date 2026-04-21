@@ -570,6 +570,16 @@ function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier; onSave
               </Select>
             </div>
           </div>
+          {form.category === "other" && (
+            <div className="space-y-2">
+              <Label>פרט קטגוריה</Label>
+              <Input
+                placeholder="לדוגמה: שירותי הקלטה"
+                value={form.custom_category}
+                onChange={(e) => setForm({ ...form, custom_category: e.target.value })}
+              />
+            </div>
+          )}
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-2"><Label>אימייל</Label><Input dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
             <div className="space-y-2"><Label>טלפון</Label><Input dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
