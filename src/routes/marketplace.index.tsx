@@ -67,14 +67,17 @@ function MarketplacePage() {
   const [conditions, setConditions] = useState<Set<string>>(new Set());
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [sellerTypeFilter, setSellerTypeFilter] = useState<"all" | "private" | "business">("all");
 
   useEffect(() => {
     (async () => {
       const [{ data: list }, { data: trusted }, { data: business }, { data: cats }] = await Promise.all([
         supabase
           .from("marketplace_listings")
-          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at")
+          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at, is_urgent, audio_url")
           .eq("status", "approved")
+          .order("is_urgent", { ascending: false })
           .order("bump_expires_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false }),
         supabase.from("marketplace_trusted_sellers").select("user_id"),
