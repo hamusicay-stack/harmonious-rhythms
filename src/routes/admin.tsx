@@ -30,6 +30,7 @@ import { SupplierOrdersManager } from "@/components/admin/SupplierOrdersManager"
 import { AutomationsManager } from "@/components/admin/AutomationsManager";
 import { DashboardOverview } from "@/components/admin/DashboardOverview";
 import { MarketplaceManager } from "@/components/admin/MarketplaceManager";
+import { MarketplaceSettings } from "@/components/admin/MarketplaceSettings";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -379,7 +380,8 @@ function AdminPage() {
           <TabsContent value="purchase_orders" className="mt-6">
             <SupplierOrdersManager />
           </TabsContent>
-          <TabsContent value="marketplace" className="mt-6">
+          <TabsContent value="marketplace" className="mt-6 space-y-6">
+            <MarketplaceSettings />
             <MarketplaceManager />
           </TabsContent>
           <TabsContent value="automations" className="mt-6">
