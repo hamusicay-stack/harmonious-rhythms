@@ -67,6 +67,11 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Top banner slot */}
+      <section className="container mx-auto px-4 pt-6 md:px-8">
+        <BannerSlot position="home_top" />
+      </section>
+
       {/* Modules */}
       <section className="border-t border-border/40 py-20 md:py-28">
         <div className="container mx-auto px-4 md:px-8">
