@@ -512,12 +512,17 @@ function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier; onSave
     email: supplier?.email ?? "",
     phone: supplier?.phone ?? "",
     category: supplier?.category ?? "other",
+    custom_category: (supplier as (Supplier & { custom_category?: string }) | undefined)?.custom_category ?? "",
     is_active: supplier?.is_active ?? true,
     payment_notes: supplier?.payment_notes ?? "",
   });
 
   const save = async () => {
     if (!form.company_name.trim()) { toast.error("שם חברה חובה"); return; }
+    if (form.category === "other" && !form.custom_category.trim()) {
+      toast.error("פרט קטגוריה מותאמת");
+      return;
+    }
     setSaving(true);
     const payload = {
       company_name: form.company_name,
@@ -525,6 +530,7 @@ function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier; onSave
       email: form.email || null,
       phone: form.phone || null,
       category: form.category as "rhythms" | "equipment" | "courses" | "other",
+      custom_category: form.category === "other" ? form.custom_category.trim() : null,
       is_active: form.is_active,
       payment_notes: form.payment_notes || null,
     };
