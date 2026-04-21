@@ -279,12 +279,13 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       return;
     }
 
-    const { data: inserted, error } = await supabase.from("marketplace_listings").insert({
+    const insertPayload = {
       ...basePayload,
       seller_id: user.id,
-      seller_type: sellerType,
-      status: "pending",
-    }).select("id, status").single();
+      seller_type: sellerType ?? "private",
+      status: "pending" as const,
+    };
+    const { data: inserted, error } = await supabase.from("marketplace_listings").insert(insertPayload).select("id, status").single();
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     const wasAutoApproved = inserted?.status === "approved";
