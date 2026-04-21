@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_tasks: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          related_customer_id: string | null
+          related_lead_id: string | null
+          related_supplier_id: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          related_customer_id?: string | null
+          related_lead_id?: string | null
+          related_supplier_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          related_customer_id?: string | null
+          related_lead_id?: string | null
+          related_supplier_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_tasks_related_lead_id_fkey"
+            columns: ["related_lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_tasks_related_supplier_id_fkey"
+            columns: ["related_supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           clicked_at: string | null
@@ -419,6 +482,8 @@ export type Database = {
       lead_status: "new" | "in_progress" | "converted" | "lost"
       payment_status: "pending" | "paid" | "cancelled" | "refunded"
       supplier_category: "rhythms" | "equipment" | "courses" | "other"
+      task_priority: "low" | "normal" | "high" | "urgent"
+      task_status: "open" | "in_progress" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -559,6 +624,8 @@ export const Constants = {
       lead_status: ["new", "in_progress", "converted", "lost"],
       payment_status: ["pending", "paid", "cancelled", "refunded"],
       supplier_category: ["rhythms", "equipment", "courses", "other"],
+      task_priority: ["low", "normal", "high", "urgent"],
+      task_status: ["open", "in_progress", "done"],
     },
   },
 } as const
