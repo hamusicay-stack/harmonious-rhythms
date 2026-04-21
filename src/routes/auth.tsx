@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { mode?: "login" | "signup" } => ({
     mode: (search.mode as string) === "signup" ? "signup" : "login",
   }),
   head: () => ({
