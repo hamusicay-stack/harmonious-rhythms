@@ -19,6 +19,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
@@ -76,6 +77,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MarketplaceRoute,
+} as any)
 const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
@@ -136,11 +143,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
-  '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/marketplace': typeof MarketplaceIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
@@ -160,6 +167,7 @@ export interface FileRoutesById {
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
@@ -180,6 +188,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/marketplace/'
     | '/admin/customers/$customerId'
     | '/marketplace/category/$slug'
     | '/api/public/marketplace/followup'
@@ -193,11 +202,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/forum'
-    | '/marketplace'
     | '/profile'
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/marketplace'
     | '/admin/customers/$customerId'
     | '/marketplace/category/$slug'
     | '/api/public/marketplace/followup'
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/marketplace/'
     | '/admin/customers/$customerId'
     | '/marketplace/category/$slug'
     | '/api/public/marketplace/followup'
@@ -309,6 +319,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace/': {
+      id: '/marketplace/'
+      path: '/'
+      fullPath: '/marketplace/'
+      preLoaderRoute: typeof MarketplaceIndexRouteImport
+      parentRoute: typeof MarketplaceRoute
+    }
     '/marketplace/new': {
       id: '/marketplace/new'
       path: '/new'
@@ -367,12 +384,14 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface MarketplaceRouteChildren {
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   MarketplaceNewRoute: typeof MarketplaceNewRoute
+  MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   MarketplaceCategorySlugRoute: typeof MarketplaceCategorySlugRoute
 }
 
 const MarketplaceRouteChildren: MarketplaceRouteChildren = {
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   MarketplaceNewRoute: MarketplaceNewRoute,
+  MarketplaceIndexRoute: MarketplaceIndexRoute,
   MarketplaceCategorySlugRoute: MarketplaceCategorySlugRoute,
 }
 
