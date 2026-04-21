@@ -167,6 +167,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          custom_type: string | null
           customer_id: string
           description: string | null
           id: string
@@ -177,6 +178,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          custom_type?: string | null
           customer_id: string
           description?: string | null
           id?: string
@@ -187,6 +189,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          custom_type?: string | null
           customer_id?: string
           description?: string | null
           id?: string
@@ -478,6 +481,7 @@ export type Database = {
         Row: {
           assigned_to: string | null
           created_at: string
+          custom_source: string | null
           email: string | null
           id: string
           name: string
@@ -490,6 +494,7 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           created_at?: string
+          custom_source?: string | null
           email?: string | null
           id?: string
           name: string
@@ -502,6 +507,7 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           created_at?: string
+          custom_source?: string | null
           email?: string | null
           id?: string
           name?: string
@@ -629,12 +635,69 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          expected_delivery_date: string | null
+          id: string
+          items: Json
+          notes: string | null
+          order_date: string
+          order_number: string | null
+          status: Database["public"]["Enums"]["supplier_order_status"]
+          supplier_id: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          expected_delivery_date?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_date?: string
+          order_number?: string | null
+          status?: Database["public"]["Enums"]["supplier_order_status"]
+          supplier_id: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          expected_delivery_date?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_date?: string
+          order_number?: string | null
+          status?: Database["public"]["Enums"]["supplier_order_status"]
+          supplier_id?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           category: Database["public"]["Enums"]["supplier_category"]
           company_name: string
           contact_name: string | null
           created_at: string
+          custom_category: string | null
           email: string | null
           id: string
           is_active: boolean
@@ -647,6 +710,7 @@ export type Database = {
           company_name: string
           contact_name?: string | null
           created_at?: string
+          custom_category?: string | null
           email?: string | null
           id?: string
           is_active?: boolean
@@ -659,6 +723,7 @@ export type Database = {
           company_name?: string
           contact_name?: string | null
           created_at?: string
+          custom_category?: string | null
           email?: string | null
           id?: string
           is_active?: boolean
@@ -793,6 +858,12 @@ export type Database = {
       lead_status: "new" | "in_progress" | "converted" | "lost"
       payment_status: "pending" | "paid" | "cancelled" | "refunded"
       supplier_category: "rhythms" | "equipment" | "courses" | "other"
+      supplier_order_status:
+        | "draft"
+        | "sent"
+        | "received"
+        | "paid"
+        | "cancelled"
       task_priority: "low" | "normal" | "high" | "urgent"
       task_status: "open" | "in_progress" | "done"
     }
@@ -945,6 +1016,7 @@ export const Constants = {
       lead_status: ["new", "in_progress", "converted", "lost"],
       payment_status: ["pending", "paid", "cancelled", "refunded"],
       supplier_category: ["rhythms", "equipment", "courses", "other"],
+      supplier_order_status: ["draft", "sent", "received", "paid", "cancelled"],
       task_priority: ["low", "normal", "high", "urgent"],
       task_status: ["open", "in_progress", "done"],
     },
