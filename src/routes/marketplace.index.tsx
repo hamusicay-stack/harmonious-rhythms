@@ -106,7 +106,7 @@ function MarketplacePage() {
   }, [categories, categoriesList]);
 
   const filtered = useMemo(() => {
-    return listings.filter((l) => {
+    const result = listings.filter((l) => {
       if (search && !`${l.title} ${l.brand ?? ""} ${l.model ?? ""}`.toLowerCase().includes(search.toLowerCase())) return false;
       if (categories.size > 0 && !categories.has(l.category)) return false;
       if (subcategories.size > 0 && (!l.subcategory || !subcategories.has(l.subcategory))) return false;
@@ -120,7 +120,35 @@ function MarketplacePage() {
       if (sellerTypeFilter === "business" && !(l.seller_type === "business" || businessSellers.has(l.seller_id))) return false;
       return true;
     });
-  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice, urgentOnly, sellerTypeFilter, businessSellers]);
+    const sorted = [...result];
+    switch (sortBy) {
+      case "newest":
+        sorted.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+        break;
+      case "oldest":
+        sorted.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+        break;
+      case "price_asc":
+        sorted.sort((a, b) => Number(a.price) - Number(b.price));
+        break;
+      case "price_desc":
+        sorted.sort((a, b) => Number(b.price) - Number(a.price));
+        break;
+      case "best":
+      default:
+        // urgent first, then bumped, then newest (already from query)
+        sorted.sort((a, b) => {
+          const ua = a.is_urgent ? 1 : 0;
+          const ub = b.is_urgent ? 1 : 0;
+          if (ub !== ua) return ub - ua;
+          const ba = a.bump_expires_at && new Date(a.bump_expires_at) > new Date() ? 1 : 0;
+          const bb = b.bump_expires_at && new Date(b.bump_expires_at) > new Date() ? 1 : 0;
+          if (bb !== ba) return bb - ba;
+          return +new Date(b.created_at) - +new Date(a.created_at);
+        });
+    }
+    return sorted;
+  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice, urgentOnly, sellerTypeFilter, businessSellers, sortBy]);
 
   const toggleSet = useCallback((set: Set<string>, value: string, setter: (s: Set<string>) => void) => {
     const next = new Set(set);
