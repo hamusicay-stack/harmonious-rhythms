@@ -113,9 +113,12 @@ function MarketplacePage() {
       if (conditions.size > 0 && !conditions.has(l.item_condition)) return false;
       if (minPrice && l.price < Number(minPrice)) return false;
       if (maxPrice && l.price > Number(maxPrice)) return false;
+      if (urgentOnly && !l.is_urgent) return false;
+      if (sellerTypeFilter === "private" && (l.seller_type === "business" || businessSellers.has(l.seller_id))) return false;
+      if (sellerTypeFilter === "business" && !(l.seller_type === "business" || businessSellers.has(l.seller_id))) return false;
       return true;
     });
-  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice]);
+  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice, urgentOnly, sellerTypeFilter, businessSellers]);
 
   const toggleSet = useCallback((set: Set<string>, value: string, setter: (s: Set<string>) => void) => {
     const next = new Set(set);
