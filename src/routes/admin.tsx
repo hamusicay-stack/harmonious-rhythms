@@ -19,11 +19,13 @@ import {
 } from "@/components/ui/dialog";
 import {
   Users, Building2, ClipboardList, TrendingUp, Loader2, Plus, Save, ShieldAlert,
-  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye,
+  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { LeadCreateDialog } from "@/components/admin/LeadCreateDialog";
+import { BannersManager } from "@/components/admin/BannersManager";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -194,11 +196,12 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="customers" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+            <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
             <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
           </TabsList>
 
@@ -262,7 +265,10 @@ function AdminPage() {
 
           <TabsContent value="leads" className="mt-6">
             <Card>
-              <CardHeader><CardTitle>לידים ({leads.length})</CardTitle></CardHeader>
+              <CardHeader className="flex-row items-center justify-between space-y-0">
+                <CardTitle>לידים ({leads.length})</CardTitle>
+                <LeadCreateDialog onSaved={loadAll} />
+              </CardHeader>
               <CardContent className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -357,6 +363,9 @@ function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="banners" className="mt-6">
+            <BannersManager />
           </TabsContent>
           <TabsContent value="admins" className="mt-6">
             <AdminsManager />
