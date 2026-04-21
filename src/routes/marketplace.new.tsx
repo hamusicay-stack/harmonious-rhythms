@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { z } from "zod";
-import { Plus, Upload, X, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { Plus, Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ export const Route = createFileRoute("/marketplace/new")({
   head: () => ({ meta: [{ title: "פרסם מודעה — המוזיקאי" }] }),
   component: NewListingPage,
 });
+
+const MAX_IMAGES = 10;
 
 const schema = z.object({
   title: z.string().trim().min(3, "כותרת קצרה מדי").max(120),
@@ -40,17 +42,24 @@ const schema = z.object({
   video_url: z.string().url().optional().or(z.literal("")),
 });
 
+type SellerType = "private" | "business" | null;
+
 function NewListingPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // 0=seller type, 1=category, 2=details, 3=media, 4=promote+contact
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [videoFile, setVideoFile] = useState<string>("");
-  const [isBusiness, setIsBusiness] = useState(false);
+  const [sellerType, setSellerType] = useState<SellerType>(null);
+  const [hasBusinessAccount, setHasBusinessAccount] = useState(false);
+  const [checkingBusiness, setCheckingBusiness] = useState(true);
+  const [businessForm, setBusinessForm] = useState({ business_name: "", contact_name: "", phone: "", email: "" });
+  const [registeringBusiness, setRegisteringBusiness] = useState(false);
+  const [promoOption, setPromoOption] = useState<"none" | "bump24" | "bump48">("none");
   const [form, setForm] = useState<any>({
     title: "", description: "", category: "", customCategory: "", subcategory: "", customSubcategory: "",
     brand: "", customBrand: "", model: "", year: "", item_condition: "used_good", price: "",
@@ -60,19 +69,51 @@ function NewListingPage() {
 
   useEffect(() => {
     if (user) {
-      supabase.from("marketplace_business_sellers").select("user_id").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle()
-        .then(({ data }) => setIsBusiness(!!data));
+      setCheckingBusiness(true);
+      supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle()
+        .then(({ data }) => {
+          setHasBusinessAccount(!!data);
+          if (data) {
+            setBusinessForm({
+              business_name: data.business_name ?? "",
+              contact_name: "",
+              phone: data.phone ?? "",
+              email: data.email ?? user.email ?? "",
+            });
+          } else {
+            setBusinessForm((f) => ({ ...f, email: user.email ?? "" }));
+          }
+          setCheckingBusiness(false);
+        });
     }
-  }, [authLoading, user, navigate]);
+  }, [user]);
 
   const cat = CATEGORIES.find((c) => c.value === form.category);
   const isKeyboard = form.category === "keyboards" || form.category === "pianos";
 
   const update = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
 
+  const registerBusiness = async () => {
+    if (!user) return;
+    if (!businessForm.business_name.trim()) { toast.error("שם העסק חובה"); return; }
+    setRegisteringBusiness(true);
+    const { error } = await supabase.from("marketplace_business_sellers").insert({
+      user_id: user.id,
+      business_name: businessForm.business_name.trim(),
+      contact_name: businessForm.contact_name.trim() || null,
+      phone: businessForm.phone.trim() || null,
+      email: businessForm.email.trim() || user.email,
+      subscription_status: "active",
+    });
+    setRegisteringBusiness(false);
+    if (error) { toast.error(error.message); return; }
+    setHasBusinessAccount(true);
+    toast.success("נרשמת כמוכר עסקי!");
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user || !e.target.files) return;
-    const files = Array.from(e.target.files).slice(0, 5 - images.length);
+    const files = Array.from(e.target.files).slice(0, MAX_IMAGES - images.length);
     if (files.length === 0) return;
     setUploading(true);
     try {
@@ -142,7 +183,7 @@ function NewListingPage() {
   };
 
   const submit = async () => {
-    if (!user) return;
+    if (!user || !sellerType) return;
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "מלא את כל השדות הדרושים");
@@ -158,9 +199,9 @@ function NewListingPage() {
     const finalBrand = form.brand === "אחר" ? form.customBrand?.trim() : (form.brand || null);
     const finalCity = form.city === "אחר" ? form.customCity?.trim() : (form.city || null);
 
-    const { error } = await supabase.from("marketplace_listings").insert({
+    const { data: inserted, error } = await supabase.from("marketplace_listings").insert({
       seller_id: user.id,
-      seller_type: isBusiness ? "business" : "private",
+      seller_type: sellerType,
       title: form.title.trim(),
       description: form.description?.trim() || null,
       category: form.category,
@@ -179,10 +220,17 @@ function NewListingPage() {
       video_url: form.video_url || null,
       specs: { year: form.year || null, has_rhythms: !!form.has_rhythms, has_samples: !!form.has_samples },
       status: "pending",
-    });
+    }).select("id, status").single();
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("המודעה נשלחה לאישור! נעדכן אותך כשתאושר.");
+    const wasAutoApproved = inserted?.status === "approved";
+    if (promoOption !== "none") {
+      toast.success("המודעה נשלחה! קידום בתשלום יתווסף בקרוב.");
+    } else if (wasAutoApproved) {
+      toast.success("המודעה פורסמה ונראית עכשיו בלוח! 🎉");
+    } else {
+      toast.success("המודעה נשלחה לאישור! נעדכן אותך כשתאושר.");
+    }
     navigate({ to: "/marketplace" });
   };
 
@@ -196,16 +244,80 @@ function NewListingPage() {
     </ModulePlaceholder>
   );
 
+  const totalSteps = 5;
+  const canProceedFromStep0 = sellerType === "private" || (sellerType === "business" && hasBusinessAccount);
+
   return (
-    <ModulePlaceholder icon={Plus} title="פרסם מודעה" subtitle={`שלב ${step} מתוך 4`}>
+    <ModulePlaceholder icon={Plus} title="פרסם מודעה" subtitle={`שלב ${step + 1} מתוך ${totalSteps}`}>
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 flex gap-2">
-          {[1, 2, 3, 4].map((s) => (
+          {Array.from({ length: totalSteps }).map((_, s) => (
             <div key={s} className={`h-2 flex-1 rounded-full ${s <= step ? "bg-primary" : "bg-muted"}`} />
           ))}
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-card p-6 space-y-5">
+          {step === 0 && (
+            <>
+              <h2 className="text-lg font-semibold">סוג המפרסם</h2>
+              <p className="text-sm text-muted-foreground">בחר את סוג החשבון שמתאים לך:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSellerType("private")}
+                  className={`relative rounded-xl border-2 p-5 text-right transition ${sellerType === "private" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                >
+                  {sellerType === "private" && <Check className="absolute top-3 left-3 h-5 w-5 text-primary" />}
+                  <User className="h-8 w-8 text-primary mb-2" />
+                  <div className="font-semibold">מוכר פרטי</div>
+                  <div className="text-xs text-muted-foreground mt-1">פרסום חינם. הקפצות בתשלום חד-פעמי.</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSellerType("business")}
+                  className={`relative rounded-xl border-2 p-5 text-right transition ${sellerType === "business" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                >
+                  {sellerType === "business" && <Check className="absolute top-3 left-3 h-5 w-5 text-primary" />}
+                  <Building2 className="h-8 w-8 text-primary mb-2" />
+                  <div className="font-semibold">מוכר עסקי</div>
+                  <div className="text-xs text-muted-foreground mt-1">תג "עסקי" על המודעה. דורש רישום קצר.</div>
+                </button>
+              </div>
+
+              {sellerType === "business" && !checkingBusiness && !hasBusinessAccount && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+                  <div className="text-sm font-semibold">רישום מוכר עסקי</div>
+                  <p className="text-xs text-muted-foreground">פרטים אלו יוצגו על המודעות שלך כעסק.</p>
+                  <div className="space-y-2">
+                    <Label>שם העסק *</Label>
+                    <Input value={businessForm.business_name} onChange={(e) => setBusinessForm((f) => ({ ...f, business_name: e.target.value }))} placeholder="למשל: כלי נגינה ירושלים" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
+                      <Label>איש קשר</Label>
+                      <Input value={businessForm.contact_name} onChange={(e) => setBusinessForm((f) => ({ ...f, contact_name: e.target.value }))} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>טלפון</Label>
+                      <Input value={businessForm.phone} onChange={(e) => setBusinessForm((f) => ({ ...f, phone: e.target.value }))} />
+                    </div>
+                  </div>
+                  <Button onClick={registerBusiness} disabled={registeringBusiness} className="w-full">
+                    {registeringBusiness && <Loader2 className="h-4 w-4 animate-spin" />}
+                    הירשם והמשך
+                  </Button>
+                </div>
+              )}
+
+              {sellerType === "business" && hasBusinessAccount && (
+                <div className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm flex items-center gap-2">
+                  <Check className="h-4 w-4 text-primary" />
+                  זוהית כמוכר עסקי: <span className="font-semibold">{businessForm.business_name}</span>
+                </div>
+              )}
+            </>
+          )}
+
           {step === 1 && (
             <>
               <h2 className="text-lg font-semibold">קטגוריה</h2>
@@ -322,7 +434,7 @@ function NewListingPage() {
             <>
               <h2 className="text-lg font-semibold">תמונות וסרטון</h2>
               <div className="space-y-2">
-                <Label>תמונות (עד 5) *</Label>
+                <Label>תמונות (עד {MAX_IMAGES}) * — {images.length}/{MAX_IMAGES}</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {images.map((url, i) => (
                     <div key={url} className="relative aspect-square rounded-lg overflow-hidden border">
@@ -333,11 +445,11 @@ function NewListingPage() {
                       </button>
                     </div>
                   ))}
-                  {images.length < 5 && (
+                  {images.length < MAX_IMAGES && (
                     <label className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition">
                       {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5 text-muted-foreground" />}
                       <span className="text-xs text-muted-foreground mt-1">הוסף</span>
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                      <input type="file" accept="image/*" multiple capture="environment" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                     </label>
                   )}
                 </div>
@@ -367,38 +479,73 @@ function NewListingPage() {
 
           {step === 4 && (
             <>
-              <h2 className="text-lg font-semibold">פרטי קשר</h2>
-              {isBusiness && (
-                <div className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm">
-                  ✓ זוהית כמוכר עסקי. המודעה תפורסם עם תג "עסקי".
+              <h2 className="text-lg font-semibold flex items-center gap-2"><Zap className="h-5 w-5 text-primary" />קידום ופרטי קשר</h2>
+
+              <div className="space-y-3">
+                <Label>שדרג את החשיפה (אופציונלי)</Label>
+                <div className="space-y-2">
+                  {[
+                    { value: "none", title: "פרסום רגיל", desc: "המודעה תופיע ברשימה לפי תאריך פרסום", badge: "חינם" },
+                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: "בקרוב" },
+                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: "בקרוב" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setPromoOption(opt.value as any)}
+                      disabled={opt.value !== "none"}
+                      className={`w-full relative rounded-lg border-2 p-3 text-right transition ${promoOption === opt.value ? "border-primary bg-primary/5" : "border-border"} ${opt.value !== "none" ? "opacity-60 cursor-not-allowed" : "hover:border-primary/50"}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-medium text-sm">{opt.title}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{opt.desc}</div>
+                        </div>
+                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{opt.badge}</span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              )}
-              <div className="space-y-2">
-                <Label>טלפון *</Label>
-                <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="050-1234567" />
               </div>
-              <div className="space-y-2">
-                <Label>וואטסאפ (אם שונה)</Label>
-                <Input value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="50-1234567" />
-              </div>
-              <div className="rounded-lg bg-muted p-4 text-sm space-y-1">
-                <p className="font-semibold">לפני שליחה:</p>
-                <p>• המודעה תישלח לאישור מנהל ותפורסם תוך 24 שעות</p>
-                <p>• ניתן יהיה להקפיץ את המודעה לראש הלוח דרך עמוד המודעה</p>
+
+              <div className="pt-4 border-t space-y-4">
+                {sellerType === "business" && hasBusinessAccount && (
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm">
+                    ✓ המודעה תפורסם עם תג "עסקי" — {businessForm.business_name}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label>טלפון *</Label>
+                  <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="050-1234567" />
+                </div>
+                <div className="space-y-2">
+                  <Label>וואטסאפ (אם שונה)</Label>
+                  <Input value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="050-1234567" />
+                </div>
+                <div className="rounded-lg bg-muted p-4 text-sm space-y-1">
+                  <p className="font-semibold">לפני שליחה:</p>
+                  <p>• המודעה תישלח לאישור מנהל ותפורסם תוך 24 שעות (או מיידית אם הוגדר אישור אוטומטי)</p>
+                  <p>• ניתן יהיה להקפיץ את המודעה לראש הלוח דרך עמוד המודעה</p>
+                </div>
               </div>
             </>
           )}
 
           <div className="flex gap-2 justify-between pt-4">
-            {step > 1 ? (
+            {step > 0 ? (
               <Button variant="outline" onClick={() => setStep(step - 1)}><ArrowRight className="h-4 w-4" />חזרה</Button>
             ) : <Link to="/marketplace"><Button variant="ghost">ביטול</Button></Link>}
             {step < 4 ? (
-              <Button onClick={() => setStep(step + 1)}>הבא<ArrowLeft className="h-4 w-4" /></Button>
+              <Button
+                onClick={() => setStep(step + 1)}
+                disabled={step === 0 && !canProceedFromStep0}
+              >
+                הבא<ArrowLeft className="h-4 w-4" />
+              </Button>
             ) : (
               <Button onClick={submit} disabled={submitting}>
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                שלח לאישור
+                שלח לפרסום
               </Button>
             )}
           </div>
