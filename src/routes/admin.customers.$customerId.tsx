@@ -1,0 +1,456 @@
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { SiteLayout } from "@/components/SiteLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  ArrowRight, Loader2, ShieldAlert, Mail, Phone, MapPin, Music, Crown,
+  Plus, Tag as TagIcon, X, Calendar, ShoppingCart, BookOpen, MessageSquare,
+  PhoneCall, Users as UsersIcon, FileText,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/admin/customers/$customerId")({
+  head: () => ({
+    meta: [
+      { title: "כרטיס לקוח — המוזיקאי" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  component: CustomerProfilePage,
+});
+
+type Profile = {
+  id: string;
+  display_name: string | null;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  location: string | null;
+  user_type: string;
+  organ_model: string | null;
+  subscription_tier: string;
+  specialties: string[] | null;
+  website: string | null;
+  instagram: string | null;
+  youtube: string | null;
+  created_at: string;
+};
+
+type CustomerTag = { id: string; tag: string; color: string | null };
+type Interaction = {
+  id: string;
+  type: "note" | "call" | "email" | "meeting" | "purchase" | "lesson" | "signup" | "other";
+  title: string;
+  description: string | null;
+  occurred_at: string;
+};
+type Order = {
+  id: string;
+  product_name: string;
+  amount: number;
+  currency: string;
+  payment_status: string;
+  created_at: string;
+};
+
+const TAG_COLORS = [
+  { value: "default", label: "אפור" },
+  { value: "gold", label: "זהב (VIP)" },
+  { value: "blue", label: "כחול" },
+  { value: "green", label: "ירוק" },
+  { value: "red", label: "אדום (אזהרה)" },
+];
+
+const TAG_COLOR_CLASSES: Record<string, string> = {
+  default: "bg-secondary text-secondary-foreground",
+  gold: "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground",
+  blue: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
+  green: "bg-green-500/20 text-green-700 dark:text-green-300",
+  red: "bg-destructive/20 text-destructive",
+};
+
+const INTERACTION_ICONS: Record<Interaction["type"], React.ComponentType<{ className?: string }>> = {
+  note: FileText,
+  call: PhoneCall,
+  email: Mail,
+  meeting: UsersIcon,
+  purchase: ShoppingCart,
+  lesson: BookOpen,
+  signup: Crown,
+  other: MessageSquare,
+};
+
+const INTERACTION_LABELS: Record<Interaction["type"], string> = {
+  note: "הערה",
+  call: "שיחה",
+  email: "אימייל",
+  meeting: "פגישה",
+  purchase: "רכישה",
+  lesson: "שיעור",
+  signup: "הרשמה",
+  other: "אחר",
+};
+
+function CustomerProfilePage() {
+  const { customerId } = Route.useParams();
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [tags, setTags] = useState<CustomerTag[]>([]);
+  const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [newTagColor, setNewTagColor] = useState("default");
+
+  useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/auth" });
+  }, [authLoading, user, navigate]);
+
+  const load = async () => {
+    setLoading(true);
+    const [p, t, i, o] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", customerId).maybeSingle(),
+      supabase.from("customer_tags").select("*").eq("customer_id", customerId).order("created_at"),
+      supabase.from("customer_interactions").select("*").eq("customer_id", customerId).order("occurred_at", { ascending: false }),
+      supabase.from("orders").select("*").eq("customer_id", customerId).order("created_at", { ascending: false }),
+    ]);
+    setProfile(p.data as Profile | null);
+    setTags((t.data as CustomerTag[]) ?? []);
+    setInteractions((i.data as Interaction[]) ?? []);
+    setOrders((o.data as Order[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (isAdmin) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, customerId]);
+
+  const addTag = async () => {
+    if (!newTag.trim()) return;
+    const { error } = await supabase.from("customer_tags").insert({
+      customer_id: customerId,
+      tag: newTag.trim(),
+      color: newTagColor,
+      created_by: user?.id,
+    });
+    if (error) { toast.error(error.message); return; }
+    setNewTag("");
+    setNewTagColor("default");
+    load();
+  };
+
+  const removeTag = async (id: string) => {
+    const { error } = await supabase.from("customer_tags").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    load();
+  };
+
+  if (authLoading || (user && loading && isAdmin)) {
+    return (
+      <SiteLayout>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  if (!user) return null;
+
+  if (!isAdmin) {
+    return (
+      <SiteLayout>
+        <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
+          <ShieldAlert className="h-16 w-16 text-destructive" />
+          <h1 className="font-display text-3xl font-bold">גישה נדחתה</h1>
+          <Button onClick={() => navigate({ to: "/" })}>חזרה לדף הבית</Button>
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <SiteLayout>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <p className="text-muted-foreground">לקוח לא נמצא.</p>
+          <Button asChild className="mt-4"><Link to="/admin">חזרה ללוח הבקרה</Link></Button>
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  const displayName = profile.display_name || profile.full_name || profile.email || "ללא שם";
+  const initials = displayName.slice(0, 2).toUpperCase();
+
+  return (
+    <SiteLayout>
+      <section className="border-b border-border/40 bg-hero">
+        <div className="container mx-auto px-4 py-8 md:px-8">
+          <Button asChild variant="ghost" size="sm" className="mb-4">
+            <Link to="/admin"><ArrowRight className="ml-2 h-4 w-4" />חזרה ללוח הבקרה</Link>
+          </Button>
+          <div className="flex flex-col gap-6 md:flex-row md:items-center">
+            <Avatar className="h-24 w-24 border-2 border-primary/40">
+              <AvatarImage src={profile.avatar_url ?? undefined} />
+              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h1 className="font-display text-3xl font-bold">{displayName}</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge variant="outline">{profile.user_type}</Badge>
+                <Badge>{profile.subscription_tier}</Badge>
+                {profile.organ_model && <Badge variant="outline"><Music className="ml-1 h-3 w-3" />{profile.organ_model}</Badge>}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                {profile.email && <span className="flex items-center gap-1"><Mail className="h-4 w-4" />{profile.email}</span>}
+                {profile.phone && <span className="flex items-center gap-1" dir="ltr"><Phone className="h-4 w-4" />{profile.phone}</span>}
+                {profile.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.location}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="mt-6">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+              <TagIcon className="h-4 w-4" /> תגיות
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {tags.map((t) => (
+                <span key={t.id} className={`group inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${TAG_COLOR_CLASSES[t.color ?? "default"]}`}>
+                  {t.tag}
+                  <button onClick={() => removeTag(t.id)} className="opacity-60 hover:opacity-100" aria-label="הסר תגית">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="תגית חדשה..."
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") addTag(); }}
+                  className="h-8 w-40"
+                />
+                <Select value={newTagColor} onValueChange={setNewTagColor}>
+                  <SelectTrigger className="h-8 w-28"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {TAG_COLORS.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Button size="sm" onClick={addTag} disabled={!newTag.trim()}><Plus className="h-4 w-4" /></Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 py-8 md:px-8">
+        <Tabs defaultValue="timeline" dir="rtl">
+          <TabsList>
+            <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
+            <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים אישיים</TabsTrigger>
+            <TabsTrigger value="orders"><ShoppingCart className="ml-2 h-4 w-4" />הזמנות ({orders.length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="timeline" className="mt-6 space-y-4">
+            <AddInteractionCard customerId={customerId} userId={user.id} onAdded={load} />
+            <Card>
+              <CardHeader><CardTitle>היסטוריית אינטראקציות</CardTitle></CardHeader>
+              <CardContent>
+                <div className="relative space-y-4">
+                  {/* Auto signup entry */}
+                  <TimelineItem
+                    icon={Crown}
+                    title="הצטרף למערכת"
+                    subtitle={new Date(profile.created_at).toLocaleString("he-IL")}
+                    type="signup"
+                  />
+                  {orders.map((o) => (
+                    <TimelineItem
+                      key={`o-${o.id}`}
+                      icon={ShoppingCart}
+                      title={`רכישה: ${o.product_name}`}
+                      subtitle={`${new Date(o.created_at).toLocaleString("he-IL")} · ${o.currency} ${o.amount} · ${o.payment_status}`}
+                      type="purchase"
+                    />
+                  ))}
+                  {interactions.map((i) => {
+                    const Icon = INTERACTION_ICONS[i.type];
+                    return (
+                      <TimelineItem
+                        key={i.id}
+                        icon={Icon}
+                        title={i.title}
+                        subtitle={`${INTERACTION_LABELS[i.type]} · ${new Date(i.occurred_at).toLocaleString("he-IL")}`}
+                        description={i.description}
+                        type={i.type}
+                      />
+                    );
+                  })}
+                  {interactions.length === 0 && orders.length === 0 && (
+                    <p className="py-4 text-center text-sm text-muted-foreground">אין עדיין אינטראקציות מתועדות.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="details" className="mt-6">
+            <Card>
+              <CardHeader><CardTitle>פרטים אישיים</CardTitle></CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <DetailField label="שם תצוגה" value={profile.display_name} />
+                <DetailField label="שם מלא" value={profile.full_name} />
+                <DetailField label="אימייל" value={profile.email} dir="ltr" />
+                <DetailField label="טלפון" value={profile.phone} dir="ltr" />
+                <DetailField label="מיקום" value={profile.location} />
+                <DetailField label="דגם אורגן" value={profile.organ_model} />
+                <DetailField label="אתר" value={profile.website} dir="ltr" />
+                <DetailField label="אינסטגרם" value={profile.instagram} dir="ltr" />
+                <DetailField label="יוטיוב" value={profile.youtube} dir="ltr" />
+                <DetailField label="התמחויות" value={profile.specialties?.join(", ") ?? null} />
+                <div className="md:col-span-2">
+                  <DetailField label="ביוגרפיה" value={profile.bio} multiline />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="orders" className="mt-6">
+            <Card>
+              <CardHeader><CardTitle>הזמנות</CardTitle></CardHeader>
+              <CardContent>
+                {orders.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">אין הזמנות.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {orders.map((o) => (
+                      <div key={o.id} className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+                        <div>
+                          <div className="font-medium">{o.product_name}</div>
+                          <div className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("he-IL")}</div>
+                        </div>
+                        <div className="text-end">
+                          <div className="font-bold">{o.currency} {Number(o.amount).toLocaleString()}</div>
+                          <Badge variant={o.payment_status === "paid" ? "default" : "outline"}>{o.payment_status}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </section>
+    </SiteLayout>
+  );
+}
+
+function DetailField({ label, value, dir, multiline }: { label: string; value: string | null; dir?: string; multiline?: boolean }) {
+  return (
+    <div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className={`mt-1 ${multiline ? "whitespace-pre-wrap" : "truncate"}`} dir={dir}>{value || "—"}</div>
+    </div>
+  );
+}
+
+function TimelineItem({
+  icon: Icon, title, subtitle, description, type,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  subtitle: string;
+  description?: string | null;
+  type: string;
+}) {
+  return (
+    <div className="flex gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-primary">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="flex-1 rounded-lg border border-border/60 p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="font-medium">{title}</div>
+          <Badge variant="outline" className="text-xs">{type}</Badge>
+        </div>
+        <div className="text-xs text-muted-foreground">{subtitle}</div>
+        {description && <p className="mt-2 text-sm">{description}</p>}
+      </div>
+    </div>
+  );
+}
+
+function AddInteractionCard({ customerId, userId, onAdded }: { customerId: string; userId: string; onAdded: () => void }) {
+  const [type, setType] = useState<Interaction["type"]>("note");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!title.trim()) { toast.error("כותרת חובה"); return; }
+    setSaving(true);
+    const { error } = await supabase.from("customer_interactions").insert({
+      customer_id: customerId,
+      type,
+      title,
+      description: description || null,
+      created_by: userId,
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("האינטראקציה נוספה");
+    setTitle(""); setDescription(""); setType("note");
+    onAdded();
+  };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-base">הוסף אינטראקציה</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="space-y-2">
+            <Label>סוג</Label>
+            <Select value={type} onValueChange={(v) => setType(v as Interaction["type"])}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(INTERACTION_LABELS).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label>כותרת</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="למשל: שיחת מכירה ראשונית" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>פרטים</Label>
+          <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <Button onClick={save} disabled={saving} size="sm">
+          {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}הוסף
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}

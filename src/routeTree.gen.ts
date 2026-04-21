@@ -19,6 +19,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
@@ -70,43 +71,52 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCustomersCustomerIdRoute =
+  AdminCustomersCustomerIdRouteImport.update({
+    id: '/customers/$customerId',
+    path: '/customers/$customerId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
   '/marketplace': typeof MarketplaceRoute
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
+  '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
   '/marketplace': typeof MarketplaceRoute
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
+  '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
   '/marketplace': typeof MarketplaceRoute
   '/profile': typeof ProfileRoute
   '/store': typeof StoreRoute
+  '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/store'
+    | '/admin/customers/$customerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/store'
+    | '/admin/customers/$customerId'
   id:
     | '__root__'
     | '/'
@@ -145,13 +157,14 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/store'
+    | '/admin/customers/$customerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AcademyRoute: typeof AcademyRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForumRoute: typeof ForumRoute
@@ -232,14 +245,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/customers/$customerId': {
+      id: '/admin/customers/$customerId'
+      path: '/customers/$customerId'
+      fullPath: '/admin/customers/$customerId'
+      preLoaderRoute: typeof AdminCustomersCustomerIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCustomersCustomerIdRoute: AdminCustomersCustomerIdRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AcademyRoute: AcademyRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForumRoute: ForumRoute,

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Users, Building2, ClipboardList, TrendingUp, Loader2, Plus, Save, ShieldAlert,
-  CheckCircle2, Circle, Clock,
+  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -194,11 +194,12 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="customers" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+            <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
           </TabsList>
 
           <TabsContent value="customers" className="mt-6">
@@ -239,7 +240,14 @@ function AdminPage() {
                         <TableCell>{c.organ_model || "—"}</TableCell>
                         <TableCell><Badge>{c.subscription_tier}</Badge></TableCell>
                         <TableCell className="text-end">
-                          <CustomerEditDialog customer={c} onSaved={loadAll} />
+                          <div className="flex justify-end gap-2">
+                            <Button asChild size="sm" variant="ghost">
+                              <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
+                                <Eye className="ml-1 h-4 w-4" />כרטיס 360°
+                              </Link>
+                            </Button>
+                            <CustomerEditDialog customer={c} onSaved={loadAll} />
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -349,6 +357,9 @@ function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="admins" className="mt-6">
+            <AdminsManager />
           </TabsContent>
         </Tabs>
       </section>
@@ -668,5 +679,116 @@ function TaskRow({ task, customers, onChanged }: { task: Task; customers: Custom
       </div>
       <Button size="sm" variant="ghost" onClick={remove} className="text-destructive">מחק</Button>
     </div>
+  );
+}
+
+type AdminEntry = { user_id: string; email: string; granted_at: string };
+
+function AdminsManager() {
+  const { user } = useAuth();
+  const [admins, setAdmins] = useState<AdminEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.rpc("admin_list_admins");
+    if (error) toast.error(error.message);
+    setAdmins((data as AdminEntry[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const grant = async () => {
+    const e = email.trim().toLowerCase();
+    if (!e) return;
+    setAdding(true);
+    const { error } = await supabase.rpc("admin_assign_role_by_email", {
+      _email: e, _role: "admin", _revoke: false,
+    });
+    setAdding(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`הוקצתה הרשאת מנהל ל-${e}`);
+    setEmail("");
+    load();
+  };
+
+  const revoke = async (targetEmail: string) => {
+    if (!confirm(`להסיר את הרשאת המנהל מ-${targetEmail}?`)) return;
+    const { error } = await supabase.rpc("admin_assign_role_by_email", {
+      _email: targetEmail, _role: "admin", _revoke: true,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success("הרשאת המנהל הוסרה");
+    load();
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>ניהול מנהלים</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="rounded-lg border border-border/60 p-4">
+          <Label className="mb-2 block">הוסף מנהל לפי אימייל</Label>
+          <p className="mb-3 text-xs text-muted-foreground">
+            המשתמש חייב להירשם תחילה למערכת. הזן את האימייל שלו והוא יקבל הרשאת מנהל.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              dir="ltr"
+              type="email"
+              placeholder="email@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") grant(); }}
+            />
+            <Button onClick={grant} disabled={adding || !email.trim()}>
+              {adding ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}
+              הענק הרשאה
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="mb-3 text-sm font-medium">מנהלים נוכחיים ({admins.length})</h3>
+          {loading ? (
+            <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>אימייל</TableHead>
+                  <TableHead>הוענק בתאריך</TableHead>
+                  <TableHead className="text-end">פעולות</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {admins.map((a) => (
+                  <TableRow key={a.user_id}>
+                    <TableCell dir="ltr">{a.email}</TableCell>
+                    <TableCell>{new Date(a.granted_at).toLocaleDateString("he-IL")}</TableCell>
+                    <TableCell className="text-end">
+                      {a.user_id === user?.id ? (
+                        <Badge variant="outline">אתה</Badge>
+                      ) : (
+                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => revoke(a.email)}>
+                          <Trash2 className="ml-1 h-4 w-4" />הסר
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {admins.length === 0 && (
+                  <TableRow><TableCell colSpan={3} className="py-6 text-center text-muted-foreground">אין מנהלים.</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
