@@ -32,6 +32,7 @@ import { DashboardOverview } from "@/components/admin/DashboardOverview";
 import { MarketplaceManager } from "@/components/admin/MarketplaceManager";
 import { MarketplaceSettings } from "@/components/admin/MarketplaceSettings";
 import { BusinessSellersManager } from "@/components/admin/BusinessSellersManager";
+import { MarketplaceCategoriesManager } from "@/components/admin/MarketplaceCategoriesManager";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -383,6 +384,7 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="marketplace" className="mt-6 space-y-6">
             <MarketplaceSettings />
+            <MarketplaceCategoriesManager />
             <BusinessSellersManager />
             <MarketplaceManager />
           </TabsContent>

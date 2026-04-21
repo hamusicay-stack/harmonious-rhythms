@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
+import { CATEGORIES as FALLBACK_CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
 
 export const Route = createFileRoute("/marketplace")({
   head: () => ({
@@ -39,11 +39,20 @@ type Listing = {
   created_at: string;
 };
 
+type CategoryRow = {
+  slug: string;
+  label: string;
+  image_url: string | null;
+  subcategories: string[];
+  display_order: number;
+};
+
 function MarketplacePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [trustedSellers, setTrustedSellers] = useState<Set<string>>(new Set());
   const [businessSellers, setBusinessSellers] = useState<Set<string>>(new Set());
+  const [categoriesData, setCategoriesData] = useState<CategoryRow[]>([]);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -57,7 +66,7 @@ function MarketplacePage() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: list }, { data: trusted }, { data: business }] = await Promise.all([
+      const [{ data: list }, { data: trusted }, { data: business }, { data: cats }] = await Promise.all([
         supabase
           .from("marketplace_listings")
           .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at")
@@ -66,20 +75,26 @@ function MarketplacePage() {
           .order("created_at", { ascending: false }),
         supabase.from("marketplace_trusted_sellers").select("user_id"),
         supabase.from("marketplace_business_sellers").select("user_id").eq("subscription_status", "active"),
+        supabase.from("marketplace_categories").select("slug, label, image_url, subcategories, display_order").eq("is_active", true).order("display_order"),
       ]);
       setListings((list ?? []) as Listing[]);
       setTrustedSellers(new Set((trusted ?? []).map((t: any) => t.user_id)));
       setBusinessSellers(new Set((business ?? []).map((b: any) => b.user_id)));
+      setCategoriesData((cats ?? []) as CategoryRow[]);
       setLoading(false);
     })();
   }, []);
 
+  const categoriesList = categoriesData.length > 0
+    ? categoriesData
+    : FALLBACK_CATEGORIES.map((c, i) => ({ slug: c.value, label: c.label, image_url: null, subcategories: [...c.subs], display_order: i }));
+
   const availableSubs = useMemo(() => {
     if (categories.size === 0) return [] as string[];
     return Array.from(new Set(
-      CATEGORIES.filter((c) => categories.has(c.value)).flatMap((c) => c.subs as readonly string[])
+      categoriesList.filter((c) => categories.has(c.slug)).flatMap((c) => c.subcategories)
     ));
-  }, [categories]);
+  }, [categories, categoriesList]);
 
   const filtered = useMemo(() => {
     return listings.filter((l) => {
@@ -95,74 +110,67 @@ function MarketplacePage() {
     });
   }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice]);
 
-  const toggleSet = (set: Set<string>, value: string, setter: (s: Set<string>) => void) => {
+  const toggleSet = useCallback((set: Set<string>, value: string, setter: (s: Set<string>) => void) => {
     const next = new Set(set);
     if (next.has(value)) next.delete(value); else next.add(value);
     setter(next);
-  };
+  }, []);
 
   const isBumped = (l: Listing) => l.bump_expires_at && new Date(l.bump_expires_at) > new Date();
 
-  const FiltersContent = () => (
-    <div className="space-y-5">
-      <FilterGroup label="קטגוריה ראשית">
-        <ScrollList>
-          {CATEGORIES.map((c) => (
-            <CheckboxRow key={c.value} checked={categories.has(c.value)} onChange={() => toggleSet(categories, c.value, setCategories)} label={c.label} />
-          ))}
-        </ScrollList>
-      </FilterGroup>
-
-      {availableSubs.length > 0 && (
-        <FilterGroup label="תת-קטגוריה (סוג כלי)">
-          <ScrollList>
-            {availableSubs.map((s) => (
-              <CheckboxRow key={s} checked={subcategories.has(s)} onChange={() => toggleSet(subcategories, s, setSubcategories)} label={s} />
-            ))}
-          </ScrollList>
-        </FilterGroup>
-      )}
-
-      <FilterGroup label="יצרן">
-        <ScrollList tall>
-          {BRANDS.map((b) => (
-            <CheckboxRow key={b} checked={brands.has(b)} onChange={() => toggleSet(brands, b, setBrands)} label={b} />
-          ))}
-        </ScrollList>
-      </FilterGroup>
-
-      <FilterGroup label="עיר">
-        <ScrollList tall>
-          {CITIES.map((c) => (
-            <CheckboxRow key={c} checked={cities.has(c)} onChange={() => toggleSet(cities, c, setCities)} label={c} />
-          ))}
-        </ScrollList>
-      </FilterGroup>
-
-      <FilterGroup label="מצב המוצר">
-        <div className="space-y-2">
-          {CONDITIONS.map((c) => (
-            <CheckboxRow key={c.value} checked={conditions.has(c.value)} onChange={() => toggleSet(conditions, c.value, setConditions)} label={c.label} />
-          ))}
-        </div>
-      </FilterGroup>
-
-      <FilterGroup label="טווח מחירים (₪)">
-        <div className="flex gap-2">
-          <Input type="number" placeholder="מינ׳" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="text-sm" />
-          <Input type="number" placeholder="מקס׳" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="text-sm" />
-        </div>
-      </FilterGroup>
-
-      <Button variant="outline" className="w-full" onClick={() => {
+  const filtersNode = (
+    <FiltersPanel
+      categoriesList={categoriesList}
+      categories={categories}
+      setCategories={setCategories}
+      subcategories={subcategories}
+      setSubcategories={setSubcategories}
+      availableSubs={availableSubs}
+      brands={brands}
+      setBrands={setBrands}
+      cities={cities}
+      setCities={setCities}
+      conditions={conditions}
+      setConditions={setConditions}
+      minPrice={minPrice}
+      setMinPrice={setMinPrice}
+      maxPrice={maxPrice}
+      setMaxPrice={setMaxPrice}
+      onClear={() => {
         setCategories(new Set()); setSubcategories(new Set()); setBrands(new Set());
         setCities(new Set()); setConditions(new Set()); setMinPrice(""); setMaxPrice(""); setSearch("");
-      }}>נקה סינונים</Button>
-    </div>
+      }}
+      toggleSet={toggleSet}
+    />
   );
 
   return (
     <ModulePlaceholder icon={Tags} title="לוח יד 2" subtitle="קונים, מוכרים ומחליפים — בתוך הקהילה.">
+      {/* Category Banner */}
+      {categoriesList.length > 0 && (
+        <div className="mb-6 -mx-2 px-2 overflow-x-auto">
+          <div className="flex gap-4 pb-2 min-w-max">
+            {categoriesList.map((c) => (
+              <Link
+                key={c.slug}
+                to="/marketplace/category/$slug"
+                params={{ slug: c.slug }}
+                className="flex flex-col items-center gap-2 group shrink-0 w-20 sm:w-24"
+              >
+                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden border-2 border-border group-hover:border-primary transition bg-muted flex items-center justify-center">
+                  {c.image_url ? (
+                    <img src={c.image_url} alt={c.label} className="w-full h-full object-cover" loading="lazy" />
+                  ) : (
+                    <Tags className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </div>
+                <span className="text-xs text-center font-medium line-clamp-2 group-hover:text-primary transition">{c.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -174,7 +182,7 @@ function MarketplacePage() {
           </SheetTrigger>
           <SheetContent side="right" className="overflow-y-auto w-[320px] sm:w-[380px]">
             <SheetHeader><SheetTitle>סינון מודעות</SheetTitle></SheetHeader>
-            <div className="mt-6"><FiltersContent /></div>
+            <div className="mt-6">{filtersNode}</div>
           </SheetContent>
         </Sheet>
         <Link to="/marketplace/new">
@@ -185,7 +193,7 @@ function MarketplacePage() {
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
         <aside className="hidden lg:block">
           <div className="rounded-2xl border border-border/60 bg-card p-5 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
-            <FiltersContent />
+            {filtersNode}
           </div>
         </aside>
 
@@ -249,6 +257,90 @@ function MarketplacePage() {
         </div>
       </div>
     </ModulePlaceholder>
+  );
+}
+
+type FiltersPanelProps = {
+  categoriesList: CategoryRow[];
+  categories: Set<string>;
+  setCategories: (s: Set<string>) => void;
+  subcategories: Set<string>;
+  setSubcategories: (s: Set<string>) => void;
+  availableSubs: string[];
+  brands: Set<string>;
+  setBrands: (s: Set<string>) => void;
+  cities: Set<string>;
+  setCities: (s: Set<string>) => void;
+  conditions: Set<string>;
+  setConditions: (s: Set<string>) => void;
+  minPrice: string;
+  setMinPrice: (s: string) => void;
+  maxPrice: string;
+  setMaxPrice: (s: string) => void;
+  onClear: () => void;
+  toggleSet: (set: Set<string>, value: string, setter: (s: Set<string>) => void) => void;
+};
+
+function FiltersPanel(props: FiltersPanelProps) {
+  const {
+    categoriesList, categories, setCategories, subcategories, setSubcategories, availableSubs,
+    brands, setBrands, cities, setCities, conditions, setConditions,
+    minPrice, setMinPrice, maxPrice, setMaxPrice, onClear, toggleSet,
+  } = props;
+
+  return (
+    <div className="space-y-5">
+      <FilterGroup label="קטגוריה ראשית">
+        <ScrollList>
+          {categoriesList.map((c) => (
+            <CheckboxRow key={c.slug} checked={categories.has(c.slug)} onChange={() => toggleSet(categories, c.slug, setCategories)} label={c.label} />
+          ))}
+        </ScrollList>
+      </FilterGroup>
+
+      {availableSubs.length > 0 && (
+        <FilterGroup label="תת-קטגוריה (סוג כלי)">
+          <ScrollList>
+            {availableSubs.map((s) => (
+              <CheckboxRow key={s} checked={subcategories.has(s)} onChange={() => toggleSet(subcategories, s, setSubcategories)} label={s} />
+            ))}
+          </ScrollList>
+        </FilterGroup>
+      )}
+
+      <FilterGroup label="יצרן">
+        <ScrollList tall>
+          {BRANDS.map((b) => (
+            <CheckboxRow key={b} checked={brands.has(b)} onChange={() => toggleSet(brands, b, setBrands)} label={b} />
+          ))}
+        </ScrollList>
+      </FilterGroup>
+
+      <FilterGroup label="עיר">
+        <ScrollList tall>
+          {CITIES.map((c) => (
+            <CheckboxRow key={c} checked={cities.has(c)} onChange={() => toggleSet(cities, c, setCities)} label={c} />
+          ))}
+        </ScrollList>
+      </FilterGroup>
+
+      <FilterGroup label="מצב המוצר">
+        <div className="space-y-2">
+          {CONDITIONS.map((c) => (
+            <CheckboxRow key={c.value} checked={conditions.has(c.value)} onChange={() => toggleSet(conditions, c.value, setConditions)} label={c.label} />
+          ))}
+        </div>
+      </FilterGroup>
+
+      <FilterGroup label="טווח מחירים (₪)">
+        <div className="flex gap-2">
+          <Input type="number" inputMode="numeric" placeholder="מינ׳" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="text-sm" />
+          <Input type="number" inputMode="numeric" placeholder="מקס׳" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="text-sm" />
+        </div>
+      </FilterGroup>
+
+      <Button variant="outline" className="w-full" onClick={onClear}>נקה סינונים</Button>
+    </div>
   );
 }
 
