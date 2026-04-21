@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Users, Building2, ClipboardList, TrendingUp, Loader2, Plus, Save, ShieldAlert,
-  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone, Package,
+  CheckCircle2, Circle, Clock, ShieldCheck, Trash2, Eye, Megaphone, Package, Zap, LayoutDashboard,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { LeadCreateDialog } from "@/components/admin/LeadCreateDialog";
 import { BannersManager } from "@/components/admin/BannersManager";
 import { SupplierOrdersManager } from "@/components/admin/SupplierOrdersManager";
+import { AutomationsManager } from "@/components/admin/AutomationsManager";
+import { DashboardOverview } from "@/components/admin/DashboardOverview";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -196,16 +198,22 @@ function AdminPage() {
           <StatCard icon={<ClipboardList className="h-5 w-5" />} label="לידים חדשים" value={stats.newLeads} highlight={stats.newLeads > 0} />
         </div>
 
-        <Tabs defaultValue="customers" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7">
+        <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-9">
+            <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
             <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+            <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
             <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
             <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard" className="mt-6">
+            <DashboardOverview />
+          </TabsContent>
 
           <TabsContent value="customers" className="mt-6">
             <Card>
@@ -368,6 +376,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="purchase_orders" className="mt-6">
             <SupplierOrdersManager />
+          </TabsContent>
+          <TabsContent value="automations" className="mt-6">
+            <AutomationsManager />
           </TabsContent>
           <TabsContent value="banners" className="mt-6">
             <BannersManager />
