@@ -222,13 +222,27 @@ function ListingDetailPage() {
                 {listing.seller_type === "business" && <Badge variant="default">מוכר עסקי</Badge>}
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className={`grid gap-2 pt-2 ${listing.whatsapp ? "grid-cols-2" : "grid-cols-1"}`}>
                 <a href={`tel:${listing.phone}`}><Button className="w-full" size="sm"><Phone className="h-4 w-4" />חיוג</Button></a>
-                <a href={waLink} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="w-full" size="sm"><MessageCircle className="h-4 w-4" />וואטסאפ</Button>
-                </a>
+                {listing.whatsapp && (
+                  <a href={waLink} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" className="w-full" size="sm"><MessageCircle className="h-4 w-4" />וואטסאפ</Button>
+                  </a>
+                )}
               </div>
-              <Button variant="ghost" size="sm" className="w-full" onClick={share}><Share2 className="h-4 w-4" />שתף מודעה</Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={hasLiked ? "default" : "outline"}
+                  size="sm"
+                  onClick={toggleLike}
+                  disabled={likeBusy}
+                  className={hasLiked ? "bg-rose-500 hover:bg-rose-600 text-white" : ""}
+                >
+                  <Heart className={`h-4 w-4 ${hasLiked ? "fill-current" : ""}`} />
+                  {hasLiked ? "אהבתי" : "סמן לייק"} {likesCount > 0 && `(${likesCount})`}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={share}><Share2 className="h-4 w-4" />שתף</Button>
+              </div>
             </div>
 
             {seller && (
