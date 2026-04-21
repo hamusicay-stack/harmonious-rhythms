@@ -495,3 +495,96 @@ function CheckboxRow({ checked, onChange, label }: { checked: boolean; onChange:
     </label>
   );
 }
+
+type ChipOption = { value: string; label: string; count?: number };
+
+function FilterChip({ label, count, options, selected, onToggle, onClear }: {
+  label: string; count: number; options: ChipOption[]; selected: Set<string>;
+  onToggle: (v: string) => void; onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button type="button" className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${count > 0 ? "border-primary bg-primary/10 text-primary" : "border-border bg-background hover:border-primary/40"}`}>
+          <span>{label}{count > 0 ? ` (${count})` : ""}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-0" align="end">
+        <div className="max-h-80 overflow-y-auto p-2">
+          {options.length === 0 ? (
+            <div className="text-sm text-muted-foreground p-3 text-center">אין אפשרויות זמינות</div>
+          ) : options.map((o) => (
+            <button key={o.value} type="button" onClick={() => onToggle(o.value)}
+              className={`w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted transition ${selected.has(o.value) ? "bg-primary/10 text-primary font-medium" : ""}`}>
+              <span className="flex items-center gap-2">
+                <Checkbox checked={selected.has(o.value)} className="pointer-events-none" />
+                {o.label}
+              </span>
+              {o.count !== undefined && <span className="text-xs text-muted-foreground">({o.count})</span>}
+            </button>
+          ))}
+        </div>
+        {count > 0 && (
+          <div className="border-t p-2">
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => { onClear(); setOpen(false); }}>
+              <X className="h-3 w-3" />נקה
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function PriceChip({ minPrice, maxPrice, setMinPrice, setMaxPrice }: {
+  minPrice: string; maxPrice: string; setMinPrice: (v: string) => void; setMaxPrice: (v: string) => void;
+}) {
+  const active = !!(minPrice || maxPrice);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border bg-background hover:border-primary/40"}`}>
+          <span>מחיר{active ? ` ${minPrice || "0"}–${maxPrice || "∞"}` : ""}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64" align="end">
+        <div className="space-y-3">
+          <Label className="text-xs">טווח מחירים (₪)</Label>
+          <div className="flex gap-2">
+            <Input type="number" placeholder="מינ׳" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+            <Input type="number" placeholder="מקס׳" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+          </div>
+          {active && (
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => { setMinPrice(""); setMaxPrice(""); }}>נקה</Button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function SellerTypeChip({ value, onChange }: { value: "all" | "private" | "business"; onChange: (v: "all" | "private" | "business") => void }) {
+  const active = value !== "all";
+  const label = value === "private" ? "פרטי" : value === "business" ? "עסקי" : "סוג מוכר";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border bg-background hover:border-primary/40"}`}>
+          <span>{label}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-44 p-2" align="end">
+        {[{ v: "all" as const, label: "הכל" }, { v: "private" as const, label: "פרטי" }, { v: "business" as const, label: "עסקי" }].map((o) => (
+          <button key={o.v} type="button" onClick={() => onChange(o.v)}
+            className={`w-full text-right rounded-md px-3 py-2 text-sm hover:bg-muted transition ${value === o.v ? "bg-primary/10 text-primary font-medium" : ""}`}>
+            {o.label}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
