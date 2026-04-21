@@ -116,12 +116,27 @@ function ListingDetailPage() {
     }
   };
 
+  const isOwner = user?.id === listing.seller_id;
+
   return (
     <ModulePlaceholder icon={ArrowRight} title={listing.title} subtitle={CATEGORY_LABELS[listing.category] || listing.category}>
       <div className="max-w-5xl mx-auto">
-        <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-primary mb-4 inline-flex items-center gap-1">
-          <ArrowRight className="h-4 w-4" />חזרה ללוח
-        </Link>
+        <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+          <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1">
+            <ArrowRight className="h-4 w-4" />חזרה ללוח
+          </Link>
+          {isOwner && (
+            <Link to="/marketplace/$listingId/edit" params={{ listingId }}>
+              <Button size="sm" variant="outline" className="gap-1"><Pencil className="h-4 w-4" />ערוך מודעה</Button>
+            </Link>
+          )}
+        </div>
+        {listing.is_urgent && (
+          <div className="mb-4 rounded-xl border-2 border-rose-500/60 bg-rose-500/10 p-3 flex items-center gap-2">
+            <Flame className="h-5 w-5 text-rose-500" />
+            <span className="font-semibold text-rose-600 dark:text-rose-400">מכירה דחופה — המוכר רוצה למכור מהר</span>
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-[1fr_360px] gap-6">
           <div className="space-y-6">
