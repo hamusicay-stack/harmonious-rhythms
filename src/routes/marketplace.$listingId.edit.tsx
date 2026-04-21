@@ -23,14 +23,14 @@ function EditListingPage() {
     if (authLoading) return;
     if (!user) { setLoading(false); return; }
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("marketplace_listings")
-        .select("*")
+        .select("id, seller_id, seller_type, title, description, category, custom_category, subcategory, custom_subcategory, brand, custom_brand, model, item_condition, price, city, phone, whatsapp, images, video_url, audio_url, is_urgent, specs, status")
         .eq("id", listingId)
         .maybeSingle();
-      if (!data) { setLoading(false); return; }
+      if (error || !data) { setLoading(false); return; }
       if (data.seller_id !== user.id) { setForbidden(true); setLoading(false); return; }
-      setListing(data as any);
+      setListing(data as ListingInitial);
       setLoading(false);
     })();
   }, [listingId, user, authLoading]);
