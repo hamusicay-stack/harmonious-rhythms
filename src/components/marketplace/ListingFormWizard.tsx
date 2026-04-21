@@ -78,6 +78,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [videoFile, setVideoFile] = useState<string>(initial?.video_url ?? "");
+  const [audioFile, setAudioFile] = useState<string>((initial as any)?.audio_url ?? "");
   const [sellerType, setSellerType] = useState<SellerType>(
     (initial?.seller_type as SellerType) ?? null
   );
@@ -86,6 +87,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [businessForm, setBusinessForm] = useState({ business_name: "", contact_name: "", phone: "", email: "" });
   const [registeringBusiness, setRegisteringBusiness] = useState(false);
   const [promoOption, setPromoOption] = useState<"none" | "bump24" | "bump48">("none");
+  const [isUrgent, setIsUrgent] = useState<boolean>(!!(initial as any)?.is_urgent);
   const initialPhone = initial?.phone ?? "";
   const initialWa = initial?.whatsapp ?? "";
   const [phoneHasWhatsapp, setPhoneHasWhatsapp] = useState(
@@ -198,6 +200,21 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     }
   };
 
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    if (file.size > 10 * 1024 * 1024) { toast.error("אודיו מעל 10MB"); return; }
+    setUploading(true);
+    try {
+      const path = `${user.id}/audio-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error } = await supabase.storage.from("marketplace").upload(path, file, { contentType: file.type || "audio/mpeg" });
+      if (error) { toast.error(error.message); return; }
+      const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
+      setAudioFile(data.publicUrl);
+      toast.success("האודיו הועלה");
+    } finally { setUploading(false); }
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -263,6 +280,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       whatsapp: phoneHasWhatsapp ? form.phone.trim() : (form.whatsapp?.trim() || null),
       images,
       video_url: form.video_url || null,
+      audio_url: audioFile || null,
+      is_urgent: isUrgent,
       specs: { year: form.year || null, has_rhythms: !!form.has_rhythms, has_samples: !!form.has_samples },
     };
 

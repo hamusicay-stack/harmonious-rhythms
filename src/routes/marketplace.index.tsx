@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight } from "lucide-react";
+import { Tags, Search, Plus, MapPin, ShieldCheck, Briefcase, ArrowUp, ArrowRight, ChevronDown, Flame, BadgeCheck, X } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES as FALLBACK_CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
+import { SaveSearchDialog } from "@/components/marketplace/SaveSearchDialog";
 
 export const Route = createFileRoute("/marketplace/")({
   head: () => ({
@@ -37,6 +39,8 @@ type Listing = {
   seller_type: string;
   bump_expires_at: string | null;
   created_at: string;
+  is_urgent?: boolean;
+  audio_url?: string | null;
 };
 
 type CategoryRow = {
@@ -63,14 +67,17 @@ function MarketplacePage() {
   const [conditions, setConditions] = useState<Set<string>>(new Set());
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [sellerTypeFilter, setSellerTypeFilter] = useState<"all" | "private" | "business">("all");
 
   useEffect(() => {
     (async () => {
       const [{ data: list }, { data: trusted }, { data: business }, { data: cats }] = await Promise.all([
         supabase
           .from("marketplace_listings")
-          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at")
+          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at, is_urgent, audio_url")
           .eq("status", "approved")
+          .order("is_urgent", { ascending: false })
           .order("bump_expires_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false }),
         supabase.from("marketplace_trusted_sellers").select("user_id"),
@@ -106,9 +113,12 @@ function MarketplacePage() {
       if (conditions.size > 0 && !conditions.has(l.item_condition)) return false;
       if (minPrice && l.price < Number(minPrice)) return false;
       if (maxPrice && l.price > Number(maxPrice)) return false;
+      if (urgentOnly && !l.is_urgent) return false;
+      if (sellerTypeFilter === "private" && (l.seller_type === "business" || businessSellers.has(l.seller_id))) return false;
+      if (sellerTypeFilter === "business" && !(l.seller_type === "business" || businessSellers.has(l.seller_id))) return false;
       return true;
     });
-  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice]);
+  }, [listings, search, categories, subcategories, brands, cities, conditions, minPrice, maxPrice, urgentOnly, sellerTypeFilter, businessSellers]);
 
   const toggleSet = useCallback((set: Set<string>, value: string, setter: (s: Set<string>) => void) => {
     const next = new Set(set);
@@ -227,6 +237,43 @@ function MarketplacePage() {
         </div>
       )}
 
+      {/* Modern filter chips bar */}
+      <div className="mb-4 flex flex-wrap gap-2 items-center">
+        <FilterChip
+          label="מצב המוצר"
+          count={conditions.size}
+          options={CONDITIONS.map((c) => ({ value: c.value, label: c.label, count: listings.filter((l) => l.item_condition === c.value).length }))}
+          selected={conditions}
+          onToggle={(v) => toggleSet(conditions, v, setConditions)}
+          onClear={() => setConditions(new Set())}
+        />
+        <FilterChip
+          label="יצרן"
+          count={brands.size}
+          options={BRANDS.map((b) => ({ value: b, label: b, count: listings.filter((l) => l.brand === b).length })).filter((b) => b.count > 0)}
+          selected={brands}
+          onToggle={(v) => toggleSet(brands, v, setBrands)}
+          onClear={() => setBrands(new Set())}
+        />
+        <FilterChip
+          label="עיר מכירה"
+          count={cities.size}
+          options={CITIES.map((c) => ({ value: c, label: c, count: listings.filter((l) => l.city === c).length })).filter((c) => c.count > 0)}
+          selected={cities}
+          onToggle={(v) => toggleSet(cities, v, setCities)}
+          onClear={() => setCities(new Set())}
+        />
+        <PriceChip minPrice={minPrice} maxPrice={maxPrice} setMinPrice={setMinPrice} setMaxPrice={setMaxPrice} />
+        <button
+          type="button"
+          onClick={() => setUrgentOnly((v) => !v)}
+          className={`inline-flex items-center gap-1 rounded-full border px-4 py-2 text-sm transition ${urgentOnly ? "bg-rose-500 text-white border-rose-500" : "bg-background border-border hover:border-rose-400"}`}
+        >
+          <Flame className="h-3.5 w-3.5" />מכירה דחופה
+        </button>
+        <SellerTypeChip value={sellerTypeFilter} onChange={setSellerTypeFilter} />
+      </div>
+
       <div className="mb-6 flex flex-col sm:flex-row gap-3">
         <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="flex flex-1 gap-3">
           <div className="relative flex-1">
@@ -240,9 +287,16 @@ function MarketplacePage() {
           </div>
           <Button type="submit" variant="secondary" className="hidden sm:inline-flex">חפש</Button>
         </form>
+        <SaveSearchDialog
+          filters={{
+            search, categories: Array.from(categories), subcategories: Array.from(subcategories),
+            brands: Array.from(brands), cities: Array.from(cities), conditions: Array.from(conditions),
+            minPrice, maxPrice, urgentOnly, sellerTypeFilter,
+          }}
+        />
         <Sheet>
           <SheetTrigger asChild>
-            <Button type="button" variant="outline" className="lg:hidden">סינון</Button>
+            <Button type="button" variant="outline" className="lg:hidden">סינון מלא</Button>
           </SheetTrigger>
           <SheetContent side="right" className="overflow-y-auto w-[320px] sm:w-[380px]">
             <SheetHeader><SheetTitle>סינון מודעות</SheetTitle></SheetHeader>
@@ -277,15 +331,23 @@ function MarketplacePage() {
                 const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
                 return (
                   <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
-                    <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
+                    <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
                       <div className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
                         {l.images?.[0] ? (
                           <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">אין תמונה</div>
                         )}
-                        {bumped && (
-                          <Badge className="absolute top-2 right-2 gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
+                        <div className="absolute top-2 right-2 flex flex-col gap-1">
+                          {l.is_urgent && (
+                            <Badge className="gap-1 shadow-md bg-rose-500 hover:bg-rose-600"><Flame className="h-3 w-3" />דחוף</Badge>
+                          )}
+                          {bumped && (
+                            <Badge className="gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
+                          )}
+                        </div>
+                        {l.audio_url && (
+                          <Badge variant="secondary" className="absolute bottom-2 left-2 gap-1 shadow-md">🎵 השמעה</Badge>
                         )}
                       </div>
                       <div className="p-4 space-y-2">
@@ -296,7 +358,7 @@ function MarketplacePage() {
                               {isBusiness ? <><Briefcase className="h-3 w-3" />עסקי</> : "פרטי"}
                             </Badge>
                             {trustedSellers.has(l.seller_id) && (
-                              <Badge variant="secondary" className="gap-1 text-[10px]"><ShieldCheck className="h-3 w-3" />נבחרת</Badge>
+                              <Badge variant="secondary" className="gap-1 text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><BadgeCheck className="h-3 w-3" />מאומת</Badge>
                             )}
                           </div>
                         </div>
@@ -431,5 +493,98 @@ function CheckboxRow({ checked, onChange, label }: { checked: boolean; onChange:
       <Checkbox checked={checked} onCheckedChange={onChange} />
       <span>{label}</span>
     </label>
+  );
+}
+
+type ChipOption = { value: string; label: string; count?: number };
+
+function FilterChip({ label, count, options, selected, onToggle, onClear }: {
+  label: string; count: number; options: ChipOption[]; selected: Set<string>;
+  onToggle: (v: string) => void; onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button type="button" className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${count > 0 ? "border-primary bg-primary/10 text-primary" : "border-border bg-background hover:border-primary/40"}`}>
+          <span>{label}{count > 0 ? ` (${count})` : ""}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-0" align="end">
+        <div className="max-h-80 overflow-y-auto p-2">
+          {options.length === 0 ? (
+            <div className="text-sm text-muted-foreground p-3 text-center">אין אפשרויות זמינות</div>
+          ) : options.map((o) => (
+            <button key={o.value} type="button" onClick={() => onToggle(o.value)}
+              className={`w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted transition ${selected.has(o.value) ? "bg-primary/10 text-primary font-medium" : ""}`}>
+              <span className="flex items-center gap-2">
+                <Checkbox checked={selected.has(o.value)} className="pointer-events-none" />
+                {o.label}
+              </span>
+              {o.count !== undefined && <span className="text-xs text-muted-foreground">({o.count})</span>}
+            </button>
+          ))}
+        </div>
+        {count > 0 && (
+          <div className="border-t p-2">
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => { onClear(); setOpen(false); }}>
+              <X className="h-3 w-3" />נקה
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function PriceChip({ minPrice, maxPrice, setMinPrice, setMaxPrice }: {
+  minPrice: string; maxPrice: string; setMinPrice: (v: string) => void; setMaxPrice: (v: string) => void;
+}) {
+  const active = !!(minPrice || maxPrice);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border bg-background hover:border-primary/40"}`}>
+          <span>מחיר{active ? ` ${minPrice || "0"}–${maxPrice || "∞"}` : ""}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64" align="end">
+        <div className="space-y-3">
+          <Label className="text-xs">טווח מחירים (₪)</Label>
+          <div className="flex gap-2">
+            <Input type="number" placeholder="מינ׳" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+            <Input type="number" placeholder="מקס׳" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+          </div>
+          {active && (
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => { setMinPrice(""); setMaxPrice(""); }}>נקה</Button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function SellerTypeChip({ value, onChange }: { value: "all" | "private" | "business"; onChange: (v: "all" | "private" | "business") => void }) {
+  const active = value !== "all";
+  const label = value === "private" ? "פרטי" : value === "business" ? "עסקי" : "סוג מוכר";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border bg-background hover:border-primary/40"}`}>
+          <span>{label}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-44 p-2" align="end">
+        {[{ v: "all" as const, label: "הכל" }, { v: "private" as const, label: "פרטי" }, { v: "business" as const, label: "עסקי" }].map((o) => (
+          <button key={o.v} type="button" onClick={() => onChange(o.v)}
+            className={`w-full text-right rounded-md px-3 py-2 text-sm hover:bg-muted transition ${value === o.v ? "bg-primary/10 text-primary font-medium" : ""}`}>
+            {o.label}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
   );
 }

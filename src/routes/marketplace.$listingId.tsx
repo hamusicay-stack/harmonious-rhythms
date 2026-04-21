@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart } from "lucide-react";
+import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Pencil, Flame, Images, BadgeCheck } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -116,37 +116,59 @@ function ListingDetailPage() {
     }
   };
 
+  const isOwner = user?.id === listing.seller_id;
+
   return (
     <ModulePlaceholder icon={ArrowRight} title={listing.title} subtitle={CATEGORY_LABELS[listing.category] || listing.category}>
       <div className="max-w-5xl mx-auto">
-        <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-primary mb-4 inline-flex items-center gap-1">
-          <ArrowRight className="h-4 w-4" />חזרה ללוח
-        </Link>
+        <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+          <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1">
+            <ArrowRight className="h-4 w-4" />חזרה ללוח
+          </Link>
+          {isOwner && (
+            <Link to="/marketplace/$listingId/edit" params={{ listingId }}>
+              <Button size="sm" variant="outline" className="gap-1"><Pencil className="h-4 w-4" />ערוך מודעה</Button>
+            </Link>
+          )}
+        </div>
+        {listing.is_urgent && (
+          <div className="mb-4 rounded-xl border-2 border-rose-500/60 bg-rose-500/10 p-3 flex items-center gap-2">
+            <Flame className="h-5 w-5 text-rose-500" />
+            <span className="font-semibold text-rose-600 dark:text-rose-400">מכירה דחופה — המוכר רוצה למכור מהר</span>
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-[1fr_360px] gap-6">
           <div className="space-y-6">
             {/* Gallery */}
             {listing.images?.length > 0 && (
-              <Carousel className="rounded-2xl overflow-hidden border bg-black/5">
-                <CarouselContent>
-                  {listing.images.map((url: string, i: number) => (
-                    <CarouselItem key={i}>
-                      <div className="flex items-center justify-center bg-black/5 cursor-zoom-in" style={{ minHeight: "60vh" }} onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}>
-                        <img
-                          src={url}
-                          alt={`${listing.title} ${i + 1}`}
-                          className="max-h-[70vh] w-full object-contain"
-                          loading={i === 0 ? "eager" : "lazy"}
-                          decoding="async"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                {listing.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}
-              </Carousel>
+              <div className="relative">
+                <Carousel className="rounded-2xl overflow-hidden border bg-black/5">
+                  <CarouselContent>
+                    {listing.images.map((url: string, i: number) => (
+                      <CarouselItem key={i}>
+                        <div className="flex items-center justify-center bg-black/5 cursor-zoom-in" style={{ minHeight: "60vh" }} onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}>
+                          <img src={url} alt={`${listing.title} ${i + 1}`} className="max-h-[70vh] w-full object-contain" loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {listing.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}
+                </Carousel>
+                <Button size="sm" variant="secondary" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} className="absolute bottom-3 right-3 gap-1 shadow-lg">
+                  <Images className="h-4 w-4" />כל התמונות ({listing.images.length})
+                </Button>
+              </div>
             )}
             <ImageLightbox images={listing.images ?? []} open={lightboxOpen} initialIndex={lightboxIndex} onOpenChange={setLightboxOpen} alt={listing.title} />
+
+            {/* Audio sample */}
+            {listing.audio_url && (
+              <div className="rounded-2xl overflow-hidden border bg-card p-4">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">🎵 השמעה של הכלי</h3>
+                <audio src={listing.audio_url} controls className="w-full" />
+              </div>
+            )}
 
             {/* Video */}
             {listing.video_url && (
