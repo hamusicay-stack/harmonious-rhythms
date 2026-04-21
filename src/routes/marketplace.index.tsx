@@ -69,6 +69,8 @@ function MarketplacePage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [urgentOnly, setUrgentOnly] = useState(false);
   const [sellerTypeFilter, setSellerTypeFilter] = useState<"all" | "private" | "business">("all");
+  const [sortBy, setSortBy] = useState<"best" | "newest" | "oldest" | "price_asc" | "price_desc">("best");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   useEffect(() => {
     (async () => {
