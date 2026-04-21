@@ -610,6 +610,7 @@ export type Database = {
           created_at: string
           currency: string
           description: string | null
+          followup_sent_at: string | null
           id: string
           images: string[] | null
           item_condition: string
@@ -634,6 +635,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
+          followup_sent_at?: string | null
           id?: string
           images?: string[] | null
           item_condition?: string
@@ -658,6 +660,7 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
+          followup_sent_at?: string | null
           id?: string
           images?: string[] | null
           item_condition?: string
@@ -714,6 +717,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_settings: {
+        Row: {
+          followup_days: number
+          followup_enabled: boolean
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          followup_days?: number
+          followup_enabled?: boolean
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          followup_days?: number
+          followup_enabled?: boolean
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       marketplace_trusted_sellers: {
         Row: {
