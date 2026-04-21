@@ -200,6 +200,21 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     }
   };
 
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    if (file.size > 10 * 1024 * 1024) { toast.error("אודיו מעל 10MB"); return; }
+    setUploading(true);
+    try {
+      const path = `${user.id}/audio-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error } = await supabase.storage.from("marketplace").upload(path, file, { contentType: file.type || "audio/mpeg" });
+      if (error) { toast.error(error.message); return; }
+      const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
+      setAudioFile(data.publicUrl);
+      toast.success("האודיו הועלה");
+    } finally { setUploading(false); }
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -265,6 +280,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       whatsapp: phoneHasWhatsapp ? form.phone.trim() : (form.whatsapp?.trim() || null),
       images,
       video_url: form.video_url || null,
+      audio_url: audioFile || null,
+      is_urgent: isUrgent,
       specs: { year: form.year || null, has_rhythms: !!form.has_rhythms, has_samples: !!form.has_samples },
     };
 
