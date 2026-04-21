@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
-  Trash2, Pencil, Plus, CheckCircle2, Clock, XCircle,
+  Trash2, Pencil, Plus, CheckCircle2, Clock, XCircle, Bell, Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,10 +77,11 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="listings" className="gap-1"><Tags className="h-4 w-4" />המודעות שלי</TabsTrigger>
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
+            <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים שמורים</TabsTrigger>
             <TabsTrigger value="business" className="gap-1"><Building2 className="h-4 w-4" />עסקי</TabsTrigger>
           </TabsList>
 
@@ -94,6 +95,10 @@ function ProfilePage() {
 
           <TabsContent value="liked" className="mt-6">
             <LikedListings userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="searches" className="mt-6">
+            <SavedSearches userId={user.id} />
           </TabsContent>
 
           <TabsContent value="business" className="mt-6">
@@ -493,6 +498,117 @@ function BusinessTab({ userId, email }: { userId: string; email: string }) {
           {account ? "שמור שינויים" : "הירשם כמוכר עסקי"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+type SavedSearch = {
+  id: string;
+  name: string;
+  filters: Record<string, any>;
+  notify_email: boolean;
+  created_at: string;
+};
+
+function SavedSearches({ userId }: { userId: string }) {
+  const [items, setItems] = useState<SavedSearch[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("marketplace_saved_searches")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    setItems((data ?? []) as SavedSearch[]);
+    setLoading(false);
+  }, [userId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const toggleNotify = async (id: string, current: boolean) => {
+    const { error } = await supabase
+      .from("marketplace_saved_searches")
+      .update({ notify_email: !current })
+      .eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(!current ? "התראות הופעלו" : "התראות בוטלו");
+    load();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("למחוק את החיפוש השמור?")) return;
+    const { error } = await supabase.from("marketplace_saved_searches").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("נמחק");
+    load();
+  };
+
+  const buildSearchUrl = (filters: Record<string, any>) => {
+    const params = new URLSearchParams();
+    Object.entries(filters || {}).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
+    });
+    const qs = params.toString();
+    return qs ? `/marketplace?${qs}` : "/marketplace";
+  };
+
+  const describeFilters = (f: Record<string, any>) => {
+    const parts: string[] = [];
+    if (f.category) parts.push(`קטגוריה: ${f.category}`);
+    if (f.brand) parts.push(`מותג: ${f.brand}`);
+    if (f.city) parts.push(`עיר: ${f.city}`);
+    if (f.condition) parts.push(`מצב: ${f.condition}`);
+    if (f.minPrice || f.maxPrice) parts.push(`מחיר: ${f.minPrice || 0}–${f.maxPrice || "∞"}₪`);
+    if (f.urgent) parts.push("מכירה דחופה");
+    if (f.q) parts.push(`חיפוש: "${f.q}"`);
+    return parts.length ? parts.join(" · ") : "כל המודעות";
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+
+  if (items.length === 0) return (
+    <div className="rounded-2xl border border-dashed p-10 text-center">
+      <Bell className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+      <p className="text-muted-foreground mb-1">עוד לא שמרת חיפושים</p>
+      <p className="text-xs text-muted-foreground mb-4">סנן את הלוח לפי הצרכים שלך, ולחץ "שמור חיפוש" כדי לקבל התראה כשעולה מודעה תואמת</p>
+      <Link to="/marketplace"><Button variant="outline"><Search className="h-4 w-4" />עבור ללוח</Button></Link>
+    </div>
+  );
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {items.length} חיפושים שמורים. נשלח לך מייל כשעולה מודעה חדשה התואמת את הסינון.
+      </p>
+      {items.map((s) => (
+        <div key={s.id} className="rounded-xl border bg-card p-4 space-y-3">
+          <div className="flex items-start justify-between gap-2 flex-wrap">
+            <div className="min-w-0">
+              <div className="font-semibold flex items-center gap-2">
+                <Bell className={`h-4 w-4 ${s.notify_email ? "text-primary" : "text-muted-foreground"}`} />
+                {s.name}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">{describeFilters(s.filters)}</div>
+            </div>
+            <Badge variant={s.notify_email ? "default" : "secondary"} className="shrink-0">
+              {s.notify_email ? "התראות פעילות" : "ללא התראות"}
+            </Badge>
+          </div>
+          <div className="flex gap-2 flex-wrap pt-1">
+            <a href={buildSearchUrl(s.filters)}>
+              <Button size="sm" variant="outline"><Search className="h-3 w-3" />הצג תוצאות</Button>
+            </a>
+            <Button size="sm" variant="outline" onClick={() => toggleNotify(s.id, s.notify_email)}>
+              <Bell className="h-3 w-3" />{s.notify_email ? "כבה התראות" : "הפעל התראות"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => remove(s.id)} className="text-destructive">
+              <Trash2 className="h-3 w-3" />מחק
+            </Button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
