@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, MapPin, Star, ShieldCheck, Pencil, Globe, Instagram, Youtube, ArrowRight } from "lucide-react";
+import { Loader2, MapPin, Star, ShieldCheck, Pencil, Globe, Instagram, Youtube, ArrowRight, Building2 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -116,7 +116,7 @@ function SellerProfilePage() {
                 {trusted && <ShieldCheck className="h-6 w-6 text-primary" />}
               </h1>
               <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
-                {business && <Badge variant="default"><Building className="h-3 w-3" /> {business.business_name}</Badge>}
+                {business && <Badge variant="default" className="gap-1"><Building2 className="h-3 w-3" /> {business.business_name}</Badge>}
                 {trusted && <Badge variant="secondary" className="gap-1"><ShieldCheck className="h-3 w-3" />נבחרת המוזיקאי</Badge>}
                 {avgRating > 0 && (
                   <Badge variant="outline" className="gap-1">
@@ -212,6 +212,3 @@ function SellerProfilePage() {
   );
 }
 
-function Building({ className }: { className?: string }) {
-  return <ShieldCheck className={className} />;
-}
