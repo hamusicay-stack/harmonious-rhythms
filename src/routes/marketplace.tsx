@@ -224,17 +224,19 @@ function MarketplacePage() {
         </div>
       )}
 
-      <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="mb-6 flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="חפש לפי שם, מותג או דגם... (Enter לחיפוש)"
-            className="pr-10"
-          />
-        </div>
-        <Button type="submit" variant="secondary" className="hidden sm:inline-flex">חפש</Button>
+      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+        <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="flex flex-1 gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="חפש לפי שם, מותג או דגם... (Enter לחיפוש)"
+              className="pr-10"
+            />
+          </div>
+          <Button type="submit" variant="secondary" className="hidden sm:inline-flex">חפש</Button>
+        </form>
         <Sheet>
           <SheetTrigger asChild>
             <Button type="button" variant="outline" className="lg:hidden">סינון</Button>
@@ -244,10 +246,10 @@ function MarketplacePage() {
             <div className="mt-6">{filtersNode}</div>
           </SheetContent>
         </Sheet>
-        <Link to="/marketplace/new">
-          <Button type="button" className="w-full sm:w-auto"><Plus className="h-4 w-4" />פרסם מודעה</Button>
-        </Link>
-      </form>
+        <Button asChild className="w-full sm:w-auto">
+          <Link to="/marketplace/new"><Plus className="h-4 w-4" />פרסם מודעה</Link>
+        </Button>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
         <aside className="hidden lg:block">
