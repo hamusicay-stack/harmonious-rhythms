@@ -609,12 +609,14 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          is_verified: boolean
           notes: string | null
           phone: string | null
           subscription_expires_at: string | null
           subscription_status: string
           updated_at: string
           user_id: string
+          verified_sales_count: number
         }
         Insert: {
           business_name: string
@@ -622,12 +624,14 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_verified?: boolean
           notes?: string | null
           phone?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string
           updated_at?: string
           user_id: string
+          verified_sales_count?: number
         }
         Update: {
           business_name?: string
@@ -635,12 +639,14 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_verified?: boolean
           notes?: string | null
           phone?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string
           updated_at?: string
           user_id?: string
+          verified_sales_count?: number
         }
         Relationships: []
       }
@@ -712,6 +718,7 @@ export type Database = {
       marketplace_listings: {
         Row: {
           admin_notes: string | null
+          audio_url: string | null
           brand: string | null
           bump_expires_at: string | null
           bumped_at: string | null
@@ -726,6 +733,7 @@ export type Database = {
           followup_sent_at: string | null
           id: string
           images: string[] | null
+          is_urgent: boolean
           item_condition: string
           model: string | null
           phone: string | null
@@ -744,6 +752,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          audio_url?: string | null
           brand?: string | null
           bump_expires_at?: string | null
           bumped_at?: string | null
@@ -758,6 +767,7 @@ export type Database = {
           followup_sent_at?: string | null
           id?: string
           images?: string[] | null
+          is_urgent?: boolean
           item_condition?: string
           model?: string | null
           phone?: string | null
@@ -776,6 +786,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          audio_url?: string | null
           brand?: string | null
           bump_expires_at?: string | null
           bumped_at?: string | null
@@ -790,6 +801,7 @@ export type Database = {
           followup_sent_at?: string | null
           id?: string
           images?: string[] | null
+          is_urgent?: boolean
           item_condition?: string
           model?: string | null
           phone?: string | null
@@ -845,6 +857,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          last_notified_at: string | null
+          name: string
+          notify_email: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          name: string
+          notify_email?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          name?: string
+          notify_email?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       marketplace_settings: {
         Row: {
