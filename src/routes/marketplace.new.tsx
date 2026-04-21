@@ -59,11 +59,6 @@ function NewListingPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      toast.error("יש להתחבר כדי לפרסם מודעה");
-      navigate({ to: "/auth" });
-      return;
-    }
     if (user) {
       supabase.from("marketplace_business_sellers").select("user_id").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle()
         .then(({ data }) => setIsBusiness(!!data));
