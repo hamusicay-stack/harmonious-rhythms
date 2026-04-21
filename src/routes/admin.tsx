@@ -358,6 +358,9 @@ function AdminPage() {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="admins" className="mt-6">
+            <AdminsManager />
+          </TabsContent>
         </Tabs>
       </section>
     </SiteLayout>
