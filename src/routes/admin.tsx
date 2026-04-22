@@ -388,6 +388,9 @@ function AdminPage() {
           <TabsContent value="purchase_orders" className="mt-6">
             <SupplierOrdersManager />
           </TabsContent>
+          <TabsContent value="shop" className="mt-6">
+            <ShopManager />
+          </TabsContent>
           <TabsContent value="marketplace" className="mt-6 space-y-6">
             <MarketplaceSettings />
             <MarketplaceCategoriesManager />
