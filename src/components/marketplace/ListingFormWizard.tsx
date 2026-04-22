@@ -402,7 +402,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
           <>
             <h2 className="text-lg font-semibold">קטגוריה</h2>
             <div className="space-y-2">
-              <Label>סוג כלי</Label>
+              <Label>סוג כלי <span className="text-destructive">*</span></Label>
               <Select value={form.category} onValueChange={(v) => { update("category", v); update("subcategory", ""); }}>
                 <SelectTrigger><SelectValue placeholder="בחר קטגוריה" /></SelectTrigger>
                 <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
