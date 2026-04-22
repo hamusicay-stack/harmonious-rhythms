@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ForumRouteImport } from './routes/forum'
@@ -34,6 +35,11 @@ import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/p
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProsRoute = ProsRouteImport.update({
+  id: '/pros',
+  path: '/pros',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/forum': typeof ForumRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
+  '/pros': typeof ProsRoute
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
   '/profile': typeof ProfileRoute
+  '/pros': typeof ProsRoute
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/forum': typeof ForumRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
+  '/pros': typeof ProsRoute
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/forum'
     | '/marketplace'
     | '/profile'
+    | '/pros'
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/forum'
     | '/profile'
+    | '/pros'
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/forum'
     | '/marketplace'
     | '/profile'
+    | '/pros'
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -293,6 +305,7 @@ export interface RootRouteChildren {
   ForumRoute: typeof ForumRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
+  ProsRoute: typeof ProsRoute
   StoreRoute: typeof StoreRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/store'
       fullPath: '/store'
       preLoaderRoute: typeof StoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pros': {
+      id: '/pros'
+      path: '/pros'
+      fullPath: '/pros'
+      preLoaderRoute: typeof ProsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -502,6 +522,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForumRoute: ForumRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
+  ProsRoute: ProsRoute,
   StoreRoute: StoreRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
