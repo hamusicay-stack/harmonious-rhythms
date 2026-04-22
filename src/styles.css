@@ -131,9 +131,9 @@
 
 @keyframes urgentPulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 oklch(0.62 0.22 25 / 55%), 0 0 0 1px oklch(0.62 0.22 25 / 70%);
+    box-shadow: 0 0 0 0 oklch(0.62 0.22 25 / 40%), inset 0 0 0 1.5px oklch(0.62 0.22 25 / 75%);
   }
   50% {
-    box-shadow: 0 0 0 8px oklch(0.62 0.22 25 / 0%), 0 0 0 2px oklch(0.62 0.22 25 / 90%);
+    box-shadow: 0 0 0 6px oklch(0.62 0.22 25 / 0%), inset 0 0 0 1.5px oklch(0.62 0.22 25 / 95%);
   }
 }
