@@ -695,3 +695,84 @@ function SellerTypeChip({ value, onChange }: { value: "all" | "private" | "busin
     </Popover>
   );
 }
+
+const SORT_OPTIONS: { v: "best" | "newest" | "oldest" | "price_asc" | "price_desc"; label: string }[] = [
+  { v: "best", label: "ההתאמה הטובה ביותר" },
+  { v: "newest", label: "זמן: רשום לאחרונה" },
+  { v: "oldest", label: "זמן: מוקדמים בקרוב" },
+  { v: "price_asc", label: "מחיר: הנמוך ביותר ראשון" },
+  { v: "price_desc", label: "מחיר: הגבוה ביותר ראשון" },
+];
+
+function SortChip({ value, onChange }: {
+  value: "best" | "newest" | "oldest" | "price_asc" | "price_desc";
+  onChange: (v: "best" | "newest" | "oldest" | "price_asc" | "price_desc") => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const current = SORT_OPTIONS.find((o) => o.v === value) ?? SORT_OPTIONS[0];
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm transition hover:border-primary/40"
+        >
+          <ArrowUpDown className="h-3.5 w-3.5" />
+          <span>מיין: {current.label}</span>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-2" align="end">
+        {SORT_OPTIONS.map((o) => (
+          <button
+            key={o.v}
+            type="button"
+            onClick={() => { onChange(o.v); setOpen(false); }}
+            className={`w-full flex items-center justify-between gap-2 rounded-md px-3 py-2.5 text-sm hover:bg-muted transition ${value === o.v ? "text-primary font-medium" : ""}`}
+          >
+            <span>{o.label}</span>
+            {value === o.v && <Check className="h-4 w-4" />}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function ViewToggle({ value, onChange }: { value: "grid" | "list"; onChange: (v: "grid" | "list") => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-sm transition hover:border-primary/40"
+          aria-label="שנה תצוגה"
+        >
+          {value === "grid" ? <LayoutGrid className="h-4 w-4" /> : <ListIcon className="h-4 w-4" />}
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-44 p-2" align="end">
+        <button
+          type="button"
+          onClick={() => { onChange("grid"); setOpen(false); }}
+          className={`w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted transition ${value === "grid" ? "text-primary font-medium" : ""}`}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          <span>תצוגת קוביות</span>
+          {value === "grid" && <Check className="h-4 w-4 mr-auto" />}
+        </button>
+        <button
+          type="button"
+          onClick={() => { onChange("list"); setOpen(false); }}
+          className={`w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted transition ${value === "list" ? "text-primary font-medium" : ""}`}
+        >
+          <ListIcon className="h-4 w-4" />
+          <span>תצוגת רשימה</span>
+          {value === "list" && <Check className="h-4 w-4 mr-auto" />}
+        </button>
+      </PopoverContent>
+    </Popover>
+  );
+}
