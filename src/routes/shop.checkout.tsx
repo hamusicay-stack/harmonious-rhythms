@@ -45,7 +45,7 @@ function CheckoutPage() {
         ...f,
         customer_name: f.customer_name || (profile?.display_name ?? ""),
         customer_email: f.customer_email || (user.email ?? ""),
-        customer_phone: f.customer_phone || (profile?.phone ?? ""),
+        customer_phone: f.customer_phone || ((profile as any)?.phone ?? ""),
       }));
     }
   }, [user, profile]);

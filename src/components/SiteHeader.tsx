@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CartDrawer } from "@/components/shop/CartDrawer";
 import { toast } from "sonner";
 
 const navItems = [
@@ -70,6 +71,7 @@ export function SiteHeader() {
           <Button variant="ghost" size="icon" aria-label="חיפוש">
             <Search className="h-4 w-4" />
           </Button>
+          <CartDrawer />
 
           {user ? (
             <DropdownMenu>
