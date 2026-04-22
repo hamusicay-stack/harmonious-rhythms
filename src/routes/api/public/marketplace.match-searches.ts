@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/public/marketplace/match-searches")({
           // 1. Load all saved searches that want email notifications
           const { data: searches, error: sErr } = await supabaseAdmin
             .from("marketplace_saved_searches")
-            .select("id, user_id, name, filters, last_notified_at, notify_email")
+            .select("id, user_id, name, filters, last_notified_at, notify_email, created_at")
             .eq("notify_email", true);
 
           if (sErr) throw sErr;
