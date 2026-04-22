@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { labelOf, SPECIALTIES, GENRES } from "@/lib/prosData";
+import { LikeButton } from "@/components/LikeButton";
 
 export type ProCardData = {
   id: string;
