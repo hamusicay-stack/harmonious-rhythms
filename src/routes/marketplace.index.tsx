@@ -44,11 +44,7 @@ type Listing = {
   audio_url?: string | null;
   phone?: string | null;
   whatsapp?: string | null;
-  item_condition: string;
 };
-
-// note: item_condition already declared above; keeping single definition
-type _placeholder = never;
 
 type CategoryRow = {
   slug: string;
@@ -84,7 +80,7 @@ function MarketplacePage() {
       const [{ data: list }, { data: trusted }, { data: business }, { data: cats }] = await Promise.all([
         supabase
           .from("marketplace_listings")
-          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at, is_urgent, audio_url")
+          .select("id, seller_id, title, category, subcategory, brand, model, item_condition, price, region, city, images, seller_type, bump_expires_at, created_at, is_urgent, audio_url, phone, whatsapp")
           .eq("status", "approved")
           .order("is_urgent", { ascending: false })
           .order("bump_expires_at", { ascending: false, nullsFirst: false })
