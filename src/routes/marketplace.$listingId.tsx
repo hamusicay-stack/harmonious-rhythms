@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 import { ImageLightbox } from "@/components/marketplace/ImageLightbox";
+import { ReportListingDialog } from "@/components/marketplace/ReportListingDialog";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
@@ -273,6 +274,11 @@ function ListingDetailPage() {
                 </Button>
                 <Button variant="ghost" size="sm" onClick={share}><Share2 className="h-4 w-4" />שתף</Button>
               </div>
+              {!isOwner && (
+                <div className="pt-2 border-t flex justify-center">
+                  <ReportListingDialog listingId={listing.id} />
+                </div>
+              )}
             </div>
 
             {seller && (

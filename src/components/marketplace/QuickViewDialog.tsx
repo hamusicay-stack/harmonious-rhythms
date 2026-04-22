@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, ArrowLeft, Flame } from "lucide-react";
+import { ReportListingDialog } from "./ReportListingDialog";
 
 type QuickViewListing = {
   id: string;
@@ -78,14 +79,17 @@ export function QuickViewDialog({ listing, open, onOpenChange }: Props) {
             </div>
           )}
 
-          <div className="flex gap-2 pt-2">
-            <Button asChild className="flex-1 gap-2">
+          <div className="flex gap-2 pt-2 flex-wrap">
+            <Button asChild className="flex-1 gap-2 min-w-[180px]">
               <Link to="/marketplace/$listingId" params={{ listingId: listing.id }}>
                 לדף המודעה המלא
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
             <Button variant="outline" onClick={() => onOpenChange(false)}>סגור</Button>
+          </div>
+          <div className="flex justify-center pt-1">
+            <ReportListingDialog listingId={listing.id} />
           </div>
         </div>
       </DialogContent>
