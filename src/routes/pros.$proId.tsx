@@ -31,7 +31,7 @@ type Pro = {
 
 type Media = { id: string; type: string; url: string; title: string | null; is_featured: boolean };
 type Pkg = { id: string; title: string; description: string | null; price: number; unit: string };
-type Review = { id: string; rating: number; comment: string | null; is_verified: boolean; created_at: string; reviewer_id: string };
+type Review = { id: string; rating: number; comment: string | null; is_verified: boolean; is_approved: boolean; created_at: string; reviewer_id: string };
 
 function ProDetailPage() {
   const { proId } = Route.useParams();
@@ -44,6 +44,27 @@ function ProDetailPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  const reload = async () => {
+    const { data: rv } = await supabase.from("music_pro_reviews").select("*").eq("pro_id", proId).order("created_at", { ascending: false });
+    setReviews((rv as Review[]) ?? []);
+  };
+
+  const approveReview = async (id: string, approve: boolean) => {
+    const { error } = await supabase.from("music_pro_reviews").update({ is_approved: approve }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(approve ? "הביקורת אושרה" : "הביקורת הוסרה");
+    reload();
+  };
+
+  const deleteReview = async (id: string) => {
+    if (!confirm("למחוק ביקורת זו?")) return;
+    const { error } = await supabase.from("music_pro_reviews").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("נמחק");
+    reload();
+  };
 
   useEffect(() => {
     let cancelled = false;
