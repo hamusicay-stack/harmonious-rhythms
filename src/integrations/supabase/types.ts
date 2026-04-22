@@ -983,6 +983,288 @@ export type Database = {
         }
         Relationships: []
       }
+      music_pro_inquiries: {
+        Row: {
+          budget: number | null
+          contact_email: string | null
+          contact_phone: string
+          created_at: string
+          event_date: string | null
+          event_type: string
+          id: string
+          location: string | null
+          message: string | null
+          pro_id: string
+          sender_id: string | null
+          sender_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number | null
+          contact_email?: string | null
+          contact_phone: string
+          created_at?: string
+          event_date?: string | null
+          event_type: string
+          id?: string
+          location?: string | null
+          message?: string | null
+          pro_id: string
+          sender_id?: string | null
+          sender_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number | null
+          contact_email?: string | null
+          contact_phone?: string
+          created_at?: string
+          event_date?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          message?: string | null
+          pro_id?: string
+          sender_id?: string | null
+          sender_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_pro_inquiries_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_pro_media: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_featured: boolean
+          pro_id: string
+          title: string | null
+          type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_featured?: boolean
+          pro_id: string
+          title?: string | null
+          type: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_featured?: boolean
+          pro_id?: string
+          title?: string | null
+          type?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_pro_media_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_pro_packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          price: number
+          pro_id: string
+          title: string
+          unit: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          price?: number
+          pro_id: string
+          title: string
+          unit?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          price?: number
+          pro_id?: string
+          title?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_pro_packages_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_pro_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          inquiry_id: string | null
+          is_verified: boolean
+          pro_id: string
+          rating: number
+          reviewer_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          inquiry_id?: string | null
+          is_verified?: boolean
+          pro_id: string
+          rating: number
+          reviewer_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          inquiry_id?: string | null
+          is_verified?: boolean
+          pro_id?: string
+          rating?: number
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_pro_reviews_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "music_pro_inquiries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_pro_reviews_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_pros: {
+        Row: {
+          admin_notes: string | null
+          bio: string | null
+          brand_color: string | null
+          cities: string[]
+          cover_image: string | null
+          created_at: string
+          display_name: string
+          email: string | null
+          gear_list: string[]
+          genres: string[]
+          headline: string | null
+          hourly_price_min: number | null
+          id: string
+          instagram: string | null
+          is_featured: boolean
+          is_verified: boolean
+          phone: string | null
+          profile_image: string | null
+          region: string | null
+          specialties: string[]
+          status: string
+          subscription_tier: string
+          updated_at: string
+          user_id: string
+          views_count: number
+          website: string | null
+          whatsapp: string | null
+          youtube: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          bio?: string | null
+          brand_color?: string | null
+          cities?: string[]
+          cover_image?: string | null
+          created_at?: string
+          display_name: string
+          email?: string | null
+          gear_list?: string[]
+          genres?: string[]
+          headline?: string | null
+          hourly_price_min?: number | null
+          id?: string
+          instagram?: string | null
+          is_featured?: boolean
+          is_verified?: boolean
+          phone?: string | null
+          profile_image?: string | null
+          region?: string | null
+          specialties?: string[]
+          status?: string
+          subscription_tier?: string
+          updated_at?: string
+          user_id: string
+          views_count?: number
+          website?: string | null
+          whatsapp?: string | null
+          youtube?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          bio?: string | null
+          brand_color?: string | null
+          cities?: string[]
+          cover_image?: string | null
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          gear_list?: string[]
+          genres?: string[]
+          headline?: string | null
+          hourly_price_min?: number | null
+          id?: string
+          instagram?: string | null
+          is_featured?: boolean
+          is_verified?: boolean
+          phone?: string | null
+          profile_image?: string | null
+          region?: string | null
+          specialties?: string[]
+          status?: string
+          subscription_tier?: string
+          updated_at?: string
+          user_id?: string
+          views_count?: number
+          website?: string | null
+          whatsapp?: string | null
+          youtube?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
