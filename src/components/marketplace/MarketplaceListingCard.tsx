@@ -86,12 +86,30 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
 
   const urgentRing = listing.is_urgent ? "border-rose-500/70 urgent-pulse" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/40";
 
+  // Business listing styling — subtle but premium gold-tinted background and elegant border
+  const businessAccent = isBusiness && !listing.is_urgent && !bumped
+    ? "border-amber-500/40 bg-gradient-to-br from-amber-50/50 to-card-elevated dark:from-amber-950/10 dark:to-card-elevated ring-1 ring-amber-500/10"
+    : "";
+
+  // Touch swipe gesture state for Insta-style image gallery on mobile
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null || images.length <= 1) return;
+    const diff = e.changedTouches[0].clientX - touchStart;
+    if (Math.abs(diff) > 40) {
+      // RTL-aware: swipe left = next, swipe right = prev
+      setImgIdx((i) => diff < 0 ? (i + 1) % images.length : (i - 1 + images.length) % images.length);
+    }
+    setTouchStart(null);
+  };
+
   // ---- LIST VARIANT ----
   if (variant === "list") {
     return (
       <>
         <Link to="/marketplace/$listingId" params={{ listingId: listing.id }} className="group block">
-          <article className={`rounded-3xl border bg-card-elevated overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl flex gap-4 ${urgentRing}`}>
+          <article className={`rounded-3xl border bg-card-elevated overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl flex gap-4 ${urgentRing} ${businessAccent}`}>
             <div className="relative w-32 sm:w-44 shrink-0 aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
               {images[0] ? (
                 <img src={images[0]} alt={listing.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
@@ -149,9 +167,13 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
   return (
     <>
       <Link to="/marketplace/$listingId" params={{ listingId: listing.id }} className="group block">
-        <article className={`relative rounded-3xl border bg-card-elevated overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl ${urgentRing}`}>
-          {/* Image area with internal carousel */}
-          <div className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
+        <article className={`relative rounded-3xl border bg-card-elevated overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl ${urgentRing} ${businessAccent}`}>
+          {/* Image area with internal carousel + touch swipe (Insta-style) */}
+          <div
+            className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
             {images.length > 0 ? (
               images.map((src, i) => (
                 <img
@@ -194,13 +216,15 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               )}
             </div>
 
-            {/* Floating badges - top left (urgent / bumped) */}
+            {/* Floating badges - top left (urgent / sponsored) */}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               {listing.is_urgent && (
                 <Badge className="gap-1 shadow-lg bg-rose-500 hover:bg-rose-600 text-[10px]"><Flame className="h-3 w-3" />דחוף</Badge>
               )}
               {bumped && (
-                <Badge className="gap-1 shadow-lg text-[10px]"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
+                <Badge className="gap-1 shadow-lg text-[10px] bg-amber-500 hover:bg-amber-600 text-white">
+                  <ArrowUp className="h-3 w-3" />ממומן
+                </Badge>
               )}
             </div>
 
