@@ -415,6 +415,7 @@ function ProDetailPage() {
       <div className="h-16" />
 
       <RequestQuoteDialog open={quoteOpen} onOpenChange={setQuoteOpen} proId={pro.id} proName={pro.display_name} />
+      <AddReviewDialog open={reviewOpen} onOpenChange={setReviewOpen} proId={pro.id} proName={pro.display_name} onSubmitted={reload} />
     </div>
   );
 }
