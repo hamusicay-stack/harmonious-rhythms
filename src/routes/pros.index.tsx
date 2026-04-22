@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Loader2, Sparkles } from "lucide-react";
+import { Plus, Loader2, Sparkles, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProCard, type ProCardData } from "@/components/pros/ProCard";
+import { ProListItem } from "@/components/pros/ProListItem";
 import { ProFilters, DEFAULT_FILTERS, type ProFiltersState } from "@/components/pros/ProFilters";
 import { RequestQuoteDialog } from "@/components/pros/RequestQuoteDialog";
 
@@ -20,12 +21,18 @@ export const Route = createFileRoute("/pros/")({
   component: ProsIndex,
 });
 
+type SortMode = "relevance" | "newest" | "rating" | "price_low";
+type ViewMode = "grid" | "list";
+
 function ProsIndex() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [pros, setPros] = useState<ProCardData[]>([]);
+  const [ratings, setRatings] = useState<Record<string, { avg: number; count: number }>>({});
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ProFiltersState>(DEFAULT_FILTERS);
+  const [sort, setSort] = useState<SortMode>("relevance");
+  const [view, setView] = useState<ViewMode>("grid");
   const [quoteFor, setQuoteFor] = useState<ProCardData | null>(null);
 
   useEffect(() => {
@@ -34,21 +41,39 @@ function ProsIndex() {
       setLoading(true);
       const { data, error } = await supabase
         .from("music_pros")
-        .select("id,display_name,headline,profile_image,cover_image,brand_color,hourly_price_min,region,cities,specialties,genres,is_verified,subscription_tier,is_featured")
-        .eq("status", "approved")
-        .order("subscription_tier", { ascending: false })
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false });
+        .select("id,display_name,headline,profile_image,cover_image,brand_color,hourly_price_min,region,cities,specialties,genres,is_verified,subscription_tier,is_featured,created_at")
+        .eq("status", "approved");
       if (cancelled) return;
       if (error) console.error(error);
-      setPros((data as ProCardData[]) ?? []);
+      const list = (data as (ProCardData & { created_at: string })[]) ?? [];
+      setPros(list);
+
+      // Fetch all approved reviews in one query for ranking
+      if (list.length > 0) {
+        const { data: revs } = await supabase
+          .from("music_pro_reviews")
+          .select("pro_id,rating")
+          .in("pro_id", list.map((p) => p.id))
+          .eq("is_approved", true);
+        const map: Record<string, { sum: number; count: number }> = {};
+        (revs ?? []).forEach((r: any) => {
+          if (!map[r.pro_id]) map[r.pro_id] = { sum: 0, count: 0 };
+          map[r.pro_id].sum += r.rating;
+          map[r.pro_id].count += 1;
+        });
+        const finalRatings: Record<string, { avg: number; count: number }> = {};
+        Object.entries(map).forEach(([k, v]) => {
+          finalRatings[k] = { avg: v.sum / v.count, count: v.count };
+        });
+        setRatings(finalRatings);
+      }
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, []);
 
   const filtered = useMemo(() => {
-    return pros.filter((p) => {
+    const list = pros.filter((p) => {
       if (filters.search) {
         const q = filters.search.toLowerCase();
         const hay = `${p.display_name} ${p.headline ?? ""}`.toLowerCase();
@@ -63,7 +88,39 @@ function ProsIndex() {
       if (filters.vipOnly && p.subscription_tier !== "vip") return false;
       return true;
     });
-  }, [pros, filters]);
+
+    // Sort
+    const tierWeight = (t: string) => (t === "vip" ? 2 : 0);
+    list.sort((a: any, b: any) => {
+      if (sort === "relevance") {
+        // VIP first → featured → rating avg → review count → newest
+        const tw = tierWeight(b.subscription_tier) - tierWeight(a.subscription_tier);
+        if (tw !== 0) return tw;
+        const fw = (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
+        if (fw !== 0) return fw;
+        const ra = ratings[a.id]?.avg ?? 0;
+        const rb = ratings[b.id]?.avg ?? 0;
+        if (rb !== ra) return rb - ra;
+        const ca = ratings[a.id]?.count ?? 0;
+        const cb = ratings[b.id]?.count ?? 0;
+        if (cb !== ca) return cb - ca;
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      }
+      if (sort === "newest") {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      }
+      if (sort === "rating") {
+        const ra = ratings[a.id]?.avg ?? 0;
+        const rb = ratings[b.id]?.avg ?? 0;
+        return rb - ra;
+      }
+      if (sort === "price_low") {
+        return (a.hourly_price_min ?? Infinity) - (b.hourly_price_min ?? Infinity);
+      }
+      return 0;
+    });
+    return list;
+  }, [pros, filters, sort, ratings]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8 md:py-12">
@@ -94,6 +151,41 @@ function ProsIndex() {
         </aside>
 
         <div>
+          {/* Toolbar */}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/40 bg-card p-2 px-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{filtered.length} מוזיקאים</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortMode)}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+              >
+                <option value="relevance">הרלוונטי ביותר</option>
+                <option value="rating">דירוג גבוה</option>
+                <option value="newest">חדשים ביותר</option>
+                <option value="price_low">מחיר: נמוך לגבוה</option>
+              </select>
+              <div className="flex overflow-hidden rounded-md border border-input">
+                <button
+                  onClick={() => setView("grid")}
+                  className={`flex h-8 w-8 items-center justify-center transition-colors ${view === "grid" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+                  aria-label="תצוגת רשת"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setView("list")}
+                  className={`flex h-8 w-8 items-center justify-center transition-colors ${view === "list" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+                  aria-label="תצוגת רשימה"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
           {loading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -107,10 +199,20 @@ function ProsIndex() {
                 </Link>
               )}
             </div>
-          ) : (
+          ) : view === "grid" ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {filtered.map((pro) => (
                 <ProCard
+                  key={pro.id}
+                  pro={pro}
+                  onRequestQuote={() => setQuoteFor(pro)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filtered.map((pro) => (
+                <ProListItem
                   key={pro.id}
                   pro={pro}
                   onRequestQuote={() => setQuoteFor(pro)}
