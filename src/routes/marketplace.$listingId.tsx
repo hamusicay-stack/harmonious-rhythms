@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Pencil, Flame, Images, BadgeCheck } from "lucide-react";
+import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Flame, Images, BadgeCheck } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -125,11 +125,7 @@ function ListingDetailPage() {
           <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1">
             <ArrowRight className="h-4 w-4" />חזרה ללוח
           </Link>
-          {isOwner && (
-            <Link to="/marketplace/$listingId/edit" params={{ listingId }}>
-              <Button size="sm" variant="outline" className="gap-1"><Pencil className="h-4 w-4" />ערוך מודעה</Button>
-            </Link>
-          )}
+          {/* Edit removed — owner can only delete via profile page */}
         </div>
         {listing.is_urgent && (
           <div className="mb-4 rounded-xl border-2 border-rose-500/60 bg-rose-500/10 p-3 flex items-center gap-2">

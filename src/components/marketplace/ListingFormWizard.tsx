@@ -17,16 +17,16 @@ const MAX_IMAGES = 10;
 const schema = z.object({
   title: z.string().trim().min(3, "כותרת קצרה מדי").max(120),
   description: z.string().trim().max(2000).optional(),
-  category: z.string().min(1, "בחר קטגוריה"),
+  category: z.string().min(1, "בחר סוג כלי"),
   customCategory: z.string().optional(),
   subcategory: z.string().optional(),
   customSubcategory: z.string().optional(),
-  brand: z.string().optional(),
+  brand: z.string().min(1, "בחר יצרן"),
   customBrand: z.string().optional(),
   model: z.string().max(80).optional(),
   year: z.string().optional(),
-  item_condition: z.string().min(1),
-  price: z.coerce.number().min(1, "הזן מחיר").max(1000000),
+  item_condition: z.string().min(1, "בחר מצב"),
+  price: z.coerce.number({ invalid_type_error: "הזן מחיר" }).min(1, "הזן מחיר").max(1000000),
   city: z.string().optional(),
   customCity: z.string().optional(),
   phone: z.string().trim().min(9).max(20),
@@ -402,7 +402,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
           <>
             <h2 className="text-lg font-semibold">קטגוריה</h2>
             <div className="space-y-2">
-              <Label>סוג כלי</Label>
+              <Label>סוג כלי <span className="text-destructive">*</span></Label>
               <Select value={form.category} onValueChange={(v) => { update("category", v); update("subcategory", ""); }}>
                 <SelectTrigger><SelectValue placeholder="בחר קטגוריה" /></SelectTrigger>
                 <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
@@ -441,7 +441,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             <h2 className="text-lg font-semibold">פרטים טכניים</h2>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>יצרן</Label>
+                <Label>יצרן <span className="text-destructive">*</span></Label>
                 <Select value={form.brand} onValueChange={(v) => update("brand", v)}>
                   <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
                   <SelectContent>{BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
@@ -464,7 +464,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <Input value={form.year} onChange={(e) => update("year", e.target.value)} placeholder="2020" />
               </div>
               <div className="space-y-2">
-                <Label>מצב</Label>
+                <Label>מצב הכלי <span className="text-destructive">*</span></Label>
                 <Select value={form.item_condition} onValueChange={(v) => update("item_condition", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{CONDITIONS.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
@@ -490,7 +490,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>מחיר (₪) *</Label>
+                <Label>מחיר (₪) <span className="text-destructive">*</span></Label>
                 <Input type="number" value={form.price} onChange={(e) => update("price", e.target.value)} />
               </div>
               <div className="space-y-2">
@@ -575,17 +575,18 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             </div>
 
             <div className="pt-4 border-t">
-              <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition ${isUrgent ? "border-orange-500 bg-orange-500/5" : "border-border hover:border-orange-500/50"}`}>
-                <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="h-5 w-5 mt-0.5" />
+              <div className="flex items-start gap-3 rounded-xl border-2 border-dashed border-border p-4 opacity-70">
+                <Flame className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <Flame className="h-4 w-4 text-orange-500" />סמן כ"מכירה דחופה"
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="font-semibold">סמן כ"מכירה דחופה"</div>
+                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full">בתשלום · בקרוב</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    המודעה תופיע עם תג בולט בכתום וחשיפה גבוהה יותר ללוח. מתאים למוכרים שצריכים למכור מהר.
+                    תכונה בתשלום: המודעה תופיע עם תג בולט בכתום וחשיפה גבוהה יותר ללוח. בקרוב נוכל לאפשר תשלום ולהפעיל את הסימון.
                   </p>
                 </div>
-              </label>
+              </div>
             </div>
           </>
         )}
