@@ -33,6 +33,7 @@ import { MarketplaceManager } from "@/components/admin/MarketplaceManager";
 import { MarketplaceSettings } from "@/components/admin/MarketplaceSettings";
 import { BusinessSellersManager } from "@/components/admin/BusinessSellersManager";
 import { MarketplaceCategoriesManager } from "@/components/admin/MarketplaceCategoriesManager";
+import { ReportsManager } from "@/components/admin/ReportsManager";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -387,6 +388,10 @@ function AdminPage() {
             <MarketplaceCategoriesManager />
             <BusinessSellersManager />
             <MarketplaceManager />
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-500" />דיווחי משתמשים</CardTitle></CardHeader>
+              <CardContent><ReportsManager /></CardContent>
+            </Card>
           </TabsContent>
           <TabsContent value="automations" className="mt-6">
             <AutomationsManager />

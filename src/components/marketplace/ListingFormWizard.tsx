@@ -345,6 +345,38 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const stepIndex = isEdit ? step - 1 : step;
   const canProceedFromStep0 = sellerType === "private" || (sellerType === "business" && hasBusinessAccount);
 
+  // Per-step required field validation — blocks the "next" button until starred fields are filled
+  const stepValid = (s: number): { ok: boolean; msg?: string } => {
+    if (s === 0) return { ok: canProceedFromStep0, msg: "בחר סוג מפרסם" };
+    if (s === 1) {
+      if (!form.category) return { ok: false, msg: "סוג כלי הוא שדה חובה" };
+      if (form.category === "other" && !form.customCategory?.trim()) return { ok: false, msg: "פרט שם הקטגוריה" };
+      if (form.subcategory === "אחר" && !form.customSubcategory?.trim()) return { ok: false, msg: "פרט תת-קטגוריה" };
+      if (!form.title?.trim() || form.title.trim().length < 3) return { ok: false, msg: "כותרת חייבת להיות לפחות 3 תווים" };
+      return { ok: true };
+    }
+    if (s === 2) {
+      if (!form.brand) return { ok: false, msg: "יצרן הוא שדה חובה" };
+      if (form.brand === "אחר" && !form.customBrand?.trim()) return { ok: false, msg: "פרט שם היצרן" };
+      if (!form.item_condition) return { ok: false, msg: "מצב הכלי הוא שדה חובה" };
+      if (!form.price || Number(form.price) < 1) return { ok: false, msg: "מחיר הוא שדה חובה" };
+      if (form.city === "אחר" && !form.customCity?.trim()) return { ok: false, msg: "פרט שם העיר" };
+      return { ok: true };
+    }
+    if (s === 3) {
+      if (images.length === 0) return { ok: false, msg: "יש להעלות לפחות תמונה אחת" };
+      return { ok: true };
+    }
+    return { ok: true };
+  };
+
+  const goNext = () => {
+    const v = stepValid(step);
+    if (!v.ok) { toast.error(v.msg ?? "יש למלא את כל שדות החובה"); return; }
+    setStep(step + 1);
+  };
+
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8 flex gap-2">
@@ -662,7 +694,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             <Button variant="outline" onClick={() => setStep(step - 1)}><ArrowRight className="h-4 w-4" />חזרה</Button>
           ) : <Link to="/marketplace"><Button variant="ghost">ביטול</Button></Link>}
           {step < 4 ? (
-            <Button onClick={() => setStep(step + 1)} disabled={!isEdit && step === 0 && !canProceedFromStep0}>
+            <Button onClick={goNext} disabled={!isEdit && step === 0 && !canProceedFromStep0}>
               הבא<ArrowLeft className="h-4 w-4" />
             </Button>
           ) : (
