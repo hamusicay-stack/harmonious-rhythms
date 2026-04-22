@@ -42,8 +42,8 @@ function ListingDetailPage() {
       const { data: l } = await supabase.from("marketplace_listings").select("*").eq("id", listingId).maybeSingle();
       if (!l) { setLoading(false); return; }
       setListing(l);
-      // Increment views (best-effort)
-      supabase.from("marketplace_listings").update({ views_count: (l.views_count || 0) + 1 }).eq("id", listingId);
+      // Increment views via SECURITY DEFINER RPC (works for all viewers)
+      supabase.rpc("increment_listing_views", { _listing_id: listingId });
 
       const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }, { count: likesC }, { data: myLike }] = await Promise.all([
         supabase.from("profiles").select("id, display_name, avatar_url").eq("id", l.seller_id).maybeSingle(),
