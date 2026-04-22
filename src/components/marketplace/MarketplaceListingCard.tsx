@@ -134,7 +134,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
                     {isTrusted && (
                       <Badge variant="secondary" className="gap-1 text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><BadgeCheck className="h-3 w-3" />מאומת</Badge>
                     )}
-                    {bumped && <Badge className="gap-1 text-[10px]"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>}
+                    {bumped && <Badge className="gap-1 text-[10px] bg-amber-500 hover:bg-amber-600 text-white"><ArrowUp className="h-3 w-3" />ממומן</Badge>}
                   </div>
                 </div>
                 {listing.audio_url && <Badge variant="secondary" className="gap-1 text-[10px]">🎵 השמעה</Badge>}
