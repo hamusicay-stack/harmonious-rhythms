@@ -188,9 +188,9 @@ function ProDetailPage() {
               ))}
             </div>
 
-            <Tabs defaultValue="showreel" className="mt-6">
+            <Tabs defaultValue="showreel" dir="rtl" className="mt-6">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="showreel">Showreel</TabsTrigger>
+                <TabsTrigger value="showreel">דמו</TabsTrigger>
                 <TabsTrigger value="services">שירותים</TabsTrigger>
                 <TabsTrigger value="gear">ציוד</TabsTrigger>
                 <TabsTrigger value="reviews">ביקורות</TabsTrigger>
