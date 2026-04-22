@@ -42,7 +42,13 @@ type Listing = {
   created_at: string;
   is_urgent?: boolean;
   audio_url?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  item_condition: string;
 };
+
+// note: item_condition already declared above; keeping single definition
+type _placeholder = never;
 
 type CategoryRow = {
   slug: string;
