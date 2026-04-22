@@ -384,7 +384,7 @@ function MarketplacePage() {
               const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
               return (
                 <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
-                  <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
+                  <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${l.is_urgent ? "border-rose-500/70 urgent-pulse" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
                     <div className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
                       {l.images?.[0] ? (
                         <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
@@ -439,7 +439,7 @@ function MarketplacePage() {
               const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
               return (
                 <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
-                  <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg flex gap-4 ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
+                  <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg flex gap-4 ${l.is_urgent ? "border-rose-500/70 urgent-pulse" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
                     <div className="relative w-32 sm:w-44 shrink-0 aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
                       {l.images?.[0] ? (
                         <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
