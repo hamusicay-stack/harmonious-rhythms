@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
   Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search, Music2, Pencil,
+  Phone, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -346,7 +347,10 @@ function MyListings({ userId }: { userId: string }) {
                   </div>
                   <div className="text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
                     <span className="font-bold text-primary">₪{Number(l.price).toLocaleString()}</span>
-                    <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{l.views_count || 0} צפיות</span>
+                    <span className="flex items-center gap-1" title="צפיות"><Eye className="h-3 w-3" />{l.views_count || 0}</span>
+                    <span className="flex items-center gap-1" title="לחיצות על חיוג"><Phone className="h-3 w-3" />{stats[l.id]?.phone ?? 0}</span>
+                    <span className="flex items-center gap-1" title="לחיצות על וואטסאפ"><MessageCircle className="h-3 w-3" />{stats[l.id]?.whatsapp ?? 0}</span>
+                    <span className="flex items-center gap-1 text-rose-500" title="לייקים"><Heart className="h-3 w-3" />{stats[l.id]?.likes ?? 0}</span>
                   </div>
                   <div className="flex gap-2 flex-wrap pt-1">
                     {l.status === "approved" && !bumped && (
