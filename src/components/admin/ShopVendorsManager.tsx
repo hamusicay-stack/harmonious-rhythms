@@ -28,9 +28,10 @@ export function ShopVendorsManager() {
 
   const save = async () => {
     if (!editing?.company_name) return toast.error("נדרש שם חברה");
+    const payload: any = editing;
     const { error } = editing.id
-      ? await supabase.from("shop_vendors").update(editing).eq("id", editing.id)
-      : await supabase.from("shop_vendors").insert(editing);
+      ? await supabase.from("shop_vendors").update(payload).eq("id", editing.id)
+      : await supabase.from("shop_vendors").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("נשמר"); setOpen(false); load();
   };

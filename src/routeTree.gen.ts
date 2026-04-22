@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
@@ -20,8 +21,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
 import { Route as ProsNewRouteImport } from './routes/pros.new'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
@@ -39,6 +42,11 @@ import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/p
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProsRoute = ProsRouteImport.update({
@@ -91,6 +99,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopRoute,
+} as any)
 const ProsIndexRoute = ProsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -100,6 +113,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketplaceRoute,
+} as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ShopRoute,
 } as any)
 const SellerSellerIdRoute = SellerSellerIdRouteImport.update({
   id: '/seller/$sellerId',
@@ -184,14 +202,17 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/new': typeof ProsNewRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
+  '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
@@ -216,8 +237,10 @@ export interface FileRoutesByTo {
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/new': typeof ProsNewRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
+  '/shop': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
@@ -239,14 +262,17 @@ export interface FileRoutesById {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
+  '/shop': typeof ShopRouteWithChildren
   '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/new': typeof ProsNewRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
+  '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
@@ -269,14 +295,17 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/pros'
+    | '/shop'
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
     | '/pros/new'
     | '/seller/$sellerId'
+    | '/shop/$slug'
     | '/marketplace/'
     | '/pros/'
+    | '/shop/'
     | '/admin/customers/$customerId'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
@@ -301,8 +330,10 @@ export interface FileRouteTypes {
     | '/pros/$proId'
     | '/pros/new'
     | '/seller/$sellerId'
+    | '/shop/$slug'
     | '/marketplace'
     | '/pros'
+    | '/shop'
     | '/admin/customers/$customerId'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
@@ -323,14 +354,17 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/pros'
+    | '/shop'
     | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
     | '/pros/new'
     | '/seller/$sellerId'
+    | '/shop/$slug'
     | '/marketplace/'
     | '/pros/'
+    | '/shop/'
     | '/admin/customers/$customerId'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
@@ -352,6 +386,7 @@ export interface RootRouteChildren {
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
+  ShopRoute: typeof ShopRouteWithChildren
   StoreRoute: typeof StoreRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
@@ -367,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/store'
       fullPath: '/store'
       preLoaderRoute: typeof StoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pros': {
@@ -439,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop/': {
+      id: '/shop/'
+      path: '/'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/pros/': {
       id: '/pros/'
       path: '/'
@@ -452,6 +501,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/'
       preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof MarketplaceRoute
+    }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
+      parentRoute: typeof ShopRoute
     }
     '/seller/$sellerId': {
       id: '/seller/$sellerId'
@@ -612,6 +668,18 @@ const ProsRouteChildren: ProsRouteChildren = {
 
 const ProsRouteWithChildren = ProsRoute._addFileChildren(ProsRouteChildren)
 
+interface ShopRouteChildren {
+  ShopSlugRoute: typeof ShopSlugRoute
+  ShopIndexRoute: typeof ShopIndexRoute
+}
+
+const ShopRouteChildren: ShopRouteChildren = {
+  ShopSlugRoute: ShopSlugRoute,
+  ShopIndexRoute: ShopIndexRoute,
+}
+
+const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -623,6 +691,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,
+  ShopRoute: ShopRouteWithChildren,
   StoreRoute: StoreRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
