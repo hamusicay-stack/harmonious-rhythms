@@ -285,11 +285,21 @@ function ProDetailPage() {
               </TabsContent>
 
               <TabsContent value="reviews" className="mt-4 space-y-3">
-                {reviews.length === 0 ? (
+                {canReview && (
+                  <Button onClick={() => setReviewOpen(true)} variant="outline" className="w-full">
+                    <Star className="ml-2 h-4 w-4" />הוסף ביקורת
+                  </Button>
+                )}
+                {isOwner && pendingReviewsCount > 0 && (
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
+                    יש לך {pendingReviewsCount} ביקורות הממתינות לאישורך. אשר או דחה אותן למטה.
+                  </div>
+                )}
+                {approvedReviews.length === 0 ? (
                   <p className="text-sm text-muted-foreground">אין עדיין ביקורות.</p>
                 ) : (
-                  reviews.map((r) => (
-                    <Card key={r.id}>
+                  approvedReviews.map((r) => (
+                    <Card key={r.id} className={!r.is_approved ? "border-amber-500/40 bg-amber-500/5" : ""}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
@@ -297,16 +307,40 @@ function ProDetailPage() {
                               <Star key={i} className={`h-4 w-4 ${i < r.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
                             ))}
                           </div>
-                          {r.is_verified && (
-                            <Badge variant="outline" className="border-blue-500/40 text-blue-600 dark:text-blue-300">
-                              <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {!r.is_approved && (
+                              <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
+                                <Clock className="ml-1 h-3 w-3" />ממתין לאישור
+                              </Badge>
+                            )}
+                            {r.is_verified && (
+                              <Badge variant="outline" className="border-blue-500/40 text-blue-600 dark:text-blue-300">
+                                <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString("he-IL")}
-                        </p>
+                        <div className="mt-2 flex items-center justify-between">
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(r.created_at).toLocaleDateString("he-IL")}
+                          </p>
+                          {isOwner && !r.is_approved && (
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="outline" onClick={() => approveReview(r.id, true)} className="h-7 text-xs">
+                                <Check className="ml-1 h-3 w-3" />אשר
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => deleteReview(r.id)} className="h-7 text-xs text-destructive">
+                                <X className="ml-1 h-3 w-3" />דחה
+                              </Button>
+                            </div>
+                          )}
+                          {isOwner && r.is_approved && (
+                            <Button size="sm" variant="ghost" onClick={() => approveReview(r.id, false)} className="h-7 text-xs text-muted-foreground">
+                              הסתר
+                            </Button>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   ))
