@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS } from "@/lib/shopUtils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LikeButton } from "@/components/LikeButton";
 
 export const Route = createFileRoute("/shop/")({
   head: () => ({
