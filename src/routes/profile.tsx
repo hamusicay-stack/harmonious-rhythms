@@ -390,69 +390,216 @@ function MyListings({ userId }: { userId: string }) {
   );
 }
 
-function LikedListings({ userId }: { userId: string }) {
-  const [listings, setListings] = useState<Listing[]>([]);
+type LikeRow = { item_type: string; item_id: string; created_at: string };
+
+function LikedItems({ userId }: { userId: string }) {
+  const [filter, setFilter] = useState<"all" | "marketplace_listing" | "shop_product" | "music_pro" | "academy_course" | "forum_post">("all");
+  const [likes, setLikes] = useState<LikeRow[]>([]);
+  const [items, setItems] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data: likes } = await supabase
-      .from("marketplace_likes")
-      .select("listing_id, created_at")
+    // Load global likes
+    const { data: gLikes } = await supabase
+      .from("user_likes")
+      .select("item_type, item_id, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
-    const ids = (likes ?? []).map((l: any) => l.listing_id);
-    if (ids.length === 0) { setListings([]); setLoading(false); return; }
-    const { data } = await supabase
-      .from("marketplace_listings")
-      .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand")
-      .in("id", ids);
-    // keep the like order
-    const map = new Map((data ?? []).map((l: any) => [l.id, l]));
-    setListings(ids.map((id) => map.get(id)).filter(Boolean) as Listing[]);
+
+    // Backwards compat: also load legacy marketplace_likes
+    const { data: legacy } = await supabase
+      .from("marketplace_likes")
+      .select("listing_id, created_at")
+      .eq("user_id", userId);
+
+    const allLikes: LikeRow[] = [
+      ...((gLikes ?? []) as LikeRow[]),
+      ...((legacy ?? []) as { listing_id: string; created_at: string }[]).map((l) => ({
+        item_type: "marketplace_listing",
+        item_id: l.listing_id,
+        created_at: l.created_at,
+      })),
+    ];
+    // Dedup by item_type+item_id
+    const seen = new Set<string>();
+    const dedup = allLikes.filter((l) => {
+      const k = `${l.item_type}:${l.item_id}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    }).sort((a, b) => b.created_at.localeCompare(a.created_at));
+    setLikes(dedup);
+
+    // Group by type and fetch items in batches
+    const groups: Record<string, string[]> = {};
+    for (const l of dedup) {
+      (groups[l.item_type] ||= []).push(l.item_id);
+    }
+
+    const map: Record<string, any> = {};
+    if (groups.marketplace_listing?.length) {
+      const { data } = await supabase.from("marketplace_listings")
+        .select("id, title, price, images, status").in("id", groups.marketplace_listing);
+      for (const r of data ?? []) map[`marketplace_listing:${r.id}`] = r;
+    }
+    if (groups.shop_product?.length) {
+      const { data } = await supabase.from("shop_products")
+        .select("id, title, slug, price, sale_price, main_image").in("id", groups.shop_product);
+      for (const r of data ?? []) map[`shop_product:${r.id}`] = r;
+    }
+    if (groups.music_pro?.length) {
+      const { data } = await supabase.from("music_pros")
+        .select("id, display_name, headline, profile_image").in("id", groups.music_pro);
+      for (const r of data ?? []) map[`music_pro:${r.id}`] = r;
+    }
+    if (groups.forum_post?.length) {
+      const { data } = await supabase.from("forum_posts")
+        .select("id, title, content").in("id", groups.forum_post);
+      for (const r of data ?? []) map[`forum_post:${r.id}`] = r;
+    }
+    setItems(map);
     setLoading(false);
   }, [userId]);
 
   useEffect(() => { load(); }, [load]);
 
-  const unlike = async (id: string) => {
-    const { error } = await supabase.from("marketplace_likes").delete().eq("listing_id", id).eq("user_id", userId);
-    if (error) { toast.error(error.message); return; }
-    setListings((prev) => prev.filter((l) => l.id !== id));
+  const unlike = async (l: LikeRow) => {
+    if (l.item_type === "marketplace_listing") {
+      // Remove from both tables to be safe
+      await supabase.from("user_likes").delete()
+        .eq("user_id", userId).eq("item_type", l.item_type).eq("item_id", l.item_id);
+      await supabase.from("marketplace_likes").delete()
+        .eq("user_id", userId).eq("listing_id", l.item_id);
+    } else {
+      await supabase.from("user_likes").delete()
+        .eq("user_id", userId).eq("item_type", l.item_type).eq("item_id", l.item_id);
+    }
+    setLikes((prev) => prev.filter((x) => !(x.item_type === l.item_type && x.item_id === l.item_id)));
     toast.success("הוסר מהמועדפים");
   };
 
+  const filtered = filter === "all" ? likes : likes.filter((l) => l.item_type === filter);
+
+  const counts = likes.reduce<Record<string, number>>((acc, l) => {
+    acc[l.item_type] = (acc[l.item_type] || 0) + 1;
+    return acc;
+  }, {});
+
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
-  if (listings.length === 0) return (
+
+  if (likes.length === 0) return (
     <div className="rounded-2xl border border-dashed p-10 text-center">
       <Heart className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-      <p className="text-muted-foreground mb-3">עוד לא סימנת לייק לאף מודעה</p>
-      <Link to="/marketplace"><Button variant="outline">עיון בלוח</Button></Link>
+      <p className="text-muted-foreground mb-3">עוד לא סימנת לייק לאף פריט</p>
+      <p className="text-xs text-muted-foreground mb-4">אפשר לסמן לייק על מודעות יד 2, מוצרים בחנות, מקצועני מוזיקה וקורסים באקדמיה</p>
+      <div className="flex justify-center gap-2 flex-wrap">
+        <Link to="/marketplace"><Button variant="outline"><Tags className="h-4 w-4" />יד 2</Button></Link>
+        <Link to="/shop"><Button variant="outline"><ShoppingBag className="h-4 w-4" />חנות</Button></Link>
+        <Link to="/pros"><Button variant="outline"><Music2 className="h-4 w-4" />מקצוענים</Button></Link>
+      </div>
     </div>
   );
 
+  const FilterBtn = ({ value, label, icon: Icon }: { value: typeof filter; label: string; icon: any }) => (
+    <Button
+      size="sm"
+      variant={filter === value ? "default" : "outline"}
+      onClick={() => setFilter(value)}
+      className="gap-1"
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+      {value !== "all" && counts[value] ? <Badge variant="secondary" className="mr-1 h-5 px-1.5">{counts[value]}</Badge> : null}
+    </Button>
+  );
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {listings.map((l) => (
-        <div key={l.id} className="rounded-2xl border bg-card-elevated overflow-hidden">
-          <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
-            <div className="aspect-square bg-muted">
-              {l.images?.[0] && <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover" loading="lazy" />}
-            </div>
-          </Link>
-          <div className="p-3 space-y-2">
-            <Link to="/marketplace/$listingId" params={{ listingId: l.id }} className="block font-semibold text-sm line-clamp-1 hover:text-primary">
-              {l.title}
-            </Link>
-            <div className="flex items-center justify-between">
-              <span className="text-primary font-bold">₪{Number(l.price).toLocaleString()}</span>
-              <Button size="sm" variant="ghost" onClick={() => unlike(l.id)} className="text-rose-500 h-8">
-                <Heart className="h-4 w-4 fill-current" />הסר
-              </Button>
-            </div>
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <FilterBtn value="all" label={`הכל (${likes.length})`} icon={Heart} />
+        <FilterBtn value="marketplace_listing" label="יד 2" icon={Tags} />
+        <FilterBtn value="shop_product" label="חנות" icon={ShoppingBag} />
+        <FilterBtn value="music_pro" label="מקצוענים" icon={Music2} />
+        <FilterBtn value="academy_course" label="אקדמיה" icon={GraduationCap} />
+        <FilterBtn value="forum_post" label="פורום" icon={MessageSquare} />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((l) => {
+          const item = items[`${l.item_type}:${l.item_id}`];
+          if (!item) {
+            return (
+              <div key={`${l.item_type}-${l.item_id}`} className="rounded-2xl border bg-muted/30 p-4 text-xs text-muted-foreground">
+                פריט לא זמין יותר
+                <Button size="sm" variant="ghost" onClick={() => unlike(l)} className="block mt-2"><Trash2 className="h-3 w-3" /></Button>
+              </div>
+            );
+          }
+          return <LikedCard key={`${l.item_type}-${l.item_id}`} like={l} item={item} onUnlike={() => unlike(l)} />;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function LikedCard({ like, item, onUnlike }: { like: LikeRow; item: any; onUnlike: () => void }) {
+  const config: Record<string, { href: any; img?: string; title: string; subtitle?: string; tag: string; tagIcon: any }> = {
+    marketplace_listing: {
+      href: { to: "/marketplace/$listingId", params: { listingId: item.id } },
+      img: item.images?.[0],
+      title: item.title,
+      subtitle: `₪${Number(item.price).toLocaleString()}`,
+      tag: "יד 2",
+      tagIcon: Tags,
+    },
+    shop_product: {
+      href: { to: "/shop/$slug", params: { slug: item.slug } },
+      img: item.main_image,
+      title: item.title,
+      subtitle: `₪${Number(item.sale_price ?? item.price).toLocaleString()}`,
+      tag: "חנות",
+      tagIcon: Store,
+    },
+    music_pro: {
+      href: { to: "/pros/$proId", params: { proId: item.id } },
+      img: item.profile_image,
+      title: item.display_name,
+      subtitle: item.headline,
+      tag: "מקצוען",
+      tagIcon: Music2,
+    },
+    forum_post: {
+      href: { to: "/forum" },
+      img: undefined,
+      title: item.title,
+      subtitle: (item.content || "").slice(0, 80),
+      tag: "פורום",
+      tagIcon: MessageSquare,
+    },
+  };
+  const c = config[like.item_type];
+  if (!c) return null;
+  const Icon = c.tagIcon;
+  return (
+    <div className="rounded-2xl border bg-card-elevated overflow-hidden flex flex-col">
+      <Link {...(c.href as any)} className="block">
+        <div className="aspect-square bg-muted relative">
+          {c.img && <img src={c.img} alt={c.title} className="w-full h-full object-cover" loading="lazy" />}
+          <Badge className="absolute top-2 right-2 gap-1"><Icon className="h-3 w-3" />{c.tag}</Badge>
         </div>
-      ))}
+      </Link>
+      <div className="p-3 space-y-2 flex-1 flex flex-col">
+        <Link {...(c.href as any)} className="block font-semibold text-sm line-clamp-1 hover:text-primary">
+          {c.title}
+        </Link>
+        {c.subtitle && <div className="text-xs text-muted-foreground line-clamp-1">{c.subtitle}</div>}
+        <div className="flex justify-end mt-auto">
+          <Button size="sm" variant="ghost" onClick={onUnlike} className="text-rose-500 h-8">
+            <Heart className="h-4 w-4 fill-current" />הסר
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
