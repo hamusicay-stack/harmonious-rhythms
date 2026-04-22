@@ -82,10 +82,20 @@ function ProDetailPage() {
       setPackages((pk as Pkg[]) ?? []);
       setReviews((rv as Review[]) ?? []);
       setLoading(false);
-      // Increment view counter (SECURITY DEFINER, bypasses RLS)
-      if (p) supabase.rpc("increment_pro_views", { _pro_id: proId });
     })();
     return () => { cancelled = true; };
+  }, [proId]);
+
+  // Track views — fire-and-forget, once per session per pro
+  useEffect(() => {
+    if (!proId) return;
+    const key = `viewed_pro_${proId}`;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(key)) return;
+    supabase.rpc("increment_pro_views", { _pro_id: proId })
+      .then(({ error }) => {
+        if (error) console.warn("increment_pro_views failed", error);
+        else if (typeof sessionStorage !== "undefined") sessionStorage.setItem(key, "1");
+      });
   }, [proId]);
 
   if (loading) {
