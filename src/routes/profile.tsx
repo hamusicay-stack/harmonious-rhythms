@@ -229,6 +229,7 @@ function statusBadge(status: string) {
 
 function MyListings({ userId }: { userId: string }) {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [stats, setStats] = useState<Record<string, { phone: number; whatsapp: number; likes: number }>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -238,7 +239,30 @@ function MyListings({ userId }: { userId: string }) {
       .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand")
       .eq("seller_id", userId)
       .order("created_at", { ascending: false });
-    setListings((data ?? []) as Listing[]);
+    const items = (data ?? []) as Listing[];
+    setListings(items);
+
+    // Fetch event stats for owner's listings
+    if (items.length > 0) {
+      const ids = items.map((l) => l.id);
+      const { data: events } = await supabase
+        .from("marketplace_listing_events")
+        .select("listing_id, event_type")
+        .in("listing_id", ids);
+      const acc: Record<string, { phone: number; whatsapp: number; likes: number }> = {};
+      for (const id of ids) acc[id] = { phone: 0, whatsapp: 0, likes: 0 };
+      for (const ev of events ?? []) {
+        const row = acc[ev.listing_id];
+        if (!row) continue;
+        if (ev.event_type === "phone_click") row.phone++;
+        else if (ev.event_type === "whatsapp_click") row.whatsapp++;
+        else if (ev.event_type === "like") row.likes++;
+        else if (ev.event_type === "unlike") row.likes = Math.max(0, row.likes - 1);
+      }
+      setStats(acc);
+    } else {
+      setStats({});
+    }
     setLoading(false);
   }, [userId]);
 
