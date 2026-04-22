@@ -575,17 +575,18 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             </div>
 
             <div className="pt-4 border-t">
-              <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition ${isUrgent ? "border-orange-500 bg-orange-500/5" : "border-border hover:border-orange-500/50"}`}>
-                <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="h-5 w-5 mt-0.5" />
+              <div className="flex items-start gap-3 rounded-xl border-2 border-dashed border-border p-4 opacity-70">
+                <Flame className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <Flame className="h-4 w-4 text-orange-500" />סמן כ"מכירה דחופה"
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="font-semibold">סמן כ"מכירה דחופה"</div>
+                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full">בתשלום · בקרוב</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    המודעה תופיע עם תג בולט בכתום וחשיפה גבוהה יותר ללוח. מתאים למוכרים שצריכים למכור מהר.
+                    תכונה בתשלום: המודעה תופיע עם תג בולט בכתום וחשיפה גבוהה יותר ללוח. בקרוב נוכל לאפשר תשלום ולהפעיל את הסימון.
                   </p>
                 </div>
-              </label>
+              </div>
             </div>
           </>
         )}
