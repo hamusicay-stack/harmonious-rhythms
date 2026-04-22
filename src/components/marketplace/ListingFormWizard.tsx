@@ -490,7 +490,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>מחיר (₪) *</Label>
+                <Label>מחיר (₪) <span className="text-destructive">*</span></Label>
                 <Input type="number" value={form.price} onChange={(e) => update("price", e.target.value)} />
               </div>
               <div className="space-y-2">
