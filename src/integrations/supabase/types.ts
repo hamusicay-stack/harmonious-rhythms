@@ -715,6 +715,38 @@ export type Database = {
           },
         ]
       }
+      marketplace_listing_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          listing_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          listing_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          listing_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listing_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_listings: {
         Row: {
           admin_notes: string | null
@@ -1556,6 +1588,13 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_listing_stats: {
+        Args: { _listing_id: string }
+        Returns: {
+          event_type: string
+          total: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1587,6 +1626,10 @@ export type Database = {
       }
       track_banner_event: {
         Args: { _banner_id: string; _event_type: string }
+        Returns: undefined
+      }
+      track_listing_event: {
+        Args: { _event_type: string; _listing_id: string }
         Returns: undefined
       }
     }
