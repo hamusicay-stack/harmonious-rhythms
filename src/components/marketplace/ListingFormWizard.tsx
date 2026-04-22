@@ -694,7 +694,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             <Button variant="outline" onClick={() => setStep(step - 1)}><ArrowRight className="h-4 w-4" />חזרה</Button>
           ) : <Link to="/marketplace"><Button variant="ghost">ביטול</Button></Link>}
           {step < 4 ? (
-            <Button onClick={() => setStep(step + 1)} disabled={!isEdit && step === 0 && !canProceedFromStep0}>
+            <Button onClick={goNext} disabled={!isEdit && step === 0 && !canProceedFromStep0}>
               הבא<ArrowLeft className="h-4 w-4" />
             </Button>
           ) : (
