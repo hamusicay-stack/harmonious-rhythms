@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ShieldCheck, Crown, MapPin, Phone, Globe, Instagram, Youtube,
-  Play, MessageCircle, Star, Loader2, Pencil, ArrowRight,
+  Play, MessageCircle, Star, Loader2, Pencil, ArrowRight, Check, X, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { labelOf, SPECIALTIES, GENRES, PACKAGE_UNITS } from "@/lib/prosData";
 import { RequestQuoteDialog } from "@/components/pros/RequestQuoteDialog";
+import { AddReviewDialog } from "@/components/pros/AddReviewDialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/pros/$proId")({
   component: ProDetailPage,
