@@ -298,7 +298,7 @@ function MarketplacePage() {
         <FilterChip
           label="יצרן"
           count={brands.size}
-          options={BRANDS.map((b) => ({ value: b, label: b, count: listings.filter((l) => l.brand === b).length })).filter((b) => b.count > 0)}
+          options={BRANDS.map((b) => ({ value: b, label: b, count: listings.filter((l) => l.brand === b).length }))}
           selected={brands}
           onToggle={(v) => toggleSet(brands, v, setBrands)}
           onClear={() => setBrands(new Set())}
@@ -306,7 +306,7 @@ function MarketplacePage() {
         <FilterChip
           label="עיר מכירה"
           count={cities.size}
-          options={CITIES.map((c) => ({ value: c, label: c, count: listings.filter((l) => l.city === c).length })).filter((c) => c.count > 0)}
+          options={CITIES.map((c) => ({ value: c, label: c, count: listings.filter((l) => l.city === c).length }))}
           selected={cities}
           onToggle={(v) => toggleSet(cities, v, setCities)}
           onClear={() => setCities(new Set())}
