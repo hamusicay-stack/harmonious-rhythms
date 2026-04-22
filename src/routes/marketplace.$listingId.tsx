@@ -42,8 +42,6 @@ function ListingDetailPage() {
       const { data: l } = await supabase.from("marketplace_listings").select("*").eq("id", listingId).maybeSingle();
       if (!l) { setLoading(false); return; }
       setListing(l);
-      // Increment views via SECURITY DEFINER RPC (works for all viewers)
-      supabase.rpc("increment_listing_views", { _listing_id: listingId });
 
       const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }, { count: likesC }, { data: myLike }] = await Promise.all([
         supabase.from("profiles").select("id, display_name, avatar_url").eq("id", l.seller_id).maybeSingle(),
@@ -64,6 +62,18 @@ function ListingDetailPage() {
       setLoading(false);
     })();
   }, [listingId, user]);
+
+  // Track views — fire-and-forget, once per session per listing
+  useEffect(() => {
+    if (!listingId) return;
+    const key = `viewed_listing_${listingId}`;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(key)) return;
+    supabase.rpc("increment_listing_views", { _listing_id: listingId })
+      .then(({ error }) => {
+        if (error) console.warn("increment_listing_views failed", error);
+        else if (typeof sessionStorage !== "undefined") sessionStorage.setItem(key, "1");
+      });
+  }, [listingId]);
 
   const toggleLike = async () => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
