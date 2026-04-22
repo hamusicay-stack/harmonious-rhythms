@@ -12,6 +12,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES as FALLBACK_CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
 import { SaveSearchDialog } from "@/components/marketplace/SaveSearchDialog";
+import { MarketplaceListingCard } from "@/components/marketplace/MarketplaceListingCard";
 
 export const Route = createFileRoute("/marketplace/")({
   head: () => ({
