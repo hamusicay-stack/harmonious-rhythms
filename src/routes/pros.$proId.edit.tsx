@@ -125,10 +125,10 @@ function EditProPage() {
         <CardContent className="space-y-5 p-6">
           <div className="grid gap-3 md:grid-cols-2">
             <div>
-              <Label>שם תצוגה {!isAdmin && <span className="text-xs text-muted-foreground">(נעול — פנה לאדמין לשינוי)</span>}</Label>
-              <Input value={pro.display_name || ""} disabled={!isAdmin} onChange={(e) => setPro({ ...pro, display_name: e.target.value })} />
+              <Label>שם תצוגה</Label>
+              <Input value={pro.display_name || ""} onChange={(e) => setPro({ ...pro, display_name: e.target.value })} />
             </div>
-            <div><Label>כותרת</Label><Input value={pro.headline || ""} onChange={(e) => setPro({ ...pro, headline: e.target.value })} /></div>
+            <div><Label>כותרת מקצועית</Label><Input value={pro.headline || ""} onChange={(e) => setPro({ ...pro, headline: e.target.value })} placeholder="לדוגמה: קלידן לאירועים ואולפן" /></div>
           </div>
           <div><Label>על עצמי</Label><Textarea rows={4} value={pro.bio || ""} onChange={(e) => setPro({ ...pro, bio: e.target.value })} /></div>
 
