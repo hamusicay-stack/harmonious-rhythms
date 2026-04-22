@@ -317,11 +317,22 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       status: "pending" as const,
     };
     const { data: inserted, error } = await supabase.from("marketplace_listings").insert(insertPayload).select("id, status").single();
+    if (error) { setSubmitting(false); toast.error(error.message); return; }
+
+    // Free bump: if user chose a bump option, set bump fields immediately
+    if (inserted && promoOption !== "none") {
+      const hours = promoOption === "bump48" ? 48 : 24;
+      const expires = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+      await supabase
+        .from("marketplace_listings")
+        .update({ bumped_at: new Date().toISOString(), bump_expires_at: expires })
+        .eq("id", inserted.id);
+    }
+
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
     const wasAutoApproved = inserted?.status === "approved";
     if (promoOption !== "none") {
-      toast.success("המודעה נשלחה! קידום בתשלום יתווסף בקרוב.");
+      toast.success(`המודעה נשלחה והוקפצה ל-${promoOption === "bump48" ? "48" : "24"} שעות! 🚀`);
     } else if (wasAutoApproved) {
       toast.success("המודעה פורסמה ונראית עכשיו בלוח! 🎉");
     } else {
@@ -575,18 +586,19 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             </div>
 
             <div className="pt-4 border-t">
-              <div className="flex items-start gap-3 rounded-xl border-2 border-dashed border-border p-4 opacity-70">
-                <Flame className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
+              <label className={`flex items-start gap-3 rounded-xl border-2 p-4 cursor-pointer transition ${isUrgent ? "border-rose-500 bg-rose-500/5" : "border-dashed border-border hover:border-rose-400/60"}`}>
+                <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="mt-1 h-4 w-4 accent-rose-500" />
+                <Flame className={`h-5 w-5 mt-0.5 shrink-0 ${isUrgent ? "text-rose-500" : "text-orange-500"}`} />
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="font-semibold">סמן כ"מכירה דחופה"</div>
-                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full">בתשלום · בקרוב</span>
+                    <span className="text-xs bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">חינם</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    תכונה בתשלום: המודעה תופיע עם תג בולט בכתום וחשיפה גבוהה יותר ללוח. בקרוב נוכל לאפשר תשלום ולהפעיל את הסימון.
+                    המודעה תקבל מסגרת אדומה פועמת ותג "דחוף" בולט בלוח, ותוצב לפני מודעות רגילות במיון "ההתאמה הטובה ביותר".
                   </p>
                 </div>
-              </div>
+              </label>
             </div>
           </>
         )}
@@ -601,17 +613,17 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <div className="space-y-2">
                   {[
                     { value: "none", title: "פרסום רגיל", desc: "המודעה תופיע ברשימה לפי תאריך פרסום", badge: "חינם" },
-                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: "בקרוב" },
-                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: "בקרוב" },
+                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: "חינם" },
+                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: "חינם" },
                   ].map((opt) => (
-                    <button key={opt.value} type="button" onClick={() => setPromoOption(opt.value as any)} disabled={opt.value !== "none"}
-                      className={`w-full relative rounded-lg border-2 p-3 text-right transition ${promoOption === opt.value ? "border-primary bg-primary/5" : "border-border"} ${opt.value !== "none" ? "opacity-60 cursor-not-allowed" : "hover:border-primary/50"}`}>
+                    <button key={opt.value} type="button" onClick={() => setPromoOption(opt.value as "none" | "bump24" | "bump48")}
+                      className={`w-full relative rounded-lg border-2 p-3 text-right transition ${promoOption === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
                       <div className="flex justify-between items-start">
                         <div>
                           <div className="font-medium text-sm">{opt.title}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">{opt.desc}</div>
                         </div>
-                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{opt.badge}</span>
+                        <span className="text-xs bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">{opt.badge}</span>
                       </div>
                     </button>
                   ))}

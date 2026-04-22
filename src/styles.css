@@ -124,4 +124,16 @@
   .transition-smooth {
     transition: var(--transition-smooth);
   }
+  .urgent-pulse {
+    animation: urgentPulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes urgentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.62 0.22 25 / 55%), 0 0 0 1px oklch(0.62 0.22 25 / 70%);
+  }
+  50% {
+    box-shadow: 0 0 0 8px oklch(0.62 0.22 25 / 0%), 0 0 0 2px oklch(0.62 0.22 25 / 90%);
+  }
 }
