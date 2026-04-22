@@ -441,7 +441,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             <h2 className="text-lg font-semibold">פרטים טכניים</h2>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>יצרן</Label>
+                <Label>יצרן <span className="text-destructive">*</span></Label>
                 <Select value={form.brand} onValueChange={(v) => update("brand", v)}>
                   <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
                   <SelectContent>{BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
@@ -464,7 +464,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <Input value={form.year} onChange={(e) => update("year", e.target.value)} placeholder="2020" />
               </div>
               <div className="space-y-2">
-                <Label>מצב</Label>
+                <Label>מצב הכלי <span className="text-destructive">*</span></Label>
                 <Select value={form.item_condition} onValueChange={(v) => update("item_condition", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{CONDITIONS.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
