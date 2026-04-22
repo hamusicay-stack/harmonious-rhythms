@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { labelOf, SPECIALTIES } from "@/lib/prosData";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -676,7 +677,7 @@ function MyProIndex({ userId }: { userId: string }) {
         </div>
         {pro.specialties?.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {pro.specialties.map((s: string) => <Badge key={s} variant="outline" className="text-[11px]">{s}</Badge>)}
+            {pro.specialties.map((s: string) => <Badge key={s} variant="outline" className="text-[11px]">{labelOf(SPECIALTIES, s)}</Badge>)}
           </div>
         )}
         <div className="flex gap-2 pt-2">
