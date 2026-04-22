@@ -317,11 +317,22 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       status: "pending" as const,
     };
     const { data: inserted, error } = await supabase.from("marketplace_listings").insert(insertPayload).select("id, status").single();
+    if (error) { setSubmitting(false); toast.error(error.message); return; }
+
+    // Free bump: if user chose a bump option, set bump fields immediately
+    if (inserted && promoOption !== "none") {
+      const hours = promoOption === "bump48" ? 48 : 24;
+      const expires = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+      await supabase
+        .from("marketplace_listings")
+        .update({ bumped_at: new Date().toISOString(), bump_expires_at: expires })
+        .eq("id", inserted.id);
+    }
+
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
     const wasAutoApproved = inserted?.status === "approved";
     if (promoOption !== "none") {
-      toast.success("המודעה נשלחה! קידום בתשלום יתווסף בקרוב.");
+      toast.success(`המודעה נשלחה והוקפצה ל-${promoOption === "bump48" ? "48" : "24"} שעות! 🚀`);
     } else if (wasAutoApproved) {
       toast.success("המודעה פורסמה ונראית עכשיו בלוח! 🎉");
     } else {
