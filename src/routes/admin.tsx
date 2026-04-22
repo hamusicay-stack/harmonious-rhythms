@@ -35,7 +35,8 @@ import { BusinessSellersManager } from "@/components/admin/BusinessSellersManage
 import { MarketplaceCategoriesManager } from "@/components/admin/MarketplaceCategoriesManager";
 import { ReportsManager } from "@/components/admin/ReportsManager";
 import { MusicProsManager } from "@/components/admin/MusicProsManager";
-import { Music2 } from "lucide-react";
+import { ShopManager } from "@/components/admin/ShopManager";
+import { Music2, ShoppingBag } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -206,13 +207,14 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-11">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-12">
             <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
             <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
             <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+            <TabsTrigger value="shop"><ShoppingBag className="ml-2 h-4 w-4" />חנות</TabsTrigger>
             <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
             <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
