@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS } from "@/lib/shopUtils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LikeButton } from "@/components/LikeButton";
 
 export const Route = createFileRoute("/shop/")({
   head: () => ({
@@ -211,6 +212,9 @@ function ProductCard({ product }: { product: Product }) {
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white font-bold">אזל מהמלאי</div>
         )}
+        <div className="absolute bottom-2 left-2 z-10" onClick={(e) => e.preventDefault()}>
+          <LikeButton itemType="shop_product" itemId={product.id} className="bg-background/80 backdrop-blur hover:bg-background h-8 w-8" />
+        </div>
       </div>
       <div className="p-4">
         {product.brand && <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">{product.brand}</p>}
