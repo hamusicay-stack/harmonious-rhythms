@@ -1,78 +1,161 @@
 
 
-## תוכנית: כרטיס מודעה פרימיום (Bento Style) ללוח יד-2
+## תוכנית: אינדקס מוזיקאים מקצועי (Pro Directory)
 
-### מה כבר קיים בכרטיס הנוכחי ✅
-- תמונה ראשית עם hover scale
-- תג "דחוף" (אדום + פעימה) ותג "מוקפץ"
-- תג "עסקי / פרטי" + תג "מאומת"
-- שם / יצרן / דגם
-- מחיר בולט בצבע primary (זהב)
-- אייקון מיקום + עיר
-- תג אודיו (אם קיים)
-- מיון אוטומטי: דחוף → מוקפץ → חדש
+זירת מסחר חדשה למוזיקאים מקצועיים — נגנים, זמרים, מעבדים וטכנאים — נפרדת מהלוח יד-2. **בלי יומן זמינות** (לפי בקשתך).
 
-### מה חסר ונבנה 🔨
-- **הוצאת הכרטיס לקומפוננטה נפרדת** `MarketplaceListingCard.tsx` (כרגע inline פעמיים — grid + list — כפילות קוד).
-- **Image Carousel בתוך הכרטיס** — חיצי ◄ ► מופיעים ב-hover, נקודות תחתונות, מעבר fade עדין בין תמונות, בלי ניווט לדף.
-- **Quick Actions ב-hover (Fade In)**:
-  - 💬 כפתור וואטסאפ מהיר (פותח `wa.me/...` עם הודעה מוכנה)
-  - ❤️ הוסף/הסר ממועדפים (משתמש בטבלת `marketplace_likes` הקיימת)
-  - 👁️ Quick View — פותח Dialog קטן עם נגן אודיו (אם קיים), מפרט מקוצר, וכפתור "לדף המלא"
-- **אנימציית Lift**: ב-hover הכרטיס עולה 5px עם צל עמוק (`hover:-translate-y-1.5 hover:shadow-2xl`).
-- **תגים צפים מסודרים**: ימין-למעלה = "עסקי/פרטי" + "מאומת", שמאל-למעלה = "דחוף" (פועם) + "מוקפץ".
-- **מחיר יוקרתי**: שדרוג טיפוגרפיה — `font-display` בגדול, גרדיאנט זהב (`text-gradient-gold` שכבר קיים ב-styles.css).
-- **מסגרת דחיפות יוקרתית**: עידון ה-`urgent-pulse` הקיים — מסגרת דקה יותר (1.5px) עם זוהר בולט יותר.
-- **Mobile-friendly**: 2 כרטיסים בשורה במובייל (כרגע 1 בלבד מתחת ל-`sm`), Quick Actions תמיד מוצגים במובייל (אין hover במגע).
-
-### מבנה ויזואלי (ASCII)
+### מבנה ראוטים חדש
 
 ```text
-┌─────────────────────────────────┐
-│ [דחוף🔥] [מוקפץ⬆]    [עסקי][✓] │  ← תגים צפים
-│                                 │
-│        🖼️  IMAGE CAROUSEL       │  ← 60% גובה
-│                                 │
-│  ◄  ●  ○  ○                  ► │  ← נקודות + חיצים (hover)
-│                                 │
-│  [💬 וואטסאפ] [❤️] [👁️ צפייה]  │  ← Quick actions (hover/mobile)
-├─────────────────────────────────┤
-│  YAMAHA               📍 ירושלים │
-│  Genos 2                        │
-│                                 │
-│  ₪ 45,000   (זהב, גדול)        │
-└─────────────────────────────────┘
-   רדיוס 24px · צל רך · RTL
+src/routes/
+  pros.tsx              ← Layout עם <Outlet/>
+  pros.index.tsx        ← /pros דף האינדקס + סינון
+  pros.$proId.tsx       ← /pros/:proId — EPK פרופיל אישי
+  pros.new.tsx          ← /pros/new — הרשמה כמוזיקאי
+  pros.$proId.edit.tsx  ← עריכת פרופיל מקצועי
 ```
 
-### קבצים שיוערכו / יווצרו
+תוספת בתפריט הראשי (`SiteHeader.tsx`): פריט חדש **"מוזיקאים"** → `/pros`.
 
-**חדש:**
-- `src/components/marketplace/MarketplaceListingCard.tsx` — קומפוננטה אחת תומכת `variant="grid" | "list"`, עם carousel, quick actions, lift animation.
-- `src/components/marketplace/QuickViewDialog.tsx` — Dialog עם תמונה גדולה, נגן `<audio>`, מפרט מקוצר, כפתור "לדף המלא".
+### סכמת DB חדשה (מיגרציה אחת)
+
+**טבלאות חדשות:**
+
+| טבלה | תפקיד | שדות עיקריים |
+|---|---|---|
+| `music_pros` | פרופיל מקצועי | user_id, display_name, headline, bio, profile_image, cover_image, hourly_price_min, region, cities[], specialties[] (קלידן/זמר/מעבד/טכנאי/מורה), genres[] (חסידי/פופ/מזרחי/אלקטרוני…), gear_list[], is_verified, is_featured, subscription_tier (free/vip), views_count, status |
+| `music_pro_media` | תיק עבודות (אודיו/וידאו) | pro_id, type (audio/video), url, title, order, is_featured |
+| `music_pro_packages` | חבילות מחירים | pro_id, title, description, price, unit (event/hour/song) |
+| `music_pro_inquiries` | בקשות הצעת מחיר | pro_id, sender_id, event_type, event_date, location, budget, message, contact_phone, status |
+| `music_pro_reviews` | ביקורות מאומתות | pro_id, reviewer_id, inquiry_id (FK — אימות), rating 1-5, comment, is_verified |
+
+**RLS עיקרי:**
+- `music_pros`: קריאה ציבורית כש-`status='approved'`. עדכון רק על-ידי הבעלים או admin.
+- `music_pro_media` / `packages`: קריאה ציבורית, כתיבה רק לבעלים.
+- `inquiries`: קריאה לבעלי הפרופיל + השולח + admin. כתיבה לכל משתמש מאומת.
+- `reviews`: קריאה ציבורית. כתיבה רק למי שיש לו `inquiry` עם `status='completed'` מול אותו pro (מאומתת דרך טריגר).
+
+**Storage bucket חדש:** `music-pros` (פומבי) לאודיו/וידאו/תמונות.
+
+### דף `/pros` — Discovery Page
+
+**סרגל סינון (sticky, RTL):**
+- התמחות (multi-select chips): קלידן לאירועים, זמר חופות, מעבד אולפן, טכנאי מיקס, מורה לנגינה
+- סגנון: חסידי / פופ / מזרחי / אלקטרוני / קלאסי / ג'אז
+- אזור + עיר
+- טווח מחיר (Slider)
+- ✓ מאומת בלבד / ✓ VIP בלבד
+- מיון: VIP → Featured → דירוג ממוצע → חדשים
+
+**Premium Cards (Bento):**
+```text
+┌─────────────────────────────────┐
+│ [VIP👑] [✓מאומת]      [▶ Play]  │  ← תגים + כפתור נגינה
+│                                 │
+│  🖼️ תמונת פרופיל (cover wash)   │  ← רקע מתחלף לצבע מותג ב-hover
+│                                 │
+│  ──────────────────────────     │
+│  אבי כהן · קלידן לאירועים       │
+│  ⭐ 4.9 (32) · 📍 בני ברק       │
+│  החל מ-₪2,500 לאירוע            │
+│                                 │
+│  [פופ] [חסידי] [מזרחי]          │  ← תגיות סגנון
+│  [💬 הצעת מחיר]  [👁 פרופיל]    │
+└─────────────────────────────────┘
+```
+
+**Hover magic:** הכרטיס מחליף עדינות ל-gradient של צבע ראשי של המוזיקאי (נשמר ב-`music_pros.brand_color`), כפתור Play הופך אינטראקטיבי ומתחיל את הנגן הצף.
+
+### דף `/pros/:proId` — EPK (Electronic Press Kit)
+
+**Hero**: cover image + תמונת פרופיל עגולה + שם + headline + תגי VIP/מאומת + CTA "שלח בקשה להצעת מחיר".
+
+**Tabs:**
+1. **Showreel** — נגן אודיו עם playlist (כל הטראקים מ-`music_pro_media` type=audio) + גלריית וידאו (embed YouTube/וידאו ישיר).
+2. **שירותים ומחירים** — כרטיסי `music_pro_packages` (כותרת/תיאור/מחיר/יחידה).
+3. **ציוד** — `gear_list[]` כצ'יפים יפים (Yamaha Genos 2, RCF, וכו').
+4. **ביקורות** — מ-`music_pro_reviews` עם תג "✓ מאומת" כש-`is_verified=true`.
+
+**צד:** כרטיס "צור קשר" — כפתור הצעת מחיר + וואטסאפ ישיר (אם מותר) + אייקוני רשתות חברתיות.
+
+### מערכת הצעת מחיר (Inquiry Flow)
+
+`RequestQuoteDialog.tsx` — טופס מודאלי:
+- סוג אירוע (חתונה / בר מצווה / אירוע פרטי / אולפן / שיעור)
+- תאריך
+- מיקום
+- תקציב משוער
+- הודעה חופשית
+- טלפון ליצירת קשר
+
+בשליחה: insert ל-`music_pro_inquiries` + שליחת מייל לבעל הפרופיל דרך `enqueue_email` הקיים + רישום ב-CRM (`leads` הקיים) עם `source='website'`.
+
+### מערכת ביקורות מאומתות
+
+- כשמוזיקאי משנה inquiry ל-`status='completed'`, נפתח קישור לשולח להשאיר ביקורת.
+- טריגר DB בודק שלשולח יש inquiry עם `status='completed'` לפני INSERT ב-`music_pro_reviews` → מסמן `is_verified=true`.
+- admin יכול ידנית לסמן ביקורות מאומתות מ-`admin.tsx`.
+
+### תג "מאומת" (כחול)
+- admin מסמן `is_verified=true` ב-`music_pros` דרך טאב חדש ב-admin: **"מוזיקאים מקצועיים"**.
+
+### מודל עסקי (UI בלבד, ללא תשלום אמיתי בשלב זה)
+
+- **Free**: עד 2 קבצי אודיו, ללא תג VIP, מופיע בתחתית התוצאות.
+- **VIP** (`subscription_tier='vip'`): קבצים ללא הגבלה, תג VIP זהוב, מופיע בראש התוצאות, פרופיל בלי באנרים.
+
+לעת עתה השדה ינוהל ידנית ב-admin (כמו `marketplace_business_sellers`). תשלום אמיתי = שלב עתידי (כמו שהחלטנו על "בלי תשלום" קודם).
+
+### נגן צף (Floating Player)
+
+קומפוננטה גלובלית `FloatingAudioPlayer.tsx` ב-`__root.tsx`:
+- React Context `AudioPlayerContext` עם `currentTrack`, `play()`, `pause()`, `next()`, `prev()`.
+- כשלוחצים Play בכרטיס → דוחף את ה-track ל-context.
+- הנגן נדבק לתחתית המסך עם blur background, שם המוזיקאי + שם הטראק + פקדים + כפתור "× סגור".
+- ממשיך לנגן בזמן ניווט (כי הוא ב-root, מחוץ ל-Outlet).
+
+### ניהול אדמין
+
+טאב חדש ב-`admin.tsx` → **"מוזיקאים"**:
+- אישור/דחייה של פרופילים חדשים (`status: pending → approved`).
+- סימון VIP / Verified ידני.
+- צפייה בכל ה-inquiries.
+- מחיקה / הקפאה.
+
+### עיצוב ו-UX (2026 style)
+
+- כל הכרטיסים `rounded-3xl` עם soft shadow, RTL מלא.
+- אנימציות `hover:-translate-y-1.5 hover:shadow-2xl`, fade-in לכפתורים.
+- Mobile-first: 1 כרטיס בשורה במובייל (כי הכרטיסים רחבים), 2 ב-tablet, 3 ב-desktop.
+- צבע מותג למוזיקאי = `brand_color` hex שנשמר בפרופיל; משמש לרקע ב-hover ולקשתות עדינות בכרטיס.
+
+### קבצים שייווצרו / יערכו
+
+**חדש (UI):**
+- `src/routes/pros.tsx` — Layout
+- `src/routes/pros.index.tsx` — Discovery + filters
+- `src/routes/pros.$proId.tsx` — EPK
+- `src/routes/pros.new.tsx` — הרשמה כמוזיקאי
+- `src/routes/pros.$proId.edit.tsx` — עריכה
+- `src/components/pros/ProCard.tsx`
+- `src/components/pros/ProFilters.tsx`
+- `src/components/pros/RequestQuoteDialog.tsx`
+- `src/components/pros/MediaUploader.tsx`
+- `src/components/pros/PackagesEditor.tsx`
+- `src/components/pros/FloatingAudioPlayer.tsx` + `src/contexts/AudioPlayerContext.tsx`
+- `src/components/admin/MusicProsManager.tsx`
+- `src/lib/prosData.ts` — רשימות מקובעות (specialties, genres)
 
 **עריכה:**
-- `src/routes/marketplace.index.tsx` — להחליף את 2 בלוקי הכרטיסים (grid + list) בקריאה לקומפוננטה החדשה. שינוי breakpoint ל-`grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` (2 בשורה כבר במובייל).
-- `src/styles.css` — להוסיף keyframes `card-lift` ו-`fade-in-actions`. אופטימיזציה ל-`urgent-pulse` (פחות אגרסיבי, יותר יוקרתי).
+- `src/components/SiteHeader.tsx` — להוסיף לינק "מוזיקאים"
+- `src/routes/__root.tsx` — להוסיף `AudioPlayerProvider` + `<FloatingAudioPlayer/>`
+- `src/routes/admin.tsx` — להוסיף טאב "מוזיקאים"
 
-### לוגיקת Quick Actions
+**מיגרציה:**
+- 5 טבלאות חדשות + RLS + טריגר אימות ביקורות + bucket `music-pros` עם policies.
 
-| פעולה | מקור נתונים | התנהגות |
-|---|---|---|
-| ❤️ Favorite | `marketplace_likes` (קיים) | toggle insert/delete לפי `auth.uid()` |
-| 💬 WhatsApp | `listing.whatsapp` או `listing.phone` | `window.open('https://wa.me/972...')` עם טקסט מוכן: "היי, ראיתי את {title} בלוח המוזיקאי" |
-| 👁️ Quick View | פתיחת Dialog | טוען `audio_url`, `description` מקוצר |
-
-### פרטים טכניים
-
-- **Animation**: Tailwind טהור — `transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl`. בלי Framer Motion (לא מותקן, ואין צורך — Tailwind מספיק).
-- **Carousel**: state פנימי `currentImage`, חיצים מקדמים index בלי לנווט (`e.preventDefault(); e.stopPropagation();` כדי לא להפעיל את ה-Link עליו).
-- **Quick Actions במובייל**: תמיד גלויים בגודל קטן בתחתית התמונה. ב-desktop מופיעים ב-`opacity-0 group-hover:opacity-100`.
-- **Performance**: `loading="lazy"` על כל התמונות בקרוסלה, רק התמונה הנוכחית `eager`.
-- **Bento**: רדיוס `rounded-3xl` (24px), background `bg-card-elevated` (גרדיאנט שכבר קיים), מסגרת `border-border/40`.
-
-### מה לא נכלל בשלב הזה
-- Framer Motion (overkill — Tailwind transitions מספיקות; אם תרצה לעבור אליו בעתיד, נתקין בנפרד).
-- שינויים בלוגיקת מיון/סינון — כבר קיים בדיוק כפי שתואר.
-- שינוי הסכמה (DB) — כל השדות הנדרשים (`is_urgent`, `seller_type`, `bump_expires_at`, `audio_url`, `whatsapp`) כבר קיימים בטבלה.
+### מה לא בשלב הזה
+- ❌ יומן זמינות (לפי בקשתך)
+- ❌ תשלום אמיתי לחבילת VIP (UI בלבד, ניהול ידני)
+- ❌ עמלת לידים אוטומטית (admin מסמן ידנית בשלב זה)
 
