@@ -109,8 +109,12 @@ function ProDetailPage() {
   const isVip = pro.subscription_tier === "vip";
   const audios = media.filter((m) => m.type === "audio");
   const videos = media.filter((m) => m.type === "video");
-  const avg = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
   const isOwner = user?.id === pro.user_id;
+  const approvedReviews = reviews.filter((r) => r.is_approved || isOwner);
+  const visibleReviewsForRating = reviews.filter((r) => r.is_approved);
+  const avg = visibleReviewsForRating.length > 0 ? visibleReviewsForRating.reduce((s, r) => s + r.rating, 0) / visibleReviewsForRating.length : 0;
+  const pendingReviewsCount = reviews.filter((r) => !r.is_approved).length;
+  const canReview = !!user && user.id !== pro.user_id;
 
   return (
     <div className="text-right">
