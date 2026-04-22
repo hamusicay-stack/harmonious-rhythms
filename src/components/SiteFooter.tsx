@@ -26,7 +26,7 @@ export function SiteFooter() {
           <h4 className="mb-3 text-sm font-semibold text-foreground">מודולים</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><Link to="/forum" className="hover:text-primary transition-smooth">פורום</Link></li>
-            <li><Link to="/store" className="hover:text-primary transition-smooth">חנות</Link></li>
+            <li><Link to="/shop" className="hover:text-primary transition-smooth">חנות</Link></li>
             <li><Link to="/academy" className="hover:text-primary transition-smooth">אקדמיה</Link></li>
             <li><Link to="/marketplace" className="hover:text-primary transition-smooth">יד שנייה</Link></li>
           </ul>

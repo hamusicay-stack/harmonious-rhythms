@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
 
 const modules = [
   { to: "/forum" as const, icon: MessageSquare, title: "פורום", desc: "דיונים, שאלות ושיתופי ידע בין מוזיקאים." },
-  { to: "/store" as const, icon: ShoppingBag, title: "חנות", desc: "מקצבים, סאמפלים, פלאגינים וציוד מקצועי." },
+  { to: "/shop" as const, icon: ShoppingBag, title: "חנות", desc: "מקצבים, סאמפלים, פלאגינים וציוד מקצועי." },
   { to: "/academy" as const, icon: GraduationCap, title: "אקדמיה", desc: "קורסים, שיעורים ומאסטרקלאסים מהמובילים בתחום." },
   { to: "/marketplace" as const, icon: Tags, title: "יד שנייה", desc: "כלי נגינה וציוד הקלטה במחירים נוחים." },
 ];

@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 const navItems = [
   { to: "/forum", label: "פורום" },
-  { to: "/store", label: "חנות" },
+  { to: "/shop", label: "חנות" },
   { to: "/academy", label: "אקדמיה" },
   { to: "/marketplace", label: "יד שנייה" },
   { to: "/pros", label: "מוזיקאים" },

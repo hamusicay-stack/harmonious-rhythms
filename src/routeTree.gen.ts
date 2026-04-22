@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StoreRouteImport } from './routes/store'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -41,11 +40,6 @@ import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
 import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/public/marketplace.auto-bump'
 
-const StoreRoute = StoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -215,7 +209,6 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
   '/shop': typeof ShopRouteWithChildren
-  '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -245,7 +238,6 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
   '/profile': typeof ProfileRoute
-  '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -279,7 +271,6 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
   '/shop': typeof ShopRouteWithChildren
-  '/store': typeof StoreRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -314,7 +305,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pros'
     | '/shop'
-    | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -344,7 +334,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/forum'
     | '/profile'
-    | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -377,7 +366,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pros'
     | '/shop'
-    | '/store'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -411,7 +399,6 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
   ShopRoute: typeof ShopRouteWithChildren
-  StoreRoute: typeof StoreRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
@@ -421,13 +408,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/store': {
-      id: '/store'
-      path: '/store'
-      fullPath: '/store'
-      preLoaderRoute: typeof StoreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -734,7 +714,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,
   ShopRoute: ShopRouteWithChildren,
-  StoreRoute: StoreRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
