@@ -63,6 +63,18 @@ function ListingDetailPage() {
     })();
   }, [listingId, user]);
 
+  // Track views — fire-and-forget, once per session per listing
+  useEffect(() => {
+    if (!listingId) return;
+    const key = `viewed_listing_${listingId}`;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(key)) return;
+    supabase.rpc("increment_listing_views", { _listing_id: listingId })
+      .then(({ error }) => {
+        if (error) console.warn("increment_listing_views failed", error);
+        else if (typeof sessionStorage !== "undefined") sessionStorage.setItem(key, "1");
+      });
+  }, [listingId]);
+
   const toggleLike = async () => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
     if (likeBusy) return;
