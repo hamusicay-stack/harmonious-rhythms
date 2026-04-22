@@ -29,6 +29,7 @@ import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.cus
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
+import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/public/marketplace.auto-bump'
 
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
@@ -135,6 +136,12 @@ const ApiPublicMarketplaceFollowupRoute =
     path: '/api/public/marketplace/followup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMarketplaceAutoBumpRoute =
+  ApiPublicMarketplaceAutoBumpRouteImport.update({
+    id: '/api/public/marketplace/auto-bump',
+    path: '/api/public/marketplace/auto-bump',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
+  '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
+  '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
+  '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/admin/customers/$customerId'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
+    | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
     | '/lovable/email/queue/process'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/admin/customers/$customerId'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
+    | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
     | '/lovable/email/queue/process'
@@ -265,6 +277,7 @@ export interface FileRouteTypes {
     | '/admin/customers/$customerId'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
+    | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
     | '/lovable/email/queue/process'
@@ -282,6 +295,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   StoreRoute: typeof StoreRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
+  ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -429,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMarketplaceFollowupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/marketplace/auto-bump': {
+      id: '/api/public/marketplace/auto-bump'
+      path: '/api/public/marketplace/auto-bump'
+      fullPath: '/api/public/marketplace/auto-bump'
+      preLoaderRoute: typeof ApiPublicMarketplaceAutoBumpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -483,6 +504,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   StoreRoute: StoreRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
+  ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:
     ApiPublicMarketplaceMatchSearchesRoute,
