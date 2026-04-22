@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Star, MapPin, ShieldCheck, Crown, Play, MessageCircle } from "lucide-react";
+import { Star, MapPin, ShieldCheck, Crown, Play, MessageCircle, Pencil } from "lucide-react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,8 @@ type Props = {
 export function ProListItem({ pro, onRequestQuote }: Props) {
   const navigate = useNavigate();
   const { play } = useAudioPlayer();
+  const { user } = useAuth();
+  const isOwner = user?.id === pro.user_id;
   const [previewTrack, setPreviewTrack] = useState<{ url: string; title: string } | null>(null);
   const [rating, setRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
 
@@ -127,13 +130,23 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
         </div>
       </div>
 
-      <Button
-        size="sm"
-        className="shrink-0"
-        onClick={(e) => { e.stopPropagation(); onRequestQuote?.(pro.id); }}
-      >
-        <MessageCircle className="ml-1.5 h-4 w-4" />הצעה
-      </Button>
+      {isOwner ? (
+        <Button
+          size="sm"
+          className="shrink-0"
+          onClick={(e) => { e.stopPropagation(); navigate({ to: "/pros/$proId/edit", params: { proId: pro.id } }); }}
+        >
+          <Pencil className="ml-1.5 h-4 w-4" />ערוך
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          className="shrink-0"
+          onClick={(e) => { e.stopPropagation(); onRequestQuote?.(pro.id); }}
+        >
+          <MessageCircle className="ml-1.5 h-4 w-4" />הצעה
+        </Button>
+      )}
     </div>
   );
 }
