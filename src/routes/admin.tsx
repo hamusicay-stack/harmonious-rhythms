@@ -34,6 +34,8 @@ import { MarketplaceSettings } from "@/components/admin/MarketplaceSettings";
 import { BusinessSellersManager } from "@/components/admin/BusinessSellersManager";
 import { MarketplaceCategoriesManager } from "@/components/admin/MarketplaceCategoriesManager";
 import { ReportsManager } from "@/components/admin/ReportsManager";
+import { MusicProsManager } from "@/components/admin/MusicProsManager";
+import { Music2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -204,7 +206,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-10">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-11">
             <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
             <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
             <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
@@ -212,6 +214,7 @@ function AdminPage() {
             <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
             <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
             <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
+            <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
             <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
             <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
             <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
@@ -392,6 +395,9 @@ function AdminPage() {
               <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-500" />דיווחי משתמשים</CardTitle></CardHeader>
               <CardContent><ReportsManager /></CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="music_pros" className="mt-6">
+            <MusicProsManager />
           </TabsContent>
           <TabsContent value="automations" className="mt-6">
             <AutomationsManager />
