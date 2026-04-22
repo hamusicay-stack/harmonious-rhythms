@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Star, MapPin, ShieldCheck, Crown, Play, MessageCircle, Eye } from "lucide-react";
+import { Star, MapPin, ShieldCheck, Crown, Play, MessageCircle, Eye, Pencil } from "lucide-react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { labelOf, SPECIALTIES, GENRES } from "@/lib/prosData";
 
 export type ProCardData = {
   id: string;
+  user_id: string;
   display_name: string;
   headline: string | null;
   profile_image: string | null;
@@ -32,6 +34,8 @@ type Props = {
 export function ProCard({ pro, onRequestQuote }: Props) {
   const navigate = useNavigate();
   const { play } = useAudioPlayer();
+  const { user } = useAuth();
+  const isOwner = user?.id === pro.user_id;
   const [previewTrack, setPreviewTrack] = useState<{ url: string; title: string } | null>(null);
   const [rating, setRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
 
@@ -201,19 +205,39 @@ export function ProCard({ pro, onRequestQuote }: Props) {
 
           {/* Actions */}
           <div className="mt-4 flex gap-2">
-            <Button
-              size="sm"
-              className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRequestQuote?.(pro.id);
-              }}
-            >
-              <MessageCircle className="ml-1.5 h-4 w-4" /> הצעת מחיר
-            </Button>
-            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); open(); }}>
-              <Eye className="ml-1.5 h-4 w-4" /> פרופיל
-            </Button>
+            {isOwner ? (
+              <>
+                <Button
+                  size="sm"
+                  className="flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate({ to: "/pros/$proId/edit", params: { proId: pro.id } });
+                  }}
+                >
+                  <Pencil className="ml-1.5 h-4 w-4" /> ערוך פרופיל
+                </Button>
+                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); open(); }}>
+                  <Eye className="ml-1.5 h-4 w-4" /> צפה
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  className="flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRequestQuote?.(pro.id);
+                  }}
+                >
+                  <MessageCircle className="ml-1.5 h-4 w-4" /> הצעת מחיר
+                </Button>
+                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); open(); }}>
+                  <Eye className="ml-1.5 h-4 w-4" /> פרופיל
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
