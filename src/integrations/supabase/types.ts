@@ -1416,6 +1416,904 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_bundle_items: {
+        Row: {
+          bundle_id: string
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          bundle_id: string
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+        }
+        Update: {
+          bundle_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_bundle_items_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "shop_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_bundle_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_bundles: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_type: Database["public"]["Enums"]["shop_coupon_type"]
+          discount_value: number
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["shop_coupon_type"]
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["shop_coupon_type"]
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          label: string
+          parent_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          label: string
+          parent_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          label?: string
+          parent_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "shop_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_coupons: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          description: string | null
+          discount_type: Database["public"]["Enums"]["shop_coupon_type"]
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_order_amount: number
+          starts_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["shop_coupon_type"]
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_amount?: number
+          starts_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["shop_coupon_type"]
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_amount?: number
+          starts_at?: string
+        }
+        Relationships: []
+      }
+      shop_custom_fields: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          display_order: number
+          field_key: string
+          field_label: string
+          field_type: Database["public"]["Enums"]["shop_field_type"]
+          id: string
+          is_required: boolean
+          options: Json
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          display_order?: number
+          field_key: string
+          field_label: string
+          field_type?: Database["public"]["Enums"]["shop_field_type"]
+          id?: string
+          is_required?: boolean
+          options?: Json
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          display_order?: number
+          field_key?: string
+          field_label?: string
+          field_type?: Database["public"]["Enums"]["shop_field_type"]
+          id?: string
+          is_required?: boolean
+          options?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_custom_fields_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "shop_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_digital_downloads: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          download_count: number
+          download_token: string
+          expires_at: string | null
+          id: string
+          last_downloaded_at: string | null
+          max_downloads: number
+          order_id: string
+          order_item_id: string
+          product_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          download_count?: number
+          download_token: string
+          expires_at?: string | null
+          id?: string
+          last_downloaded_at?: string | null
+          max_downloads?: number
+          order_id: string
+          order_item_id: string
+          product_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          download_count?: number
+          download_token?: string
+          expires_at?: string | null
+          id?: string
+          last_downloaded_at?: string | null
+          max_downloads?: number
+          order_id?: string
+          order_item_id?: string
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_digital_downloads_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_digital_downloads_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_digital_downloads_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string | null
+          product_sku: string | null
+          product_title: string
+          product_type: Database["public"]["Enums"]["shop_product_type"]
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id?: string | null
+          product_sku?: string | null
+          product_title: string
+          product_type?: Database["public"]["Enums"]["shop_product_type"]
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          product_sku?: string | null
+          product_title?: string
+          product_type?: Database["public"]["Enums"]["shop_product_type"]
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_orders: {
+        Row: {
+          admin_notes: string | null
+          coupon_code: string | null
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_id: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          discount_amount: number
+          external_payment_id: string | null
+          id: string
+          notes: string | null
+          order_number: string
+          payment_method: string | null
+          payment_status: Database["public"]["Enums"]["shop_payment_status"]
+          shipping_address: Json | null
+          shipping_amount: number
+          shipping_carrier: string | null
+          status: Database["public"]["Enums"]["shop_order_status"]
+          subtotal: number
+          tax_amount: number
+          total_amount: number
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount_amount?: number
+          external_payment_id?: string | null
+          id?: string
+          notes?: string | null
+          order_number: string
+          payment_method?: string | null
+          payment_status?: Database["public"]["Enums"]["shop_payment_status"]
+          shipping_address?: Json | null
+          shipping_amount?: number
+          shipping_carrier?: string | null
+          status?: Database["public"]["Enums"]["shop_order_status"]
+          subtotal?: number
+          tax_amount?: number
+          total_amount?: number
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount_amount?: number
+          external_payment_id?: string | null
+          id?: string
+          notes?: string | null
+          order_number?: string
+          payment_method?: string | null
+          payment_status?: Database["public"]["Enums"]["shop_payment_status"]
+          shipping_address?: Json | null
+          shipping_amount?: number
+          shipping_carrier?: string | null
+          status?: Database["public"]["Enums"]["shop_order_status"]
+          subtotal?: number
+          tax_amount?: number
+          total_amount?: number
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_product_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          is_primary: boolean
+          product_id: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          is_primary?: boolean
+          product_id: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_primary?: boolean
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_product_questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          asker_id: string | null
+          asker_name: string | null
+          created_at: string
+          id: string
+          is_approved: boolean
+          product_id: string
+          question: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          asker_id?: string | null
+          asker_name?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          product_id: string
+          question: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          asker_id?: string | null
+          asker_name?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          product_id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_questions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_product_reviews: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          images: string[]
+          is_approved: boolean
+          is_verified_purchase: boolean
+          order_id: string | null
+          product_id: string
+          rating: number
+          reviewer_id: string
+          title: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          images?: string[]
+          is_approved?: boolean
+          is_verified_purchase?: boolean
+          order_id?: string | null
+          product_id: string
+          rating: number
+          reviewer_id: string
+          title?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          images?: string[]
+          is_approved?: boolean
+          is_verified_purchase?: boolean
+          order_id?: string | null
+          product_id?: string
+          rating?: number
+          reviewer_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          audio_demo_url: string | null
+          brand: string | null
+          category_id: string | null
+          cost_price: number | null
+          created_at: string
+          currency: string
+          current_version: string | null
+          custom_fields: Json
+          description: string | null
+          digital_file_name: string | null
+          digital_file_size_mb: number | null
+          digital_file_url: string | null
+          dimensions: Json | null
+          download_expiry_days: number
+          download_limit: number
+          fulfillment_type: Database["public"]["Enums"]["shop_fulfillment_type"]
+          id: string
+          is_featured: boolean
+          low_stock_threshold: number
+          main_image: string | null
+          manage_stock: boolean
+          meta_description: string | null
+          meta_title: string | null
+          model: string | null
+          price: number
+          product_type: Database["public"]["Enums"]["shop_product_type"]
+          sale_price: number | null
+          sales_count: number
+          short_description: string | null
+          sku: string | null
+          slug: string
+          status: Database["public"]["Enums"]["shop_product_status"]
+          status_tags: string[]
+          stock_quantity: number
+          title: string
+          updated_at: string
+          vendor_id: string | null
+          video_demo_url: string | null
+          views_count: number
+          warranty_terms: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          audio_demo_url?: string | null
+          brand?: string | null
+          category_id?: string | null
+          cost_price?: number | null
+          created_at?: string
+          currency?: string
+          current_version?: string | null
+          custom_fields?: Json
+          description?: string | null
+          digital_file_name?: string | null
+          digital_file_size_mb?: number | null
+          digital_file_url?: string | null
+          dimensions?: Json | null
+          download_expiry_days?: number
+          download_limit?: number
+          fulfillment_type?: Database["public"]["Enums"]["shop_fulfillment_type"]
+          id?: string
+          is_featured?: boolean
+          low_stock_threshold?: number
+          main_image?: string | null
+          manage_stock?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          model?: string | null
+          price?: number
+          product_type?: Database["public"]["Enums"]["shop_product_type"]
+          sale_price?: number | null
+          sales_count?: number
+          short_description?: string | null
+          sku?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["shop_product_status"]
+          status_tags?: string[]
+          stock_quantity?: number
+          title: string
+          updated_at?: string
+          vendor_id?: string | null
+          video_demo_url?: string | null
+          views_count?: number
+          warranty_terms?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          audio_demo_url?: string | null
+          brand?: string | null
+          category_id?: string | null
+          cost_price?: number | null
+          created_at?: string
+          currency?: string
+          current_version?: string | null
+          custom_fields?: Json
+          description?: string | null
+          digital_file_name?: string | null
+          digital_file_size_mb?: number | null
+          digital_file_url?: string | null
+          dimensions?: Json | null
+          download_expiry_days?: number
+          download_limit?: number
+          fulfillment_type?: Database["public"]["Enums"]["shop_fulfillment_type"]
+          id?: string
+          is_featured?: boolean
+          low_stock_threshold?: number
+          main_image?: string | null
+          manage_stock?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          model?: string | null
+          price?: number
+          product_type?: Database["public"]["Enums"]["shop_product_type"]
+          sale_price?: number | null
+          sales_count?: number
+          short_description?: string | null
+          sku?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["shop_product_status"]
+          status_tags?: string[]
+          stock_quantity?: number
+          title?: string
+          updated_at?: string
+          vendor_id?: string | null
+          video_demo_url?: string | null
+          views_count?: number
+          warranty_terms?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "shop_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_products_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_settings: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          default_currency: string
+          default_shipping_cost: number
+          free_shipping_threshold: number
+          id: number
+          store_name: string
+          updated_at: string
+          vat_percentage: number
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          default_currency?: string
+          default_shipping_cost?: number
+          free_shipping_threshold?: number
+          id?: number
+          store_name?: string
+          updated_at?: string
+          vat_percentage?: number
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          default_currency?: string
+          default_shipping_cost?: number
+          free_shipping_threshold?: number
+          id?: number
+          store_name?: string
+          updated_at?: string
+          vat_percentage?: number
+        }
+        Relationships: []
+      }
+      shop_trade_in_requests: {
+        Row: {
+          admin_notes: string | null
+          admin_offer: number | null
+          asking_price: number | null
+          created_at: string
+          customer_email: string | null
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          images: string[]
+          item_brand: string | null
+          item_condition: string | null
+          item_description: string | null
+          item_model: string | null
+          item_year: string | null
+          related_product_id: string | null
+          status: Database["public"]["Enums"]["shop_trade_in_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_offer?: number | null
+          asking_price?: number | null
+          created_at?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          images?: string[]
+          item_brand?: string | null
+          item_condition?: string | null
+          item_description?: string | null
+          item_model?: string | null
+          item_year?: string | null
+          related_product_id?: string | null
+          status?: Database["public"]["Enums"]["shop_trade_in_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_offer?: number | null
+          asking_price?: number | null
+          created_at?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          images?: string[]
+          item_brand?: string | null
+          item_condition?: string | null
+          item_description?: string | null
+          item_model?: string | null
+          item_year?: string | null
+          related_product_id?: string | null
+          status?: Database["public"]["Enums"]["shop_trade_in_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_trade_in_requests_related_product_id_fkey"
+            columns: ["related_product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_trade_in_settings: {
+        Row: {
+          id: number
+          intro_text: string | null
+          is_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          intro_text?: string | null
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          intro_text?: string | null
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_vendors: {
+        Row: {
+          address: string | null
+          company_name: string
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          payment_notes: string | null
+          phone: string | null
+          updated_at: string
+          vendor_type: Database["public"]["Enums"]["shop_vendor_type"]
+        }
+        Insert: {
+          address?: string | null
+          company_name: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          payment_notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          vendor_type?: Database["public"]["Enums"]["shop_vendor_type"]
+        }
+        Update: {
+          address?: string | null
+          company_name?: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          payment_notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          vendor_type?: Database["public"]["Enums"]["shop_vendor_type"]
+        }
+        Relationships: []
+      }
+      shop_wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_orders: {
         Row: {
           created_at: string
@@ -1661,6 +2559,34 @@ export type Database = {
         | "other"
       lead_status: "new" | "in_progress" | "converted" | "lost"
       payment_status: "pending" | "paid" | "cancelled" | "refunded"
+      shop_coupon_type: "percent" | "fixed"
+      shop_field_type:
+        | "text"
+        | "number"
+        | "select"
+        | "multiselect"
+        | "boolean"
+        | "textarea"
+      shop_fulfillment_type: "in_stock" | "dropship"
+      shop_order_status:
+        | "pending"
+        | "paid"
+        | "processing"
+        | "shipped"
+        | "completed"
+        | "cancelled"
+        | "refunded"
+      shop_payment_status: "pending" | "paid" | "failed" | "refunded"
+      shop_product_status: "draft" | "active" | "archived"
+      shop_product_type: "physical" | "digital" | "hybrid"
+      shop_trade_in_status:
+        | "new"
+        | "reviewing"
+        | "offered"
+        | "accepted"
+        | "rejected"
+        | "completed"
+      shop_vendor_type: "in_house" | "dropship"
       supplier_category: "rhythms" | "equipment" | "courses" | "other"
       supplier_order_status:
         | "draft"
@@ -1827,6 +2753,37 @@ export const Constants = {
       ],
       lead_status: ["new", "in_progress", "converted", "lost"],
       payment_status: ["pending", "paid", "cancelled", "refunded"],
+      shop_coupon_type: ["percent", "fixed"],
+      shop_field_type: [
+        "text",
+        "number",
+        "select",
+        "multiselect",
+        "boolean",
+        "textarea",
+      ],
+      shop_fulfillment_type: ["in_stock", "dropship"],
+      shop_order_status: [
+        "pending",
+        "paid",
+        "processing",
+        "shipped",
+        "completed",
+        "cancelled",
+        "refunded",
+      ],
+      shop_payment_status: ["pending", "paid", "failed", "refunded"],
+      shop_product_status: ["draft", "active", "archived"],
+      shop_product_type: ["physical", "digital", "hybrid"],
+      shop_trade_in_status: [
+        "new",
+        "reviewing",
+        "offered",
+        "accepted",
+        "rejected",
+        "completed",
+      ],
+      shop_vendor_type: ["in_house", "dropship"],
       supplier_category: ["rhythms", "equipment", "courses", "other"],
       supplier_order_status: ["draft", "sent", "received", "paid", "cancelled"],
       task_priority: ["low", "normal", "high", "urgent"],
