@@ -335,7 +335,7 @@ function MarketplacePage() {
         )}
       </div>
 
-      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+      <div className="mb-4 flex flex-col sm:flex-row gap-3">
         <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="flex flex-1 gap-3">
           <div className="relative flex-1">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -355,93 +355,139 @@ function MarketplacePage() {
             minPrice, maxPrice, urgentOnly, sellerTypeFilter,
           }}
         />
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button type="button" variant="outline" className="lg:hidden">סינון מלא</Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="overflow-y-auto w-[320px] sm:w-[380px]">
-            <SheetHeader><SheetTitle>סינון מודעות</SheetTitle></SheetHeader>
-            <div className="mt-6">{filtersNode}</div>
-          </SheetContent>
-        </Sheet>
         <Button asChild className="w-full sm:w-auto">
           <Link to="/marketplace/new"><Plus className="h-4 w-4" />פרסם מודעה</Link>
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-        <aside className="hidden lg:block">
-          <div className="rounded-2xl border border-border/60 bg-card p-5 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
-            {filtersNode}
-          </div>
-        </aside>
+      {/* Results header: count + sort + view toggle */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="text-sm text-muted-foreground">{filtered.length} מודעות</div>
+        <div className="flex items-center gap-2">
+          <SortChip value={sortBy} onChange={setSortBy} />
+          <ViewToggle value={viewMode} onChange={setViewMode} />
+        </div>
+      </div>
 
-        <div>
-          <div className="mb-4 text-sm text-muted-foreground">{filtered.length} מודעות</div>
-          {loading ? (
-            <div className="text-center py-12 text-muted-foreground">טוען...</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground rounded-2xl border border-dashed">
-              לא נמצאו מודעות התואמות לסינון. <br />
-              <Link to="/marketplace/new" className="text-primary underline mt-2 inline-block">היה הראשון לפרסם!</Link>
-            </div>
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filtered.map((l) => {
-                const bumped = isBumped(l);
-                const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
-                return (
-                  <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
-                    <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
-                      <div className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
-                        {l.images?.[0] ? (
-                          <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">אין תמונה</div>
+      <div>
+        {loading ? (
+          <div className="text-center py-12 text-muted-foreground">טוען...</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground rounded-2xl border border-dashed">
+            לא נמצאו מודעות התואמות לסינון. <br />
+            <Link to="/marketplace/new" className="text-primary underline mt-2 inline-block">היה הראשון לפרסם!</Link>
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filtered.map((l) => {
+              const bumped = isBumped(l);
+              const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
+              return (
+                <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
+                  <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
+                    <div className="relative aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
+                      {l.images?.[0] ? (
+                        <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">אין תמונה</div>
+                      )}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        {l.is_urgent && (
+                          <Badge className="gap-1 shadow-md bg-rose-500 hover:bg-rose-600"><Flame className="h-3 w-3" />דחוף</Badge>
                         )}
-                        <div className="absolute top-2 right-2 flex flex-col gap-1">
-                          {l.is_urgent && (
-                            <Badge className="gap-1 shadow-md bg-rose-500 hover:bg-rose-600"><Flame className="h-3 w-3" />דחוף</Badge>
-                          )}
-                          {bumped && (
-                            <Badge className="gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
-                          )}
-                        </div>
-                        {l.audio_url && (
-                          <Badge variant="secondary" className="absolute bottom-2 left-2 gap-1 shadow-md">🎵 השמעה</Badge>
+                        {bumped && (
+                          <Badge className="gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
                         )}
                       </div>
-                      <div className="p-4 space-y-2">
+                      {l.audio_url && (
+                        <Badge variant="secondary" className="absolute bottom-2 left-2 gap-1 shadow-md">🎵 השמעה</Badge>
+                      )}
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-semibold text-sm line-clamp-2 flex-1">{l.title}</h3>
+                        <div className="flex flex-col gap-1 shrink-0">
+                          <Badge variant={isBusiness ? "default" : "secondary"} className="gap-1 text-[10px]">
+                            {isBusiness ? <><Briefcase className="h-3 w-3" />עסקי</> : "פרטי"}
+                          </Badge>
+                          {trustedSellers.has(l.seller_id) && (
+                            <Badge variant="secondary" className="gap-1 text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><BadgeCheck className="h-3 w-3" />מאומת</Badge>
+                          )}
+                        </div>
+                      </div>
+                      {(l.brand || l.model) && (
+                        <div className="text-xs text-muted-foreground">{[l.brand, l.model].filter(Boolean).join(" · ")}</div>
+                      )}
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="text-primary font-bold text-lg">₪{Number(l.price).toLocaleString()}</div>
+                        {(l.city || l.region) && (
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />{l.city || l.region}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {filtered.map((l) => {
+              const bumped = isBumped(l);
+              const isBusiness = l.seller_type === "business" || businessSellers.has(l.seller_id);
+              return (
+                <Link key={l.id} to="/marketplace/$listingId" params={{ listingId: l.id }} className="group">
+                  <article className={`rounded-2xl border bg-card-elevated overflow-hidden transition hover:border-primary/50 hover:shadow-lg flex gap-4 ${l.is_urgent ? "border-rose-500/70 ring-2 ring-rose-500/30" : bumped ? "border-primary/60 ring-1 ring-primary/20" : "border-border/60"}`}>
+                    <div className="relative w-32 sm:w-44 shrink-0 aspect-square bg-gradient-to-br from-secondary to-muted overflow-hidden">
+                      {l.images?.[0] ? (
+                        <img src={l.images[0]} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">אין תמונה</div>
+                      )}
+                      {l.is_urgent && (
+                        <Badge className="absolute top-2 right-2 gap-1 shadow-md bg-rose-500 hover:bg-rose-600"><Flame className="h-3 w-3" />דחוף</Badge>
+                      )}
+                    </div>
+                    <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
+                      <div className="space-y-1.5">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-sm line-clamp-2 flex-1">{l.title}</h3>
-                          <div className="flex flex-col gap-1 shrink-0">
+                          <h3 className="font-semibold text-base line-clamp-2 flex-1">{l.title}</h3>
+                          <div className="flex flex-col items-end gap-1 shrink-0">
                             <Badge variant={isBusiness ? "default" : "secondary"} className="gap-1 text-[10px]">
                               {isBusiness ? <><Briefcase className="h-3 w-3" />עסקי</> : "פרטי"}
                             </Badge>
                             {trustedSellers.has(l.seller_id) && (
                               <Badge variant="secondary" className="gap-1 text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><BadgeCheck className="h-3 w-3" />מאומת</Badge>
                             )}
+                            {bumped && (
+                              <Badge className="gap-1 text-[10px]"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>
+                            )}
                           </div>
                         </div>
                         {(l.brand || l.model) && (
-                          <div className="text-xs text-muted-foreground">{[l.brand, l.model].filter(Boolean).join(" · ")}</div>
+                          <div className="text-sm text-muted-foreground">{[l.brand, l.model].filter(Boolean).join(" · ")}</div>
                         )}
-                        <div className="flex items-center justify-between pt-2">
-                          <div className="text-primary font-bold text-lg">₪{Number(l.price).toLocaleString()}</div>
-                          {(l.city || l.region) && (
-                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />{l.city || l.region}
-                            </div>
-                          )}
-                        </div>
+                        {l.audio_url && (
+                          <Badge variant="secondary" className="gap-1">🎵 השמעה</Badge>
+                        )}
                       </div>
-                    </article>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                      <div className="flex items-center justify-between pt-3 mt-2 border-t border-border/40">
+                        <div className="text-primary font-bold text-xl">₪{Number(l.price).toLocaleString()}</div>
+                        {(l.city || l.region) && (
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />{l.city || l.region}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </ModulePlaceholder>
   );
