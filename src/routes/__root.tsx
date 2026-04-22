@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { FloatingAudioPlayer } from "@/components/pros/FloatingAudioPlayer";
 
 import appCss from "../styles.css?url";
@@ -67,11 +68,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-      <AudioPlayerProvider>
-        <Outlet />
-        <FloatingAudioPlayer />
-        <Toaster richColors position="top-center" />
-      </AudioPlayerProvider>
+      <CartProvider>
+        <AudioPlayerProvider>
+          <Outlet />
+          <FloatingAudioPlayer />
+          <Toaster richColors position="top-center" />
+        </AudioPlayerProvider>
+      </CartProvider>
     </AuthProvider>
   );
 }

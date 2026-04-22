@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CartDrawer } from "@/components/shop/CartDrawer";
 import { toast } from "sonner";
 
 const navItems = [
@@ -70,6 +71,7 @@ export function SiteHeader() {
           <Button variant="ghost" size="icon" aria-label="חיפוש">
             <Search className="h-4 w-4" />
           </Button>
+          <CartDrawer />
 
           {user ? (
             <DropdownMenu>
@@ -120,15 +122,17 @@ export function SiteHeader() {
           )}
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setOpen(!open)}
-          aria-label="תפריט"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+        <div className="flex items-center gap-1 md:hidden">
+          <CartDrawer />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen(!open)}
+            aria-label="תפריט"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
 
       {open && (
