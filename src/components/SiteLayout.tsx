@@ -10,6 +10,7 @@ const PAGE_PREFIX: Record<string, string> = {
   "/store": "store",
   "/academy": "academy",
   "/marketplace": "marketplace",
+  "/pros": "pros",
   "/about": "about",
   "/contact": "contact",
 };
