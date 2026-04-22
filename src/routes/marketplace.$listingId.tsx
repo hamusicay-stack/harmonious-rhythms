@@ -81,14 +81,24 @@ function ListingDetailPage() {
     setLikeBusy(true);
     if (hasLiked) {
       const { error } = await supabase.from("marketplace_likes").delete().eq("listing_id", listingId).eq("user_id", user.id);
-      if (!error) { setHasLiked(false); setLikesCount((c) => Math.max(0, c - 1)); }
+      if (!error) {
+        setHasLiked(false); setLikesCount((c) => Math.max(0, c - 1));
+        supabase.rpc("track_listing_event", { _listing_id: listingId, _event_type: "unlike" });
+      }
       else toast.error(error.message);
     } else {
       const { error } = await supabase.from("marketplace_likes").insert({ listing_id: listingId, user_id: user.id });
-      if (!error) { setHasLiked(true); setLikesCount((c) => c + 1); }
+      if (!error) {
+        setHasLiked(true); setLikesCount((c) => c + 1);
+        supabase.rpc("track_listing_event", { _listing_id: listingId, _event_type: "like" });
+      }
       else toast.error(error.message);
     }
     setLikeBusy(false);
+  };
+
+  const trackContact = (kind: "phone_click" | "whatsapp_click") => {
+    supabase.rpc("track_listing_event", { _listing_id: listingId, _event_type: kind });
   };
 
   if (loading) return <ModulePlaceholder icon={Loader2} title="טוען..." subtitle=""><div /></ModulePlaceholder>;
@@ -264,9 +274,9 @@ function ListingDetailPage() {
               </div>
 
               <div className={`grid gap-2 pt-2 ${listing.whatsapp ? "grid-cols-2" : "grid-cols-1"}`}>
-                <a href={`tel:${listing.phone}`}><Button className="w-full" size="sm"><Phone className="h-4 w-4" />חיוג</Button></a>
+                <a href={`tel:${listing.phone}`} onClick={() => trackContact("phone_click")}><Button className="w-full" size="sm"><Phone className="h-4 w-4" />חיוג</Button></a>
                 {listing.whatsapp && (
-                  <a href={waLink} target="_blank" rel="noopener noreferrer">
+                  <a href={waLink} target="_blank" rel="noopener noreferrer" onClick={() => trackContact("whatsapp_click")}>
                     <Button variant="outline" className="w-full" size="sm"><MessageCircle className="h-4 w-4" />וואטסאפ</Button>
                   </a>
                 )}

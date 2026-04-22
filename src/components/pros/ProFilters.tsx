@@ -4,7 +4,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { GENRES, REGIONS, SPECIALTIES } from "@/lib/prosData";
+import { GENRES, REGIONS, SPECIALTIES, labelOf } from "@/lib/prosData";
 import { X } from "lucide-react";
 
 export type ProFiltersState = {
@@ -152,7 +152,10 @@ export function ProFilters({ value, onChange }: Props) {
         {(value.specialties.length > 0 || value.genres.length > 0) && (
           <div className="flex flex-wrap gap-1">
             {value.specialties.map((s) => (
-              <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>
+              <Badge key={s} variant="secondary" className="text-[10px]">{labelOf(SPECIALTIES, s)}</Badge>
+            ))}
+            {value.genres.map((g) => (
+              <Badge key={g} variant="outline" className="text-[10px]">{labelOf(GENRES, g)}</Badge>
             ))}
           </div>
         )}

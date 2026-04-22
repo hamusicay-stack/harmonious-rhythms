@@ -11,10 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
   Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search, Music2, Pencil,
+  Phone, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { labelOf, SPECIALTIES } from "@/lib/prosData";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -228,6 +230,7 @@ function statusBadge(status: string) {
 
 function MyListings({ userId }: { userId: string }) {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [stats, setStats] = useState<Record<string, { phone: number; whatsapp: number; likes: number }>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -237,7 +240,30 @@ function MyListings({ userId }: { userId: string }) {
       .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand")
       .eq("seller_id", userId)
       .order("created_at", { ascending: false });
-    setListings((data ?? []) as Listing[]);
+    const items = (data ?? []) as Listing[];
+    setListings(items);
+
+    // Fetch event stats for owner's listings
+    if (items.length > 0) {
+      const ids = items.map((l) => l.id);
+      const { data: events } = await supabase
+        .from("marketplace_listing_events")
+        .select("listing_id, event_type")
+        .in("listing_id", ids);
+      const acc: Record<string, { phone: number; whatsapp: number; likes: number }> = {};
+      for (const id of ids) acc[id] = { phone: 0, whatsapp: 0, likes: 0 };
+      for (const ev of events ?? []) {
+        const row = acc[ev.listing_id];
+        if (!row) continue;
+        if (ev.event_type === "phone_click") row.phone++;
+        else if (ev.event_type === "whatsapp_click") row.whatsapp++;
+        else if (ev.event_type === "like") row.likes++;
+        else if (ev.event_type === "unlike") row.likes = Math.max(0, row.likes - 1);
+      }
+      setStats(acc);
+    } else {
+      setStats({});
+    }
     setLoading(false);
   }, [userId]);
 
@@ -321,7 +347,10 @@ function MyListings({ userId }: { userId: string }) {
                   </div>
                   <div className="text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
                     <span className="font-bold text-primary">₪{Number(l.price).toLocaleString()}</span>
-                    <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{l.views_count || 0} צפיות</span>
+                    <span className="flex items-center gap-1" title="צפיות"><Eye className="h-3 w-3" />{l.views_count || 0}</span>
+                    <span className="flex items-center gap-1" title="לחיצות על חיוג"><Phone className="h-3 w-3" />{stats[l.id]?.phone ?? 0}</span>
+                    <span className="flex items-center gap-1" title="לחיצות על וואטסאפ"><MessageCircle className="h-3 w-3" />{stats[l.id]?.whatsapp ?? 0}</span>
+                    <span className="flex items-center gap-1 text-rose-500" title="לייקים"><Heart className="h-3 w-3" />{stats[l.id]?.likes ?? 0}</span>
                   </div>
                   <div className="flex gap-2 flex-wrap pt-1">
                     {l.status === "approved" && !bumped && (
@@ -676,7 +705,7 @@ function MyProIndex({ userId }: { userId: string }) {
         </div>
         {pro.specialties?.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {pro.specialties.map((s: string) => <Badge key={s} variant="outline" className="text-[11px]">{s}</Badge>)}
+            {pro.specialties.map((s: string) => <Badge key={s} variant="outline" className="text-[11px]">{labelOf(SPECIALTIES, s)}</Badge>)}
           </div>
         )}
         <div className="flex gap-2 pt-2">
