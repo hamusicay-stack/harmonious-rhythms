@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ShieldCheck, Crown, MapPin, Phone, Globe, Instagram, Youtube,
-  Play, MessageCircle, Star, Loader2, Pencil, ArrowRight,
+  Play, MessageCircle, Star, Loader2, Pencil, ArrowRight, Check, X, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { labelOf, SPECIALTIES, GENRES, PACKAGE_UNITS } from "@/lib/prosData";
 import { RequestQuoteDialog } from "@/components/pros/RequestQuoteDialog";
+import { AddReviewDialog } from "@/components/pros/AddReviewDialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/pros/$proId")({
   component: ProDetailPage,
@@ -29,7 +31,7 @@ type Pro = {
 
 type Media = { id: string; type: string; url: string; title: string | null; is_featured: boolean };
 type Pkg = { id: string; title: string; description: string | null; price: number; unit: string };
-type Review = { id: string; rating: number; comment: string | null; is_verified: boolean; created_at: string; reviewer_id: string };
+type Review = { id: string; rating: number; comment: string | null; is_verified: boolean; is_approved: boolean; created_at: string; reviewer_id: string };
 
 function ProDetailPage() {
   const { proId } = Route.useParams();
@@ -42,6 +44,27 @@ function ProDetailPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  const reload = async () => {
+    const { data: rv } = await supabase.from("music_pro_reviews").select("*").eq("pro_id", proId).order("created_at", { ascending: false });
+    setReviews((rv as Review[]) ?? []);
+  };
+
+  const approveReview = async (id: string, approve: boolean) => {
+    const { error } = await supabase.from("music_pro_reviews").update({ is_approved: approve }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(approve ? "הביקורת אושרה" : "הביקורת הוסרה");
+    reload();
+  };
+
+  const deleteReview = async (id: string) => {
+    if (!confirm("למחוק ביקורת זו?")) return;
+    const { error } = await supabase.from("music_pro_reviews").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("נמחק");
+    reload();
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +82,8 @@ function ProDetailPage() {
       setPackages((pk as Pkg[]) ?? []);
       setReviews((rv as Review[]) ?? []);
       setLoading(false);
+      // Increment view counter (SECURITY DEFINER, bypasses RLS)
+      if (p) supabase.rpc("increment_pro_views", { _pro_id: proId });
     })();
     return () => { cancelled = true; };
   }, [proId]);
@@ -84,8 +109,12 @@ function ProDetailPage() {
   const isVip = pro.subscription_tier === "vip";
   const audios = media.filter((m) => m.type === "audio");
   const videos = media.filter((m) => m.type === "video");
-  const avg = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
   const isOwner = user?.id === pro.user_id;
+  const approvedReviews = reviews.filter((r) => r.is_approved || isOwner);
+  const visibleReviewsForRating = reviews.filter((r) => r.is_approved);
+  const avg = visibleReviewsForRating.length > 0 ? visibleReviewsForRating.reduce((s, r) => s + r.rating, 0) / visibleReviewsForRating.length : 0;
+  const pendingReviewsCount = reviews.filter((r) => !r.is_approved).length;
+  const canReview = !!user && user.id !== pro.user_id;
 
   return (
     <div className="text-right">
@@ -256,11 +285,21 @@ function ProDetailPage() {
               </TabsContent>
 
               <TabsContent value="reviews" className="mt-4 space-y-3">
-                {reviews.length === 0 ? (
+                {canReview && (
+                  <Button onClick={() => setReviewOpen(true)} variant="outline" className="w-full">
+                    <Star className="ml-2 h-4 w-4" />הוסף ביקורת
+                  </Button>
+                )}
+                {isOwner && pendingReviewsCount > 0 && (
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
+                    יש לך {pendingReviewsCount} ביקורות הממתינות לאישורך. אשר או דחה אותן למטה.
+                  </div>
+                )}
+                {approvedReviews.length === 0 ? (
                   <p className="text-sm text-muted-foreground">אין עדיין ביקורות.</p>
                 ) : (
-                  reviews.map((r) => (
-                    <Card key={r.id}>
+                  approvedReviews.map((r) => (
+                    <Card key={r.id} className={!r.is_approved ? "border-amber-500/40 bg-amber-500/5" : ""}>
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1">
@@ -268,16 +307,40 @@ function ProDetailPage() {
                               <Star key={i} className={`h-4 w-4 ${i < r.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
                             ))}
                           </div>
-                          {r.is_verified && (
-                            <Badge variant="outline" className="border-blue-500/40 text-blue-600 dark:text-blue-300">
-                              <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {!r.is_approved && (
+                              <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
+                                <Clock className="ml-1 h-3 w-3" />ממתין לאישור
+                              </Badge>
+                            )}
+                            {r.is_verified && (
+                              <Badge variant="outline" className="border-blue-500/40 text-blue-600 dark:text-blue-300">
+                                <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString("he-IL")}
-                        </p>
+                        <div className="mt-2 flex items-center justify-between">
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(r.created_at).toLocaleDateString("he-IL")}
+                          </p>
+                          {isOwner && !r.is_approved && (
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="outline" onClick={() => approveReview(r.id, true)} className="h-7 text-xs">
+                                <Check className="ml-1 h-3 w-3" />אשר
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => deleteReview(r.id)} className="h-7 text-xs text-destructive">
+                                <X className="ml-1 h-3 w-3" />דחה
+                              </Button>
+                            </div>
+                          )}
+                          {isOwner && r.is_approved && (
+                            <Button size="sm" variant="ghost" onClick={() => approveReview(r.id, false)} className="h-7 text-xs text-muted-foreground">
+                              הסתר
+                            </Button>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   ))
@@ -352,6 +415,7 @@ function ProDetailPage() {
       <div className="h-16" />
 
       <RequestQuoteDialog open={quoteOpen} onOpenChange={setQuoteOpen} proId={pro.id} proName={pro.display_name} />
+      <AddReviewDialog open={reviewOpen} onOpenChange={setReviewOpen} proId={pro.id} proName={pro.display_name} onSubmitted={reload} />
     </div>
   );
 }

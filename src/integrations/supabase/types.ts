@@ -1130,6 +1130,7 @@ export type Database = {
           created_at: string
           id: string
           inquiry_id: string | null
+          is_approved: boolean
           is_verified: boolean
           pro_id: string
           rating: number
@@ -1140,6 +1141,7 @@ export type Database = {
           created_at?: string
           id?: string
           inquiry_id?: string | null
+          is_approved?: boolean
           is_verified?: boolean
           pro_id: string
           rating: number
@@ -1150,6 +1152,7 @@ export type Database = {
           created_at?: string
           id?: string
           inquiry_id?: string | null
+          is_approved?: boolean
           is_verified?: boolean
           pro_id?: string
           rating?: number
@@ -1560,6 +1563,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_listing_views: {
+        Args: { _listing_id: string }
+        Returns: undefined
+      }
+      increment_pro_views: { Args: { _pro_id: string }; Returns: undefined }
       move_to_dlq: {
         Args: {
           dlq_name: string

@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
-  Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search,
+  Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search, Music2, Pencil,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,11 +77,12 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="listings" className="gap-1"><Tags className="h-4 w-4" />המודעות שלי</TabsTrigger>
+            <TabsTrigger value="pro" className="gap-1"><Music2 className="h-4 w-4" />האינדקס שלי</TabsTrigger>
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
-            <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים שמורים</TabsTrigger>
+            <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים</TabsTrigger>
             <TabsTrigger value="business" className="gap-1"><Building2 className="h-4 w-4" />עסקי</TabsTrigger>
           </TabsList>
 
@@ -91,6 +92,10 @@ function ProfilePage() {
 
           <TabsContent value="listings" className="mt-6">
             <MyListings userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="pro" className="mt-6">
+            <MyProIndex userId={user.id} />
           </TabsContent>
 
           <TabsContent value="liked" className="mt-6">
@@ -606,6 +611,83 @@ function SavedSearches({ userId }: { userId: string }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function MyProIndex({ userId }: { userId: string }) {
+  const [pro, setPro] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("music_pros")
+        .select("id,display_name,headline,status,is_verified,subscription_tier,views_count,specialties,genres,region,cities")
+        .eq("user_id", userId)
+        .maybeSingle();
+      setPro(data);
+      setLoading(false);
+    })();
+  }, [userId]);
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+
+  if (!pro) {
+    return (
+      <div className="rounded-2xl border border-dashed p-10 text-center">
+        <Music2 className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground mb-3">עדיין לא יצרת פרופיל מוזיקאי באינדקס</p>
+        <Link to="/pros/new"><Button>צור פרופיל מוזיקאי</Button></Link>
+      </div>
+    );
+  }
+
+  const statusLabel = pro.status === "approved" ? "פעיל" : pro.status === "pending" ? "ממתין לאישור" : pro.status;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-xl border bg-card p-4 text-center">
+          <div className="text-2xl font-bold text-primary">{pro.views_count || 0}</div>
+          <div className="text-xs text-muted-foreground">צפיות</div>
+        </div>
+        <div className="rounded-xl border bg-card p-4 text-center">
+          <div className="text-2xl font-bold">{statusLabel}</div>
+          <div className="text-xs text-muted-foreground">סטטוס</div>
+        </div>
+        <div className="rounded-xl border bg-card p-4 text-center">
+          <div className="text-2xl font-bold">{pro.subscription_tier === "vip" ? "VIP" : "חינם"}</div>
+          <div className="text-xs text-muted-foreground">מנוי</div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border bg-card-elevated p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg font-bold">{pro.display_name}</h3>
+          <div className="flex gap-2">
+            {pro.is_verified && <Badge className="border-blue-500/40 bg-blue-500/15 text-blue-600">מאומת</Badge>}
+          </div>
+        </div>
+        {pro.headline && <p className="text-sm text-muted-foreground">{pro.headline}</p>}
+        <div className="text-xs text-muted-foreground">
+          {pro.region && <span>📍 {pro.region} {pro.cities?.length > 0 ? `· ${pro.cities.join(", ")}` : ""}</span>}
+        </div>
+        {pro.specialties?.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {pro.specialties.map((s: string) => <Badge key={s} variant="outline" className="text-[11px]">{s}</Badge>)}
+          </div>
+        )}
+        <div className="flex gap-2 pt-2">
+          <Link to="/pros/$proId/edit" params={{ proId: pro.id }}>
+            <Button size="sm"><Pencil className="ml-1 h-3.5 w-3.5" />ערוך פרופיל</Button>
+          </Link>
+          <Link to="/pros/$proId" params={{ proId: pro.id }}>
+            <Button size="sm" variant="outline"><Eye className="ml-1 h-3.5 w-3.5" />צפה בפרופיל</Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
