@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, ArrowLeft, Flame } from "lucide-react";
 import { ReportListingDialog } from "./ReportListingDialog";
+import { CONDITION_LABELS } from "@/lib/marketplaceData";
 
 type QuickViewListing = {
   id: string;
@@ -68,7 +69,7 @@ export function QuickViewDialog({ listing, open, onOpenChange }: Props) {
           {listing.item_condition && (
             <div className="text-sm">
               <span className="text-muted-foreground">מצב הכלי: </span>
-              <span className="font-medium">{listing.item_condition}</span>
+              <span className="font-medium">{CONDITION_LABELS[listing.item_condition] || listing.item_condition}</span>
             </div>
           )}
 
