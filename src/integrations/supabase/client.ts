@@ -16,7 +16,11 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      // Use sessionStorage so each browser tab keeps an independent session.
+      // This allows two different accounts to be logged in simultaneously
+      // in two regular tabs of the same browser. Trade-off: closing the tab
+      // signs the user out of that tab.
+      storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
     }

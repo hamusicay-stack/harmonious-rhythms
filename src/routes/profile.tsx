@@ -78,7 +78,7 @@ function ProfilePage() {
       </section>
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
-        <Tabs value={tab} onValueChange={setTab}>
+        <Tabs value={tab} onValueChange={setTab} dir="rtl">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="listings" className="gap-1"><Tags className="h-4 w-4" />המודעות שלי</TabsTrigger>
