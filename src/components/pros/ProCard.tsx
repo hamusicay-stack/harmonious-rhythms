@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { labelOf, SPECIALTIES, GENRES } from "@/lib/prosData";
 import { LikeButton } from "@/components/LikeButton";
+import { FollowButton } from "@/components/FollowButton";
 
 export type ProCardData = {
   id: string;
@@ -237,6 +238,7 @@ export function ProCard({ pro, onRequestQuote }: Props) {
                 <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); open(); }}>
                   <Eye className="ml-1.5 h-4 w-4" /> פרופיל
                 </Button>
+                <FollowButton targetType="music_pro" targetId={pro.id} />
               </>
             )}
           </div>
