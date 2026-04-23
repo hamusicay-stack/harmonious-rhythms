@@ -66,9 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (newSession?.user) {
         activeUserIdRef.current = newSession.user.id;
-        setLoading(false);
-        setTimeout(() => {
-          void loadProfile(newSession.user.id);
+        setLoading(true);
+        setTimeout(async () => {
+          try {
+            await loadProfile(newSession.user.id);
+          } finally {
+            if (active && activeUserIdRef.current === newSession.user.id) {
+              setLoading(false);
+            }
+          }
         }, 0);
       } else {
         activeUserIdRef.current = null;
