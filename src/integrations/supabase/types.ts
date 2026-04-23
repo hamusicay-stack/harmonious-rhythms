@@ -2314,6 +2314,51 @@ export type Database = {
           },
         ]
       }
+      shorts_settings: {
+        Row: {
+          auto_approve_all: boolean
+          id: number
+          require_approval: boolean
+          updated_at: string
+        }
+        Insert: {
+          auto_approve_all?: boolean
+          id?: number
+          require_approval?: boolean
+          updated_at?: string
+        }
+        Update: {
+          auto_approve_all?: boolean
+          id?: number
+          require_approval?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shorts_trusted_uploaders: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       shorts_video_views: {
         Row: {
           id: string
@@ -2345,6 +2390,7 @@ export type Database = {
       }
       shorts_videos: {
         Row: {
+          admin_notes: string | null
           created_at: string
           creator_id: string
           description: string | null
@@ -2352,6 +2398,8 @@ export type Database = {
           id: string
           is_premium: boolean
           published_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           scheduled_at: string | null
           status: string
           thumbnail_url: string | null
@@ -2361,6 +2409,7 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           creator_id: string
           description?: string | null
@@ -2368,6 +2417,8 @@ export type Database = {
           id?: string
           is_premium?: boolean
           published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           scheduled_at?: string | null
           status?: string
           thumbnail_url?: string | null
@@ -2377,6 +2428,7 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           creator_id?: string
           description?: string | null
@@ -2384,6 +2436,8 @@ export type Database = {
           id?: string
           is_premium?: boolean
           published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           scheduled_at?: string | null
           status?: string
           thumbnail_url?: string | null
@@ -2513,6 +2567,30 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      user_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          id?: string
+          target_id?: string
+          target_type?: string
         }
         Relationships: []
       }
