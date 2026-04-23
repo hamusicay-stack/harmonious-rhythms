@@ -917,7 +917,7 @@ function UploadDialog({
         </div>
         <DialogFooter>
           <Button onClick={submit} disabled={uploading} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-            {uploading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            {uploading && <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />}
             <Upload className="ml-1 h-4 w-4" />
             העלה
           </Button>
