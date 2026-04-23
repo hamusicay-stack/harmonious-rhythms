@@ -94,9 +94,14 @@ function ShortsPage() {
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(80);
         .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
         .eq("status", "active")
         .order("created_at", { ascending: false })
