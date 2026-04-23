@@ -86,7 +86,7 @@ function ShortsPage() {
       .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
       .eq("status", "active")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(80);
 
     const rows = data ?? [];
     if (rows.length === 0) { setShorts([]); setLoading(false); return; }
@@ -97,10 +97,9 @@ function ShortsPage() {
       .in("id", creatorIds);
     const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
 
-    // Likes & comment counts
     const ids = rows.map((r) => r.id);
     const [{ data: likeAgg }, { data: cmtAgg }] = await Promise.all([
-      supabase.from("user_likes").select("item_id").eq("item_type", "shorts_video").in("item_id", ids),
+      supabase.from("user_likes").select("item_id, user_id").eq("item_type", "shorts_video").in("item_id", ids),
       supabase.from("shorts_comments").select("video_id").in("video_id", ids),
     ]);
     const likeCounts = new Map<string, number>();
@@ -109,7 +108,39 @@ function ShortsPage() {
     for (const c of cmtAgg ?? []) cmtCounts.set(c.video_id, (cmtCounts.get(c.video_id) || 0) + 1);
     setCommentCounts(cmtCounts);
 
-    const list: Short[] = rows.map((r) => {
+    // ---- Personalization signals (For You algorithm) ----
+    let myLikedIds = new Set<string>();
+    let followedCreators = new Set<string>();
+    let likeAffinityCreators = new Map<string, number>(); // creators whose videos I liked → score
+    if (user) {
+      const [{ data: myLikes }, { data: follows }] = await Promise.all([
+        supabase.from("user_likes").select("item_id").eq("user_id", user.id).eq("item_type", "shorts_video"),
+        supabase.from("user_follows").select("target_id, target_type").eq("follower_id", user.id)
+          .in("target_type", ["shorts_creator", "user"]),
+      ]);
+      myLikedIds = new Set((myLikes ?? []).map((l) => l.item_id));
+      followedCreators = new Set((follows ?? []).map((f) => f.target_id));
+      // Boost: which creators did I like videos of?
+      const likedRows = (likeAgg ?? []).filter((l) => myLikedIds.has(l.item_id));
+      for (const r of rows) {
+        if (myLikedIds.has(r.id)) likeAffinityCreators.set(r.creator_id, (likeAffinityCreators.get(r.creator_id) ?? 0) + 1);
+      }
+      void likedRows;
+    }
+
+    // Score & sort
+    const scored = rows.map((r) => {
+      const ageHrs = Math.max(1, (Date.now() - new Date(r.created_at).getTime()) / 3600000);
+      const recency = 1 / Math.log2(ageHrs + 2);
+      const popularity = (likeCounts.get(r.id) ?? 0) * 2 + (cmtCounts.get(r.id) ?? 0) * 1.5 + (r.views_count ?? 0) * 0.05;
+      const followBoost = followedCreators.has(r.creator_id) ? 50 : 0;
+      const affinityBoost = (likeAffinityCreators.get(r.creator_id) ?? 0) * 15;
+      const premiumBoost = r.is_premium ? 5 : 0;
+      const score = recency * 10 + popularity + followBoost + affinityBoost + premiumBoost;
+      return { r, score };
+    }).sort((a, b) => b.score - a.score);
+
+    const list: Short[] = scored.map(({ r }) => {
       const p = pmap.get(r.creator_id);
       return {
         id: r.id,
@@ -127,16 +158,8 @@ function ShortsPage() {
       };
     });
     setShorts(list);
+    setLikedSet(myLikedIds);
     setLoading(false);
-
-    // Load my likes
-    if (user) {
-      const { data: myLikes } = await supabase
-        .from("user_likes").select("item_id")
-        .eq("user_id", user.id).eq("item_type", "shorts_video")
-        .in("item_id", list.map((s) => s.id));
-      setLikedSet(new Set((myLikes ?? []).map((l) => l.item_id)));
-    }
   }, [user]);
 
   useEffect(() => { loadShorts(); }, [loadShorts]);
@@ -182,14 +205,28 @@ function ShortsPage() {
     void supabase.rpc("increment_short_views", { _video_id: current.id });
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
-    const onEnd = () => setActiveIndex((i) => (i + 1) % Math.max(shorts.length, 1));
+    const onEnd = () => {
+      // Auto-advance to NEXT creator's video (skip remaining of same creator)
+      setActiveIndex((i) => {
+        const cur = shorts[i];
+        if (!cur) return (i + 1) % Math.max(shorts.length, 1);
+        for (let k = i + 1; k < shorts.length; k++) {
+          if (shorts[k].creator_id !== cur.creator_id) return k;
+        }
+        // None ahead → wrap to first different creator from start
+        for (let k = 0; k < i; k++) {
+          if (shorts[k].creator_id !== cur.creator_id) return k;
+        }
+        return (i + 1) % Math.max(shorts.length, 1);
+      });
+    };
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("ended", onEnd);
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
     };
-  }, [activeIndex, shorts.length, current?.id]);
+  }, [activeIndex, shorts, current?.id]);
 
   // Auto-scroll story row
   useEffect(() => {
@@ -314,9 +351,15 @@ function ShortsPage() {
         <div className="hidden gap-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_300px]">
           <aside className="space-y-4">
             <BannerSlot position="shorts_left" className="aspect-[2/3] overflow-hidden rounded-2xl" />
-            <div className="rounded-2xl border border-border/60 bg-card-elevated p-4">
-              <div className="mb-2 text-xs font-semibold uppercase text-primary">מומלץ עבורך</div>
-              <p className="text-sm text-muted-foreground">צפה בכל הסרטונים של המוזיקאים שאתה אוהב</p>
+            <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-4">
+              <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase text-primary">
+                ✨ עבורך
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {user
+                  ? "הפיד מותאם אישית לפי לייקים ועוקבים שלך"
+                  : "התחבר כדי לקבל פיד מותאם אישית"}
+              </p>
             </div>
           </aside>
 
