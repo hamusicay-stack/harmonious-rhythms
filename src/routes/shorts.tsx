@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/SiteHeader";
 import { BannerSlot } from "@/components/BannerSlot";
 import { FollowButton } from "@/components/FollowButton";
+import { CommentsSheet } from "@/components/shorts/CommentsSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
