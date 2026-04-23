@@ -190,7 +190,7 @@ function ShortsPage() {
       setShorts([]);
       setCommentCounts(new Map());
       setLikedSet(new Set());
-      toast.error("לא הצלחנו לטעון את השורטס כרגע");
+      setLoadError(error instanceof Error ? error.message : "טעינה נכשלה");
     } finally {
       setLoading(false);
     }
