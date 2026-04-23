@@ -577,14 +577,14 @@ function StoryRow({
               {active && (
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -inset-1 rounded-full"
+                  className="pointer-events-none absolute -inset-0.5 rounded-full opacity-70"
                   style={{
                     background:
-                      "conic-gradient(from 0deg, oklch(0.78 0.14 75), oklch(0.85 0.18 80), oklch(0.78 0.14 75), transparent 70%)",
+                      "conic-gradient(from 0deg, oklch(0.82 0.10 78 / 0.9), transparent 60%, oklch(0.82 0.10 78 / 0.9))",
                     WebkitMask:
-                      "radial-gradient(circle, transparent 56%, black 58%)",
-                    mask: "radial-gradient(circle, transparent 56%, black 58%)",
-                    animation: "spin 2.4s linear infinite",
+                      "radial-gradient(circle, transparent 60%, black 62%)",
+                    mask: "radial-gradient(circle, transparent 60%, black 62%)",
+                    animation: "spin 6s linear infinite",
                   }}
                 />
               )}
