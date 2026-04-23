@@ -323,27 +323,49 @@ function ShortsPage() {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     touchStartX.current = e.touches[0].clientX;
+    dragAxis.current = null;
+    dragStartTime.current = Date.now();
+    setDragging(true);
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const sy = touchStartY.current, sx = touchStartX.current;
+    if (sy == null || sx == null) return;
+    const dy = e.touches[0].clientY - sy;
+    const dx = e.touches[0].clientX - sx;
+    if (!dragAxis.current) {
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+        dragAxis.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      } else return;
+    }
+    // Only follow finger on the active axis; resist with 0.6 factor for premium feel
+    if (dragAxis.current === "y") setDragOffset({ x: 0, y: dy * 0.85 });
+    else setDragOffset({ x: dx * 0.85, y: 0 });
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
     const sy = touchStartY.current, sx = touchStartX.current;
     touchStartY.current = null; touchStartX.current = null;
-    if (sy == null || sx == null) return;
+    setDragging(false);
+    if (sy == null || sx == null) { setDragOffset({ x: 0, y: 0 }); return; }
     const dy = e.changedTouches[0].clientY - sy;
     const dx = e.changedTouches[0].clientX - sx;
-    // Require a clear, intentional swipe (not a tap/scroll jitter).
-    // Thresholds are intentionally large so mid-video micro-movements
-    // do NOT change the video.
-    const V_THRESHOLD = 120;
-    const H_THRESHOLD = 140;
-    const absX = Math.abs(dx), absY = Math.abs(dy);
-    if (absX < H_THRESHOLD && absY < V_THRESHOLD) return;
-    if (absX > absY * 1.3) {
-      if (absX < H_THRESHOLD) return;
-      // RTL: swipe left = next creator, swipe right = previous creator
-      if (dx < 0) goNextCreator(); else goPrevCreator();
-    } else {
-      if (absY < V_THRESHOLD) return;
-      if (dy < 0) goNext(); else goPrev();
+    const dt = Math.max(1, Date.now() - dragStartTime.current);
+    const vy = Math.abs(dy) / dt; // px/ms
+    const vx = Math.abs(dx) / dt;
+    const screenH = window.innerHeight || 800;
+    const screenW = window.innerWidth || 400;
+    const distRatioY = Math.abs(dy) / screenH;
+    const distRatioX = Math.abs(dx) / screenW;
+    const axis = dragAxis.current;
+    dragAxis.current = null;
+    setDragOffset({ x: 0, y: 0 });
+    if (axis === "x") {
+      if (distRatioX > 0.22 || vx > 0.55) {
+        if (dx < 0) goNextCreator(); else goPrevCreator();
+      }
+    } else if (axis === "y") {
+      if (distRatioY > 0.18 || vy > 0.5) {
+        if (dy < 0) goNext(); else goPrev();
+      }
     }
   };
 
