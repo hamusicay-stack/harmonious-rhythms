@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/SiteHeader";
 import { BannerSlot } from "@/components/BannerSlot";
 import { FollowButton } from "@/components/FollowButton";
+import { CommentsSheet } from "@/components/shorts/CommentsSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -71,9 +72,12 @@ function ShortsPage() {
   const [creatorChanged, setCreatorChanged] = useState(false);
   const [canUpload, setCanUpload] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map());
   const videoRef = useRef<HTMLVideoElement>(null);
   const storyRowRef = useRef<HTMLDivElement>(null);
   const prevCreatorIdRef = useRef<string | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
@@ -94,12 +98,16 @@ function ShortsPage() {
     const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
 
     // Likes & comment counts
-    const { data: likeAgg } = await supabase
-      .from("user_likes").select("item_id")
-      .eq("item_type", "shorts_video")
-      .in("item_id", rows.map((r) => r.id));
+    const ids = rows.map((r) => r.id);
+    const [{ data: likeAgg }, { data: cmtAgg }] = await Promise.all([
+      supabase.from("user_likes").select("item_id").eq("item_type", "shorts_video").in("item_id", ids),
+      supabase.from("shorts_comments").select("video_id").in("video_id", ids),
+    ]);
     const likeCounts = new Map<string, number>();
     for (const l of likeAgg ?? []) likeCounts.set(l.item_id, (likeCounts.get(l.item_id) || 0) + 1);
+    const cmtCounts = new Map<string, number>();
+    for (const c of cmtAgg ?? []) cmtCounts.set(c.video_id, (cmtCounts.get(c.video_id) || 0) + 1);
+    setCommentCounts(cmtCounts);
 
     const list: Short[] = rows.map((r) => {
       const p = pmap.get(r.creator_id);
@@ -112,7 +120,7 @@ function ShortsPage() {
         title: r.title ?? "",
         description: r.description ?? "",
         likes: likeCounts.get(r.id) ?? 0,
-        comments: 0,
+        comments: cmtCounts.get(r.id) ?? 0,
         views: r.views_count ?? 0,
         uploadedAgo: formatAgo(r.created_at),
         isPremium: r.is_premium,
@@ -196,6 +204,18 @@ function ShortsPage() {
     if (!v) return;
     if (v.paused) { v.play(); setIsPlaying(true); }
     else { v.pause(); setIsPlaying(false); }
+  };
+
+  const goNext = () => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
+  const goPrev = () => setActiveIndex((i) => Math.max(i - 1, 0));
+
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current == null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartY.current = null;
+    if (Math.abs(dy) < 50) return;
+    if (dy < 0) goNext(); else goPrev();
   };
 
   const toggleLike = async (id: string) => {
@@ -315,7 +335,7 @@ function ShortsPage() {
                 onToggleMute={() => setIsMuted((m) => !m)}
                 onLike={() => toggleLike(current.id)}
                 onShare={shareWhatsApp}
-                onComment={() => toast.info("תגובות בקרוב")}
+                onComment={() => setCommentsOpen(true)}
                 fmt={fmt}
               />
             )}
@@ -337,7 +357,7 @@ function ShortsPage() {
           </aside>
         </div>
 
-        <div className="lg:hidden">
+        <div className="lg:hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
           <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} />
           {current && (
             <VideoPlayer
@@ -352,13 +372,29 @@ function ShortsPage() {
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
               onShare={shareWhatsApp}
-              onComment={() => toast.info("תגובות בקרוב")}
+              onComment={() => setCommentsOpen(true)}
               fmt={fmt}
               mobileFull
             />
           )}
+          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא</p>
         </div>
       </div>
+
+      <CommentsSheet
+        open={commentsOpen}
+        onOpenChange={setCommentsOpen}
+        videoId={current?.id ?? null}
+        onCountChange={(n) => {
+          if (!current) return;
+          setCommentCounts((prev) => {
+            const next = new Map(prev);
+            next.set(current.id, n);
+            return next;
+          });
+          setShorts((prev) => prev.map((s) => s.id === current.id ? { ...s, comments: n } : s));
+        }}
+      />
     </div>
   );
 }

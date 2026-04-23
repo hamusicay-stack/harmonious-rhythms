@@ -208,7 +208,7 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsList className="grid w-full grid-cols-3 h-auto sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <TabsTrigger value="dashboard" className="text-xs sm:text-sm py-2"><LayoutDashboard className="ml-1 h-4 w-4" /><span className="hidden sm:inline">דשבורד</span><span className="sm:hidden">בית</span></TabsTrigger>
             <TabsTrigger value="crm" className="text-xs sm:text-sm py-2"><Users className="ml-1 h-4 w-4" />CRM</TabsTrigger>
             <TabsTrigger value="commerce" className="text-xs sm:text-sm py-2"><ShoppingBag className="ml-1 h-4 w-4" /><span className="hidden sm:inline">חנות ושיווק</span><span className="sm:hidden">חנות</span></TabsTrigger>
@@ -220,13 +220,13 @@ function AdminPage() {
 
           <TabsContent value="crm" className="mt-6">
             <Tabs defaultValue="customers" dir="rtl">
-              <TabsList className="flex flex-wrap w-full h-auto md:grid md:grid-cols-6 gap-1">
-                <TabsTrigger value="customers" className="flex-1 min-w-[100px]"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
-                <TabsTrigger value="leads" className="flex-1 min-w-[100px]"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
-                <TabsTrigger value="tasks" className="flex-1 min-w-[100px]"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
-                <TabsTrigger value="suppliers" className="flex-1 min-w-[100px]"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
-                <TabsTrigger value="purchase_orders" className="flex-1 min-w-[100px]"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
-                <TabsTrigger value="admins" className="flex-1 min-w-[100px]"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6 scrollbar-thin">
+                <TabsTrigger value="customers" className="shrink-0 md:flex-1"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
+                <TabsTrigger value="leads" className="shrink-0 md:flex-1"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
+                <TabsTrigger value="tasks" className="shrink-0 md:flex-1"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
+                <TabsTrigger value="suppliers" className="shrink-0 md:flex-1"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
+                <TabsTrigger value="purchase_orders" className="shrink-0 md:flex-1"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
+                <TabsTrigger value="admins" className="shrink-0 md:flex-1"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
               </TabsList>
 
               <TabsContent value="customers" className="mt-6">
@@ -395,13 +395,13 @@ function AdminPage() {
 
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
-              <TabsList className="flex flex-wrap w-full h-auto md:grid md:grid-cols-6 gap-1">
-                <TabsTrigger value="shop" className="flex-1 min-w-[110px]"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
-                <TabsTrigger value="marketplace" className="flex-1 min-w-[110px]"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
-                <TabsTrigger value="shorts" className="flex-1 min-w-[110px]"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
-                <TabsTrigger value="music_pros" className="flex-1 min-w-[110px]"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
-                <TabsTrigger value="automations" className="flex-1 min-w-[110px]"><Zap className="ml-1 h-4 w-4" />אוטומציות</TabsTrigger>
-                <TabsTrigger value="banners" className="flex-1 min-w-[110px]"><Megaphone className="ml-1 h-4 w-4" />פרסומות</TabsTrigger>
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6 scrollbar-thin">
+                <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
+                <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
+                <TabsTrigger value="shorts" className="shrink-0 md:flex-1"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
+                <TabsTrigger value="music_pros" className="shrink-0 md:flex-1"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
+                <TabsTrigger value="automations" className="shrink-0 md:flex-1"><Zap className="ml-1 h-4 w-4" />אוטומציות</TabsTrigger>
+                <TabsTrigger value="banners" className="shrink-0 md:flex-1"><Megaphone className="ml-1 h-4 w-4" />פרסומות</TabsTrigger>
               </TabsList>
 
               <TabsContent value="shop" className="mt-6">

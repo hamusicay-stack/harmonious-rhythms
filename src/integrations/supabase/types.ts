@@ -2314,6 +2314,33 @@ export type Database = {
           },
         ]
       }
+      shorts_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: []
+      }
       shorts_settings: {
         Row: {
           auto_approve_all: boolean
