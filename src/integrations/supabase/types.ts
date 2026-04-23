@@ -2314,6 +2314,86 @@ export type Database = {
           },
         ]
       }
+      shorts_video_views: {
+        Row: {
+          id: string
+          user_id: string | null
+          video_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          video_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          video_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shorts_video_views_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "shorts_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shorts_videos: {
+        Row: {
+          created_at: string
+          creator_id: string
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          is_premium: boolean
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+          views_count: number
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          is_premium?: boolean
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+          views_count?: number
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          is_premium?: boolean
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+          views_count?: number
+        }
+        Relationships: []
+      }
       supplier_orders: {
         Row: {
           created_at: string
@@ -2529,6 +2609,7 @@ export type Database = {
         Returns: undefined
       }
       increment_pro_views: { Args: { _pro_id: string }; Returns: undefined }
+      increment_short_views: { Args: { _video_id: string }; Returns: undefined }
       move_to_dlq: {
         Args: {
           dlq_name: string
