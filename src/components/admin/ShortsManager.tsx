@@ -20,7 +20,7 @@ type Short = {
   description: string | null;
   video_url: string;
   thumbnail_url: string | null;
-  uploader_id: string;
+  creator_id: string;
   status: string;
   is_premium: boolean;
   views_count: number;
@@ -65,7 +65,7 @@ function ApprovalQueue() {
   const load = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase.from("shorts_videos")
-      .select("id,title,description,video_url,thumbnail_url,uploader_id,status,is_premium,views_count,created_at,admin_notes")
+      .select("id,title,description,video_url,thumbnail_url,creator_id,status,is_premium,views_count,created_at,admin_notes")
       .eq("status", filter)
       .order("created_at", { ascending: false }).limit(100);
     setItems((data ?? []) as Short[]);
