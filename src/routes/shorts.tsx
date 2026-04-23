@@ -206,6 +206,18 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
+  const goNext = () => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
+  const goPrev = () => setActiveIndex((i) => Math.max(i - 1, 0));
+
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current == null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartY.current = null;
+    if (Math.abs(dy) < 50) return;
+    if (dy < 0) goNext(); else goPrev();
+  };
+
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
     const liked = likedSet.has(id);
