@@ -80,6 +80,7 @@ function ShortsPage() {
   const storyRowRef = useRef<HTMLDivElement>(null);
   const prevCreatorIdRef = useRef<string | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
