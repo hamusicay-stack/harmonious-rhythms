@@ -1,52 +1,100 @@
 
 
-## תוכנית: 2 תיקונים
+## בדיקת מצב נוכחי — מה כבר נבנה ומה חסר
 
-### בעיה 1: "מצב הכלי: like_new" באנגלית
+### ✅ מה שכבר עובד היום
+- **שורטס**: דף `/shorts` עם 3 עמודות בדסקטופ + מובייל TikTok-style, story row עם progress ring, autoplay, אנימציית transition עדינה סביב הפרופיל (חלקית, רק על תיבת המידע התחתונה).
+- **אישור מנהל**: `ShortsManager` באדמין עם תור pending/active/rejected, רשימת trusted uploaders, הגדרות גלובליות (auto_approve_all + require_approval). Trigger DB `shorts_auto_approve` פועל.
+- **Follow מערכת**: טבלת `user_follows` polymorphic, הוק `useFollow`, קומפוננטה `FollowButton`, טאב "עוקב אחרי" בפרופיל.
+- **לייקים בפרופיל**: טאב "שאהבתי" עם פילטרים (יד2/חנות/מקצוענים/אקדמיה/פורום).
+- **באנרים בשורטס**: 3 slots מוגדרים — `shorts_left`, `shorts_right_top`, `shorts_right_bottom`.
+- **CTA בית**: סקציית "המוזיקאי שורטס" קיימת בעמוד הבית.
+- **גישת אדמין במובייל**: כפתור "ניהול המערכת" קיים בתפריט המובייל.
+- **אדמין רספונסיבי**: TabsList עם `flex-wrap` במובייל.
 
-**מקום הבאג:** `src/components/marketplace/QuickViewDialog.tsx` שורה 71 — מציג את הערך הגולמי `{listing.item_condition}` במקום התווית העברית. בשאר הדף (`marketplace.$listingId.tsx`) זה כבר עובד כי משתמשים ב־`CONDITION_LABELS`.
+### ❌ מה שחסר ויבוצע בשלב הזה
 
-**פתרון:**
-- ב־`QuickViewDialog.tsx` — להוסיף `import { CONDITION_LABELS } from "@/lib/marketplaceData"` ולהחליף את התצוגה ל־`{CONDITION_LABELS[listing.item_condition] || listing.item_condition}`.
-- סריקה מהירה לוודא שאין מקומות נוספים שמציגים `item_condition` גולמי (לפי הסריקה — רק QuickView).
+**1. שורטס — חיבור לדאטה אמיתי (היום זה MOCK)**
+- החלפת `MOCK_SHORTS` ב-fetch מ-`shorts_videos` (status=active, ordered by created_at).
+- שימוש ב-`like` דרך `useLikes('shorts_video', id)` במקום state מקומי.
+- `FollowButton` במקום כפתור "עוקב" סטטי, מחובר ל-`shorts_creator`.
+- קריאה ל-`increment_short_views` בכל החלפת סרטון.
+- Realtime subscription לסרטונים חדשים שאושרו.
 
-### בעיה 2: לא ניתן להיות מחובר לשני חשבונות ב־2 טאבים רגילים של אותו דפדפן
+**2. שורטס — אנימציה עדינה סביב פרופיל המוזיקאי בכל מעבר**
+- בנוסף לטרנזישן הקיים בלאייר התחתון, להוסיף "ring pulse" של 800ms סביב האווטאר הראשי כשעוברים לסרטון של מוזיקאי **אחר** (לא בכל סרטון של אותו יוצר).
+- שימוש ב-`animate-pulse` + `scale-110` + gradient ring על avatar התחתון, מבחין בין "אותו creator" ל"creator חדש".
+- Fade עדין של הטייטל (animate-fade-in 300ms) בכל מעבר.
 
-**הסבר טכני (לא באג של הקוד שלך — מגבלת ארכיטקטורה):**
+**3. לייקים של שורטס בטאב "שאהבתי"**
+- הוספת `shorts_video` ל-LikeRow filter ול-config של `LikedCard`.
+- הוספת fetch ל-`shorts_videos` עם `id, title, thumbnail_url, video_url`.
+- כרטיס מוביל ל-`/shorts?v=<id>` עם autoplay של אותו סרטון.
 
-ב־`src/integrations/supabase/client.ts` (שורה 19) ה־storage של ה־auth מוגדר כ־`localStorage`. ל־localStorage **יש מפתח אחד משותף לכל הטאבים של אותו דפדפן/origin**. בנוסף `onAuthStateChange` ב־`AuthContext` מאזין לאירועי storage בין טאבים — לכן מתי שטאב B מתחבר לחשבון אחר, טאב A מקבל מיד את ה־session החדש ו״נדחף החוצה״ לחשבון של B.
+**4. העלאת שורטס למשתמשים**
+- Dialog "העלה סרטון" בכפתור הקיים בראש /shorts (מותנה login + premium/trusted/admin).
+- Upload ל-`storage/shorts` bucket → insert ל-`shorts_videos` (status=pending אם נדרש אישור).
+- שדות: title, description, video file (max 60s), thumbnail (אופציונלי).
 
-**זו ההתנהגות הסטנדרטית של Supabase Auth ושל כל אתר עם session ב־localStorage** (Gmail, Facebook וכו' עובדים אותו דבר — חשבון אחד פעיל לכל חלון רגיל; להחליף חשבון = יציאה מהקודם). חלון Incognito עובד כי יש לו localStorage נפרד.
+**5. הפצת שורטס במערכת הפרסומות**
+- כבר יש `shorts_left/right_top/right_bottom`. נוסיף עוד אופציה: **`shorts_in_feed`** — באנר שמוצג כסרטון ה-3, ה-7, ה-11 בפיד (interstitial style), עם מסגרת "פרסומת ממומן".
+- בעריכת באנר באדמין: שדה אופציונלי "תדירות בפיד" (כל N סרטונים).
 
-**יש שתי דרכים לאפשר באמת 2 חשבונות במקביל ב־2 טאבים רגילים — שתיהן פוגעות במשהו:**
+**6. FollowButton במקומות הנכונים**
+- `ProCard` (מוזיקאים) — כפתור עקוב/עוקב על `music_pro`.
+- `seller.$sellerId.tsx` — כפתור עקוב על `marketplace_seller`.
+- שורטס player — `shorts_creator`.
+- `pros.$proId.tsx` — כפתור עקוב גדול בכותרת.
+- `marketplace.$listingId.tsx` — כפתור עקוב ליד פרטי המוכר.
 
-#### אופציה A — מעבר ל־`sessionStorage` (פשוט, אבל UX גרוע)
-- שינוי ב־`src/integrations/supabase/client.ts` בלבד: `storage: sessionStorage`.
-- ✅ כל טאב = session עצמאי. אפשר להיות מחובר ל־A בטאב 1 ו־B בטאב 2.
-- ❌ **כל סגירת טאב = יציאה מהמערכת.** משתמשים שיסגרו את הדפדפן יצטרכו להתחבר מחדש בכל פעם.
-- ❌ פתיחת טאב חדש מאתר ההתחלה ידרוש התחברות מחדש.
+**7. שיפורי מובייל לאדמין**
+- Cards/Tables: עטיפת טבלאות ב-`overflow-x-auto` + min-width לתאים. במובייל, להחליף Table ב-list of cards (בעמודות לקוחות/לידים/ספקים) — כל שורה הופכת לכרטיס מסודר עם labels.
+- DialogContent: הוספת `max-h-[90vh] overflow-y-auto` ו-padding מתאים למובייל.
+- Sticky TabsList בראש הדף, עם horizontal scroll במקום flex-wrap (נוח יותר).
+- כפתור "ניהול" בתפריט המובייל — להוסיף badge עם מספר pending shorts/reports/leads (התראות).
 
-#### אופציה B — Account Switcher (UX טוב, פיתוח גדול)
-- בניית מערכת מקומית ששומרת מספר refresh tokens ב־localStorage תחת מפתחות נפרדים, עם UI להחלפה (כמו Gmail).
-- בכל טאב יוזמן custom Supabase client עם storage key ייחודי לפי טאב (`crypto.randomUUID()` ב־`sessionStorage`) שמושך את ה־token המתאים.
-- ❌ עבודה גדולה: שכתוב של `client.ts` + `AuthContext` + UI חדש להוספה/הסרה/החלפת חשבונות + טיפול ב־refresh של כל token בנפרד.
+---
 
-#### אופציה C — לא לעשות שום שינוי (ההמלצה הנוכחית)
-- לבדיקות עם 2 משתמשים: להמשיך להשתמש ב־Incognito / דפדפן שני / פרופיל Chrome אחר. זו הדרך הסטנדרטית בכל פלטפורמה.
+## מה מומלץ להוסיף בעתיד (לא בשלב הזה)
 
-### מה אני מבקש שתחליט
+**שורטס:**
+- **תזמון פרסום** — `scheduled_at` כבר קיים בטבלה אבל אין UI להעלאה עם תזמון.
+- **תגובות אמיתיות** — טבלת `shorts_comments` (היום מחזיר toast "בקרוב").
+- **טיוב thumbnail אוטומטי** — ffmpeg ב-edge function שתופס frame ב-1s.
+- **Swipe gestures במובייל** — מעבר בין סרטונים בגרירה אנכית.
+- **אלגוריתם "For You"** — דירוג לפי likes/views/follows במקום סדר כרונולוגי.
+- **דיווח על סרטון** — דומה ל-`marketplace_reports` עבור שורטס.
 
-לגבי בעיה 1 — אבצע אוטומטית.
-לגבי בעיה 2 — תבחר A / B / C. אם לא תגיד, אבצע **רק את תיקון 1** ואשאיר את התנהגות ה־auth כמו שהיא.
+**מערכת follow:**
+- **התראות** — מייל/in-app כשמישהו שעוקבים אחריו מעלה סרטון/מודעה חדשה.
+- **פיד "עוקבים"** — טאב בשורטס שמראה רק סרטונים מיוצרים שעוקבים אחריהם.
+- **רשימת "מי עוקב אחריי"** — לא קיים, רק "אחרי מי אני עוקב".
+- **ספירת עוקבים** — באדג' על פרופיל מוזיקאי/מוכר.
 
-### קבצים שיערכו (בעיה 1 בלבד אם זו הבחירה)
-- `src/components/marketplace/QuickViewDialog.tsx`
+**אדמין במובייל:**
+- **PWA + push notifications** — להתראה מידית על pending shorts/דיווחים.
+- **כרטיס לקוח 360° במובייל** — להתאים גם את `/admin/customers/$customerId`.
+- **אקשנים מהירים בסוייפ** — אישור/דחייה בסוייפ ימינה/שמאלה על כרטיס שורטס.
 
-### קבצים שיערכו אם תבחר באופציה A
-- `src/integrations/supabase/client.ts` (שורת ה־storage)
-- `src/components/marketplace/QuickViewDialog.tsx`
+**ביצועים וקלות שימוש:**
+- **Lazy load** של רכיבי האדמין הכבדים (ShopManager, MarketplaceManager) — היום הכל מיובא ישירות.
+- **Search גלובלי** — אייקון החיפוש בכותרת לא עושה כלום.
+- **Skeleton loaders** במקום Spinner — יותר נעים לעין.
+- **i18n נכון** — כיוון RTL/LTR לפי שדה (טלפון, אימייל, URLs).
 
-### מה לא נכלל
-- שינויי DB / RLS — לא נדרשים.
-- שינוי ב־`AuthContext` באופציה A — `onAuthStateChange` ימשיך לעבוד תקין כי sessionStorage לא יורה אירועי storage בין טאבים.
+---
+
+## קבצים שיתעדכנו בשלב הזה
+
+- `src/routes/shorts.tsx` — fetch אמיתי, לייקים אמיתיים, FollowButton, אנימציית מעבר בין מוזיקאים, dialog העלאה.
+- `src/routes/profile.tsx` — הוספת shorts_video ל-LikedItems.
+- `src/components/admin/BannersManager.tsx` — הוספת position `shorts_in_feed` ושדה `frequency`.
+- `src/components/pros/ProCard.tsx` — FollowButton על `music_pro`.
+- `src/routes/seller.$sellerId.tsx` — FollowButton על `marketplace_seller`.
+- `src/routes/pros.$proId.tsx` — FollowButton בכותרת.
+- `src/routes/marketplace.$listingId.tsx` — FollowButton ליד פרטי מוכר.
+- `src/routes/admin.tsx` — מובייל: החלפת טבלאות לכרטיסים במובייל, sticky tabs, badges על pending.
+- `src/components/SiteHeader.tsx` — badge על "ניהול" עם ספירת pending.
+- `src/components/admin/ShortsManager.tsx` — הוספת שדה תדירות לפיד, swipe actions.
+- מיגרציה חדשה: הוספת `frequency_in_feed` ל-`ad_banners` (אופציונלי).
 
