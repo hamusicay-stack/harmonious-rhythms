@@ -68,6 +68,7 @@ function ShortsPage() {
   const { user, profile } = useAuth();
   const [shorts, setShorts] = useState<Short[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -75,10 +76,16 @@ function ShortsPage() {
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
   const [creatorChanged, setCreatorChanged] = useState(false);
   const [slideDir, setSlideDir] = useState<"up" | "down" | "left" | "right" | null>(null);
+  const [heartPulse, setHeartPulse] = useState(0);
   const [canUpload, setCanUpload] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map());
+  // Drag physics (mobile full-screen)
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragAxis = useRef<"x" | "y" | null>(null);
+  const dragStartTime = useRef<number>(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const storyRowRef = useRef<HTMLDivElement>(null);
   const prevCreatorIdRef = useRef<string | null>(null);
