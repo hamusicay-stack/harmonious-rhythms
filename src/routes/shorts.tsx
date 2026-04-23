@@ -639,6 +639,7 @@ type VideoPlayerProps = {
   progress: number;
   liked: boolean;
   creatorChanged: boolean;
+  slideDir: "up" | "down" | "left" | "right" | null;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onLike: () => void;
@@ -650,15 +651,25 @@ type VideoPlayerProps = {
 
 function VideoPlayer(props: VideoPlayerProps) {
   const {
-    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged,
+    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir,
     onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull,
   } = props;
 
+  const slideClass =
+    slideDir === "up" ? "animate-shorts-up"
+      : slideDir === "down" ? "animate-shorts-down"
+        : slideDir === "left" ? "animate-shorts-left"
+          : slideDir === "right" ? "animate-shorts-right"
+            : "";
+
   return (
     <div className={cn(
-      "relative mx-auto overflow-hidden rounded-2xl bg-black shadow-2xl",
-      mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]"
-    )}>
+      "relative mx-auto overflow-hidden rounded-2xl bg-black shadow-2xl will-change-transform",
+      mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]",
+      slideClass,
+    )}
+      key={`${short.id}-${slideDir ?? "none"}`}
+    >
       <video
         ref={videoRef}
         key={short.id}
@@ -667,7 +678,7 @@ function VideoPlayer(props: VideoPlayerProps) {
         autoPlay
         muted={isMuted}
         playsInline
-        className="h-full w-full object-cover animate-fade-in"
+        className="h-full w-full object-cover"
         onClick={onTogglePlay}
       />
 
