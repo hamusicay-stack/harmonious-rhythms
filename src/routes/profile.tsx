@@ -398,7 +398,7 @@ function MyListings({ userId }: { userId: string }) {
 type LikeRow = { item_type: string; item_id: string; created_at: string };
 
 function LikedItems({ userId }: { userId: string }) {
-  const [filter, setFilter] = useState<"all" | "marketplace_listing" | "shop_product" | "music_pro" | "academy_course" | "forum_post">("all");
+  const [filter, setFilter] = useState<"all" | "marketplace_listing" | "shop_product" | "music_pro" | "academy_course" | "forum_post" | "shorts_video">("all");
   const [likes, setLikes] = useState<LikeRow[]>([]);
   const [items, setItems] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
@@ -463,6 +463,11 @@ function LikedItems({ userId }: { userId: string }) {
         .select("id, title, content").in("id", groups.forum_post);
       for (const r of data ?? []) map[`forum_post:${r.id}`] = r;
     }
+    if (groups.shorts_video?.length) {
+      const { data } = await supabase.from("shorts_videos")
+        .select("id, title, thumbnail_url, video_url").in("id", groups.shorts_video);
+      for (const r of data ?? []) map[`shorts_video:${r.id}`] = r;
+    }
     setItems(map);
     setLoading(false);
   }, [userId]);
@@ -526,6 +531,7 @@ function LikedItems({ userId }: { userId: string }) {
         <FilterBtn value="marketplace_listing" label="יד 2" icon={Tags} />
         <FilterBtn value="shop_product" label="חנות" icon={ShoppingBag} />
         <FilterBtn value="music_pro" label="מקצוענים" icon={Music2} />
+        <FilterBtn value="shorts_video" label="שורטס" icon={Music2} />
         <FilterBtn value="academy_course" label="אקדמיה" icon={GraduationCap} />
         <FilterBtn value="forum_post" label="פורום" icon={MessageSquare} />
       </div>
@@ -581,6 +587,14 @@ function LikedCard({ like, item, onUnlike }: { like: LikeRow; item: any; onUnlik
       subtitle: (item.content || "").slice(0, 80),
       tag: "פורום",
       tagIcon: MessageSquare,
+    },
+    shorts_video: {
+      href: { to: "/shorts" },
+      img: item.thumbnail_url,
+      title: item.title,
+      subtitle: "סרטון שורטס",
+      tag: "שורטס",
+      tagIcon: Music2,
     },
   };
   const c = config[like.item_type];
