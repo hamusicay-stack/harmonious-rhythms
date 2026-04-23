@@ -7,9 +7,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 
 export function NotificationsBell() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { unreadCount } = useNotifications();
-  if (!user) return null;
+  if (loading || !user) return null;
   return (
     <Popover>
       <PopoverTrigger asChild>
