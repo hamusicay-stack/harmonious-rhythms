@@ -235,7 +235,7 @@ function StoryRow({
   shorts, activeIndex, progress, onSelect, rowRef,
 }: {
   shorts: Short[]; activeIndex: number; progress: number;
-  onSelect: (i: number) => void; rowRef: React.RefObject<HTMLDivElement>;
+  onSelect: (i: number) => void; rowRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div ref={rowRef} className="mb-4 flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
@@ -291,7 +291,7 @@ function VideoPlayer({
   onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull,
 }: {
   short: Short;
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
   isMuted: boolean; isPlaying: boolean; progress: number; liked: boolean;
   onTogglePlay: () => void; onToggleMute: () => void;
   onLike: () => void; onShare: () => void; onComment: () => void;
