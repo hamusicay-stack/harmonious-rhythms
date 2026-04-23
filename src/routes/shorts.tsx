@@ -555,20 +555,34 @@ function StoryRow({
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative h-16 w-16 rounded-full p-[2px] transition-all",
+              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-500",
               s.isPremium
                 ? "bg-gradient-to-tr from-primary via-primary-glow to-primary"
                 : "bg-gradient-to-tr from-muted-foreground/40 to-muted",
               active && "scale-110 shadow-gold",
             )}>
-              <Avatar className="h-full w-full border-2 border-background">
+              {active && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-1 rounded-full"
+                  style={{
+                    background:
+                      "conic-gradient(from 0deg, oklch(0.78 0.14 75), oklch(0.85 0.18 80), oklch(0.78 0.14 75), transparent 70%)",
+                    WebkitMask:
+                      "radial-gradient(circle, transparent 56%, black 58%)",
+                    mask: "radial-gradient(circle, transparent 56%, black 58%)",
+                    animation: "spin 2.4s linear infinite",
+                  }}
+                />
+              )}
+              <Avatar className="relative h-full w-full border-2 border-background">
                 <AvatarImage src={s.creator.avatar || undefined} />
                 <AvatarFallback className="bg-secondary text-xs font-bold">
                   {s.creator.name.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               {active && (
-                <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                <svg className="pointer-events-none absolute inset-0 -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="48" fill="none" stroke="oklch(0.78 0.14 75)" strokeWidth="3"
                     strokeDasharray={`${(progress / 100) * 301.6} 301.6`} />
                 </svg>
