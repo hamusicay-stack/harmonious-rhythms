@@ -233,7 +233,7 @@ function BulkUploader() {
         const { error: insErr } = await supabase.from("shorts_videos").insert([{
           creator_id: user.id,
           video_url: pub.publicUrl,
-          title: it.title || null,
+          title: it.title || it.file.name,
           description: it.description || null,
           scheduled_for: scheduled,
           status: (isFuture ? "scheduled" : "active") as "scheduled" | "active",
