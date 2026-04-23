@@ -351,9 +351,15 @@ function ShortsPage() {
         <div className="hidden gap-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_300px]">
           <aside className="space-y-4">
             <BannerSlot position="shorts_left" className="aspect-[2/3] overflow-hidden rounded-2xl" />
-            <div className="rounded-2xl border border-border/60 bg-card-elevated p-4">
-              <div className="mb-2 text-xs font-semibold uppercase text-primary">מומלץ עבורך</div>
-              <p className="text-sm text-muted-foreground">צפה בכל הסרטונים של המוזיקאים שאתה אוהב</p>
+            <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-4">
+              <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase text-primary">
+                ✨ עבורך
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {user
+                  ? "הפיד מותאם אישית לפי לייקים ועוקבים שלך"
+                  : "התחבר כדי לקבל פיד מותאם אישית"}
+              </p>
             </div>
           </aside>
 
