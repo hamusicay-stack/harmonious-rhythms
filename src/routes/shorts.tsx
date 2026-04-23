@@ -72,6 +72,7 @@ function ShortsPage() {
   const [progress, setProgress] = useState(0);
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
   const [creatorChanged, setCreatorChanged] = useState(false);
+  const [slideDir, setSlideDir] = useState<"up" | "down" | "left" | "right" | null>(null);
   const [canUpload, setCanUpload] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
