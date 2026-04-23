@@ -273,11 +273,18 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
-  const goNext = useCallback(() => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0))), [shorts.length]);
-  const goPrev = useCallback(() => setActiveIndex((i) => Math.max(i - 1, 0)), []);
+  const goNext = useCallback(() => {
+    setSlideDir("up");
+    setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
+  }, [shorts.length]);
+  const goPrev = useCallback(() => {
+    setSlideDir("down");
+    setActiveIndex((i) => Math.max(i - 1, 0));
+  }, []);
 
   // Jump to next/previous DIFFERENT creator (horizontal swipe behavior)
   const goNextCreator = useCallback(() => {
+    setSlideDir("left");
     setActiveIndex((i) => {
       const cur = shorts[i];
       if (!cur) return i;
@@ -286,6 +293,7 @@ function ShortsPage() {
     });
   }, [shorts]);
   const goPrevCreator = useCallback(() => {
+    setSlideDir("right");
     setActiveIndex((i) => {
       const cur = shorts[i];
       if (!cur) return i;
@@ -293,6 +301,13 @@ function ShortsPage() {
       return i;
     });
   }, [shorts]);
+
+  // Clear slide direction after animation completes
+  useEffect(() => {
+    if (!slideDir) return;
+    const t = setTimeout(() => setSlideDir(null), 460);
+    return () => clearTimeout(t);
+  }, [slideDir, activeIndex]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
