@@ -628,6 +628,10 @@ function ShortsPage() {
             />
           </div>
         )}
+        <p className="absolute bottom-[max(env(safe-area-inset-bottom),0.25rem)] left-0 right-0 text-center text-[10px] text-white/50 pointer-events-none">
+          החלק למעלה לסרטון הבא • שמאלה למעבר בין יוצרים
+        </p>
+      </div>
 
       <CommentsSheet
         open={commentsOpen}
