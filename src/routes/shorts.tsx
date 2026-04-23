@@ -225,6 +225,7 @@ function ShortsPage() {
             isPlaying={isPlaying}
             progress={progress}
             liked={likedSet.has(current.id)}
+            transitioning={transitioning}
             onTogglePlay={togglePlay}
             onToggleMute={() => setIsMuted((m) => !m)}
             onLike={() => toggleLike(current.id)}
