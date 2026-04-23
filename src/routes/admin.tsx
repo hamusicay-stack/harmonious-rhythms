@@ -207,20 +207,42 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-12">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-3">
             <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
-            <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
-            <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
-            <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
-            <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
-            <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
-            <TabsTrigger value="shop"><ShoppingBag className="ml-2 h-4 w-4" />חנות</TabsTrigger>
-            <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
-            <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
-            <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
-            <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
-            <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
+            <TabsTrigger value="crm"><Users className="ml-2 h-4 w-4" />CRM</TabsTrigger>
+            <TabsTrigger value="commerce"><ShoppingBag className="ml-2 h-4 w-4" />חנות ושיווק</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="crm" className="mt-6">
+            <Tabs defaultValue="customers" dir="rtl">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+                <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
+                <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
+                <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+                <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
+                <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
+                <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
+              </TabsList>
+              <div className="mt-6">
+                <CrmTabsContent />
+              </div>
+            </Tabs>
+          </TabsContent>
+
+          <TabsContent value="commerce" className="mt-6">
+            <Tabs defaultValue="shop" dir="rtl">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-5">
+                <TabsTrigger value="shop"><ShoppingBag className="ml-2 h-4 w-4" />חנות</TabsTrigger>
+                <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
+                <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
+                <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
+                <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
+              </TabsList>
+              <div className="mt-6">
+                <CommerceTabsContent />
+              </div>
+            </Tabs>
+          </TabsContent>
 
           <TabsContent value="dashboard" className="mt-6">
             <DashboardOverview />
