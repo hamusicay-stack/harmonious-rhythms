@@ -79,11 +79,12 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="pro" className="gap-1"><Music2 className="h-4 w-4" />האינדקס שלי</TabsTrigger>
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
+            <TabsTrigger value="following" className="gap-1"><UserIcon className="h-4 w-4" />עוקב אחרי</TabsTrigger>
             <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים</TabsTrigger>
           </TabsList>
 
@@ -101,6 +102,10 @@ function ProfilePage() {
 
           <TabsContent value="liked" className="mt-6">
             <LikedItems userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="following" className="mt-6">
+            <FollowingList userId={user.id} />
           </TabsContent>
 
           <TabsContent value="searches" className="mt-6">
