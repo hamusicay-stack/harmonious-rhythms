@@ -735,6 +735,7 @@ type VideoPlayerProps = {
   liked: boolean;
   creatorChanged: boolean;
   slideDir: "up" | "down" | "left" | "right" | null;
+  heartPulse?: number;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onLike: () => void;
@@ -742,12 +743,13 @@ type VideoPlayerProps = {
   onComment: () => void;
   fmt: (n: number) => string;
   mobileFull?: boolean;
+  fullScreen?: boolean;
 };
 
 function VideoPlayer(props: VideoPlayerProps) {
   const {
-    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir,
-    onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull,
+    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir, heartPulse,
+    onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull, fullScreen,
   } = props;
 
   const slideClass =
@@ -759,8 +761,13 @@ function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <div className={cn(
-      "relative mx-auto overflow-hidden rounded-2xl bg-black shadow-2xl will-change-transform",
-      mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]",
+      "relative overflow-hidden bg-black will-change-transform",
+      fullScreen
+        ? "absolute inset-0 h-full w-full"
+        : cn(
+          "mx-auto rounded-2xl shadow-2xl",
+          mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]",
+        ),
       slideClass,
     )}
       key={`${short.id}-${slideDir ?? "none"}`}
@@ -777,20 +784,21 @@ function VideoPlayer(props: VideoPlayerProps) {
         onClick={onTogglePlay}
       />
 
-      <div className="absolute left-0 right-0 top-0 h-1 bg-white/20">
-        <div className="h-full bg-gradient-to-r from-primary to-primary-glow" style={{ width: `${progress}%` }} />
+      {/* Top progress bar */}
+      <div className="absolute left-0 right-0 top-0 h-[2px] bg-white/15 z-20">
+        <div className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150" style={{ width: `${progress}%` }} />
       </div>
 
       {short.isPremium && (
-        <Badge className="absolute right-3 top-3 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
+        <Badge className={cn("absolute right-3 z-20 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold", fullScreen ? "top-[calc(env(safe-area-inset-top)+5rem)]" : "top-3")}>
           <Crown className="ml-1 h-3 w-3" />
           PREMIUM
         </Badge>
       )}
 
       {!isPlaying && (
-        <button onClick={onTogglePlay} className="absolute inset-0 flex items-center justify-center bg-black/30">
-          <div className="rounded-full bg-white/20 p-5 backdrop-blur-sm">
+        <button onClick={onTogglePlay} className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+          <div className="rounded-full bg-white/20 p-5 backdrop-blur-sm ring-1 ring-white/20">
             <Play className="h-10 w-10 fill-white text-white" />
           </div>
         </button>
@@ -798,13 +806,29 @@ function VideoPlayer(props: VideoPlayerProps) {
 
       <button
         onClick={onToggleMute}
-        className="absolute right-3 top-14 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm hover:bg-black/60"
+        className={cn("absolute right-3 z-20 rounded-full bg-black/40 p-2 text-white backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60", fullScreen ? "top-[calc(env(safe-area-inset-top)+5rem)]" : "top-14")}
       >
         {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
       </button>
 
-      <div className="absolute bottom-20 right-3 flex flex-col items-center gap-4">
-        <ActionBtn icon={<Heart className={cn("h-6 w-6", liked && "fill-rose-500 text-rose-500")} />} label={fmt(short.likes + (liked ? 1 : 0))} onClick={onLike} />
+      {/* Center heart-pop overlay */}
+      {heartPulse !== undefined && heartPulse > 0 && (
+        <div
+          key={heartPulse}
+          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+          aria-hidden
+        >
+          <Heart className="h-32 w-32 fill-rose-500 text-rose-500 drop-shadow-[0_0_24px_oklch(0.70_0.22_15/0.7)] animate-heart-pop" />
+        </div>
+      )}
+
+      <div className={cn("absolute z-20 flex flex-col items-center gap-4", fullScreen ? "bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-2" : "bottom-20 right-3")}>
+        <ActionBtn
+          icon={<Heart className={cn("h-6 w-6", liked && "fill-rose-500 text-rose-500")} />}
+          label={fmt(short.likes + (liked ? 1 : 0))}
+          onClick={onLike}
+          pop={heartPulse}
+        />
         <ActionBtn icon={<MessageCircle className="h-6 w-6" />} label={fmt(short.comments)} onClick={onComment} />
         <ActionBtn
           icon={
@@ -819,7 +843,10 @@ function VideoPlayer(props: VideoPlayerProps) {
         <ActionBtn icon={<Share2 className="h-6 w-6" />} label="שתף" onClick={onShare} />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pr-20 text-white">
+      <div className={cn(
+        "absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-white",
+        fullScreen ? "px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-16 pr-20" : "p-4 pr-20",
+      )}>
         <div className="mb-2 flex items-center gap-2">
           <div className={cn(
             "rounded-full p-[2px] transition-all duration-700 ease-out",
@@ -834,9 +861,10 @@ function VideoPlayer(props: VideoPlayerProps) {
               </AvatarFallback>
             </Avatar>
           </div>
-          <div className="animate-fade-in" key={short.creator_id}>
+          <div className="animate-fade-in min-w-0" key={short.creator_id}>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold">{short.creator.name}</span>
+              <span className="font-bold truncate">@{short.creator.name}</span>
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_oklch(0.78_0.18_150/0.8)]" />
               {short.isPremium && <Crown className="h-3 w-3 text-primary" />}
             </div>
             <span className="text-xs opacity-80">{short.uploadedAgo}</span>
@@ -845,9 +873,13 @@ function VideoPlayer(props: VideoPlayerProps) {
             <FollowButton targetType="shorts_creator" targetId={short.creator_id} size="sm" className="h-7" />
           </div>
         </div>
-        <h3 className="mb-1 text-sm font-bold animate-fade-in" key={short.id}>{short.title}</h3>
-        <p className="text-xs opacity-90">{short.description}</p>
-        <div className="mt-2 flex items-center gap-1 text-xs opacity-70">
+        {short.title && <h3 className="mb-1 text-sm font-bold animate-fade-in line-clamp-1" key={short.id}>{short.title}</h3>}
+        {short.description && (
+          <p className="text-xs opacity-95 line-clamp-2 leading-relaxed">
+            <HashtagText text={short.description} />
+          </p>
+        )}
+        <div className="mt-2 flex items-center gap-1 text-[11px] opacity-70">
           <Eye className="h-3 w-3" />
           {fmt(short.views)} צפיות
         </div>
