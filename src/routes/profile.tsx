@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { labelOf, SPECIALTIES } from "@/lib/prosData";
 import { NotificationsList } from "@/components/NotificationsList";
+import { NotificationSettings } from "@/components/NotificationSettings";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -94,7 +95,8 @@ function ProfilePage() {
             <ProfileForm refreshProfile={refreshProfile} />
           </TabsContent>
 
-          <TabsContent value="notifications" className="mt-6">
+          <TabsContent value="notifications" className="mt-6 space-y-6">
+            <NotificationSettings />
             <NotificationsList />
           </TabsContent>
 

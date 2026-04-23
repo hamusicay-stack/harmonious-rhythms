@@ -326,6 +326,12 @@ function ShortsPage() {
     dragAxis.current = null;
     dragStartTime.current = Date.now();
     setDragging(true);
+    // First user interaction: unmute so device volume controls take over
+    if (isMuted) {
+      setIsMuted(false);
+      const v = videoRef.current;
+      if (v) v.muted = false;
+    }
   };
   const handleTouchMove = (e: React.TouchEvent) => {
     const sy = touchStartY.current, sx = touchStartX.current;
@@ -804,12 +810,16 @@ function VideoPlayer(props: VideoPlayerProps) {
         </button>
       )}
 
-      <button
-        onClick={onToggleMute}
-        className={cn("absolute right-3 z-20 rounded-full bg-black/40 p-2 text-white backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60", fullScreen ? "top-[calc(env(safe-area-inset-top)+5rem)]" : "top-14")}
-      >
-        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-      </button>
+      {/* Mute toggle: desktop only — on mobile we auto-unmute on first tap and let the device volume buttons control loudness */}
+      {!fullScreen && (
+        <button
+          onClick={onToggleMute}
+          className="absolute right-3 z-20 rounded-full bg-black/40 p-2 text-white backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60 top-14"
+          aria-label={isMuted ? "הפעל שמע" : "השתק"}
+        >
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </button>
+      )}
 
       {/* Center heart-pop overlay */}
       {heartPulse !== undefined && heartPulse > 0 && (
@@ -870,7 +880,7 @@ function VideoPlayer(props: VideoPlayerProps) {
             <span className="text-xs opacity-80">{short.uploadedAgo}</span>
           </div>
           <div className="mr-auto">
-            <FollowButton targetType="shorts_creator" targetId={short.creator_id} size="sm" className="h-7" />
+            <FollowButton targetType="shorts_creator" targetId={short.creator_id} targetName={short.creator.name} size="sm" className="h-7" />
           </div>
         </div>
         {short.title && <h3 className="mb-1 text-sm font-bold animate-fade-in line-clamp-1" key={short.id}>{short.title}</h3>}
