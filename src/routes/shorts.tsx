@@ -492,6 +492,7 @@ function ShortsPage() {
                 progress={progress}
                 liked={likedSet.has(current.id)}
                 creatorChanged={creatorChanged}
+                slideDir={slideDir}
                 onTogglePlay={togglePlay}
                 onToggleMute={() => setIsMuted((m) => !m)}
                 onLike={() => toggleLike(current.id)}
