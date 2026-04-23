@@ -16,6 +16,7 @@ import { CartDrawer } from "@/components/shop/CartDrawer";
 import { toast } from "sonner";
 
 const navItems = [
+  { to: "/shorts", label: "שורטס" },
   { to: "/forum", label: "פורום" },
   { to: "/shop", label: "חנות" },
   { to: "/academy", label: "אקדמיה" },
