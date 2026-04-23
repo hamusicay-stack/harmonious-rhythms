@@ -713,9 +713,11 @@ function StoryRow({
                 </svg>
               )}
             </div>
-            <span className={cn("max-w-[70px] truncate text-xs", active && "font-semibold text-primary")}>
-              {s.creator.name}
-            </span>
+            {!compact && (
+              <span className={cn("max-w-[70px] truncate text-xs", active && "font-semibold text-primary")}>
+                {s.creator.name}
+              </span>
+            )}
           </button>
         );
       })}
