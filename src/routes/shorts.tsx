@@ -80,6 +80,7 @@ function ShortsPage() {
   const storyRowRef = useRef<HTMLDivElement>(null);
   const prevCreatorIdRef = useRef<string | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
@@ -265,17 +266,68 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
-  const goNext = () => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
-  const goPrev = () => setActiveIndex((i) => Math.max(i - 1, 0));
+  const goNext = useCallback(() => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0))), [shorts.length]);
+  const goPrev = useCallback(() => setActiveIndex((i) => Math.max(i - 1, 0)), []);
 
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current == null) return;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    touchStartY.current = null;
-    if (Math.abs(dy) < 50) return;
-    if (dy < 0) goNext(); else goPrev();
+  // Jump to next/previous DIFFERENT creator (horizontal swipe behavior)
+  const goNextCreator = useCallback(() => {
+    setActiveIndex((i) => {
+      const cur = shorts[i];
+      if (!cur) return i;
+      for (let k = i + 1; k < shorts.length; k++) if (shorts[k].creator_id !== cur.creator_id) return k;
+      return i;
+    });
+  }, [shorts]);
+  const goPrevCreator = useCallback(() => {
+    setActiveIndex((i) => {
+      const cur = shorts[i];
+      if (!cur) return i;
+      for (let k = i - 1; k >= 0; k--) if (shorts[k].creator_id !== cur.creator_id) return k;
+      return i;
+    });
+  }, [shorts]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
   };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const sy = touchStartY.current, sx = touchStartX.current;
+    touchStartY.current = null; touchStartX.current = null;
+    if (sy == null || sx == null) return;
+    const dy = e.changedTouches[0].clientY - sy;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (Math.abs(dx) < 50) return;
+      // RTL: swipe right = previous creator, swipe left = next creator
+      if (dx < 0) goNextCreator(); else goPrevCreator();
+    } else {
+      if (Math.abs(dy) < 50) return;
+      if (dy < 0) goNext(); else goPrev();
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); goNext(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); goPrev(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); goNextCreator(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); goPrevCreator(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goNext, goPrev, goNextCreator, goPrevCreator]);
+
+  // Prefetch next video
+  useEffect(() => {
+    const next = shorts[activeIndex + 1];
+    if (!next?.videoUrl) return;
+    const link = document.createElement("link");
+    link.rel = "prefetch"; link.as = "video"; link.href = next.videoUrl;
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, [activeIndex, shorts]);
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
@@ -456,7 +508,7 @@ function ShortsPage() {
               mobileFull
             />
           )}
-          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא</p>
+          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא • שמאלה/ימינה למעבר בין יוצרים</p>
         </div>
       </div>
 
@@ -503,20 +555,34 @@ function StoryRow({
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative h-16 w-16 rounded-full p-[2px] transition-all",
+              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-500",
               s.isPremium
                 ? "bg-gradient-to-tr from-primary via-primary-glow to-primary"
                 : "bg-gradient-to-tr from-muted-foreground/40 to-muted",
               active && "scale-110 shadow-gold",
             )}>
-              <Avatar className="h-full w-full border-2 border-background">
+              {active && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-1 rounded-full"
+                  style={{
+                    background:
+                      "conic-gradient(from 0deg, oklch(0.78 0.14 75), oklch(0.85 0.18 80), oklch(0.78 0.14 75), transparent 70%)",
+                    WebkitMask:
+                      "radial-gradient(circle, transparent 56%, black 58%)",
+                    mask: "radial-gradient(circle, transparent 56%, black 58%)",
+                    animation: "spin 2.4s linear infinite",
+                  }}
+                />
+              )}
+              <Avatar className="relative h-full w-full border-2 border-background">
                 <AvatarImage src={s.creator.avatar || undefined} />
                 <AvatarFallback className="bg-secondary text-xs font-bold">
                   {s.creator.name.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               {active && (
-                <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
+                <svg className="pointer-events-none absolute inset-0 -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="48" fill="none" stroke="oklch(0.78 0.14 75)" strokeWidth="3"
                     strokeDasharray={`${(progress / 100) * 301.6} 301.6`} />
                 </svg>
