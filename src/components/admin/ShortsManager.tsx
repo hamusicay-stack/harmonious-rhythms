@@ -230,14 +230,14 @@ function BulkUploader() {
         const { data: pub } = supabase.storage.from("shorts").getPublicUrl(path);
         const scheduled = it.scheduledAt ? new Date(it.scheduledAt).toISOString() : null;
         const isFuture = scheduled && new Date(scheduled).getTime() > Date.now();
-        const { error: insErr } = await supabase.from("shorts_videos").insert({
+        const { error: insErr } = await supabase.from("shorts_videos").insert([{
           creator_id: user.id,
           video_url: pub.publicUrl,
           title: it.title || null,
           description: it.description || null,
           scheduled_for: scheduled,
-          status: isFuture ? "scheduled" : "active",
-        });
+          status: (isFuture ? "scheduled" : "active") as "scheduled" | "active",
+        }]);
         if (insErr) throw insErr;
         updateItem(it.id, { status: "done", progress: 100 });
       } catch (e) {
