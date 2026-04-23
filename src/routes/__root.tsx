@@ -4,6 +4,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { FloatingAudioPlayer } from "@/components/pros/FloatingAudioPlayer";
+import { NotificationsProvider } from "@/hooks/useNotifications";
 
 import appCss from "../styles.css?url";
 
@@ -68,13 +69,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <AudioPlayerProvider>
-          <Outlet />
-          <FloatingAudioPlayer />
-          <Toaster richColors position="top-center" />
-        </AudioPlayerProvider>
-      </CartProvider>
+      <NotificationsProvider>
+        <CartProvider>
+          <AudioPlayerProvider>
+            <Outlet />
+            <FloatingAudioPlayer />
+            <Toaster richColors position="top-center" />
+          </AudioPlayerProvider>
+        </CartProvider>
+      </NotificationsProvider>
     </AuthProvider>
   );
 }
