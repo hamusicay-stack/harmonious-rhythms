@@ -804,12 +804,16 @@ function VideoPlayer(props: VideoPlayerProps) {
         </button>
       )}
 
-      <button
-        onClick={onToggleMute}
-        className={cn("absolute right-3 z-20 rounded-full bg-black/40 p-2 text-white backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60", fullScreen ? "top-[calc(env(safe-area-inset-top)+5rem)]" : "top-14")}
-      >
-        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-      </button>
+      {/* Mute toggle: desktop only — on mobile we auto-unmute on first tap and let the device volume buttons control loudness */}
+      {!fullScreen && (
+        <button
+          onClick={onToggleMute}
+          className="absolute right-3 z-20 rounded-full bg-black/40 p-2 text-white backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60 top-14"
+          aria-label={isMuted ? "הפעל שמע" : "השתק"}
+        >
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </button>
+      )}
 
       {/* Center heart-pop overlay */}
       {heartPulse !== undefined && heartPulse > 0 && (
