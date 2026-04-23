@@ -880,7 +880,7 @@ function VideoPlayer(props: VideoPlayerProps) {
             <span className="text-xs opacity-80">{short.uploadedAgo}</span>
           </div>
           <div className="mr-auto">
-            <FollowButton targetType="shorts_creator" targetId={short.creator_id} size="sm" className="h-7" />
+            <FollowButton targetType="shorts_creator" targetId={short.creator_id} targetName={short.creator.name} size="sm" className="h-7" />
           </div>
         </div>
         {short.title && <h3 className="mb-1 text-sm font-bold animate-fade-in line-clamp-1" key={short.id}>{short.title}</h3>}
