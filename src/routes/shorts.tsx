@@ -384,7 +384,6 @@ function VideoPlayer({
               <AvatarImage src={short.creator.avatar || undefined} />
               <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
                 {short.creator.name.slice(0, 2)}
-            </AvatarFallback>
               </AvatarFallback>
             </Avatar>
           </div>
