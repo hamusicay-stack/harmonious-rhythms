@@ -385,7 +385,9 @@ function VideoPlayer({
               <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
                 {short.creator.name.slice(0, 2)}
             </AvatarFallback>
-          </Avatar>
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold">{short.creator.name}</span>
