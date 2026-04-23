@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { FollowButton } from "@/components/FollowButton";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller/$sellerId")({
@@ -132,9 +133,13 @@ function SellerProfilePage() {
                 {profile.instagram && <a href={`https://instagram.com/${profile.instagram.replace("@","")}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary"><Instagram className="h-5 w-5" /></a>}
                 {profile.youtube && <a href={profile.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-primary"><Youtube className="h-5 w-5" /></a>}
               </div>
-              {isOwner && (
+              {isOwner ? (
                 <div className="mt-4">
                   <Link to="/profile"><Button variant="outline" size="sm"><Pencil className="h-4 w-4" />ערוך פרופיל</Button></Link>
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <FollowButton targetType="marketplace_seller" targetId={sellerId} />
                 </div>
               )}
             </div>

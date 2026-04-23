@@ -52,6 +52,7 @@ const POSITIONS = [
   { value: "shorts_left", label: "שורטס — עמודה שמאלית" },
   { value: "shorts_right_top", label: "שורטס — ימין עליון" },
   { value: "shorts_right_bottom", label: "שורטס — ימין תחתון" },
+  { value: "shorts_in_feed", label: "שורטס — בתוך הפיד (interstitial)" },
 ];
 
 const positionLabel = (v: string) => POSITIONS.find((p) => p.value === v)?.label ?? v;

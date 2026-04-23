@@ -14,6 +14,7 @@ import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { labelOf, SPECIALTIES, GENRES, PACKAGE_UNITS } from "@/lib/prosData";
 import { RequestQuoteDialog } from "@/components/pros/RequestQuoteDialog";
 import { AddReviewDialog } from "@/components/pros/AddReviewDialog";
+import { FollowButton } from "@/components/FollowButton";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pros/$proId")({
@@ -162,10 +163,12 @@ function ProDetailPage() {
                       <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
                     </Badge>
                   )}
-                  {isOwner && (
+                  {isOwner ? (
                     <Button size="sm" variant="outline" onClick={() => navigate({ to: "/pros/$proId/edit", params: { proId: pro.id } })}>
                       <Pencil className="ml-1 h-3.5 w-3.5" /> ערוך
                     </Button>
+                  ) : (
+                    <FollowButton targetType="music_pro" targetId={pro.id} />
                   )}
                 </div>
                 <h1 className="font-display text-2xl font-bold md:text-3xl">{pro.display_name}</h1>
