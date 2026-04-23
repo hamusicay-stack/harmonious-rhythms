@@ -372,6 +372,7 @@ function ShortsPage() {
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
     const liked = likedSet.has(id);
+    if (!liked) setHeartPulse((n) => n + 1);
     setShorts((prev) => prev.map((s) => s.id === id ? { ...s, likes: Math.max(0, s.likes + (liked ? -1 : 1)) } : s));
     setLikedSet((prev) => {
       const next = new Set(prev);
