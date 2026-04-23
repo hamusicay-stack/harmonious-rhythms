@@ -16,27 +16,36 @@ export type Notification = {
 };
 
 export function useNotifications() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
     if (!user) { setItems([]); setLoading(false); return; }
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("notifications" as any)
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(100);
-    setItems((data as any) ?? []);
+    if (error) {
+      console.error("Failed to load notifications", error);
+      setItems([]);
+    } else {
+      setItems((data as any) ?? []);
+    }
     setLoading(false);
-  }, [user]);
+  }, [user, authLoading]);
 
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading || !user) return;
     const ch = supabase
       .channel(`notif-${user.id}`)
       .on("postgres_changes",
@@ -44,7 +53,7 @@ export function useNotifications() {
         (payload) => setItems((prev) => [payload.new as Notification, ...prev]))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [user]);
+  }, [user, authLoading]);
 
   const unreadCount = items.filter((n) => !n.read_at).length;
 
