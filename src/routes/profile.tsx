@@ -61,9 +61,21 @@ function ProfilePage() {
   return (
     <SiteLayout>
       <section className="bg-hero">
-        <div className="container mx-auto px-4 py-12 md:px-8 md:py-16">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <Avatar className="h-24 w-24 border-2 border-primary/40 shadow-gold">
+        <div
+          className="relative w-full"
+          style={{
+            minHeight: 160,
+            backgroundImage: profile?.banner_url ? `url(${profile.banner_url})` : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          {!profile?.banner_url && <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/30 to-transparent" />
+        </div>
+        <div className="container mx-auto px-4 pb-10 pt-4 md:px-8">
+          <div className="flex flex-col items-center gap-4 text-center -mt-14">
+            <Avatar className="h-24 w-24 border-4 border-background shadow-gold">
               <AvatarImage src={profile?.avatar_url ?? undefined} />
               <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-2xl font-bold text-primary-foreground">
                 {initials}
