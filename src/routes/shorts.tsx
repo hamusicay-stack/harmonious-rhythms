@@ -266,17 +266,68 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
-  const goNext = () => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
-  const goPrev = () => setActiveIndex((i) => Math.max(i - 1, 0));
+  const goNext = useCallback(() => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0))), [shorts.length]);
+  const goPrev = useCallback(() => setActiveIndex((i) => Math.max(i - 1, 0)), []);
 
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current == null) return;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    touchStartY.current = null;
-    if (Math.abs(dy) < 50) return;
-    if (dy < 0) goNext(); else goPrev();
+  // Jump to next/previous DIFFERENT creator (horizontal swipe behavior)
+  const goNextCreator = useCallback(() => {
+    setActiveIndex((i) => {
+      const cur = shorts[i];
+      if (!cur) return i;
+      for (let k = i + 1; k < shorts.length; k++) if (shorts[k].creator_id !== cur.creator_id) return k;
+      return i;
+    });
+  }, [shorts]);
+  const goPrevCreator = useCallback(() => {
+    setActiveIndex((i) => {
+      const cur = shorts[i];
+      if (!cur) return i;
+      for (let k = i - 1; k >= 0; k--) if (shorts[k].creator_id !== cur.creator_id) return k;
+      return i;
+    });
+  }, [shorts]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
   };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const sy = touchStartY.current, sx = touchStartX.current;
+    touchStartY.current = null; touchStartX.current = null;
+    if (sy == null || sx == null) return;
+    const dy = e.changedTouches[0].clientY - sy;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (Math.abs(dx) < 50) return;
+      // RTL: swipe right = previous creator, swipe left = next creator
+      if (dx < 0) goNextCreator(); else goPrevCreator();
+    } else {
+      if (Math.abs(dy) < 50) return;
+      if (dy < 0) goNext(); else goPrev();
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); goNext(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); goPrev(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); goNextCreator(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); goPrevCreator(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goNext, goPrev, goNextCreator, goPrevCreator]);
+
+  // Prefetch next video
+  useEffect(() => {
+    const next = shorts[activeIndex + 1];
+    if (!next?.videoUrl) return;
+    const link = document.createElement("link");
+    link.rel = "prefetch"; link.as = "video"; link.href = next.videoUrl;
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, [activeIndex, shorts]);
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
