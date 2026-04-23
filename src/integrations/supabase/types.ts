@@ -1428,6 +1428,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           created_at: string
           display_name: string | null
@@ -1448,6 +1449,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
@@ -1468,6 +1470,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
@@ -2500,6 +2503,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           scheduled_at: string | null
+          scheduled_for: string | null
           status: string
           thumbnail_url: string | null
           title: string
@@ -2519,6 +2523,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           scheduled_at?: string | null
+          scheduled_for?: string | null
           status?: string
           thumbnail_url?: string | null
           title: string
@@ -2538,6 +2543,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           scheduled_at?: string | null
+          scheduled_for?: string | null
           status?: string
           thumbnail_url?: string | null
           title?: string
@@ -2800,6 +2806,7 @@ export type Database = {
         }
         Returns: number
       }
+      publish_scheduled_shorts: { Args: never; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
