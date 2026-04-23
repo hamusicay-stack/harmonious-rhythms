@@ -81,8 +81,16 @@ function ShortsPage() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
+  const [transitioning, setTransitioning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const storyRowRef = useRef<HTMLDivElement>(null);
+
+  // Trigger transition animation on active change
+  useEffect(() => {
+    setTransitioning(true);
+    const t = setTimeout(() => setTransitioning(false), 700);
+    return () => clearTimeout(t);
+  }, [activeIndex]);
 
   const current = MOCK_SHORTS[activeIndex];
 
