@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -15,22 +15,35 @@ export type Notification = {
   created_at: string;
 };
 
-export function useNotifications() {
+type NotificationsContextValue = {
+  items: Notification[];
+  loading: boolean;
+  unreadCount: number;
+  markRead: (id: string) => Promise<void>;
+  markAllRead: () => Promise<void>;
+  remove: (id: string) => Promise<void>;
+  reload: () => Promise<void>;
+};
+
+const NotificationsContext = createContext<NotificationsContextValue | undefined>(undefined);
+
+export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const channelSuffixRef = useRef(
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2),
-  );
 
   const load = useCallback(async () => {
     if (authLoading) {
       setLoading(true);
       return;
     }
-    if (!user) { setItems([]); setLoading(false); return; }
+
+    if (!user) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const { data, error } = await supabase
       .from("notifications" as any)
@@ -47,19 +60,25 @@ export function useNotifications() {
     setLoading(false);
   }, [user, authLoading]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading || !user) {
+      return;
+    }
 
     const ch = supabase
-      .channel(`notif-${user.id}-${channelSuffixRef.current}`)
+      .channel(`notif-${user.id}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         (payload) => setItems((prev) => [payload.new as Notification, ...prev]))
       .subscribe();
 
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      void supabase.removeChannel(ch);
+    };
   }, [user, authLoading]);
 
   const unreadCount = items.filter((n) => !n.read_at).length;
@@ -81,5 +100,21 @@ export function useNotifications() {
     await supabase.from("notifications" as any).delete().eq("id", id);
   }, []);
 
-  return { items, loading, unreadCount, markRead, markAllRead, remove, reload: load };
+  const value = useMemo<NotificationsContextValue>(() => ({
+    items,
+    loading,
+    unreadCount,
+    markRead,
+    markAllRead,
+    remove,
+    reload: load,
+  }), [items, loading, unreadCount, markRead, markAllRead, remove, load]);
+
+  return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
+}
+
+export function useNotifications() {
+  const ctx = useContext(NotificationsContext);
+  if (!ctx) throw new Error("useNotifications must be used within NotificationsProvider");
+  return ctx;
 }
