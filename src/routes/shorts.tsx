@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Play, Plus, Crown, Eye,
-  Music2, MessageSquare, Loader2, Upload,
+  Music2, MessageSquare, Upload, AlertTriangle, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { BannerSlot } from "@/components/BannerSlot";
 import { FollowButton } from "@/components/FollowButton";
 import { CommentsSheet } from "@/components/shorts/CommentsSheet";
+import { HashtagText } from "@/components/shorts/HashtagText";
+import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
