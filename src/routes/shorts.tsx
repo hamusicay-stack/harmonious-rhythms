@@ -697,10 +697,10 @@ function VideoPlayer(props: VideoPlayerProps) {
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pr-20 text-white">
         <div className="mb-2 flex items-center gap-2">
           <div className={cn(
-            "rounded-full p-[3px] transition-all duration-700",
+            "rounded-full p-[2px] transition-all duration-700 ease-out",
             creatorChanged
-              ? "bg-gradient-to-tr from-primary via-primary-glow to-primary scale-125 shadow-gold animate-pulse ring-4 ring-primary/50"
-              : "bg-white/40",
+              ? "bg-gradient-to-tr from-primary/70 to-primary-glow/70 scale-105 ring-2 ring-primary/30"
+              : "bg-white/30",
           )}>
             <Avatar className="h-10 w-10 border-2 border-background">
               <AvatarImage src={short.creator.avatar || undefined} />
