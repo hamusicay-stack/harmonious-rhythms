@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Play, Plus, Crown, Eye,
-  Music2, MessageSquare, Loader2, Upload,
+  Music2, MessageSquare, Upload, AlertTriangle, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { BannerSlot } from "@/components/BannerSlot";
 import { FollowButton } from "@/components/FollowButton";
 import { CommentsSheet } from "@/components/shorts/CommentsSheet";
+import { HashtagText } from "@/components/shorts/HashtagText";
+import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -66,6 +68,7 @@ function ShortsPage() {
   const { user, profile } = useAuth();
   const [shorts, setShorts] = useState<Short[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -73,10 +76,16 @@ function ShortsPage() {
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
   const [creatorChanged, setCreatorChanged] = useState(false);
   const [slideDir, setSlideDir] = useState<"up" | "down" | "left" | "right" | null>(null);
+  const [heartPulse, setHeartPulse] = useState(0);
   const [canUpload, setCanUpload] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map());
+  // Drag physics (mobile full-screen)
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragAxis = useRef<"x" | "y" | null>(null);
+  const dragStartTime = useRef<number>(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const storyRowRef = useRef<HTMLDivElement>(null);
   const prevCreatorIdRef = useRef<string | null>(null);
@@ -85,6 +94,7 @@ function ShortsPage() {
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
@@ -180,7 +190,7 @@ function ShortsPage() {
       setShorts([]);
       setCommentCounts(new Map());
       setLikedSet(new Set());
-      toast.error("לא הצלחנו לטעון את השורטס כרגע");
+      setLoadError(error instanceof Error ? error.message : "טעינה נכשלה");
     } finally {
       setLoading(false);
     }
@@ -313,27 +323,49 @@ function ShortsPage() {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     touchStartX.current = e.touches[0].clientX;
+    dragAxis.current = null;
+    dragStartTime.current = Date.now();
+    setDragging(true);
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const sy = touchStartY.current, sx = touchStartX.current;
+    if (sy == null || sx == null) return;
+    const dy = e.touches[0].clientY - sy;
+    const dx = e.touches[0].clientX - sx;
+    if (!dragAxis.current) {
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+        dragAxis.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      } else return;
+    }
+    // Only follow finger on the active axis; resist with 0.6 factor for premium feel
+    if (dragAxis.current === "y") setDragOffset({ x: 0, y: dy * 0.85 });
+    else setDragOffset({ x: dx * 0.85, y: 0 });
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
     const sy = touchStartY.current, sx = touchStartX.current;
     touchStartY.current = null; touchStartX.current = null;
-    if (sy == null || sx == null) return;
+    setDragging(false);
+    if (sy == null || sx == null) { setDragOffset({ x: 0, y: 0 }); return; }
     const dy = e.changedTouches[0].clientY - sy;
     const dx = e.changedTouches[0].clientX - sx;
-    // Require a clear, intentional swipe (not a tap/scroll jitter).
-    // Thresholds are intentionally large so mid-video micro-movements
-    // do NOT change the video.
-    const V_THRESHOLD = 120;
-    const H_THRESHOLD = 140;
-    const absX = Math.abs(dx), absY = Math.abs(dy);
-    if (absX < H_THRESHOLD && absY < V_THRESHOLD) return;
-    if (absX > absY * 1.3) {
-      if (absX < H_THRESHOLD) return;
-      // RTL: swipe left = next creator, swipe right = previous creator
-      if (dx < 0) goNextCreator(); else goPrevCreator();
-    } else {
-      if (absY < V_THRESHOLD) return;
-      if (dy < 0) goNext(); else goPrev();
+    const dt = Math.max(1, Date.now() - dragStartTime.current);
+    const vy = Math.abs(dy) / dt; // px/ms
+    const vx = Math.abs(dx) / dt;
+    const screenH = window.innerHeight || 800;
+    const screenW = window.innerWidth || 400;
+    const distRatioY = Math.abs(dy) / screenH;
+    const distRatioX = Math.abs(dx) / screenW;
+    const axis = dragAxis.current;
+    dragAxis.current = null;
+    setDragOffset({ x: 0, y: 0 });
+    if (axis === "x") {
+      if (distRatioX > 0.22 || vx > 0.55) {
+        if (dx < 0) goNextCreator(); else goPrevCreator();
+      }
+    } else if (axis === "y") {
+      if (distRatioY > 0.18 || vy > 0.5) {
+        if (dy < 0) goNext(); else goPrev();
+      }
     }
   };
 
@@ -362,6 +394,7 @@ function ShortsPage() {
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
     const liked = likedSet.has(id);
+    if (!liked) setHeartPulse((n) => n + 1);
     setShorts((prev) => prev.map((s) => s.id === id ? { ...s, likes: Math.max(0, s.likes + (liked ? -1 : 1)) } : s));
     setLikedSet((prev) => {
       const next = new Set(prev);
@@ -402,8 +435,28 @@ function ShortsPage() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="container mx-auto px-4 py-6 md:px-8">
+          <div className="mx-auto max-w-[420px]">
+            <ShortsSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-20 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="font-display text-2xl font-bold">משהו השתבש</h1>
+          <p className="max-w-md text-sm text-muted-foreground">לא הצלחנו לטעון את השורטס. בדוק את החיבור ונסה שוב.</p>
+          <Button onClick={() => loadShorts()} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
+            נסה שוב
+          </Button>
         </div>
       </div>
     );
@@ -519,9 +572,41 @@ function ShortsPage() {
           </aside>
         </div>
 
-        <div className="lg:hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-          <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} />
-          {current && (
+        {/* Mobile placeholder spacer (real player rendered below as fixed full-screen) */}
+        <div className="lg:hidden h-[1px]" aria-hidden />
+      </div>
+
+      {/* MOBILE FULL-SCREEN STAGE */}
+      <div
+        className="lg:hidden shorts-stage"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Floating top stories overlay */}
+        <div className="pointer-events-auto absolute inset-x-0 top-0 z-30 bg-gradient-to-b from-black/75 via-black/40 to-transparent pb-6 pt-[max(env(safe-area-inset-top),0.5rem)]">
+          <div className="flex items-center justify-between px-3 pb-2">
+            <div className="flex items-center gap-2 text-white">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary-glow shadow-gold">
+                <Music2 className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="font-display text-sm font-bold">שורטס</span>
+            </div>
+            <Link to="/" className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-sm hover:bg-white/20" aria-label="סגור">
+              <X className="h-4 w-4" />
+            </Link>
+          </div>
+          <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} compact />
+        </div>
+
+        {current && (
+          <div
+            className="absolute inset-0 will-change-transform"
+            style={{
+              transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`,
+              transition: dragging ? "none" : "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
             <VideoPlayer
               short={current}
               videoRef={videoRef}
@@ -531,6 +616,7 @@ function ShortsPage() {
               liked={likedSet.has(current.id)}
               creatorChanged={creatorChanged}
               slideDir={slideDir}
+              heartPulse={heartPulse}
               onTogglePlay={togglePlay}
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
@@ -538,10 +624,13 @@ function ShortsPage() {
               onComment={() => setCommentsOpen(true)}
               fmt={fmt}
               mobileFull
+              fullScreen
             />
-          )}
-          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא • שמאלה/ימינה למעבר בין יוצרים</p>
-        </div>
+          </div>
+        )}
+        <p className="absolute bottom-[max(env(safe-area-inset-bottom),0.25rem)] left-0 right-0 text-center text-[10px] text-white/50 pointer-events-none">
+          החלק למעלה לסרטון הבא • שמאלה למעבר בין יוצרים
+        </p>
       </div>
 
       <CommentsSheet
@@ -564,19 +653,22 @@ function ShortsPage() {
 
 /* ---------- STORY ROW ---------- */
 function StoryRow({
-  shorts, activeIndex, progress, onSelect, rowRef,
+  shorts, activeIndex, progress, onSelect, rowRef, compact,
 }: {
   shorts: Short[]; activeIndex: number; progress: number;
   onSelect: (i: number) => void; rowRef: React.RefObject<HTMLDivElement | null>;
+  compact?: boolean;
 }) {
   return (
-    <div ref={rowRef} className="mb-4 flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
+    <div ref={rowRef} className={cn("flex gap-3 overflow-x-auto pb-2 scrollbar-thin shorts-snap-x", compact ? "px-3" : "mb-4 pb-3")}>
+      {!compact && (
       <button className="flex shrink-0 flex-col items-center gap-1.5">
         <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-card hover:border-primary">
           <Plus className="h-6 w-6 text-primary" />
         </div>
         <span className="text-xs font-medium">אתה</span>
       </button>
+      )}
       {shorts.map((s, i) => {
         const active = i === activeIndex;
         return (
@@ -587,7 +679,8 @@ function StoryRow({
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-700 ease-out",
+              "relative rounded-full p-[2px] transition-all duration-700 ease-out animate-fade-in",
+              compact ? "h-12 w-12" : "h-16 w-16",
               s.isPremium
                 ? "bg-gradient-to-tr from-primary/70 via-primary-glow/70 to-primary/70"
                 : "bg-gradient-to-tr from-muted-foreground/30 to-muted",
@@ -620,9 +713,11 @@ function StoryRow({
                 </svg>
               )}
             </div>
-            <span className={cn("max-w-[70px] truncate text-xs", active && "font-semibold text-primary")}>
-              {s.creator.name}
-            </span>
+            {!compact && (
+              <span className={cn("max-w-[70px] truncate text-xs", active && "font-semibold text-primary")}>
+                {s.creator.name}
+              </span>
+            )}
           </button>
         );
       })}
@@ -640,6 +735,7 @@ type VideoPlayerProps = {
   liked: boolean;
   creatorChanged: boolean;
   slideDir: "up" | "down" | "left" | "right" | null;
+  heartPulse?: number;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onLike: () => void;
@@ -647,12 +743,13 @@ type VideoPlayerProps = {
   onComment: () => void;
   fmt: (n: number) => string;
   mobileFull?: boolean;
+  fullScreen?: boolean;
 };
 
 function VideoPlayer(props: VideoPlayerProps) {
   const {
-    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir,
-    onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull,
+    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir, heartPulse,
+    onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull, fullScreen,
   } = props;
 
   const slideClass =
@@ -664,8 +761,13 @@ function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <div className={cn(
-      "relative mx-auto overflow-hidden rounded-2xl bg-black shadow-2xl will-change-transform",
-      mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]",
+      "relative overflow-hidden bg-black will-change-transform",
+      fullScreen
+        ? "absolute inset-0 h-full w-full"
+        : cn(
+          "mx-auto rounded-2xl shadow-2xl",
+          mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]",
+        ),
       slideClass,
     )}
       key={`${short.id}-${slideDir ?? "none"}`}
@@ -682,20 +784,21 @@ function VideoPlayer(props: VideoPlayerProps) {
         onClick={onTogglePlay}
       />
 
-      <div className="absolute left-0 right-0 top-0 h-1 bg-white/20">
-        <div className="h-full bg-gradient-to-r from-primary to-primary-glow" style={{ width: `${progress}%` }} />
+      {/* Top progress bar */}
+      <div className="absolute left-0 right-0 top-0 h-[2px] bg-white/15 z-20">
+        <div className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150" style={{ width: `${progress}%` }} />
       </div>
 
       {short.isPremium && (
-        <Badge className="absolute right-3 top-3 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
+        <Badge className={cn("absolute right-3 z-20 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold", fullScreen ? "top-[calc(env(safe-area-inset-top)+5rem)]" : "top-3")}>
           <Crown className="ml-1 h-3 w-3" />
           PREMIUM
         </Badge>
       )}
 
       {!isPlaying && (
-        <button onClick={onTogglePlay} className="absolute inset-0 flex items-center justify-center bg-black/30">
-          <div className="rounded-full bg-white/20 p-5 backdrop-blur-sm">
+        <button onClick={onTogglePlay} className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+          <div className="rounded-full bg-white/20 p-5 backdrop-blur-sm ring-1 ring-white/20">
             <Play className="h-10 w-10 fill-white text-white" />
           </div>
         </button>
@@ -703,13 +806,29 @@ function VideoPlayer(props: VideoPlayerProps) {
 
       <button
         onClick={onToggleMute}
-        className="absolute right-3 top-14 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm hover:bg-black/60"
+        className={cn("absolute right-3 z-20 rounded-full bg-black/40 p-2 text-white backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60", fullScreen ? "top-[calc(env(safe-area-inset-top)+5rem)]" : "top-14")}
       >
         {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
       </button>
 
-      <div className="absolute bottom-20 right-3 flex flex-col items-center gap-4">
-        <ActionBtn icon={<Heart className={cn("h-6 w-6", liked && "fill-rose-500 text-rose-500")} />} label={fmt(short.likes + (liked ? 1 : 0))} onClick={onLike} />
+      {/* Center heart-pop overlay */}
+      {heartPulse !== undefined && heartPulse > 0 && (
+        <div
+          key={heartPulse}
+          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+          aria-hidden
+        >
+          <Heart className="h-32 w-32 fill-rose-500 text-rose-500 drop-shadow-[0_0_24px_oklch(0.70_0.22_15/0.7)] animate-heart-pop" />
+        </div>
+      )}
+
+      <div className={cn("absolute z-20 flex flex-col items-center gap-4", fullScreen ? "bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-2" : "bottom-20 right-3")}>
+        <ActionBtn
+          icon={<Heart className={cn("h-6 w-6", liked && "fill-rose-500 text-rose-500")} />}
+          label={fmt(short.likes + (liked ? 1 : 0))}
+          onClick={onLike}
+          pop={heartPulse}
+        />
         <ActionBtn icon={<MessageCircle className="h-6 w-6" />} label={fmt(short.comments)} onClick={onComment} />
         <ActionBtn
           icon={
@@ -724,7 +843,10 @@ function VideoPlayer(props: VideoPlayerProps) {
         <ActionBtn icon={<Share2 className="h-6 w-6" />} label="שתף" onClick={onShare} />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pr-20 text-white">
+      <div className={cn(
+        "absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-white",
+        fullScreen ? "px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-16 pr-20" : "p-4 pr-20",
+      )}>
         <div className="mb-2 flex items-center gap-2">
           <div className={cn(
             "rounded-full p-[2px] transition-all duration-700 ease-out",
@@ -739,9 +861,10 @@ function VideoPlayer(props: VideoPlayerProps) {
               </AvatarFallback>
             </Avatar>
           </div>
-          <div className="animate-fade-in" key={short.creator_id}>
+          <div className="animate-fade-in min-w-0" key={short.creator_id}>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold">{short.creator.name}</span>
+              <span className="font-bold truncate">@{short.creator.name}</span>
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_oklch(0.78_0.18_150/0.8)]" />
               {short.isPremium && <Crown className="h-3 w-3 text-primary" />}
             </div>
             <span className="text-xs opacity-80">{short.uploadedAgo}</span>
@@ -750,9 +873,13 @@ function VideoPlayer(props: VideoPlayerProps) {
             <FollowButton targetType="shorts_creator" targetId={short.creator_id} size="sm" className="h-7" />
           </div>
         </div>
-        <h3 className="mb-1 text-sm font-bold animate-fade-in" key={short.id}>{short.title}</h3>
-        <p className="text-xs opacity-90">{short.description}</p>
-        <div className="mt-2 flex items-center gap-1 text-xs opacity-70">
+        {short.title && <h3 className="mb-1 text-sm font-bold animate-fade-in line-clamp-1" key={short.id}>{short.title}</h3>}
+        {short.description && (
+          <p className="text-xs opacity-95 line-clamp-2 leading-relaxed">
+            <HashtagText text={short.description} />
+          </p>
+        )}
+        <div className="mt-2 flex items-center gap-1 text-[11px] opacity-70">
           <Eye className="h-3 w-3" />
           {fmt(short.views)} צפיות
         </div>
@@ -766,15 +893,20 @@ type ActionBtnProps = {
   label: string;
   onClick: () => void;
   accent?: boolean;
+  pop?: number;
 };
 
-function ActionBtn({ icon, label, onClick, accent }: ActionBtnProps) {
+function ActionBtn({ icon, label, onClick, accent, pop }: ActionBtnProps) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 text-white">
-      <div className={cn(
-        "flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-sm transition hover:scale-110",
-        accent ? "bg-emerald-500/90 hover:bg-emerald-500" : "bg-black/40 hover:bg-black/60"
-      )}>
+      <div
+        key={pop}
+        className={cn(
+          "flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md ring-1 ring-white/15 transition hover:scale-110",
+          accent ? "bg-emerald-500/90 hover:bg-emerald-500" : "bg-black/35 hover:bg-black/55",
+          pop !== undefined && pop > 0 ? "animate-heart-pop" : "",
+        )}
+      >
         {icon}
       </div>
       <span className="text-[11px] font-semibold drop-shadow">{label}</span>
@@ -886,7 +1018,7 @@ function UploadDialog({
         </div>
         <DialogFooter>
           <Button onClick={submit} disabled={uploading} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-            {uploading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            {uploading && <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />}
             <Upload className="ml-1 h-4 w-4" />
             העלה
           </Button>
