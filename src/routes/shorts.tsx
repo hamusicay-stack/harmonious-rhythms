@@ -81,8 +81,16 @@ function ShortsPage() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
+  const [transitioning, setTransitioning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const storyRowRef = useRef<HTMLDivElement>(null);
+
+  // Trigger transition animation on active change
+  useEffect(() => {
+    setTransitioning(true);
+    const t = setTimeout(() => setTransitioning(false), 700);
+    return () => clearTimeout(t);
+  }, [activeIndex]);
 
   const current = MOCK_SHORTS[activeIndex];
 
@@ -180,6 +188,7 @@ function ShortsPage() {
               isPlaying={isPlaying}
               progress={progress}
               liked={likedSet.has(current.id)}
+              transitioning={transitioning}
               onTogglePlay={togglePlay}
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
@@ -216,6 +225,7 @@ function ShortsPage() {
             isPlaying={isPlaying}
             progress={progress}
             liked={likedSet.has(current.id)}
+            transitioning={transitioning}
             onTogglePlay={togglePlay}
             onToggleMute={() => setIsMuted((m) => !m)}
             onLike={() => toggleLike(current.id)}
@@ -288,7 +298,7 @@ function StoryRow({
 /* ---------- VIDEO PLAYER ---------- */
 function VideoPlayer({
   short, videoRef, isMuted, isPlaying, progress, liked,
-  onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull,
+  onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull, transitioning,
 }: {
   short: Short;
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -297,6 +307,7 @@ function VideoPlayer({
   onLike: () => void; onShare: () => void; onComment: () => void;
   fmt: (n: number) => string;
   mobileFull?: boolean;
+  transitioning?: boolean;
 }) {
   return (
     <div className={cn(
@@ -365,12 +376,17 @@ function VideoPlayer({
       {/* BOTTOM info */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pr-20 text-white">
         <div className="mb-2 flex items-center gap-2">
-          <Avatar className="h-9 w-9 border-2 border-white">
-            <AvatarImage src={short.creator.avatar || undefined} />
-            <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
-              {short.creator.name.slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
+          <div className={cn(
+            "rounded-full p-[2px] transition-all duration-700",
+            transitioning ? "bg-gradient-to-tr from-primary via-primary-glow to-primary scale-110 shadow-gold animate-pulse" : "bg-white/40"
+          )}>
+            <Avatar className="h-9 w-9 border-2 border-background">
+              <AvatarImage src={short.creator.avatar || undefined} />
+              <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
+                {short.creator.name.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold">{short.creator.name}</span>

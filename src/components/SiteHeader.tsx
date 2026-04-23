@@ -158,6 +158,14 @@ export function SiteHeader() {
                       הפרופיל שלי
                     </Button>
                   </Link>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setOpen(false)}>
+                      <Button variant="outline" className="w-full border-primary/40 text-primary">
+                        <Shield className="ml-2 h-4 w-4" />
+                        ניהול המערכת
+                      </Button>
+                    </Link>
+                  )}
                   <Button onClick={() => { handleSignOut(); setOpen(false); }} variant="ghost" className="w-full text-destructive">
                     <LogOut className="ml-2 h-4 w-4" />
                     התנתקות

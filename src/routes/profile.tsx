@@ -79,11 +79,12 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="pro" className="gap-1"><Music2 className="h-4 w-4" />האינדקס שלי</TabsTrigger>
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
+            <TabsTrigger value="following" className="gap-1"><UserIcon className="h-4 w-4" />עוקב אחרי</TabsTrigger>
             <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים</TabsTrigger>
           </TabsList>
 
@@ -101,6 +102,10 @@ function ProfilePage() {
 
           <TabsContent value="liked" className="mt-6">
             <LikedItems userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="following" className="mt-6">
+            <FollowingList userId={user.id} />
           </TabsContent>
 
           <TabsContent value="searches" className="mt-6">
@@ -878,6 +883,104 @@ function MyProIndex({ userId }: { userId: string }) {
             <Button size="sm" variant="outline"><Eye className="ml-1 h-3.5 w-3.5" />צפה בפרופיל</Button>
           </Link>
         </div>
+      </div>
+    </div>
+  );
+}
+
+type FollowRow = { id: string; target_type: string; target_id: string; created_at: string };
+
+function FollowingList({ userId }: { userId: string }) {
+  const [filter, setFilter] = useState<"all" | "marketplace_seller" | "music_pro" | "shorts_creator" | "user">("all");
+  const [follows, setFollows] = useState<FollowRow[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, { display_name: string | null; avatar_url: string | null }>>({});
+  const [pros, setPros] = useState<Record<string, { display_name: string; profile_image: string | null; headline: string | null }>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase.from("user_follows")
+        .select("id, target_type, target_id, created_at")
+        .eq("follower_id", userId).order("created_at", { ascending: false });
+      const rows = (data ?? []) as FollowRow[];
+      setFollows(rows);
+      const userIds = rows.filter((r) => r.target_type !== "music_pro").map((r) => r.target_id);
+      const proIds = rows.filter((r) => r.target_type === "music_pro").map((r) => r.target_id);
+      if (userIds.length) {
+        const { data: ps } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", userIds);
+        const m: typeof profiles = {};
+        for (const p of ps ?? []) m[p.id] = { display_name: p.display_name, avatar_url: p.avatar_url };
+        setProfiles(m);
+      }
+      if (proIds.length) {
+        const { data: ps } = await supabase.from("music_pros").select("id, display_name, profile_image, headline").in("id", proIds);
+        const m: typeof pros = {};
+        for (const p of ps ?? []) m[p.id] = { display_name: p.display_name, profile_image: p.profile_image, headline: p.headline };
+        setPros(m);
+      }
+      setLoading(false);
+    })();
+  }, [userId]);
+
+  const unfollow = async (f: FollowRow) => {
+    await supabase.from("user_follows").delete().eq("id", f.id);
+    setFollows((prev) => prev.filter((x) => x.id !== f.id));
+    toast.success("הוסר מעקב");
+  };
+
+  const labelFor = (t: string) =>
+    t === "marketplace_seller" ? "מוכר ביד 2" :
+    t === "music_pro" ? "מוזיקאי" :
+    t === "shorts_creator" ? "יוצר שורטס" : "משתמש";
+
+  const filtered = filter === "all" ? follows : follows.filter((f) => f.target_type === filter);
+  const counts = follows.reduce<Record<string, number>>((a, f) => { a[f.target_type] = (a[f.target_type] || 0) + 1; return a; }, {});
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+
+  if (follows.length === 0) return (
+    <div className="rounded-2xl border border-dashed p-10 text-center">
+      <UserIcon className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+      <p className="text-muted-foreground mb-3">עדיין אינך עוקב אחרי אף אחד</p>
+      <p className="text-xs text-muted-foreground">אפשר לעקוב אחרי מוכרים ביד 2, מוזיקאים, ויוצרי שורטס</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>הכל ({follows.length})</Button>
+        <Button size="sm" variant={filter === "marketplace_seller" ? "default" : "outline"} onClick={() => setFilter("marketplace_seller")}>
+          <Tags className="h-3.5 w-3.5" />מוכרים ביד 2 {counts.marketplace_seller ? `(${counts.marketplace_seller})` : ""}
+        </Button>
+        <Button size="sm" variant={filter === "music_pro" ? "default" : "outline"} onClick={() => setFilter("music_pro")}>
+          <Music2 className="h-3.5 w-3.5" />מוזיקאים {counts.music_pro ? `(${counts.music_pro})` : ""}
+        </Button>
+        <Button size="sm" variant={filter === "shorts_creator" ? "default" : "outline"} onClick={() => setFilter("shorts_creator")}>
+          יוצרי שורטס {counts.shorts_creator ? `(${counts.shorts_creator})` : ""}
+        </Button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((f) => {
+          const isPro = f.target_type === "music_pro";
+          const data = isPro ? pros[f.target_id] : profiles[f.target_id];
+          const name = data ? (isPro ? (data as any).display_name : (data as any).display_name) : "משתמש";
+          const img = data ? (isPro ? (data as any).profile_image : (data as any).avatar_url) : null;
+          return (
+            <div key={f.id} className="rounded-2xl border bg-card-elevated p-4 flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={img || undefined} />
+                <AvatarFallback className="bg-primary/10 text-primary font-bold">{(name || "?").slice(0, 2)}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm truncate">{name || "משתמש"}</div>
+                <Badge variant="outline" className="text-xs mt-1">{labelFor(f.target_type)}</Badge>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => unfollow(f)} className="text-muted-foreground">הסר</Button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

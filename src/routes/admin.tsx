@@ -36,7 +36,8 @@ import { MarketplaceCategoriesManager } from "@/components/admin/MarketplaceCate
 import { ReportsManager } from "@/components/admin/ReportsManager";
 import { MusicProsManager } from "@/components/admin/MusicProsManager";
 import { ShopManager } from "@/components/admin/ShopManager";
-import { Music2, ShoppingBag } from "lucide-react";
+import { ShortsManager } from "@/components/admin/ShortsManager";
+import { Music2, ShoppingBag, Play } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -207,10 +208,10 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
-            <TabsTrigger value="crm"><Users className="ml-2 h-4 w-4" />CRM</TabsTrigger>
-            <TabsTrigger value="commerce"><ShoppingBag className="ml-2 h-4 w-4" />חנות ושיווק</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsTrigger value="dashboard" className="text-xs sm:text-sm py-2"><LayoutDashboard className="ml-1 h-4 w-4" /><span className="hidden sm:inline">דשבורד</span><span className="sm:hidden">בית</span></TabsTrigger>
+            <TabsTrigger value="crm" className="text-xs sm:text-sm py-2"><Users className="ml-1 h-4 w-4" />CRM</TabsTrigger>
+            <TabsTrigger value="commerce" className="text-xs sm:text-sm py-2"><ShoppingBag className="ml-1 h-4 w-4" /><span className="hidden sm:inline">חנות ושיווק</span><span className="sm:hidden">חנות</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="mt-6">
@@ -219,13 +220,13 @@ function AdminPage() {
 
           <TabsContent value="crm" className="mt-6">
             <Tabs defaultValue="customers" dir="rtl">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-                <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
-                <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
-                <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
-                <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
-                <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
-                <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
+              <TabsList className="flex flex-wrap w-full h-auto md:grid md:grid-cols-6 gap-1">
+                <TabsTrigger value="customers" className="flex-1 min-w-[100px]"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
+                <TabsTrigger value="leads" className="flex-1 min-w-[100px]"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
+                <TabsTrigger value="tasks" className="flex-1 min-w-[100px]"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
+                <TabsTrigger value="suppliers" className="flex-1 min-w-[100px]"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
+                <TabsTrigger value="purchase_orders" className="flex-1 min-w-[100px]"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
+                <TabsTrigger value="admins" className="flex-1 min-w-[100px]"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
               </TabsList>
 
               <TabsContent value="customers" className="mt-6">
@@ -394,12 +395,13 @@ function AdminPage() {
 
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-5">
-                <TabsTrigger value="shop"><ShoppingBag className="ml-2 h-4 w-4" />חנות</TabsTrigger>
-                <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
-                <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
-                <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
-                <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
+              <TabsList className="flex flex-wrap w-full h-auto md:grid md:grid-cols-6 gap-1">
+                <TabsTrigger value="shop" className="flex-1 min-w-[110px]"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
+                <TabsTrigger value="marketplace" className="flex-1 min-w-[110px]"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
+                <TabsTrigger value="shorts" className="flex-1 min-w-[110px]"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
+                <TabsTrigger value="music_pros" className="flex-1 min-w-[110px]"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
+                <TabsTrigger value="automations" className="flex-1 min-w-[110px]"><Zap className="ml-1 h-4 w-4" />אוטומציות</TabsTrigger>
+                <TabsTrigger value="banners" className="flex-1 min-w-[110px]"><Megaphone className="ml-1 h-4 w-4" />פרסומות</TabsTrigger>
               </TabsList>
 
               <TabsContent value="shop" className="mt-6">
@@ -414,6 +416,9 @@ function AdminPage() {
                   <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-500" />דיווחי משתמשים</CardTitle></CardHeader>
                   <CardContent><ReportsManager /></CardContent>
                 </Card>
+              </TabsContent>
+              <TabsContent value="shorts" className="mt-6">
+                <ShortsManager />
               </TabsContent>
               <TabsContent value="music_pros" className="mt-6">
                 <MusicProsManager />

@@ -49,6 +49,9 @@ const POSITIONS = [
   { value: "marketplace_bottom", label: "תחתית המרקטפלייס" },
   { value: "about_top", label: "ראש דף אודות" },
   { value: "contact_top", label: "ראש דף יצירת קשר" },
+  { value: "shorts_left", label: "שורטס — עמודה שמאלית" },
+  { value: "shorts_right_top", label: "שורטס — ימין עליון" },
+  { value: "shorts_right_bottom", label: "שורטס — ימין תחתון" },
 ];
 
 const positionLabel = (v: string) => POSITIONS.find((p) => p.value === v)?.label ?? v;
