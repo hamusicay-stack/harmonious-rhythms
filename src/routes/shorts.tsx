@@ -508,7 +508,7 @@ function ShortsPage() {
               mobileFull
             />
           )}
-          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא</p>
+          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא • שמאלה/ימינה למעבר בין יוצרים</p>
         </div>
       </div>
 
