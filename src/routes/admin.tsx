@@ -220,13 +220,13 @@ function AdminPage() {
 
           <TabsContent value="crm" className="mt-6">
             <Tabs defaultValue="customers" dir="rtl">
-              <TabsList className="flex flex-wrap w-full h-auto md:grid md:grid-cols-6 gap-1">
-                <TabsTrigger value="customers" className="flex-1 min-w-[100px]"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
-                <TabsTrigger value="leads" className="flex-1 min-w-[100px]"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
-                <TabsTrigger value="tasks" className="flex-1 min-w-[100px]"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
-                <TabsTrigger value="suppliers" className="flex-1 min-w-[100px]"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
-                <TabsTrigger value="purchase_orders" className="flex-1 min-w-[100px]"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
-                <TabsTrigger value="admins" className="flex-1 min-w-[100px]"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6 scrollbar-thin">
+                <TabsTrigger value="customers" className="shrink-0 md:flex-1"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
+                <TabsTrigger value="leads" className="shrink-0 md:flex-1"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
+                <TabsTrigger value="tasks" className="shrink-0 md:flex-1"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
+                <TabsTrigger value="suppliers" className="shrink-0 md:flex-1"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
+                <TabsTrigger value="purchase_orders" className="shrink-0 md:flex-1"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
+                <TabsTrigger value="admins" className="shrink-0 md:flex-1"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
               </TabsList>
 
               <TabsContent value="customers" className="mt-6">
