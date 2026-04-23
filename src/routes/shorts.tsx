@@ -205,14 +205,28 @@ function ShortsPage() {
     void supabase.rpc("increment_short_views", { _video_id: current.id });
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
-    const onEnd = () => setActiveIndex((i) => (i + 1) % Math.max(shorts.length, 1));
+    const onEnd = () => {
+      // Auto-advance to NEXT creator's video (skip remaining of same creator)
+      setActiveIndex((i) => {
+        const cur = shorts[i];
+        if (!cur) return (i + 1) % Math.max(shorts.length, 1);
+        for (let k = i + 1; k < shorts.length; k++) {
+          if (shorts[k].creator_id !== cur.creator_id) return k;
+        }
+        // None ahead → wrap to first different creator from start
+        for (let k = 0; k < i; k++) {
+          if (shorts[k].creator_id !== cur.creator_id) return k;
+        }
+        return (i + 1) % Math.max(shorts.length, 1);
+      });
+    };
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("ended", onEnd);
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
     };
-  }, [activeIndex, shorts.length, current?.id]);
+  }, [activeIndex, shorts, current?.id]);
 
   // Auto-scroll story row
   useEffect(() => {
