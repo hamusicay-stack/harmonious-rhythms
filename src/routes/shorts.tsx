@@ -72,6 +72,7 @@ function ShortsPage() {
   const [progress, setProgress] = useState(0);
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
   const [creatorChanged, setCreatorChanged] = useState(false);
+  const [slideDir, setSlideDir] = useState<"up" | "down" | "left" | "right" | null>(null);
   const [canUpload, setCanUpload] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
@@ -229,6 +230,7 @@ function ShortsPage() {
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
     const onEnd = () => {
+      setSlideDir("up");
       // When video ends: prefer NEXT video of the SAME creator.
       // If none remain, jump to the next creator's first video.
       setActiveIndex((i) => {
@@ -272,11 +274,18 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
-  const goNext = useCallback(() => setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0))), [shorts.length]);
-  const goPrev = useCallback(() => setActiveIndex((i) => Math.max(i - 1, 0)), []);
+  const goNext = useCallback(() => {
+    setSlideDir("up");
+    setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
+  }, [shorts.length]);
+  const goPrev = useCallback(() => {
+    setSlideDir("down");
+    setActiveIndex((i) => Math.max(i - 1, 0));
+  }, []);
 
   // Jump to next/previous DIFFERENT creator (horizontal swipe behavior)
   const goNextCreator = useCallback(() => {
+    setSlideDir("left");
     setActiveIndex((i) => {
       const cur = shorts[i];
       if (!cur) return i;
@@ -285,6 +294,7 @@ function ShortsPage() {
     });
   }, [shorts]);
   const goPrevCreator = useCallback(() => {
+    setSlideDir("right");
     setActiveIndex((i) => {
       const cur = shorts[i];
       if (!cur) return i;
@@ -292,6 +302,13 @@ function ShortsPage() {
       return i;
     });
   }, [shorts]);
+
+  // Clear slide direction after animation completes
+  useEffect(() => {
+    if (!slideDir) return;
+    const t = setTimeout(() => setSlideDir(null), 460);
+    return () => clearTimeout(t);
+  }, [slideDir, activeIndex]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -475,6 +492,7 @@ function ShortsPage() {
                 progress={progress}
                 liked={likedSet.has(current.id)}
                 creatorChanged={creatorChanged}
+                slideDir={slideDir}
                 onTogglePlay={togglePlay}
                 onToggleMute={() => setIsMuted((m) => !m)}
                 onLike={() => toggleLike(current.id)}
@@ -512,6 +530,7 @@ function ShortsPage() {
               progress={progress}
               liked={likedSet.has(current.id)}
               creatorChanged={creatorChanged}
+              slideDir={slideDir}
               onTogglePlay={togglePlay}
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
@@ -620,6 +639,7 @@ type VideoPlayerProps = {
   progress: number;
   liked: boolean;
   creatorChanged: boolean;
+  slideDir: "up" | "down" | "left" | "right" | null;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onLike: () => void;
@@ -631,15 +651,25 @@ type VideoPlayerProps = {
 
 function VideoPlayer(props: VideoPlayerProps) {
   const {
-    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged,
+    short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir,
     onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull,
   } = props;
 
+  const slideClass =
+    slideDir === "up" ? "animate-shorts-up"
+      : slideDir === "down" ? "animate-shorts-down"
+        : slideDir === "left" ? "animate-shorts-left"
+          : slideDir === "right" ? "animate-shorts-right"
+            : "";
+
   return (
     <div className={cn(
-      "relative mx-auto overflow-hidden rounded-2xl bg-black shadow-2xl",
-      mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]"
-    )}>
+      "relative mx-auto overflow-hidden rounded-2xl bg-black shadow-2xl will-change-transform",
+      mobileFull ? "aspect-[9/16] max-h-[80vh] w-full" : "aspect-[9/16] max-h-[78vh] w-full max-w-[420px]",
+      slideClass,
+    )}
+      key={`${short.id}-${slideDir ?? "none"}`}
+    >
       <video
         ref={videoRef}
         key={short.id}
@@ -648,7 +678,7 @@ function VideoPlayer(props: VideoPlayerProps) {
         autoPlay
         muted={isMuted}
         playsInline
-        className="h-full w-full object-cover animate-fade-in"
+        className="h-full w-full object-cover"
         onClick={onTogglePlay}
       />
 
