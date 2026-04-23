@@ -22,6 +22,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+const MAX_SHORT_FILE_SIZE = 60 * 1024 * 1024;
+
 export const Route = createFileRoute("/shorts")({
   head: () => ({
     meta: [
@@ -81,85 +83,105 @@ function ShortsPage() {
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("shorts_videos")
-      .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(80);
+    try {
+      const { data, error } = await supabase
+        .from("shorts_videos")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(80);
 
-    const rows = data ?? [];
-    if (rows.length === 0) { setShorts([]); setLoading(false); return; }
+      if (error) throw error;
 
-    const creatorIds = Array.from(new Set(rows.map((r) => r.creator_id)));
-    const { data: profs } = await supabase
-      .from("profiles").select("id, display_name, avatar_url")
-      .in("id", creatorIds);
-    const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
-
-    const ids = rows.map((r) => r.id);
-    const [{ data: likeAgg }, { data: cmtAgg }] = await Promise.all([
-      supabase.from("user_likes").select("item_id, user_id").eq("item_type", "shorts_video").in("item_id", ids),
-      supabase.from("shorts_comments").select("video_id").in("video_id", ids),
-    ]);
-    const likeCounts = new Map<string, number>();
-    for (const l of likeAgg ?? []) likeCounts.set(l.item_id, (likeCounts.get(l.item_id) || 0) + 1);
-    const cmtCounts = new Map<string, number>();
-    for (const c of cmtAgg ?? []) cmtCounts.set(c.video_id, (cmtCounts.get(c.video_id) || 0) + 1);
-    setCommentCounts(cmtCounts);
-
-    // ---- Personalization signals (For You algorithm) ----
-    let myLikedIds = new Set<string>();
-    let followedCreators = new Set<string>();
-    let likeAffinityCreators = new Map<string, number>(); // creators whose videos I liked → score
-    if (user) {
-      const [{ data: myLikes }, { data: follows }] = await Promise.all([
-        supabase.from("user_likes").select("item_id").eq("user_id", user.id).eq("item_type", "shorts_video"),
-        supabase.from("user_follows").select("target_id, target_type").eq("follower_id", user.id)
-          .in("target_type", ["shorts_creator", "user"]),
-      ]);
-      myLikedIds = new Set((myLikes ?? []).map((l) => l.item_id));
-      followedCreators = new Set((follows ?? []).map((f) => f.target_id));
-      // Boost: which creators did I like videos of?
-      const likedRows = (likeAgg ?? []).filter((l) => myLikedIds.has(l.item_id));
-      for (const r of rows) {
-        if (myLikedIds.has(r.id)) likeAffinityCreators.set(r.creator_id, (likeAffinityCreators.get(r.creator_id) ?? 0) + 1);
+      const rows = data ?? [];
+      if (rows.length === 0) {
+        setShorts([]);
+        setCommentCounts(new Map());
+        setLikedSet(new Set());
+        return;
       }
-      void likedRows;
+
+      const creatorIds = Array.from(new Set(rows.map((r) => r.creator_id)));
+      const { data: profs, error: profsError } = await supabase
+        .from("profiles").select("id, display_name, avatar_url")
+        .in("id", creatorIds);
+      if (profsError) throw profsError;
+      const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
+
+      const ids = rows.map((r) => r.id);
+      const [{ data: likeAgg, error: likesError }, { data: cmtAgg, error: commentsError }] = await Promise.all([
+        supabase.from("user_likes").select("item_id, user_id").eq("item_type", "shorts_video").in("item_id", ids),
+        supabase.from("shorts_comments").select("video_id").in("video_id", ids),
+      ]);
+      if (likesError) throw likesError;
+      if (commentsError) throw commentsError;
+
+      const likeCounts = new Map<string, number>();
+      for (const l of likeAgg ?? []) likeCounts.set(l.item_id, (likeCounts.get(l.item_id) || 0) + 1);
+      const cmtCounts = new Map<string, number>();
+      for (const c of cmtAgg ?? []) cmtCounts.set(c.video_id, (cmtCounts.get(c.video_id) || 0) + 1);
+      setCommentCounts(cmtCounts);
+
+      let myLikedIds = new Set<string>();
+      let followedCreators = new Set<string>();
+      const likeAffinityCreators = new Map<string, number>();
+
+      if (user) {
+        const [{ data: myLikes, error: myLikesError }, { data: follows, error: followsError }] = await Promise.all([
+          supabase.from("user_likes").select("item_id").eq("user_id", user.id).eq("item_type", "shorts_video"),
+          supabase.from("user_follows").select("target_id, target_type").eq("follower_id", user.id)
+            .in("target_type", ["shorts_creator", "user"]),
+        ]);
+        if (myLikesError) throw myLikesError;
+        if (followsError) throw followsError;
+
+        myLikedIds = new Set((myLikes ?? []).map((l) => l.item_id));
+        followedCreators = new Set((follows ?? []).map((f) => f.target_id));
+        for (const r of rows) {
+          if (myLikedIds.has(r.id)) likeAffinityCreators.set(r.creator_id, (likeAffinityCreators.get(r.creator_id) ?? 0) + 1);
+        }
+      }
+
+      const scored = rows.map((r) => {
+        const ageHrs = Math.max(1, (Date.now() - new Date(r.created_at).getTime()) / 3600000);
+        const recency = 1 / Math.log2(ageHrs + 2);
+        const popularity = (likeCounts.get(r.id) ?? 0) * 2 + (cmtCounts.get(r.id) ?? 0) * 1.5 + (r.views_count ?? 0) * 0.05;
+        const followBoost = followedCreators.has(r.creator_id) ? 50 : 0;
+        const affinityBoost = (likeAffinityCreators.get(r.creator_id) ?? 0) * 15;
+        const premiumBoost = r.is_premium ? 5 : 0;
+        const score = recency * 10 + popularity + followBoost + affinityBoost + premiumBoost;
+        return { r, score };
+      }).sort((a, b) => b.score - a.score);
+
+      const list: Short[] = scored.map(({ r }) => {
+        const p = pmap.get(r.creator_id);
+        return {
+          id: r.id,
+          creator_id: r.creator_id,
+          creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null },
+          videoUrl: r.video_url,
+          poster: r.thumbnail_url,
+          title: r.title ?? "",
+          description: r.description ?? "",
+          likes: likeCounts.get(r.id) ?? 0,
+          comments: cmtCounts.get(r.id) ?? 0,
+          views: r.views_count ?? 0,
+          uploadedAgo: formatAgo(r.created_at),
+          isPremium: r.is_premium,
+        };
+      });
+
+      setShorts(list);
+      setLikedSet(myLikedIds);
+    } catch (error) {
+      console.error("Failed to load shorts feed", error);
+      setShorts([]);
+      setCommentCounts(new Map());
+      setLikedSet(new Set());
+      toast.error("לא הצלחנו לטעון את השורטס כרגע");
+    } finally {
+      setLoading(false);
     }
-
-    // Score & sort
-    const scored = rows.map((r) => {
-      const ageHrs = Math.max(1, (Date.now() - new Date(r.created_at).getTime()) / 3600000);
-      const recency = 1 / Math.log2(ageHrs + 2);
-      const popularity = (likeCounts.get(r.id) ?? 0) * 2 + (cmtCounts.get(r.id) ?? 0) * 1.5 + (r.views_count ?? 0) * 0.05;
-      const followBoost = followedCreators.has(r.creator_id) ? 50 : 0;
-      const affinityBoost = (likeAffinityCreators.get(r.creator_id) ?? 0) * 15;
-      const premiumBoost = r.is_premium ? 5 : 0;
-      const score = recency * 10 + popularity + followBoost + affinityBoost + premiumBoost;
-      return { r, score };
-    }).sort((a, b) => b.score - a.score);
-
-    const list: Short[] = scored.map(({ r }) => {
-      const p = pmap.get(r.creator_id);
-      return {
-        id: r.id,
-        creator_id: r.creator_id,
-        creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null },
-        videoUrl: r.video_url,
-        poster: r.thumbnail_url,
-        title: r.title ?? "",
-        description: r.description ?? "",
-        likes: likeCounts.get(r.id) ?? 0,
-        comments: cmtCounts.get(r.id) ?? 0,
-        views: r.views_count ?? 0,
-        uploadedAgo: formatAgo(r.created_at),
-        isPremium: r.is_premium,
-      };
-    });
-    setShorts(list);
-    setLikedSet(myLikedIds);
-    setLoading(false);
   }, [user]);
 
   useEffect(() => { loadShorts(); }, [loadShorts]);
@@ -258,17 +280,31 @@ function ShortsPage() {
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
     const liked = likedSet.has(id);
+    setShorts((prev) => prev.map((s) => s.id === id ? { ...s, likes: Math.max(0, s.likes + (liked ? -1 : 1)) } : s));
     setLikedSet((prev) => {
       const next = new Set(prev);
       if (liked) next.delete(id); else next.add(id);
       return next;
     });
+    let error: Error | null = null;
     if (liked) {
-      await supabase.from("user_likes").delete()
+      const { error: deleteError } = await supabase.from("user_likes").delete()
         .eq("user_id", user.id).eq("item_type", "shorts_video").eq("item_id", id);
+      error = deleteError;
     } else {
-      await supabase.from("user_likes")
+      const { error: insertError } = await supabase.from("user_likes")
         .insert({ user_id: user.id, item_type: "shorts_video", item_id: id });
+      error = insertError;
+    }
+
+    if (error) {
+      setShorts((prev) => prev.map((s) => s.id === id ? { ...s, likes: Math.max(0, s.likes + (liked ? 1 : -1)) } : s));
+      setLikedSet((prev) => {
+        const next = new Set(prev);
+        if (liked) next.add(id); else next.delete(id);
+        return next;
+      });
+      toast.error(error.message);
     }
   };
 
@@ -652,11 +688,24 @@ function UploadDialog({
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  const handleFileChange = (nextFile: File | null) => {
+    if (!nextFile) return;
+    if (!nextFile.type.startsWith("video/")) {
+      toast.error("יש לבחור קובץ וידאו תקין");
+      return;
+    }
+    if (nextFile.size > MAX_SHORT_FILE_SIZE) {
+      toast.error("גודל מקסימלי 60MB");
+      return;
+    }
+    setFile(nextFile);
+  };
+
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (!title.trim()) { toast.error("כותרת חובה"); return; }
     if (!file) { toast.error("יש לבחור סרטון"); return; }
-    if (file.size > 60 * 1024 * 1024) { toast.error("גודל מקסימלי 60MB"); return; }
+    if (file.size > MAX_SHORT_FILE_SIZE) { toast.error("גודל מקסימלי 60MB"); return; }
 
     setUploading(true);
     const ext = file.name.split(".").pop() || "mp4";
@@ -702,7 +751,24 @@ function UploadDialog({
           </div>
           <div className="space-y-2">
             <Label>קובץ סרטון (עד 60MB, פורמט MP4 מומלץ, יחס אנכי 9:16) *</Label>
-            <Input type="file" accept="video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            <div className="grid gap-2 sm:grid-cols-2">
+              <label className="block">
+                <span className="sr-only">בחר סרטון קיים</span>
+                <Input type="file" accept="video/*" onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)} />
+              </label>
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="video/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                />
+                <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition hover:bg-accent hover:text-accent-foreground">
+                  פתח מצלמה
+                </div>
+              </label>
+            </div>
             {file && <p className="text-xs text-muted-foreground">{file.name} • {(file.size / 1024 / 1024).toFixed(1)}MB</p>}
           </div>
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
