@@ -413,8 +413,28 @@ function ShortsPage() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="container mx-auto px-4 py-6 md:px-8">
+          <div className="mx-auto max-w-[420px]">
+            <ShortsSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-20 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/15">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="font-display text-2xl font-bold">משהו השתבש</h1>
+          <p className="max-w-md text-sm text-muted-foreground">לא הצלחנו לטעון את השורטס. בדוק את החיבור ונסה שוב.</p>
+          <Button onClick={() => loadShorts()} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
+            נסה שוב
+          </Button>
         </div>
       </div>
     );
