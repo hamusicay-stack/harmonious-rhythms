@@ -303,12 +303,19 @@ function ShortsPage() {
     if (sy == null || sx == null) return;
     const dy = e.changedTouches[0].clientY - sy;
     const dx = e.changedTouches[0].clientX - sx;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      if (Math.abs(dx) < 50) return;
-      // RTL: swipe right = previous creator, swipe left = next creator
+    // Require a clear, intentional swipe (not a tap/scroll jitter).
+    // Thresholds are intentionally large so mid-video micro-movements
+    // do NOT change the video.
+    const V_THRESHOLD = 120;
+    const H_THRESHOLD = 140;
+    const absX = Math.abs(dx), absY = Math.abs(dy);
+    if (absX < H_THRESHOLD && absY < V_THRESHOLD) return;
+    if (absX > absY * 1.3) {
+      if (absX < H_THRESHOLD) return;
+      // RTL: swipe left = next creator, swipe right = previous creator
       if (dx < 0) goNextCreator(); else goPrevCreator();
     } else {
-      if (Math.abs(dy) < 50) return;
+      if (absY < V_THRESHOLD) return;
       if (dy < 0) goNext(); else goPrev();
     }
   };
