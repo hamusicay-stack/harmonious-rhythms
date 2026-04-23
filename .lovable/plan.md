@@ -1,72 +1,89 @@
 
 
-# שדרוג עיצוב פרימיום ל-"מוזיקאי שורטס"
+# שיפורים: התראות, הגדרות פרופיל, מעקב מורחב, ושורטס
 
-מטרה: להפוך את הפיד מ"דף עם וידאו" ל-Full-Screen, שכבתי, ופיזיקלי כמו אפליקציית פרימיום. הוידאו הוא המלך — כל השאר שכבות שקופות מעליו.
+## 1. סימון "ראיתי הכל" + הסתרת badge נצפית
 
-## 1. Full-Screen Stage (העיקר)
+**`src/components/NotificationsBell.tsx` + `src/hooks/useNotifications.tsx`**
+- כיום יש `markAllRead` — נחבר אותו לפעולה אוטומטית בעת פתיחת ה-Popover (פעם אחת), ובנוסף נוסיף כפתור גלוי "סמן הכל כנקרא" בראש ה-Popover (כרגע מופיע רק ב-`NotificationsList` לא-compact).
+- ההתראות **יישארו ברשימה** — רק הסטטוס `read_at` מתעדכן, ה-badge האדומה תיעלם, והפס הצבעוני של "לא נקרא" יוסר. בדיוק מה שביקשת: רואים היסטוריה, אבל לא "מתריע".
 
-`src/routes/shorts.tsx` — במובייל הוידאו ייקח את כל המסך: `fixed inset-0`, ללא `SiteHeader`/footer/banners/hashtags כשהפיד פעיל. סרגל הפרופילים יצוף מעל למעלה עם רקע gradient שקוף (`from-black/70 to-transparent`).
+## 2. הגדרות התראות בפרופיל
 
+**טבלה חדשה `notification_preferences`** (מיגרציה):
 ```text
-┌─────────────────────────┐
-│ ●●●●●●● Stories (float) │  ← top overlay (גרדיאנט שחור)
-├─────────────────────────┤
-│                      ❤  │
-│       VIDEO          💬 │  ← side actions צף ימין
-│      (object-cover)  📤 │
-│                      🔇 │
-│ ░░░░ gradient ░░░░░░░░  │  ← gradient תחתון 0→40% גובה
-│ @user · עוקב            │
-│ תיאור...                │
-│ #קורג #ימהה             │
-└─────────────────────────┘
+user_id (PK, FK auth.users), 
+notify_follow bool default true,
+notify_like bool default true,
+notify_comment bool default true,
+notify_inquiry bool default true,
+notify_followed_user_activity bool default false,  -- ההתראה החדשה
+updated_at timestamptz
 ```
+RLS: כל משתמש קורא/כותב רק את השורה שלו. טריגר `handle_new_user` יוסיף שורת ברירת מחדל.
 
-## 2. שכבת מידע תחתונה (Overlay Content)
+**עדכון 4 פונקציות הטריגר** (`notify_on_follow`, `notify_on_like`, `notify_on_comment`, `notify_on_inquiry`) — לפני INSERT ל-`notifications` יבדקו את ה-pref המתאים של הנמען. אם false — לא שולחים.
 
-- **Gradient רך**: `bg-gradient-to-t from-black/95 via-black/60 to-transparent`, גובה 45% מהוידאו.
-- **שם משתמש**: `@{handle}` בבולד עם נקודה זוהרת ליד (online indicator).
-- **תיאור**: עד 2 שורות עם `line-clamp-2`, כפתור "עוד" שמרחיב.
-- **Hashtags**: מתוך `description` — regex `/#[\u0590-\u05FFa-zA-Z0-9_]+/g`, רינדור כ-`<button>` לחיצים בצבע `text-primary-glow` (לעתיד: ניווט לפיד מתויג).
+**טאב חדש בפרופיל** `src/routes/profile.tsx` → `<NotificationSettings />`:
+- Switch לכל סוג: עוקב חדש / לייק / תגובה / פנייה.
+- Switch ייעודי: **"קבל התראות על כל פעילות של אנשים שאני עוקב אחריהם"** (העלאות שורטס + מודעות יד2).
+- שמירה ב-`upsert` ל-`notification_preferences`.
 
-## 3. Side Actions משודרגים
+## 3. מעקב מורחב — "עקוב על כל פעולה"
 
-- **Heart**: אנימציית "פופ" בלחיצה — `scale 1→1.4→1` ב-300ms + פעימת gradient רוז סביב, באמצעות keyframe `heartPop` חדש ב-`styles.css`.
-- **Comment**: פותח את `CommentsSheet` הקיים מבלי להפסיק את הוידאו (כבר עובד — נוודא שהוידאו ממשיך לנגן ברקע).
-- **WhatsApp**: כפתור ירוק נפרד עם אייקון נקי.
-- כל הכפתורים: `bg-black/35 backdrop-blur-md` + `ring-1 ring-white/15` למראה זכוכית.
+**זרימה חדשה ב-`FollowButton`**: בלחיצה ראשונה על "עקוב" אחרי משתמש (`shorts_creator` או `marketplace_seller`) — אם המשתמש עדיין לא בחר, יקפוץ דיאלוג קצר:
+> "האם תרצה לקבל התראות על כל הפעילות של {שם}? (העלאות שורטס, מודעות יד2)"
+> כפתורים: **כן** / **רק עקוב** / **אל תשאל שוב**
 
-## 4. Top Carousel (סרגל הפרופילים)
+הבחירה נשמרת ב-`notification_preferences.notify_followed_user_activity` (גלובלי) + עמודה `metadata` בטבלת `user_follows` (jsonb עם `notify_activity: bool`) למקרה שרוצה גרגולריות per-creator (אופציונלי, מתחילים גלובלי).
 
-הילה זוהרת קיימת — נשמרת. הוספות:
-- **Fade-in** לפרופילים נכנסים (`animate-fade-in` כשנגלל).
-- **מגנטיות**: כשהמשתמש גורר את הסרגל ומשחרר באמצע, scroll snap לפרופיל הקרוב (`scroll-snap-type: x mandatory` + `scroll-snap-align: center` על כל פריט).
-- **Progress bar** דק (1.5px) בראש הוידאו — כבר קיים, נחזק עם glow: `shadow-[0_0_8px_oklch(0.86_0.16_80/0.6)]`.
+**שני טריגרים חדשים**:
+- `trg_notify_followers_on_short` AFTER INSERT ON `shorts_videos` (כש-status='active') — שולח התראה לכל מי שעוקב אחרי `creator_id` כ-`user`/`shorts_creator` ויש לו `notify_followed_user_activity=true`.
+- `trg_notify_followers_on_listing` AFTER INSERT ON `marketplace_listings` (כש-status='active') — אותו דבר עם `marketplace_seller`/`user`.
 
-## 5. גלילה פיזיקלית/מגנטית
+ההתראות יקושרו ישירות לדף השורט/מודעה.
 
-החלפת מנגנון swipe נוכחי (threshold קשיח) ב-**drag-with-preview**:
-- בזמן touchmove — `translateY` חי על המסך (follows finger).
-- ב-touchend: אם `|dy| > 25%` מגובה המסך **או** מהירות `> 0.5px/ms` → קופץ למסך הבא; אחרת — חוזר עם spring (cubic-bezier).
-- אותו עיקרון אופקי בין יוצרים.
-- מימוש: state `dragOffset` + `transform: translate3d(0, ${dragOffset}px, 0)` על מיכל הוידאו, ללא ספריה חיצונית.
+## 4. בעיית האייקון "השמע" במובייל — הסרה
 
-## 6. Loading & Error states
+**`src/routes/shorts.tsx`** — כפתור ה-mute ה-floating בצד ימין למעלה לא נגיש בקליק במובייל (חופף ל-stories overlay/safe-area). הפתרון:
+- **הסרת כפתור ה-mute לחלוטין במובייל** (`fullScreen` mode).
+- הוידאו יתחיל בלי `muted` כברירת מחדל בפעם הראשונה — אבל כדי לעקוף הגבלת autoplay של דפדפנים, נשאיר `muted` בתחילה ובמגע ראשון על המסך (touchstart גלובלי לתוך ה-stage) ננתק את ה-mute אוטומטית. אחרי זה — **המשתמש שולט בעוצמה דרך כפתורי ה-volume של המכשיר**, בדיוק כמו TikTok/Reels.
+- בדסקטופ — נשאיר את הכפתור (שם הוא עובד טוב).
 
-- **Skeleton** במקום ה-`Loader2` הנוכחי: מלבן `aspect-[9/16]` עם `animate-pulse` + שורת 5 עיגולים בראש (Skeleton פרופילים) — רכיב `<ShortsSkeleton />` חדש בתוך הקובץ.
-- **Error UI**: כשטעינה נכשלה — מסך מרכזי עם אייקון `AlertTriangle`, כותרת "משהו השתבש", וכפתור "נסה שוב" `bg-gradient-to-r from-primary to-primary-glow` שקורא ל-`loadShorts()`. state חדש `loadError: string | null`.
+## 5. תיקון UX של תגובות בשורט
 
-## 7. סקופ מחוץ ל-Shorts (לא כלול)
+**`src/components/shorts/CommentsSheet.tsx`** — בעיות שזיהיתי מהצילום ובקוד:
+- ה-loader ממשיך להופיע מעל תגובות שכבר נטענו (כי `loading` ו-`comments` מוצגים שניהם בלי else).
+- ה-Sheet 80vh — מסתיר חצי וידאו אבל הוא ממשיך לנגן ברקע ללא paste חזותי.
+- חסרים: avatars לחיצים → פרופיל, autosize של ה-textarea, indicator "מקליד...", רענון אופטימי (התגובה מופיעה מיד), ספירת תווים, כפתור close ברור.
+- ה-icon Send מסתובב לצד הלא נכון ב-RTL.
 
-עורך SQL ו-UI הרשאות אדמין הוזכרו אבל הם מחוץ לטעם המסך הזה — אם תרצה אני מציע להפריד אותם להמשך עבודה ולא לערבב במסך הצרכן.
+**שיפורים**:
+- תיקון הצגת ה-loader (רק כש-`comments.length === 0`), אחרת skeleton דק בראש.
+- **Optimistic insert**: התגובה מופיעה מיד עם flag pending, אז מוחלפת בתגובה האמיתית.
+- Avatar/שם → `Link to="/profile"` (או דף יוצר).
+- Textarea עם auto-grow ו-counter `{n}/500`.
+- כפתור Send מסובב ל-RTL (`rotate-180` או אייקון מתאים).
+- שמירה על נגינת הוידאו ברקע — להוסיף `bg-background/95 backdrop-blur` ל-Sheet במקום אטום מלא, כך שעדיין רואים רמז של הוידאו.
+- גובה הופך ל-`h-[70vh]` עם drag-handle ברור בראש.
+- מצב ריק עם אייקון יפה במקום טקסט גנרי.
 
-## פרטים טכניים (קצר)
+## פרטים טכניים
 
-**קבצים לעריכה:**
-- `src/routes/shorts.tsx` — full-screen mobile, drag-physics, hashtags parser, skeleton, error state, מבנה overlay חדש.
-- `src/styles.css` — keyframes חדשים: `heartPop`, `glowPulse`, `springBack`. utilities: `.animate-heart-pop`, `.shorts-stage` (z-index 50, fixed inset-0).
-- אופציונלי חדש: `src/components/shorts/ShortsSkeleton.tsx` ו-`src/components/shorts/HashtagText.tsx` להפרדה.
+**מיגרציות SQL**:
+1. `CREATE TABLE notification_preferences` + RLS + טריגר default-row.
+2. עדכון 4 פונקציות notify_on_* לבדוק preferences.
+3. שתי פונקציות+טריגרים חדשים: `notify_followers_on_short`, `notify_followers_on_listing`.
 
-**ללא תלויות חדשות.** ללא שינויי DB. ללא שינוי ב-RLS/edge functions.
+**קבצים לעריכה**:
+- `src/hooks/useNotifications.tsx` — auto-mark-read on open (אופציונלי) + חשיפת helper.
+- `src/components/NotificationsBell.tsx` — כפתור "סמן הכל כנקרא" ב-popover.
+- `src/routes/profile.tsx` — טאב חדש "הגדרות התראות".
+- חדש: `src/components/NotificationSettings.tsx`.
+- `src/components/FollowButton.tsx` — דיאלוג "עקוב על פעילות".
+- חדש: `src/components/FollowActivityDialog.tsx`.
+- `src/routes/shorts.tsx` — הסרת mute במובייל + unmute on first tap.
+- `src/components/shorts/CommentsSheet.tsx` — שיפוץ UX מלא.
+
+**ללא תלויות חדשות. ללא שינוי ב-Supabase client. תואם ל-realtime הקיים.**
 
