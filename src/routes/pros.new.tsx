@@ -55,6 +55,16 @@ function NewProPage() {
     supabase.from("music_pros").select("id").eq("user_id", user.id).maybeSingle().then(({ data }) => {
       if (data) setExistingId(data.id);
     });
+    // Prefill profile + banner from user's profile if available
+    supabase.from("profiles").select("display_name, avatar_url, banner_url").eq("id", user.id).maybeSingle().then(({ data }) => {
+      if (!data) return;
+      setForm((f) => ({
+        ...f,
+        display_name: f.display_name || data.display_name || "",
+        profile_image: f.profile_image || data.avatar_url || null,
+        cover_image: f.cover_image || data.banner_url || null,
+      }));
+    });
   }, [user]);
 
   if (authLoading) return null;
