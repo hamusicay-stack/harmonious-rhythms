@@ -98,12 +98,16 @@ function ShortsPage() {
     const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
 
     // Likes & comment counts
-    const { data: likeAgg } = await supabase
-      .from("user_likes").select("item_id")
-      .eq("item_type", "shorts_video")
-      .in("item_id", rows.map((r) => r.id));
+    const ids = rows.map((r) => r.id);
+    const [{ data: likeAgg }, { data: cmtAgg }] = await Promise.all([
+      supabase.from("user_likes").select("item_id").eq("item_type", "shorts_video").in("item_id", ids),
+      supabase.from("shorts_comments").select("video_id").in("video_id", ids),
+    ]);
     const likeCounts = new Map<string, number>();
     for (const l of likeAgg ?? []) likeCounts.set(l.item_id, (likeCounts.get(l.item_id) || 0) + 1);
+    const cmtCounts = new Map<string, number>();
+    for (const c of cmtAgg ?? []) cmtCounts.set(c.video_id, (cmtCounts.get(c.video_id) || 0) + 1);
+    setCommentCounts(cmtCounts);
 
     const list: Short[] = rows.map((r) => {
       const p = pmap.get(r.creator_id);
@@ -116,7 +120,7 @@ function ShortsPage() {
         title: r.title ?? "",
         description: r.description ?? "",
         likes: likeCounts.get(r.id) ?? 0,
-        comments: 0,
+        comments: cmtCounts.get(r.id) ?? 0,
         views: r.views_count ?? 0,
         uploadedAgo: formatAgo(r.created_at),
         isPremium: r.is_premium,
