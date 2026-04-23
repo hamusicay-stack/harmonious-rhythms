@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CartDrawer } from "@/components/shop/CartDrawer";
+import { NotificationsBell } from "@/components/NotificationsBell";
 import { toast } from "sonner";
 
 const navItems = [
@@ -73,6 +74,7 @@ export function SiteHeader() {
             <Search className="h-4 w-4" />
           </Button>
           <CartDrawer />
+          <NotificationsBell />
 
           {user ? (
             <DropdownMenu>
@@ -124,6 +126,7 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
+          <NotificationsBell />
           <CartDrawer />
           <Button
             variant="ghost"
