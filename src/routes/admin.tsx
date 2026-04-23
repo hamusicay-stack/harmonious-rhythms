@@ -207,211 +207,224 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-12">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="dashboard"><LayoutDashboard className="ml-2 h-4 w-4" />דשבורד</TabsTrigger>
-            <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
-            <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
-            <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
-            <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
-            <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
-            <TabsTrigger value="shop"><ShoppingBag className="ml-2 h-4 w-4" />חנות</TabsTrigger>
-            <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
-            <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
-            <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
-            <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
-            <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
+            <TabsTrigger value="crm"><Users className="ml-2 h-4 w-4" />CRM</TabsTrigger>
+            <TabsTrigger value="commerce"><ShoppingBag className="ml-2 h-4 w-4" />חנות ושיווק</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="mt-6">
             <DashboardOverview />
           </TabsContent>
 
-          <TabsContent value="customers" className="mt-6">
-            <Card>
-              <CardHeader className="flex-row items-center justify-between gap-4 space-y-0">
-                <CardTitle>לקוחות ({filteredCustomers.length})</CardTitle>
-                <div className="flex flex-1 items-center gap-2 max-w-md">
-                  <Input placeholder="חיפוש..." value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
-                  <Select value={organFilter} onValueChange={setOrganFilter}>
-                    <SelectTrigger className="w-[180px]"><SelectValue placeholder="דגם אורגן" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">כל הדגמים</SelectItem>
-                      {ORGAN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardHeader>
-              <CardContent className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>שם</TableHead>
-                      <TableHead>אימייל</TableHead>
-                      <TableHead>טלפון</TableHead>
-                      <TableHead>סוג</TableHead>
-                      <TableHead>אורגן</TableHead>
-                      <TableHead>מנוי</TableHead>
-                      <TableHead className="text-end">פעולות</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCustomers.map((c) => (
-                      <TableRow key={c.id}>
-                        <TableCell className="font-medium">{c.display_name || c.full_name || "—"}</TableCell>
-                        <TableCell>{c.email || "—"}</TableCell>
-                        <TableCell>{c.phone || "—"}</TableCell>
-                        <TableCell><Badge variant="outline">{c.user_type}</Badge></TableCell>
-                        <TableCell>{c.organ_model || "—"}</TableCell>
-                        <TableCell><Badge>{c.subscription_tier}</Badge></TableCell>
-                        <TableCell className="text-end">
-                          <div className="flex justify-end gap-2">
-                            <Button asChild size="sm" variant="ghost">
-                              <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
-                                <Eye className="ml-1 h-4 w-4" />כרטיס 360°
-                              </Link>
-                            </Button>
-                            <CustomerEditDialog customer={c} onSaved={loadAll} />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {filteredCustomers.length === 0 && (
-                      <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">אין לקוחות להצגה</TableCell></TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          <TabsContent value="crm" className="mt-6">
+            <Tabs defaultValue="customers" dir="rtl">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+                <TabsTrigger value="customers"><Users className="ml-2 h-4 w-4" />לקוחות</TabsTrigger>
+                <TabsTrigger value="leads"><ClipboardList className="ml-2 h-4 w-4" />לידים</TabsTrigger>
+                <TabsTrigger value="tasks"><CheckCircle2 className="ml-2 h-4 w-4" />משימות</TabsTrigger>
+                <TabsTrigger value="suppliers"><Building2 className="ml-2 h-4 w-4" />ספקים</TabsTrigger>
+                <TabsTrigger value="purchase_orders"><Package className="ml-2 h-4 w-4" />הזמנות רכש</TabsTrigger>
+                <TabsTrigger value="admins"><ShieldCheck className="ml-2 h-4 w-4" />מנהלים</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="customers" className="mt-6">
+                <Card>
+                  <CardHeader className="flex-row items-center justify-between gap-4 space-y-0">
+                    <CardTitle>לקוחות ({filteredCustomers.length})</CardTitle>
+                    <div className="flex flex-1 items-center gap-2 max-w-md">
+                      <Input placeholder="חיפוש..." value={customerSearch} onChange={(e) => setCustomerSearch(e.target.value)} />
+                      <Select value={organFilter} onValueChange={setOrganFilter}>
+                        <SelectTrigger className="w-[180px]"><SelectValue placeholder="דגם אורגן" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">כל הדגמים</SelectItem>
+                          {ORGAN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>שם</TableHead>
+                          <TableHead>אימייל</TableHead>
+                          <TableHead>טלפון</TableHead>
+                          <TableHead>סוג</TableHead>
+                          <TableHead>אורגן</TableHead>
+                          <TableHead>מנוי</TableHead>
+                          <TableHead className="text-end">פעולות</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredCustomers.map((c) => (
+                          <TableRow key={c.id}>
+                            <TableCell className="font-medium">{c.display_name || c.full_name || "—"}</TableCell>
+                            <TableCell>{c.email || "—"}</TableCell>
+                            <TableCell>{c.phone || "—"}</TableCell>
+                            <TableCell><Badge variant="outline">{c.user_type}</Badge></TableCell>
+                            <TableCell>{c.organ_model || "—"}</TableCell>
+                            <TableCell><Badge>{c.subscription_tier}</Badge></TableCell>
+                            <TableCell className="text-end">
+                              <div className="flex justify-end gap-2">
+                                <Button asChild size="sm" variant="ghost">
+                                  <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
+                                    <Eye className="ml-1 h-4 w-4" />כרטיס 360°
+                                  </Link>
+                                </Button>
+                                <CustomerEditDialog customer={c} onSaved={loadAll} />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {filteredCustomers.length === 0 && (
+                          <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">אין לקוחות להצגה</TableCell></TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="leads" className="mt-6">
+                <Card>
+                  <CardHeader className="flex-row items-center justify-between space-y-0">
+                    <CardTitle>לידים ({leads.length})</CardTitle>
+                    <LeadCreateDialog onSaved={loadAll} />
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>שם</TableHead>
+                          <TableHead>אימייל</TableHead>
+                          <TableHead>טלפון</TableHead>
+                          <TableHead>מקור</TableHead>
+                          <TableHead>סטטוס</TableHead>
+                          <TableHead>תאריך</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {leads.map((l) => (
+                          <TableRow key={l.id}>
+                            <TableCell className="font-medium">{l.name}</TableCell>
+                            <TableCell>{l.email || "—"}</TableCell>
+                            <TableCell>{l.phone || "—"}</TableCell>
+                            <TableCell><Badge variant="outline">{l.source}</Badge></TableCell>
+                            <TableCell><LeadStatusSelect lead={l} onChanged={loadAll} /></TableCell>
+                            <TableCell>{new Date(l.created_at).toLocaleDateString("he-IL")}</TableCell>
+                          </TableRow>
+                        ))}
+                        {leads.length === 0 && (
+                          <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">אין לידים להצגה</TableCell></TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="tasks" className="mt-6">
+                <Card>
+                  <CardHeader className="flex-row items-center justify-between space-y-0">
+                    <CardTitle>משימות ({tasks.length})</CardTitle>
+                    <TaskEditDialog customers={customers} onSaved={loadAll} />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {tasks.map((t) => <TaskRow key={t.id} task={t} customers={customers} onChanged={loadAll} />)}
+                      {tasks.length === 0 && <p className="py-8 text-center text-muted-foreground">אין משימות פעילות</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="suppliers" className="mt-6">
+                <Card>
+                  <CardHeader className="flex-row items-center justify-between gap-4 space-y-0">
+                    <CardTitle>ספקים ({filteredSuppliers.length})</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Input placeholder="חיפוש..." value={supplierSearch} onChange={(e) => setSupplierSearch(e.target.value)} className="w-64" />
+                      <SupplierEditDialog onSaved={loadAll} />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>חברה</TableHead>
+                          <TableHead>איש קשר</TableHead>
+                          <TableHead>אימייל</TableHead>
+                          <TableHead>טלפון</TableHead>
+                          <TableHead>קטגוריה</TableHead>
+                          <TableHead>סטטוס</TableHead>
+                          <TableHead className="text-end">פעולות</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredSuppliers.map((s) => (
+                          <TableRow key={s.id}>
+                            <TableCell className="font-medium">{s.company_name}</TableCell>
+                            <TableCell>{s.contact_name || "—"}</TableCell>
+                            <TableCell>{s.email || "—"}</TableCell>
+                            <TableCell>{s.phone || "—"}</TableCell>
+                            <TableCell><Badge variant="outline">{s.category}</Badge></TableCell>
+                            <TableCell>{s.is_active ? <Badge>פעיל</Badge> : <Badge variant="secondary">לא פעיל</Badge>}</TableCell>
+                            <TableCell className="text-end"><SupplierEditDialog supplier={s} onSaved={loadAll} /></TableCell>
+                          </TableRow>
+                        ))}
+                        {filteredSuppliers.length === 0 && (
+                          <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">אין ספקים להצגה</TableCell></TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="purchase_orders" className="mt-6">
+                <SupplierOrdersManager />
+              </TabsContent>
+
+              <TabsContent value="admins" className="mt-6">
+                <AdminsManager />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
-          <TabsContent value="leads" className="mt-6">
-            <Card>
-              <CardHeader className="flex-row items-center justify-between space-y-0">
-                <CardTitle>לידים ({leads.length})</CardTitle>
-                <LeadCreateDialog onSaved={loadAll} />
-              </CardHeader>
-              <CardContent className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>שם</TableHead>
-                      <TableHead>אימייל</TableHead>
-                      <TableHead>טלפון</TableHead>
-                      <TableHead>מקור</TableHead>
-                      <TableHead>סטטוס</TableHead>
-                      <TableHead>תאריך</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leads.map((l) => (
-                      <TableRow key={l.id}>
-                        <TableCell className="font-medium">{l.name}</TableCell>
-                        <TableCell>{l.email || "—"}</TableCell>
-                        <TableCell>{l.phone || "—"}</TableCell>
-                        <TableCell><Badge variant="outline">{l.source}</Badge></TableCell>
-                        <TableCell>
-                          <LeadStatusSelect lead={l} onChanged={loadAll} />
-                        </TableCell>
-                        <TableCell>{new Date(l.created_at).toLocaleDateString("he-IL")}</TableCell>
-                      </TableRow>
-                    ))}
-                    {leads.length === 0 && (
-                      <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">אין לידים להצגה</TableCell></TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          <TabsContent value="commerce" className="mt-6">
+            <Tabs defaultValue="shop" dir="rtl">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-5">
+                <TabsTrigger value="shop"><ShoppingBag className="ml-2 h-4 w-4" />חנות</TabsTrigger>
+                <TabsTrigger value="marketplace"><Tags className="ml-2 h-4 w-4" />יד 2</TabsTrigger>
+                <TabsTrigger value="music_pros"><Music2 className="ml-2 h-4 w-4" />מוזיקאים</TabsTrigger>
+                <TabsTrigger value="automations"><Zap className="ml-2 h-4 w-4" />אוטומציות</TabsTrigger>
+                <TabsTrigger value="banners"><Megaphone className="ml-2 h-4 w-4" />פרסומות</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="suppliers" className="mt-6">
-            <Card>
-              <CardHeader className="flex-row items-center justify-between gap-4 space-y-0">
-                <CardTitle>ספקים ({filteredSuppliers.length})</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Input placeholder="חיפוש..." value={supplierSearch} onChange={(e) => setSupplierSearch(e.target.value)} className="w-64" />
-                  <SupplierEditDialog onSaved={loadAll} />
-                </div>
-              </CardHeader>
-              <CardContent className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>חברה</TableHead>
-                      <TableHead>איש קשר</TableHead>
-                      <TableHead>אימייל</TableHead>
-                      <TableHead>טלפון</TableHead>
-                      <TableHead>קטגוריה</TableHead>
-                      <TableHead>סטטוס</TableHead>
-                      <TableHead className="text-end">פעולות</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredSuppliers.map((s) => (
-                      <TableRow key={s.id}>
-                        <TableCell className="font-medium">{s.company_name}</TableCell>
-                        <TableCell>{s.contact_name || "—"}</TableCell>
-                        <TableCell>{s.email || "—"}</TableCell>
-                        <TableCell>{s.phone || "—"}</TableCell>
-                        <TableCell><Badge variant="outline">{s.category}</Badge></TableCell>
-                        <TableCell>{s.is_active ? <Badge>פעיל</Badge> : <Badge variant="secondary">לא פעיל</Badge>}</TableCell>
-                        <TableCell className="text-end"><SupplierEditDialog supplier={s} onSaved={loadAll} /></TableCell>
-                      </TableRow>
-                    ))}
-                    {filteredSuppliers.length === 0 && (
-                      <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">אין ספקים להצגה</TableCell></TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="tasks" className="mt-6">
-            <Card>
-              <CardHeader className="flex-row items-center justify-between space-y-0">
-                <CardTitle>משימות ({tasks.length})</CardTitle>
-                <TaskEditDialog customers={customers} onSaved={loadAll} />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {tasks.map((t) => (
-                    <TaskRow key={t.id} task={t} customers={customers} onChanged={loadAll} />
-                  ))}
-                  {tasks.length === 0 && (
-                    <p className="py-8 text-center text-muted-foreground">אין משימות פעילות</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="purchase_orders" className="mt-6">
-            <SupplierOrdersManager />
-          </TabsContent>
-          <TabsContent value="shop" className="mt-6">
-            <ShopManager />
-          </TabsContent>
-          <TabsContent value="marketplace" className="mt-6 space-y-6">
-            <MarketplaceSettings />
-            <MarketplaceCategoriesManager />
-            <BusinessSellersManager />
-            <MarketplaceManager />
-            <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-500" />דיווחי משתמשים</CardTitle></CardHeader>
-              <CardContent><ReportsManager /></CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="music_pros" className="mt-6">
-            <MusicProsManager />
-          </TabsContent>
-          <TabsContent value="automations" className="mt-6">
-            <AutomationsManager />
-          </TabsContent>
-          <TabsContent value="banners" className="mt-6">
-            <BannersManager />
-          </TabsContent>
-          <TabsContent value="admins" className="mt-6">
-            <AdminsManager />
+              <TabsContent value="shop" className="mt-6">
+                <ShopManager />
+              </TabsContent>
+              <TabsContent value="marketplace" className="mt-6 space-y-6">
+                <MarketplaceSettings />
+                <MarketplaceCategoriesManager />
+                <BusinessSellersManager />
+                <MarketplaceManager />
+                <Card>
+                  <CardHeader><CardTitle className="flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-500" />דיווחי משתמשים</CardTitle></CardHeader>
+                  <CardContent><ReportsManager /></CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="music_pros" className="mt-6">
+                <MusicProsManager />
+              </TabsContent>
+              <TabsContent value="automations" className="mt-6">
+                <AutomationsManager />
+              </TabsContent>
+              <TabsContent value="banners" className="mt-6">
+                <BannersManager />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </section>
