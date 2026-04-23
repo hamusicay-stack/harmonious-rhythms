@@ -229,14 +229,20 @@ function ShortsPage() {
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
     const onEnd = () => {
-      // Auto-advance to NEXT creator's video (skip remaining of same creator)
+      // When video ends: prefer NEXT video of the SAME creator.
+      // If none remain, jump to the next creator's first video.
       setActiveIndex((i) => {
         const cur = shorts[i];
         if (!cur) return (i + 1) % Math.max(shorts.length, 1);
+        // 1) Next video of same creator
+        for (let k = i + 1; k < shorts.length; k++) {
+          if (shorts[k].creator_id === cur.creator_id) return k;
+        }
+        // 2) Next different creator
         for (let k = i + 1; k < shorts.length; k++) {
           if (shorts[k].creator_id !== cur.creator_id) return k;
         }
-        // None ahead → wrap to first different creator from start
+        // 3) Wrap to first different creator from the start
         for (let k = 0; k < i; k++) {
           if (shorts[k].creator_id !== cur.creator_id) return k;
         }
@@ -297,12 +303,19 @@ function ShortsPage() {
     if (sy == null || sx == null) return;
     const dy = e.changedTouches[0].clientY - sy;
     const dx = e.changedTouches[0].clientX - sx;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      if (Math.abs(dx) < 50) return;
-      // RTL: swipe right = previous creator, swipe left = next creator
+    // Require a clear, intentional swipe (not a tap/scroll jitter).
+    // Thresholds are intentionally large so mid-video micro-movements
+    // do NOT change the video.
+    const V_THRESHOLD = 120;
+    const H_THRESHOLD = 140;
+    const absX = Math.abs(dx), absY = Math.abs(dy);
+    if (absX < H_THRESHOLD && absY < V_THRESHOLD) return;
+    if (absX > absY * 1.3) {
+      if (absX < H_THRESHOLD) return;
+      // RTL: swipe left = next creator, swipe right = previous creator
       if (dx < 0) goNextCreator(); else goPrevCreator();
     } else {
-      if (Math.abs(dy) < 50) return;
+      if (absY < V_THRESHOLD) return;
       if (dy < 0) goNext(); else goPrev();
     }
   };
@@ -555,23 +568,23 @@ function StoryRow({
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-500",
+              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-700 ease-out",
               s.isPremium
-                ? "bg-gradient-to-tr from-primary via-primary-glow to-primary"
-                : "bg-gradient-to-tr from-muted-foreground/40 to-muted",
-              active && "scale-110 shadow-gold",
+                ? "bg-gradient-to-tr from-primary/70 via-primary-glow/70 to-primary/70"
+                : "bg-gradient-to-tr from-muted-foreground/30 to-muted",
+              active && "scale-105",
             )}>
               {active && (
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -inset-1 rounded-full"
+                  className="pointer-events-none absolute -inset-0.5 rounded-full opacity-70"
                   style={{
                     background:
-                      "conic-gradient(from 0deg, oklch(0.78 0.14 75), oklch(0.85 0.18 80), oklch(0.78 0.14 75), transparent 70%)",
+                      "conic-gradient(from 0deg, oklch(0.82 0.10 78 / 0.9), transparent 60%, oklch(0.82 0.10 78 / 0.9))",
                     WebkitMask:
-                      "radial-gradient(circle, transparent 56%, black 58%)",
-                    mask: "radial-gradient(circle, transparent 56%, black 58%)",
-                    animation: "spin 2.4s linear infinite",
+                      "radial-gradient(circle, transparent 60%, black 62%)",
+                    mask: "radial-gradient(circle, transparent 60%, black 62%)",
+                    animation: "spin 6s linear infinite",
                   }}
                 />
               )}
@@ -684,10 +697,10 @@ function VideoPlayer(props: VideoPlayerProps) {
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pr-20 text-white">
         <div className="mb-2 flex items-center gap-2">
           <div className={cn(
-            "rounded-full p-[3px] transition-all duration-700",
+            "rounded-full p-[2px] transition-all duration-700 ease-out",
             creatorChanged
-              ? "bg-gradient-to-tr from-primary via-primary-glow to-primary scale-125 shadow-gold animate-pulse ring-4 ring-primary/50"
-              : "bg-white/40",
+              ? "bg-gradient-to-tr from-primary/70 to-primary-glow/70 scale-105 ring-2 ring-primary/30"
+              : "bg-white/30",
           )}>
             <Avatar className="h-10 w-10 border-2 border-background">
               <AvatarImage src={short.creator.avatar || undefined} />
