@@ -144,10 +144,9 @@ function ShortsPage() {
       ]);
       const isAdmin = (roles ?? []).some((r) => r.role === "admin");
       const isTrusted = !!trusted;
-      const isPremium = profile?.subscription_tier && profile.subscription_tier !== "free";
       // Anyone logged in can upload — content goes through approval if required
       setCanUpload(true);
-      void isAdmin; void isTrusted; void isPremium; void settings;
+      void isAdmin; void isTrusted; void settings;
     })();
   }, [user, profile]);
 
