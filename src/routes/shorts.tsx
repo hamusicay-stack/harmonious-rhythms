@@ -407,7 +407,14 @@ function VideoPlayer({
   );
 }
 
-function ActionBtn({ icon, label, onClick, accent }: { icon: React.ReactNode; label: string; onClick: () => void; accent?: boolean }) {
+type ActionBtnProps = {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  accent?: boolean;
+};
+
+function ActionBtn({ icon, label, onClick, accent }: ActionBtnProps) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 text-white">
       <div className={cn(
