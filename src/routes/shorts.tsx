@@ -72,9 +72,12 @@ function ShortsPage() {
   const [creatorChanged, setCreatorChanged] = useState(false);
   const [canUpload, setCanUpload] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentCounts, setCommentCounts] = useState<Map<string, number>>(new Map());
   const videoRef = useRef<HTMLVideoElement>(null);
   const storyRowRef = useRef<HTMLDivElement>(null);
   const prevCreatorIdRef = useRef<string | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const loadShorts = useCallback(async () => {
     setLoading(true);
