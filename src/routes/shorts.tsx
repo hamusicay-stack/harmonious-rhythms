@@ -229,14 +229,20 @@ function ShortsPage() {
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
     const onEnd = () => {
-      // Auto-advance to NEXT creator's video (skip remaining of same creator)
+      // When video ends: prefer NEXT video of the SAME creator.
+      // If none remain, jump to the next creator's first video.
       setActiveIndex((i) => {
         const cur = shorts[i];
         if (!cur) return (i + 1) % Math.max(shorts.length, 1);
+        // 1) Next video of same creator
+        for (let k = i + 1; k < shorts.length; k++) {
+          if (shorts[k].creator_id === cur.creator_id) return k;
+        }
+        // 2) Next different creator
         for (let k = i + 1; k < shorts.length; k++) {
           if (shorts[k].creator_id !== cur.creator_id) return k;
         }
-        // None ahead → wrap to first different creator from start
+        // 3) Wrap to first different creator from the start
         for (let k = 0; k < i; k++) {
           if (shorts[k].creator_id !== cur.creator_id) return k;
         }
