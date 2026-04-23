@@ -1300,6 +1300,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          followed_activity_prompt_seen: boolean
+          notify_comment: boolean
+          notify_follow: boolean
+          notify_followed_user_activity: boolean
+          notify_inquiry: boolean
+          notify_like: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          followed_activity_prompt_seen?: boolean
+          notify_comment?: boolean
+          notify_follow?: boolean
+          notify_followed_user_activity?: boolean
+          notify_inquiry?: boolean
+          notify_like?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          followed_activity_prompt_seen?: boolean
+          notify_comment?: boolean
+          notify_follow?: boolean
+          notify_followed_user_activity?: boolean
+          notify_inquiry?: boolean
+          notify_like?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -2740,6 +2773,10 @@ export type Database = {
           event_type: string
           total: number
         }[]
+      }
+      get_notif_pref: {
+        Args: { _kind: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {
