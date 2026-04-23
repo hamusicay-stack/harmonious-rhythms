@@ -1,8 +1,41 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { routeTree } from "./routeTree.gen";
+
+// Detect stale chunk / dynamic import failures (after deploy or HMR) and auto-recover
+const isChunkLoadError = (err: unknown) => {
+  const msg = err instanceof Error ? err.message : String(err ?? "");
+  return /Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk \d+ failed/i.test(msg);
+};
+
+if (typeof window !== "undefined") {
+  const RELOAD_KEY = "__chunk_reload_at";
+  const tryReload = () => {
+    const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
+    // Avoid reload loop: at most once per 10s
+    if (Date.now() - last > 10_000) {
+      sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+      window.location.reload();
+    }
+  };
+  window.addEventListener("error", (e) => { if (isChunkLoadError(e.error || e.message)) tryReload(); });
+  window.addEventListener("unhandledrejection", (e) => { if (isChunkLoadError(e.reason)) tryReload(); });
+}
+
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+
+  // Auto-reload on stale chunk errors instead of showing the error screen
+  useEffect(() => {
+    if (isChunkLoadError(error)) {
+      const last = Number(sessionStorage.getItem("__chunk_reload_at") || 0);
+      if (Date.now() - last > 10_000) {
+        sessionStorage.setItem("__chunk_reload_at", String(Date.now()));
+        window.location.reload();
+      }
+    }
+  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
