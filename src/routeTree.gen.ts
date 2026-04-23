@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as ShortsRouteImport } from './routes/shorts'
+import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -45,6 +46,11 @@ import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/p
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShortsRoute = ShortsRouteImport.update({
+  id: '/shorts',
+  path: '/shorts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShortsRoute = ShortsRouteImport.update({
