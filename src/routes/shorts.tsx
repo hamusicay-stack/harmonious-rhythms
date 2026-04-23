@@ -335,7 +335,7 @@ function ShortsPage() {
                 onToggleMute={() => setIsMuted((m) => !m)}
                 onLike={() => toggleLike(current.id)}
                 onShare={shareWhatsApp}
-                onComment={() => toast.info("תגובות בקרוב")}
+                onComment={() => setCommentsOpen(true)}
                 fmt={fmt}
               />
             )}
@@ -357,7 +357,7 @@ function ShortsPage() {
           </aside>
         </div>
 
-        <div className="lg:hidden">
+        <div className="lg:hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
           <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} />
           {current && (
             <VideoPlayer
@@ -372,13 +372,29 @@ function ShortsPage() {
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
               onShare={shareWhatsApp}
-              onComment={() => toast.info("תגובות בקרוב")}
+              onComment={() => setCommentsOpen(true)}
               fmt={fmt}
               mobileFull
             />
           )}
+          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא</p>
         </div>
       </div>
+
+      <CommentsSheet
+        open={commentsOpen}
+        onOpenChange={setCommentsOpen}
+        videoId={current?.id ?? null}
+        onCountChange={(n) => {
+          if (!current) return;
+          setCommentCounts((prev) => {
+            const next = new Map(prev);
+            next.set(current.id, n);
+            return next;
+          });
+          setShorts((prev) => prev.map((s) => s.id === current.id ? { ...s, comments: n } : s));
+        }}
+      />
     </div>
   );
 }
