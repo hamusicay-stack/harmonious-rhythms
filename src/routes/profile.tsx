@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { labelOf, SPECIALTIES } from "@/lib/prosData";
+import { NotificationsList } from "@/components/NotificationsList";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
