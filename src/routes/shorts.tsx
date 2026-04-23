@@ -572,9 +572,41 @@ function ShortsPage() {
           </aside>
         </div>
 
-        <div className="lg:hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-          <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} />
-          {current && (
+        {/* Mobile placeholder spacer (real player rendered below as fixed full-screen) */}
+        <div className="lg:hidden h-[1px]" aria-hidden />
+      </div>
+
+      {/* MOBILE FULL-SCREEN STAGE */}
+      <div
+        className="lg:hidden shorts-stage"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Floating top stories overlay */}
+        <div className="pointer-events-auto absolute inset-x-0 top-0 z-30 bg-gradient-to-b from-black/75 via-black/40 to-transparent pb-6 pt-[max(env(safe-area-inset-top),0.5rem)]">
+          <div className="flex items-center justify-between px-3 pb-2">
+            <div className="flex items-center gap-2 text-white">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary-glow shadow-gold">
+                <Music2 className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="font-display text-sm font-bold">שורטס</span>
+            </div>
+            <Link to="/" className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-sm hover:bg-white/20" aria-label="סגור">
+              <X className="h-4 w-4" />
+            </Link>
+          </div>
+          <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} compact />
+        </div>
+
+        {current && (
+          <div
+            className="absolute inset-0 will-change-transform"
+            style={{
+              transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`,
+              transition: dragging ? "none" : "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
             <VideoPlayer
               short={current}
               videoRef={videoRef}
@@ -584,6 +616,7 @@ function ShortsPage() {
               liked={likedSet.has(current.id)}
               creatorChanged={creatorChanged}
               slideDir={slideDir}
+              heartPulse={heartPulse}
               onTogglePlay={togglePlay}
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
@@ -591,11 +624,10 @@ function ShortsPage() {
               onComment={() => setCommentsOpen(true)}
               fmt={fmt}
               mobileFull
+              fullScreen
             />
-          )}
-          <p className="mt-2 text-center text-xs text-muted-foreground">החלק למעלה/למטה לסרטון הבא • שמאלה/ימינה למעבר בין יוצרים</p>
-        </div>
-      </div>
+          </div>
+        )}
 
       <CommentsSheet
         open={commentsOpen}
