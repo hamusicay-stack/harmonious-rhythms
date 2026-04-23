@@ -568,11 +568,11 @@ function StoryRow({
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-500",
+              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-700 ease-out",
               s.isPremium
-                ? "bg-gradient-to-tr from-primary via-primary-glow to-primary"
-                : "bg-gradient-to-tr from-muted-foreground/40 to-muted",
-              active && "scale-110 shadow-gold",
+                ? "bg-gradient-to-tr from-primary/70 via-primary-glow/70 to-primary/70"
+                : "bg-gradient-to-tr from-muted-foreground/30 to-muted",
+              active && "scale-105",
             )}>
               {active && (
                 <span
