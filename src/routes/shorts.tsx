@@ -326,6 +326,12 @@ function ShortsPage() {
     dragAxis.current = null;
     dragStartTime.current = Date.now();
     setDragging(true);
+    // First user interaction: unmute so device volume controls take over
+    if (isMuted) {
+      setIsMuted(false);
+      const v = videoRef.current;
+      if (v) v.muted = false;
+    }
   };
   const handleTouchMove = (e: React.TouchEvent) => {
     const sy = touchStartY.current, sx = touchStartX.current;
