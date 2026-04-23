@@ -203,8 +203,51 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
     }
   };
 
+  const uploadImage = async (file: File, kind: "avatar" | "banner") => {
+    if (!user) return;
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `${user.id}/${kind}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("profile-banners").upload(path, file, { upsert: true, cacheControl: "3600" });
+    if (upErr) { toast.error(upErr.message); return; }
+    const { data: pub } = supabase.storage.from("profile-banners").getPublicUrl(path);
+    const url = pub.publicUrl;
+    const { error } = await supabase.from("profiles").update(kind === "avatar" ? { avatar_url: url } : { banner_url: url }).eq("id", user.id);
+    if (error) { toast.error(error.message); return; }
+    await refreshProfile();
+    toast.success(kind === "avatar" ? "תמונת הפרופיל עודכנה" : "הבאנר עודכן");
+  };
+
   return (
     <form onSubmit={handleSave} className="space-y-6 rounded-3xl border border-border/60 bg-card-elevated p-6 shadow-elegant md:p-8">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label>תמונת פרופיל</Label>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-16 w-16 border border-border">
+              <AvatarImage src={profile?.avatar_url ?? undefined} />
+              <AvatarFallback>?</AvatarFallback>
+            </Avatar>
+            <label className="cursor-pointer rounded-md border border-input px-3 py-2 text-sm hover:bg-accent">
+              העלה תמונה
+              <input type="file" accept="image/*" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f, "avatar"); e.target.value = ""; }} />
+            </label>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>באנר פרופיל</Label>
+          <div className="flex items-center gap-3">
+            <div className="h-16 w-28 rounded-md border border-border bg-muted overflow-hidden">
+              {profile?.banner_url && <img src={profile.banner_url} alt="" className="h-full w-full object-cover" />}
+            </div>
+            <label className="cursor-pointer rounded-md border border-input px-3 py-2 text-sm hover:bg-accent">
+              העלה באנר
+              <input type="file" accept="image/*" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f, "banner"); e.target.value = ""; }} />
+            </label>
+          </div>
+        </div>
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="display_name">שם תצוגה</Label>
