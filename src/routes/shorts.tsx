@@ -679,7 +679,8 @@ function StoryRow({
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative h-16 w-16 rounded-full p-[2px] transition-all duration-700 ease-out",
+              "relative rounded-full p-[2px] transition-all duration-700 ease-out animate-fade-in",
+              compact ? "h-12 w-12" : "h-16 w-16",
               s.isPremium
                 ? "bg-gradient-to-tr from-primary/70 via-primary-glow/70 to-primary/70"
                 : "bg-gradient-to-tr from-muted-foreground/30 to-muted",
