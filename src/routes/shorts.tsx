@@ -653,19 +653,22 @@ function ShortsPage() {
 
 /* ---------- STORY ROW ---------- */
 function StoryRow({
-  shorts, activeIndex, progress, onSelect, rowRef,
+  shorts, activeIndex, progress, onSelect, rowRef, compact,
 }: {
   shorts: Short[]; activeIndex: number; progress: number;
   onSelect: (i: number) => void; rowRef: React.RefObject<HTMLDivElement | null>;
+  compact?: boolean;
 }) {
   return (
-    <div ref={rowRef} className="mb-4 flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
+    <div ref={rowRef} className={cn("flex gap-3 overflow-x-auto pb-2 scrollbar-thin shorts-snap-x", compact ? "px-3" : "mb-4 pb-3")}>
+      {!compact && (
       <button className="flex shrink-0 flex-col items-center gap-1.5">
         <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-card hover:border-primary">
           <Plus className="h-6 w-6 text-primary" />
         </div>
         <span className="text-xs font-medium">אתה</span>
       </button>
+      )}
       {shorts.map((s, i) => {
         const active = i === activeIndex;
         return (
