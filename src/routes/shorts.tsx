@@ -230,6 +230,7 @@ function ShortsPage() {
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
     const onEnd = () => {
+      setSlideDir("up");
       // When video ends: prefer NEXT video of the SAME creator.
       // If none remain, jump to the next creator's first video.
       setActiveIndex((i) => {
