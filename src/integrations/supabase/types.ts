@@ -3100,6 +3100,17 @@ export type Database = {
           read_ct: number
         }[]
       }
+      record_affiliate_conversion: {
+        Args: {
+          _notes?: string
+          _order_amount: number
+          _ref_code: string
+          _scope_id: string
+          _scope_type: string
+          _user_id?: string
+        }
+        Returns: string
+      }
       track_banner_event: {
         Args: { _banner_id: string; _event_type: string }
         Returns: undefined
