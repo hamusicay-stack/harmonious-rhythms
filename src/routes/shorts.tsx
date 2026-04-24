@@ -1258,6 +1258,35 @@ function UploadDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Premium upsell when free user hits the daily quota */}
+      <Dialog open={showUpsell} onOpenChange={setShowUpsell}>
+        <DialogContent className="max-w-md text-center">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-center gap-2 text-2xl">
+              <Crown className="h-6 w-6 text-primary" />
+              הגעת למכסה היומית
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              העלית כבר סרטון אחד ב-24 השעות האחרונות. תוכל להעלות שוב ב-
+              <strong className="text-foreground"> {nextAllowedAt ? nextAllowedAt.toLocaleString("he-IL", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }) : ""}</strong>.
+            </p>
+            <div className="rounded-xl border bg-gradient-to-br from-primary/15 via-background to-primary-glow/10 p-5 space-y-2">
+              <h3 className="font-display text-lg font-bold">רוצה להעלות ללא הגבלה?</h3>
+              <p className="text-sm text-muted-foreground">
+                מנוי פרימיום פותח <strong>העלאות ללא הגבלה</strong>, תזמון סרטונים, וחשיפה כפולה בפיד.
+              </p>
+              <Button asChild className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold w-full">
+                <Link to="/profile" onClick={() => setShowUpsell(false)}>
+                  <Crown className="ml-1 h-4 w-4" />הצטרף לפרימיום
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
