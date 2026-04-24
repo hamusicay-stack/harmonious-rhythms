@@ -64,12 +64,23 @@ const formatAgo = (iso: string) => {
   return `לפני ${d} ימים`;
 };
 
+type FeedTab = "all" | "following";
+
+type CreatorGroup = {
+  creator_id: string;
+  creator: { name: string; avatar: string | null };
+  videos: Short[];
+};
+
 function ShortsPage() {
   const { user, profile } = useAuth();
   const [shorts, setShorts] = useState<Short[]>([]);
+  const [followedCreatorIds, setFollowedCreatorIds] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState<FeedTab>("all");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [creatorIndex, setCreatorIndex] = useState(0);
+  const [videoIndex, setVideoIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
