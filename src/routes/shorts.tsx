@@ -868,6 +868,8 @@ type VideoPlayerProps = {
   creatorChanged: boolean;
   slideDir: "up" | "down" | "left" | "right" | null;
   heartPulse?: number;
+  videoIndex?: number;
+  videoCount?: number;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onLike: () => void;
@@ -881,6 +883,7 @@ type VideoPlayerProps = {
 function VideoPlayer(props: VideoPlayerProps) {
   const {
     short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir, heartPulse,
+    videoIndex = 0, videoCount = 0,
     onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull, fullScreen,
   } = props;
 
