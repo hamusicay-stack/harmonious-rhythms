@@ -923,6 +923,7 @@ function VideoPlayer(props: VideoPlayerProps) {
         playsInline
         className="h-full w-full object-cover"
         onClick={onTogglePlay}
+        onDoubleClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!liked) onLike(); }}
       />
 
       {/* Top segmented progress bar — one segment per video of the current creator */}
