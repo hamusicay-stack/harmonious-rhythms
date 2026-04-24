@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatILS } from "@/lib/shopUtils";
 import { supabase } from "@/integrations/supabase/client";
+import { getActiveRefCode } from "@/lib/affiliate";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/checkout")({
@@ -99,6 +100,21 @@ function CheckoutPage() {
       }));
       const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems);
       if (itemsErr) throw itemsErr;
+
+      // Affiliate conversion tracking — if a ref cookie exists, record one conversion per product
+      const refCode = getActiveRefCode();
+      if (refCode) {
+        await Promise.all(items.map((it) =>
+          supabase.rpc("record_affiliate_conversion", {
+            _ref_code: refCode,
+            _scope_type: "shop_product",
+            _scope_id: it.id,
+            _order_amount: it.price * it.qty,
+            _user_id: user?.id ?? undefined,
+            _notes: `order:${order.order_number}`,
+          }).then(({ error }) => { if (error) console.warn("affiliate conv error", error); })
+        ));
+      }
 
       clear();
       toast.success("ההזמנה נקלטה!");

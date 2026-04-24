@@ -1087,6 +1087,8 @@ function UploadDialog({
   const [tagDraft, setTagDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
+  const [nextAllowedAt, setNextAllowedAt] = useState<Date | null>(null);
 
   const addTag = (raw: string) => {
     const t = raw.trim().replace(/^#+/, "").replace(/\s+/g, "_").slice(0, 30);
@@ -1110,11 +1112,47 @@ function UploadDialog({
     setFile(nextFile);
   };
 
+  /** Returns true if the user is allowed to upload now; false if quota hit (sets upsell dialog). */
+  const checkQuota = async (): Promise<boolean> => {
+    if (!user) return false;
+    // Bypass for admin / trusted / premium
+    const [{ data: roles }, { data: trusted }, { data: prof }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+      supabase.from("shorts_trusted_uploaders").select("id").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("subscription_tier").eq("id", user.id).maybeSingle(),
+    ]);
+    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+    const isTrusted = !!trusted;
+    const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
+    const isPremium = tier === "premium" || tier === "vip" || tier === "pro";
+    if (isAdmin || isTrusted || isPremium) return true;
+
+    // Free user — 1 video per 24h since the most recent upload
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: recent } = await supabase
+      .from("shorts_videos")
+      .select("created_at")
+      .eq("creator_id", user.id)
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (recent && recent.length > 0) {
+      const next = new Date(new Date(recent[0].created_at).getTime() + 24 * 60 * 60 * 1000);
+      setNextAllowedAt(next);
+      setShowUpsell(true);
+      return false;
+    }
+    return true;
+  };
+
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (!title.trim()) { toast.error("כותרת חובה"); return; }
     if (!file) { toast.error("יש לבחור סרטון"); return; }
     if (file.size > MAX_SHORT_FILE_SIZE) { toast.error("גודל מקסימלי 60MB"); return; }
+
+    const allowed = await checkQuota();
+    if (!allowed) return;
 
     setUploading(true);
     const ext = file.name.split(".").pop() || "mp4";
@@ -1220,6 +1258,35 @@ function UploadDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Premium upsell when free user hits the daily quota */}
+      <Dialog open={showUpsell} onOpenChange={setShowUpsell}>
+        <DialogContent className="max-w-md text-center">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-center gap-2 text-2xl">
+              <Crown className="h-6 w-6 text-primary" />
+              הגעת למכסה היומית
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              העלית כבר סרטון אחד ב-24 השעות האחרונות. תוכל להעלות שוב ב-
+              <strong className="text-foreground"> {nextAllowedAt ? nextAllowedAt.toLocaleString("he-IL", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }) : ""}</strong>.
+            </p>
+            <div className="rounded-xl border bg-gradient-to-br from-primary/15 via-background to-primary-glow/10 p-5 space-y-2">
+              <h3 className="font-display text-lg font-bold">רוצה להעלות ללא הגבלה?</h3>
+              <p className="text-sm text-muted-foreground">
+                מנוי פרימיום פותח <strong>העלאות ללא הגבלה</strong>, תזמון סרטונים, וחשיפה כפולה בפיד.
+              </p>
+              <Button asChild className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold w-full">
+                <Link to="/profile" onClick={() => setShowUpsell(false)}>
+                  <Crown className="ml-1 h-4 w-4" />הצטרף לפרימיום
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
