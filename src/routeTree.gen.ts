@@ -32,6 +32,7 @@ import { Route as ProsNewRouteImport } from './routes/pros.new'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
+import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
@@ -157,6 +158,11 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   path: '/$listingId',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
+  id: '/podcasts',
+  path: '/podcasts',
+  getParentRoute: () => AcademyRoute,
+} as any)
 const ShopOrderOrderIdRoute = ShopOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
@@ -212,7 +218,7 @@ const ApiPublicMarketplaceAutoBumpRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/academy': typeof AcademyRoute
+  '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/academy/podcasts': typeof AcademyPodcastsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -246,7 +253,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/academy': typeof AcademyRoute
+  '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/academy/podcasts': typeof AcademyPodcastsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -278,7 +286,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/academy': typeof AcademyRoute
+  '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/academy/podcasts': typeof AcademyPodcastsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/shorts'
     | '/store'
+    | '/academy/podcasts'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shorts'
     | '/store'
+    | '/academy/podcasts'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/shorts'
     | '/store'
+    | '/academy/podcasts'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -414,7 +426,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AcademyRoute: typeof AcademyRoute
+  AcademyRoute: typeof AcademyRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
@@ -595,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof MarketplaceRoute
     }
+    '/academy/podcasts': {
+      id: '/academy/podcasts'
+      path: '/podcasts'
+      fullPath: '/academy/podcasts'
+      preLoaderRoute: typeof AcademyPodcastsRouteImport
+      parentRoute: typeof AcademyRoute
+    }
     '/shop/order/$orderId': {
       id: '/shop/order/$orderId'
       path: '/order/$orderId'
@@ -660,6 +679,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AcademyRouteChildren {
+  AcademyPodcastsRoute: typeof AcademyPodcastsRoute
+}
+
+const AcademyRouteChildren: AcademyRouteChildren = {
+  AcademyPodcastsRoute: AcademyPodcastsRoute,
+}
+
+const AcademyRouteWithChildren =
+  AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminRouteChildren {
   AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
@@ -745,7 +775,7 @@ const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AcademyRoute: AcademyRoute,
+  AcademyRoute: AcademyRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
@@ -766,12 +796,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
