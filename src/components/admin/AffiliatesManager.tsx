@@ -196,10 +196,10 @@ function Conversions() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const setStatus = async (id: string, status: string) => {
-    const patch: Record<string, unknown> = { status };
-    if (status === "approved") patch.approved_at = new Date().toISOString();
-    if (status === "paid") patch.paid_at = new Date().toISOString();
+  const setStatus = async (id: string, newStatus: string) => {
+    const patch: { status: string; approved_at?: string; paid_at?: string } = { status: newStatus };
+    if (newStatus === "approved") patch.approved_at = new Date().toISOString();
+    if (newStatus === "paid") patch.paid_at = new Date().toISOString();
     const { error } = await supabase.from("affiliate_conversions").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("עודכן"); load();
