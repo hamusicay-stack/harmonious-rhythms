@@ -1053,18 +1053,15 @@ type ActionBtnProps = {
   label: string;
   onClick: () => void;
   accent?: boolean;
-  pop?: number;
 };
 
-function ActionBtn({ icon, label, onClick, accent, pop }: ActionBtnProps) {
+function ActionBtn({ icon, label, onClick, accent }: ActionBtnProps) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 text-white">
       <div
-        key={pop}
         className={cn(
           "flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md ring-1 ring-white/15 transition hover:scale-110",
           accent ? "bg-emerald-500/90 hover:bg-emerald-500" : "bg-black/35 hover:bg-black/55",
-          pop !== undefined && pop > 0 ? "animate-heart-pop" : "",
         )}
       >
         {icon}
