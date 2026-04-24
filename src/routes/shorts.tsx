@@ -984,10 +984,9 @@ function VideoPlayer(props: VideoPlayerProps) {
 
       <div className={cn("absolute z-20 flex flex-col items-center gap-4", fullScreen ? "bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-2" : "bottom-20 right-3")}>
         <ActionBtn
-          icon={<Heart className={cn("h-6 w-6", liked && "fill-rose-500 text-rose-500")} />}
+          icon={<Heart className={cn("h-6 w-6 transition-all", liked && "fill-rose-500 text-rose-500 scale-110")} />}
           label={fmt(short.likes + (liked ? 1 : 0))}
           onClick={onLike}
-          pop={heartPulse}
         />
         <ActionBtn icon={<MessageCircle className="h-6 w-6" />} label={fmt(short.comments)} onClick={onComment} />
         <ActionBtn
