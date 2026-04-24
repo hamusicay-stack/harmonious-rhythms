@@ -21,6 +21,7 @@ import { HashtagText } from "@/components/shorts/HashtagText";
 import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -74,6 +75,10 @@ type CreatorGroup = {
 
 function ShortsPage() {
   const { user, profile } = useAuth();
+  const { stop: stopFloatingAudio } = useAudioPlayer();
+  // Stop the global floating audio (FloatingAudioPlayer) the moment Shorts mounts
+  // so the previous track doesn't keep playing under the video.
+  useEffect(() => { stopFloatingAudio(); }, [stopFloatingAudio]);
   const [shorts, setShorts] = useState<Short[]>([]);
   const [followedCreatorIds, setFollowedCreatorIds] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<FeedTab>("all");
