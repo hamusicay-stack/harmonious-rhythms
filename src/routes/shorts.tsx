@@ -579,8 +579,9 @@ function ShortsPage() {
           </aside>
 
           <main>
-            <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} />
-            {current && (
+            <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} />
+            <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} />
+            {current ? (
               <VideoPlayer
                 short={current}
                 videoRef={videoRef}
@@ -590,6 +591,8 @@ function ShortsPage() {
                 liked={likedSet.has(current.id)}
                 creatorChanged={creatorChanged}
                 slideDir={slideDir}
+                videoIndex={videoIndex}
+                videoCount={currentGroup?.videos.length ?? 0}
                 onTogglePlay={togglePlay}
                 onToggleMute={() => setIsMuted((m) => !m)}
                 onLike={() => toggleLike(current.id)}
@@ -597,6 +600,8 @@ function ShortsPage() {
                 onComment={() => setCommentsOpen(true)}
                 fmt={fmt}
               />
+            ) : (
+              <EmptyTab tab={tab} onSwitch={() => setTab("all")} />
             )}
           </main>
 
