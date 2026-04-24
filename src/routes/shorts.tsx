@@ -1083,8 +1083,19 @@ function UploadDialog({
   const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagDraft, setTagDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  const addTag = (raw: string) => {
+    const t = raw.trim().replace(/^#+/, "").replace(/\s+/g, "_").slice(0, 30);
+    if (!t) return;
+    if (tags.length >= 10) { toast.error("עד 10 תגיות"); return; }
+    if (tags.includes(t)) return;
+    setTags((prev) => [...prev, t]);
+    setTagDraft("");
+  };
 
   const handleFileChange = (nextFile: File | null) => {
     if (!nextFile) return;
@@ -1121,12 +1132,13 @@ function UploadDialog({
       description: description.trim() || null,
       video_url: pub.publicUrl,
       status: "pending",
+      tags: tags.length > 0 ? tags : null,
     });
     setUploading(false);
     if (insErr) { toast.error(insErr.message); return; }
 
     toast.success("הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
-    setTitle(""); setDescription(""); setFile(null);
+    setTitle(""); setDescription(""); setFile(null); setTags([]); setTagDraft("");
     onOpenChange(false);
     onUploaded();
   };
