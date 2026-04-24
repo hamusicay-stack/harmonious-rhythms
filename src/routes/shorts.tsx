@@ -1132,7 +1132,7 @@ function UploadDialog({
       description: description.trim() || null,
       video_url: pub.publicUrl,
       status: "pending",
-      tags: tags.length > 0 ? tags : null,
+      tags: tags.length > 0 ? tags : [],
     });
     setUploading(false);
     if (insErr) { toast.error(insErr.message); return; }
