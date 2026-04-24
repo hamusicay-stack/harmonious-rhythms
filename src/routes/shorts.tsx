@@ -196,6 +196,7 @@ function ShortsPage() {
 
       setShorts(list);
       setLikedSet(myLikedIds);
+      setFollowedCreatorIds(followedCreators);
     } catch (error) {
       console.error("Failed to load shorts feed", error);
       setShorts([]);
