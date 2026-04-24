@@ -1087,6 +1087,8 @@ function UploadDialog({
   const [tagDraft, setTagDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
+  const [nextAllowedAt, setNextAllowedAt] = useState<Date | null>(null);
 
   const addTag = (raw: string) => {
     const t = raw.trim().replace(/^#+/, "").replace(/\s+/g, "_").slice(0, 30);
@@ -1110,11 +1112,47 @@ function UploadDialog({
     setFile(nextFile);
   };
 
+  /** Returns true if the user is allowed to upload now; false if quota hit (sets upsell dialog). */
+  const checkQuota = async (): Promise<boolean> => {
+    if (!user) return false;
+    // Bypass for admin / trusted / premium
+    const [{ data: roles }, { data: trusted }, { data: prof }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+      supabase.from("shorts_trusted_uploaders").select("id").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("subscription_tier").eq("id", user.id).maybeSingle(),
+    ]);
+    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+    const isTrusted = !!trusted;
+    const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
+    const isPremium = tier === "premium" || tier === "vip" || tier === "pro";
+    if (isAdmin || isTrusted || isPremium) return true;
+
+    // Free user — 1 video per 24h since the most recent upload
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: recent } = await supabase
+      .from("shorts_videos")
+      .select("created_at")
+      .eq("creator_id", user.id)
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (recent && recent.length > 0) {
+      const next = new Date(new Date(recent[0].created_at).getTime() + 24 * 60 * 60 * 1000);
+      setNextAllowedAt(next);
+      setShowUpsell(true);
+      return false;
+    }
+    return true;
+  };
+
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (!title.trim()) { toast.error("כותרת חובה"); return; }
     if (!file) { toast.error("יש לבחור סרטון"); return; }
     if (file.size > MAX_SHORT_FILE_SIZE) { toast.error("גודל מקסימלי 60MB"); return; }
+
+    const allowed = await checkQuota();
+    if (!allowed) return;
 
     setUploading(true);
     const ext = file.name.split(".").pop() || "mp4";
