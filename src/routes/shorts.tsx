@@ -645,7 +645,8 @@ function ShortsPage() {
               <X className="h-4 w-4" />
             </Link>
           </div>
-          <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} compact />
+          <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} compact />
+          <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} compact />
         </div>
 
         {current && (
