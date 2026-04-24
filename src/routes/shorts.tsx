@@ -227,67 +227,113 @@ function ShortsPage() {
     })();
   }, [user, profile]);
 
+  // Build creators array (grouped per creator), filtered by tab.
+  // Order of creators is determined by their first occurrence in `shorts` (already scored).
+  const creators: CreatorGroup[] = (() => {
+    const map = new Map<string, CreatorGroup>();
+    for (const s of shorts) {
+      if (tab === "following" && !followedCreatorIds.has(s.creator_id)) continue;
+      let g = map.get(s.creator_id);
+      if (!g) {
+        g = { creator_id: s.creator_id, creator: s.creator, videos: [] };
+        map.set(s.creator_id, g);
+      }
+      g.videos.push(s);
+    }
+    return Array.from(map.values());
+  })();
+
+  // Clamp indexes when feed/tab changes
+  useEffect(() => {
+    if (creators.length === 0) {
+      if (creatorIndex !== 0) setCreatorIndex(0);
+      if (videoIndex !== 0) setVideoIndex(0);
+      return;
+    }
+    if (creatorIndex >= creators.length) { setCreatorIndex(0); setVideoIndex(0); return; }
+    const c = creators[creatorIndex];
+    if (videoIndex >= c.videos.length) setVideoIndex(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creators.length, tab]);
+
+  const currentGroup: CreatorGroup | undefined = creators[creatorIndex];
+  const current: Short | undefined = currentGroup?.videos[videoIndex];
+
   // Trigger creator-change ring animation
   useEffect(() => {
-    const cur = shorts[activeIndex];
-    if (!cur) return;
-    const changed = prevCreatorIdRef.current !== null && prevCreatorIdRef.current !== cur.creator_id;
+    if (!current) return;
+    const changed = prevCreatorIdRef.current !== null && prevCreatorIdRef.current !== current.creator_id;
     if (changed) {
       setCreatorChanged(true);
       const t = setTimeout(() => setCreatorChanged(false), 900);
-      prevCreatorIdRef.current = cur.creator_id;
+      prevCreatorIdRef.current = current.creator_id;
       return () => clearTimeout(t);
     }
-    prevCreatorIdRef.current = cur.creator_id;
-  }, [activeIndex, shorts]);
+    prevCreatorIdRef.current = current.creator_id;
+  }, [current?.creator_id]);
 
-  const current = shorts[activeIndex];
+  // Navigation helpers
+  const goNext = useCallback(() => {
+    setSlideDir("up");
+    const c = creators[creatorIndex];
+    if (!c) return;
+    if (videoIndex + 1 < c.videos.length) {
+      setVideoIndex((v) => v + 1);
+    } else if (creatorIndex + 1 < creators.length) {
+      setCreatorIndex((i) => i + 1);
+      setVideoIndex(0);
+    }
+  }, [creators, creatorIndex, videoIndex]);
+
+  const goPrev = useCallback(() => {
+    setSlideDir("down");
+    if (videoIndex > 0) {
+      setVideoIndex((v) => v - 1);
+    } else if (creatorIndex > 0) {
+      setCreatorIndex((i) => i - 1);
+      setVideoIndex(0);
+    }
+  }, [creatorIndex, videoIndex]);
+
+  const goNextCreator = useCallback(() => {
+    setSlideDir("left");
+    if (creatorIndex + 1 < creators.length) {
+      setCreatorIndex((i) => i + 1);
+      setVideoIndex(0);
+    }
+  }, [creators.length, creatorIndex]);
+
+  const goPrevCreator = useCallback(() => {
+    setSlideDir("right");
+    if (creatorIndex > 0) {
+      setCreatorIndex((i) => i - 1);
+      setVideoIndex(0);
+    }
+  }, [creatorIndex]);
 
   // Track video & autoplay next + view increment
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !current) return;
-    // Increment view
     void supabase.rpc("increment_short_views", { _video_id: current.id });
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
-    const onEnd = () => {
-      setSlideDir("up");
-      // When video ends: prefer NEXT video of the SAME creator.
-      // If none remain, jump to the next creator's first video.
-      setActiveIndex((i) => {
-        const cur = shorts[i];
-        if (!cur) return (i + 1) % Math.max(shorts.length, 1);
-        // 1) Next video of same creator
-        for (let k = i + 1; k < shorts.length; k++) {
-          if (shorts[k].creator_id === cur.creator_id) return k;
-        }
-        // 2) Next different creator
-        for (let k = i + 1; k < shorts.length; k++) {
-          if (shorts[k].creator_id !== cur.creator_id) return k;
-        }
-        // 3) Wrap to first different creator from the start
-        for (let k = 0; k < i; k++) {
-          if (shorts[k].creator_id !== cur.creator_id) return k;
-        }
-        return (i + 1) % Math.max(shorts.length, 1);
-      });
-    };
+    const onEnd = () => { goNext(); };
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("ended", onEnd);
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
     };
-  }, [activeIndex, shorts, current?.id]);
+  }, [current?.id, goNext]);
 
-  // Auto-scroll story row
+  // Auto-scroll story row to active creator
   useEffect(() => {
     const row = storyRowRef.current;
     if (!row) return;
-    const el = row.querySelector(`[data-idx="${activeIndex}"]`) as HTMLElement | null;
+    const el = row.querySelector(`[data-idx="${creatorIndex}"]`) as HTMLElement | null;
     if (el) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [activeIndex]);
+  }, [creatorIndex]);
 
   const togglePlay = () => {
     const v = videoRef.current;
@@ -296,41 +342,12 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
-  const goNext = useCallback(() => {
-    setSlideDir("up");
-    setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
-  }, [shorts.length]);
-  const goPrev = useCallback(() => {
-    setSlideDir("down");
-    setActiveIndex((i) => Math.max(i - 1, 0));
-  }, []);
-
-  // Jump to next/previous DIFFERENT creator (horizontal swipe behavior)
-  const goNextCreator = useCallback(() => {
-    setSlideDir("left");
-    setActiveIndex((i) => {
-      const cur = shorts[i];
-      if (!cur) return i;
-      for (let k = i + 1; k < shorts.length; k++) if (shorts[k].creator_id !== cur.creator_id) return k;
-      return i;
-    });
-  }, [shorts]);
-  const goPrevCreator = useCallback(() => {
-    setSlideDir("right");
-    setActiveIndex((i) => {
-      const cur = shorts[i];
-      if (!cur) return i;
-      for (let k = i - 1; k >= 0; k--) if (shorts[k].creator_id !== cur.creator_id) return k;
-      return i;
-    });
-  }, [shorts]);
-
   // Clear slide direction after animation completes
   useEffect(() => {
     if (!slideDir) return;
     const t = setTimeout(() => setSlideDir(null), 460);
     return () => clearTimeout(t);
-  }, [slideDir, activeIndex]);
+  }, [slideDir, creatorIndex, videoIndex]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -338,7 +355,6 @@ function ShortsPage() {
     dragAxis.current = null;
     dragStartTime.current = Date.now();
     setDragging(true);
-    // First user interaction: unmute so device volume controls take over
     if (isMuted) {
       setIsMuted(false);
       const v = videoRef.current;
@@ -355,7 +371,6 @@ function ShortsPage() {
         dragAxis.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
       } else return;
     }
-    // Only follow finger on the active axis; resist with 0.6 factor for premium feel
     if (dragAxis.current === "y") setDragOffset({ x: 0, y: dy * 0.85 });
     else setDragOffset({ x: dx * 0.85, y: 0 });
   };
@@ -367,7 +382,7 @@ function ShortsPage() {
     const dy = e.changedTouches[0].clientY - sy;
     const dx = e.changedTouches[0].clientX - sx;
     const dt = Math.max(1, Date.now() - dragStartTime.current);
-    const vy = Math.abs(dy) / dt; // px/ms
+    const vy = Math.abs(dy) / dt;
     const vx = Math.abs(dx) / dt;
     const screenH = window.innerHeight || 800;
     const screenW = window.innerWidth || 400;
@@ -399,15 +414,26 @@ function ShortsPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [goNext, goPrev, goNextCreator, goPrevCreator]);
 
-  // Prefetch next video
+  // Prefetch next video (within same creator first, else next creator's first)
   useEffect(() => {
-    const next = shorts[activeIndex + 1];
-    if (!next?.videoUrl) return;
+    const c = creators[creatorIndex];
+    if (!c) return;
+    const nextVideo = c.videos[videoIndex + 1] ?? creators[creatorIndex + 1]?.videos[0];
+    if (!nextVideo?.videoUrl) return;
     const link = document.createElement("link");
-    link.rel = "prefetch"; link.as = "video"; link.href = next.videoUrl;
+    link.rel = "prefetch"; link.as = "video"; link.href = nextVideo.videoUrl;
     document.head.appendChild(link);
     return () => { document.head.removeChild(link); };
-  }, [activeIndex, shorts]);
+  }, [creatorIndex, videoIndex, creators]);
+
+  // Selecting a creator from the story row
+  const selectCreator = useCallback((newIdx: number) => {
+    if (newIdx === creatorIndex) return;
+    setSlideDir(newIdx > creatorIndex ? "left" : "right");
+    setCreatorIndex(newIdx);
+    setVideoIndex(0);
+  }, [creatorIndex]);
+
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
