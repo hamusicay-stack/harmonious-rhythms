@@ -110,7 +110,7 @@ function CheckoutPage() {
             _scope_type: "shop_product",
             _scope_id: it.id,
             _order_amount: it.price * it.qty,
-            _user_id: user?.id ?? null,
+            _user_id: user?.id ?? undefined,
             _notes: `order:${order.order_number}`,
           }).then(({ error }) => { if (error) console.warn("affiliate conv error", error); })
         ));
