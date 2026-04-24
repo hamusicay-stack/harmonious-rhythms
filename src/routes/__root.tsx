@@ -1,10 +1,12 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { FloatingAudioPlayer } from "@/components/pros/FloatingAudioPlayer";
 import { NotificationsProvider } from "@/hooks/useNotifications";
+import { captureAffiliateRef } from "@/lib/affiliate";
 
 import appCss from "../styles.css?url";
 
@@ -67,6 +69,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  useEffect(() => { void captureAffiliateRef(); }, []);
   return (
     <AuthProvider>
       <NotificationsProvider>

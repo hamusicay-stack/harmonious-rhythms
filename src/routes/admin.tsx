@@ -37,7 +37,8 @@ import { ReportsManager } from "@/components/admin/ReportsManager";
 import { MusicProsManager } from "@/components/admin/MusicProsManager";
 import { ShopManager } from "@/components/admin/ShopManager";
 import { ShortsManager } from "@/components/admin/ShortsManager";
-import { Music2, ShoppingBag, Play } from "lucide-react";
+import { AffiliatesManager } from "@/components/admin/AffiliatesManager";
+import { Music2, ShoppingBag, Play, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -395,11 +396,12 @@ function AdminPage() {
 
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
-              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6 scrollbar-thin">
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-7 scrollbar-thin">
                 <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
                 <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
                 <TabsTrigger value="shorts" className="shrink-0 md:flex-1"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
                 <TabsTrigger value="music_pros" className="shrink-0 md:flex-1"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
+                <TabsTrigger value="affiliates" className="shrink-0 md:flex-1"><Sparkles className="ml-1 h-4 w-4" />שותפים</TabsTrigger>
                 <TabsTrigger value="automations" className="shrink-0 md:flex-1"><Zap className="ml-1 h-4 w-4" />אוטומציות</TabsTrigger>
                 <TabsTrigger value="banners" className="shrink-0 md:flex-1"><Megaphone className="ml-1 h-4 w-4" />פרסומות</TabsTrigger>
               </TabsList>
@@ -422,6 +424,9 @@ function AdminPage() {
               </TabsContent>
               <TabsContent value="music_pros" className="mt-6">
                 <MusicProsManager />
+              </TabsContent>
+              <TabsContent value="affiliates" className="mt-6">
+                <AffiliatesManager />
               </TabsContent>
               <TabsContent value="automations" className="mt-6">
                 <AutomationsManager />

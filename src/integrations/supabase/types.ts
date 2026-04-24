@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_podcasts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          sort_order: number
+          source_url: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          views_count: number
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          sort_order?: number
+          source_url: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          views_count?: number
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          sort_order?: number
+          source_url?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          views_count?: number
+          visibility?: string
+        }
+        Relationships: []
+      }
       ad_banner_events: {
         Row: {
           banner_id: string

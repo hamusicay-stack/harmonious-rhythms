@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
   Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search, Music2, Pencil,
-  Phone, MessageCircle, ShoppingBag, GraduationCap, MessageSquare, Store,
+  Phone, MessageCircle, ShoppingBag, GraduationCap, MessageSquare, Store, Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { labelOf, SPECIALTIES } from "@/lib/prosData";
 import { NotificationsList } from "@/components/NotificationsList";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -93,7 +94,7 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 h-auto">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1"><Bell className="h-4 w-4" />התראות</TabsTrigger>
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
@@ -101,6 +102,7 @@ function ProfilePage() {
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
             <TabsTrigger value="following" className="gap-1"><UserIcon className="h-4 w-4" />עוקב אחרי</TabsTrigger>
             <TabsTrigger value="searches" className="gap-1"><Bell className="h-4 w-4" />חיפושים</TabsTrigger>
+            <TabsTrigger value="affiliate" className="gap-1"><Sparkles className="h-4 w-4" />שותף</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="mt-6">
@@ -130,6 +132,10 @@ function ProfilePage() {
 
           <TabsContent value="searches" className="mt-6">
             <SavedSearches userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="affiliate" className="mt-6">
+            <AffiliateDashboard />
           </TabsContent>
         </Tabs>
       </section>

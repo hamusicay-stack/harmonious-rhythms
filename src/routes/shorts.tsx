@@ -21,6 +21,7 @@ import { HashtagText } from "@/components/shorts/HashtagText";
 import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -74,6 +75,10 @@ type CreatorGroup = {
 
 function ShortsPage() {
   const { user, profile } = useAuth();
+  const { stop: stopFloatingAudio } = useAudioPlayer();
+  // Stop the global floating audio (FloatingAudioPlayer) the moment Shorts mounts
+  // so the previous track doesn't keep playing under the video.
+  useEffect(() => { stopFloatingAudio(); }, [stopFloatingAudio]);
   const [shorts, setShorts] = useState<Short[]>([]);
   const [followedCreatorIds, setFollowedCreatorIds] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<FeedTab>("all");
@@ -591,6 +596,7 @@ function ShortsPage() {
                 liked={likedSet.has(current.id)}
                 creatorChanged={creatorChanged}
                 slideDir={slideDir}
+                heartPulse={heartPulse}
                 videoIndex={videoIndex}
                 videoCount={currentGroup?.videos.length ?? 0}
                 onTogglePlay={togglePlay}
@@ -917,6 +923,7 @@ function VideoPlayer(props: VideoPlayerProps) {
         playsInline
         className="h-full w-full object-cover"
         onClick={onTogglePlay}
+        onDoubleClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!liked) onLike(); }}
       />
 
       {/* Top segmented progress bar — one segment per video of the current creator */}
@@ -978,10 +985,9 @@ function VideoPlayer(props: VideoPlayerProps) {
 
       <div className={cn("absolute z-20 flex flex-col items-center gap-4", fullScreen ? "bottom-[calc(env(safe-area-inset-bottom)+6rem)] right-2" : "bottom-20 right-3")}>
         <ActionBtn
-          icon={<Heart className={cn("h-6 w-6", liked && "fill-rose-500 text-rose-500")} />}
+          icon={<Heart className={cn("h-6 w-6 transition-all", liked && "fill-rose-500 text-rose-500 scale-110")} />}
           label={fmt(short.likes + (liked ? 1 : 0))}
           onClick={onLike}
-          pop={heartPulse}
         />
         <ActionBtn icon={<MessageCircle className="h-6 w-6" />} label={fmt(short.comments)} onClick={onComment} />
         <ActionBtn
@@ -1047,18 +1053,15 @@ type ActionBtnProps = {
   label: string;
   onClick: () => void;
   accent?: boolean;
-  pop?: number;
 };
 
-function ActionBtn({ icon, label, onClick, accent, pop }: ActionBtnProps) {
+function ActionBtn({ icon, label, onClick, accent }: ActionBtnProps) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 text-white">
       <div
-        key={pop}
         className={cn(
           "flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md ring-1 ring-white/15 transition hover:scale-110",
           accent ? "bg-emerald-500/90 hover:bg-emerald-500" : "bg-black/35 hover:bg-black/55",
-          pop !== undefined && pop > 0 ? "animate-heart-pop" : "",
         )}
       >
         {icon}
@@ -1080,8 +1083,19 @@ function UploadDialog({
   const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagDraft, setTagDraft] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  const addTag = (raw: string) => {
+    const t = raw.trim().replace(/^#+/, "").replace(/\s+/g, "_").slice(0, 30);
+    if (!t) return;
+    if (tags.length >= 10) { toast.error("עד 10 תגיות"); return; }
+    if (tags.includes(t)) return;
+    setTags((prev) => [...prev, t]);
+    setTagDraft("");
+  };
 
   const handleFileChange = (nextFile: File | null) => {
     if (!nextFile) return;
@@ -1118,12 +1132,13 @@ function UploadDialog({
       description: description.trim() || null,
       video_url: pub.publicUrl,
       status: "pending",
+      tags: tags.length > 0 ? tags : [],
     });
     setUploading(false);
     if (insErr) { toast.error(insErr.message); return; }
 
     toast.success("הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
-    setTitle(""); setDescription(""); setFile(null);
+    setTitle(""); setDescription(""); setFile(null); setTags([]); setTagDraft("");
     onOpenChange(false);
     onUploaded();
   };
@@ -1143,6 +1158,33 @@ function UploadDialog({
           <div className="space-y-2">
             <Label>תיאור</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} rows={3} placeholder="תאר את הסרטון, האשטגים..." />
+          </div>
+          <div className="space-y-2">
+            <Label>תגיות (אופציונלי, עד 10)</Label>
+            <div className="flex flex-wrap gap-1.5 rounded-md border border-input bg-background p-2 min-h-[42px]">
+              {tags.map((t) => (
+                <span key={t} className="flex items-center gap-1 rounded-full bg-primary/15 text-primary px-2 py-0.5 text-xs font-semibold">
+                  #{t}
+                  <button type="button" onClick={() => setTags((p) => p.filter((x) => x !== t))} aria-label={`הסר ${t}`} className="hover:text-rose-500">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              <input
+                type="text"
+                value={tagDraft}
+                onChange={(e) => setTagDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "," || e.key === " ") { e.preventDefault(); addTag(tagDraft); }
+                  else if (e.key === "Backspace" && !tagDraft && tags.length > 0) { setTags((p) => p.slice(0, -1)); }
+                }}
+                onBlur={() => { if (tagDraft.trim()) addTag(tagDraft); }}
+                placeholder={tags.length === 0 ? "הוסף תגית ולחץ Enter (למשל: קלידים, חתונות)" : "+ עוד תגית"}
+                className="flex-1 min-w-[120px] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                maxLength={32}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">Enter / פסיק / רווח כדי להוסיף תגית</p>
           </div>
           <div className="space-y-2">
             <Label>קובץ סרטון (עד 60MB, פורמט MP4 מומלץ, יחס אנכי 9:16) *</Label>
