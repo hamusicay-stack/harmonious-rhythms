@@ -1160,6 +1160,33 @@ function UploadDialog({
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} rows={3} placeholder="תאר את הסרטון, האשטגים..." />
           </div>
           <div className="space-y-2">
+            <Label>תגיות (אופציונלי, עד 10)</Label>
+            <div className="flex flex-wrap gap-1.5 rounded-md border border-input bg-background p-2 min-h-[42px]">
+              {tags.map((t) => (
+                <span key={t} className="flex items-center gap-1 rounded-full bg-primary/15 text-primary px-2 py-0.5 text-xs font-semibold">
+                  #{t}
+                  <button type="button" onClick={() => setTags((p) => p.filter((x) => x !== t))} aria-label={`הסר ${t}`} className="hover:text-rose-500">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              <input
+                type="text"
+                value={tagDraft}
+                onChange={(e) => setTagDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "," || e.key === " ") { e.preventDefault(); addTag(tagDraft); }
+                  else if (e.key === "Backspace" && !tagDraft && tags.length > 0) { setTags((p) => p.slice(0, -1)); }
+                }}
+                onBlur={() => { if (tagDraft.trim()) addTag(tagDraft); }}
+                placeholder={tags.length === 0 ? "הוסף תגית ולחץ Enter (למשל: קלידים, חתונות)" : "+ עוד תגית"}
+                className="flex-1 min-w-[120px] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                maxLength={32}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">Enter / פסיק / רווח כדי להוסיף תגית</p>
+          </div>
+          <div className="space-y-2">
             <Label>קובץ סרטון (עד 60MB, פורמט MP4 מומלץ, יחס אנכי 9:16) *</Label>
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="block">
