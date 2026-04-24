@@ -919,9 +919,24 @@ function VideoPlayer(props: VideoPlayerProps) {
         onClick={onTogglePlay}
       />
 
-      {/* Top progress bar */}
-      <div className="absolute left-0 right-0 top-0 h-[2px] bg-white/15 z-20">
-        <div className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150" style={{ width: `${progress}%` }} />
+      {/* Top segmented progress bar — one segment per video of the current creator */}
+      <div className="absolute left-0 right-0 top-0 z-20 flex gap-1 px-1.5 pt-1.5">
+        {videoCount > 1 ? (
+          Array.from({ length: videoCount }).map((_, i) => (
+            <div key={i} className="h-[2.5px] flex-1 overflow-hidden rounded-full bg-white/20">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150"
+                style={{
+                  width: i < videoIndex ? "100%" : i === videoIndex ? `${progress}%` : "0%",
+                }}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="h-[2.5px] flex-1 overflow-hidden rounded-full bg-white/15">
+            <div className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150" style={{ width: `${progress}%` }} />
+          </div>
+        )}
       </div>
 
       {short.isPremium && (
