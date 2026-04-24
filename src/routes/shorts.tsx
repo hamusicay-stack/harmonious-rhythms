@@ -64,12 +64,23 @@ const formatAgo = (iso: string) => {
   return `לפני ${d} ימים`;
 };
 
+type FeedTab = "all" | "following";
+
+type CreatorGroup = {
+  creator_id: string;
+  creator: { name: string; avatar: string | null };
+  videos: Short[];
+};
+
 function ShortsPage() {
   const { user, profile } = useAuth();
   const [shorts, setShorts] = useState<Short[]>([]);
+  const [followedCreatorIds, setFollowedCreatorIds] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState<FeedTab>("all");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [creatorIndex, setCreatorIndex] = useState(0);
+  const [videoIndex, setVideoIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -185,6 +196,7 @@ function ShortsPage() {
 
       setShorts(list);
       setLikedSet(myLikedIds);
+      setFollowedCreatorIds(followedCreators);
     } catch (error) {
       console.error("Failed to load shorts feed", error);
       setShorts([]);
@@ -215,67 +227,113 @@ function ShortsPage() {
     })();
   }, [user, profile]);
 
+  // Build creators array (grouped per creator), filtered by tab.
+  // Order of creators is determined by their first occurrence in `shorts` (already scored).
+  const creators: CreatorGroup[] = (() => {
+    const map = new Map<string, CreatorGroup>();
+    for (const s of shorts) {
+      if (tab === "following" && !followedCreatorIds.has(s.creator_id)) continue;
+      let g = map.get(s.creator_id);
+      if (!g) {
+        g = { creator_id: s.creator_id, creator: s.creator, videos: [] };
+        map.set(s.creator_id, g);
+      }
+      g.videos.push(s);
+    }
+    return Array.from(map.values());
+  })();
+
+  // Clamp indexes when feed/tab changes
+  useEffect(() => {
+    if (creators.length === 0) {
+      if (creatorIndex !== 0) setCreatorIndex(0);
+      if (videoIndex !== 0) setVideoIndex(0);
+      return;
+    }
+    if (creatorIndex >= creators.length) { setCreatorIndex(0); setVideoIndex(0); return; }
+    const c = creators[creatorIndex];
+    if (videoIndex >= c.videos.length) setVideoIndex(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creators.length, tab]);
+
+  const currentGroup: CreatorGroup | undefined = creators[creatorIndex];
+  const current: Short | undefined = currentGroup?.videos[videoIndex];
+
   // Trigger creator-change ring animation
   useEffect(() => {
-    const cur = shorts[activeIndex];
-    if (!cur) return;
-    const changed = prevCreatorIdRef.current !== null && prevCreatorIdRef.current !== cur.creator_id;
+    if (!current) return;
+    const changed = prevCreatorIdRef.current !== null && prevCreatorIdRef.current !== current.creator_id;
     if (changed) {
       setCreatorChanged(true);
       const t = setTimeout(() => setCreatorChanged(false), 900);
-      prevCreatorIdRef.current = cur.creator_id;
+      prevCreatorIdRef.current = current.creator_id;
       return () => clearTimeout(t);
     }
-    prevCreatorIdRef.current = cur.creator_id;
-  }, [activeIndex, shorts]);
+    prevCreatorIdRef.current = current.creator_id;
+  }, [current?.creator_id]);
 
-  const current = shorts[activeIndex];
+  // Navigation helpers
+  const goNext = useCallback(() => {
+    setSlideDir("up");
+    const c = creators[creatorIndex];
+    if (!c) return;
+    if (videoIndex + 1 < c.videos.length) {
+      setVideoIndex((v) => v + 1);
+    } else if (creatorIndex + 1 < creators.length) {
+      setCreatorIndex((i) => i + 1);
+      setVideoIndex(0);
+    }
+  }, [creators, creatorIndex, videoIndex]);
+
+  const goPrev = useCallback(() => {
+    setSlideDir("down");
+    if (videoIndex > 0) {
+      setVideoIndex((v) => v - 1);
+    } else if (creatorIndex > 0) {
+      setCreatorIndex((i) => i - 1);
+      setVideoIndex(0);
+    }
+  }, [creatorIndex, videoIndex]);
+
+  const goNextCreator = useCallback(() => {
+    setSlideDir("left");
+    if (creatorIndex + 1 < creators.length) {
+      setCreatorIndex((i) => i + 1);
+      setVideoIndex(0);
+    }
+  }, [creators.length, creatorIndex]);
+
+  const goPrevCreator = useCallback(() => {
+    setSlideDir("right");
+    if (creatorIndex > 0) {
+      setCreatorIndex((i) => i - 1);
+      setVideoIndex(0);
+    }
+  }, [creatorIndex]);
 
   // Track video & autoplay next + view increment
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !current) return;
-    // Increment view
     void supabase.rpc("increment_short_views", { _video_id: current.id });
 
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
-    const onEnd = () => {
-      setSlideDir("up");
-      // When video ends: prefer NEXT video of the SAME creator.
-      // If none remain, jump to the next creator's first video.
-      setActiveIndex((i) => {
-        const cur = shorts[i];
-        if (!cur) return (i + 1) % Math.max(shorts.length, 1);
-        // 1) Next video of same creator
-        for (let k = i + 1; k < shorts.length; k++) {
-          if (shorts[k].creator_id === cur.creator_id) return k;
-        }
-        // 2) Next different creator
-        for (let k = i + 1; k < shorts.length; k++) {
-          if (shorts[k].creator_id !== cur.creator_id) return k;
-        }
-        // 3) Wrap to first different creator from the start
-        for (let k = 0; k < i; k++) {
-          if (shorts[k].creator_id !== cur.creator_id) return k;
-        }
-        return (i + 1) % Math.max(shorts.length, 1);
-      });
-    };
+    const onEnd = () => { goNext(); };
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("ended", onEnd);
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
     };
-  }, [activeIndex, shorts, current?.id]);
+  }, [current?.id, goNext]);
 
-  // Auto-scroll story row
+  // Auto-scroll story row to active creator
   useEffect(() => {
     const row = storyRowRef.current;
     if (!row) return;
-    const el = row.querySelector(`[data-idx="${activeIndex}"]`) as HTMLElement | null;
+    const el = row.querySelector(`[data-idx="${creatorIndex}"]`) as HTMLElement | null;
     if (el) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [activeIndex]);
+  }, [creatorIndex]);
 
   const togglePlay = () => {
     const v = videoRef.current;
@@ -284,41 +342,12 @@ function ShortsPage() {
     else { v.pause(); setIsPlaying(false); }
   };
 
-  const goNext = useCallback(() => {
-    setSlideDir("up");
-    setActiveIndex((i) => Math.min(i + 1, Math.max(shorts.length - 1, 0)));
-  }, [shorts.length]);
-  const goPrev = useCallback(() => {
-    setSlideDir("down");
-    setActiveIndex((i) => Math.max(i - 1, 0));
-  }, []);
-
-  // Jump to next/previous DIFFERENT creator (horizontal swipe behavior)
-  const goNextCreator = useCallback(() => {
-    setSlideDir("left");
-    setActiveIndex((i) => {
-      const cur = shorts[i];
-      if (!cur) return i;
-      for (let k = i + 1; k < shorts.length; k++) if (shorts[k].creator_id !== cur.creator_id) return k;
-      return i;
-    });
-  }, [shorts]);
-  const goPrevCreator = useCallback(() => {
-    setSlideDir("right");
-    setActiveIndex((i) => {
-      const cur = shorts[i];
-      if (!cur) return i;
-      for (let k = i - 1; k >= 0; k--) if (shorts[k].creator_id !== cur.creator_id) return k;
-      return i;
-    });
-  }, [shorts]);
-
   // Clear slide direction after animation completes
   useEffect(() => {
     if (!slideDir) return;
     const t = setTimeout(() => setSlideDir(null), 460);
     return () => clearTimeout(t);
-  }, [slideDir, activeIndex]);
+  }, [slideDir, creatorIndex, videoIndex]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -326,7 +355,6 @@ function ShortsPage() {
     dragAxis.current = null;
     dragStartTime.current = Date.now();
     setDragging(true);
-    // First user interaction: unmute so device volume controls take over
     if (isMuted) {
       setIsMuted(false);
       const v = videoRef.current;
@@ -343,7 +371,6 @@ function ShortsPage() {
         dragAxis.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
       } else return;
     }
-    // Only follow finger on the active axis; resist with 0.6 factor for premium feel
     if (dragAxis.current === "y") setDragOffset({ x: 0, y: dy * 0.85 });
     else setDragOffset({ x: dx * 0.85, y: 0 });
   };
@@ -355,7 +382,7 @@ function ShortsPage() {
     const dy = e.changedTouches[0].clientY - sy;
     const dx = e.changedTouches[0].clientX - sx;
     const dt = Math.max(1, Date.now() - dragStartTime.current);
-    const vy = Math.abs(dy) / dt; // px/ms
+    const vy = Math.abs(dy) / dt;
     const vx = Math.abs(dx) / dt;
     const screenH = window.innerHeight || 800;
     const screenW = window.innerWidth || 400;
@@ -387,15 +414,26 @@ function ShortsPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [goNext, goPrev, goNextCreator, goPrevCreator]);
 
-  // Prefetch next video
+  // Prefetch next video (within same creator first, else next creator's first)
   useEffect(() => {
-    const next = shorts[activeIndex + 1];
-    if (!next?.videoUrl) return;
+    const c = creators[creatorIndex];
+    if (!c) return;
+    const nextVideo = c.videos[videoIndex + 1] ?? creators[creatorIndex + 1]?.videos[0];
+    if (!nextVideo?.videoUrl) return;
     const link = document.createElement("link");
-    link.rel = "prefetch"; link.as = "video"; link.href = next.videoUrl;
+    link.rel = "prefetch"; link.as = "video"; link.href = nextVideo.videoUrl;
     document.head.appendChild(link);
     return () => { document.head.removeChild(link); };
-  }, [activeIndex, shorts]);
+  }, [creatorIndex, videoIndex, creators]);
+
+  // Selecting a creator from the story row
+  const selectCreator = useCallback((newIdx: number) => {
+    if (newIdx === creatorIndex) return;
+    setSlideDir(newIdx > creatorIndex ? "left" : "right");
+    setCreatorIndex(newIdx);
+    setVideoIndex(0);
+  }, [creatorIndex]);
+
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
@@ -541,8 +579,9 @@ function ShortsPage() {
           </aside>
 
           <main>
-            <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} />
-            {current && (
+            <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} />
+            <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} />
+            {current ? (
               <VideoPlayer
                 short={current}
                 videoRef={videoRef}
@@ -552,6 +591,8 @@ function ShortsPage() {
                 liked={likedSet.has(current.id)}
                 creatorChanged={creatorChanged}
                 slideDir={slideDir}
+                videoIndex={videoIndex}
+                videoCount={currentGroup?.videos.length ?? 0}
                 onTogglePlay={togglePlay}
                 onToggleMute={() => setIsMuted((m) => !m)}
                 onLike={() => toggleLike(current.id)}
@@ -559,6 +600,8 @@ function ShortsPage() {
                 onComment={() => setCommentsOpen(true)}
                 fmt={fmt}
               />
+            ) : (
+              <EmptyTab tab={tab} onSwitch={() => setTab("all")} />
             )}
           </main>
 
@@ -602,7 +645,8 @@ function ShortsPage() {
               <X className="h-4 w-4" />
             </Link>
           </div>
-          <StoryRow shorts={shorts} activeIndex={activeIndex} progress={progress} onSelect={setActiveIndex} rowRef={storyRowRef} compact />
+          <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} compact />
+          <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} compact />
         </div>
 
         {current && (
@@ -623,6 +667,8 @@ function ShortsPage() {
               creatorChanged={creatorChanged}
               slideDir={slideDir}
               heartPulse={heartPulse}
+              videoIndex={videoIndex}
+              videoCount={currentGroup?.videos.length ?? 0}
               onTogglePlay={togglePlay}
               onToggleMute={() => setIsMuted((m) => !m)}
               onLike={() => toggleLike(current.id)}
@@ -635,7 +681,7 @@ function ShortsPage() {
           </div>
         )}
         <p className="absolute bottom-[max(env(safe-area-inset-bottom),0.25rem)] left-0 right-0 text-center text-[10px] text-white/50 pointer-events-none">
-          החלק למעלה לסרטון הבא • שמאלה למעבר בין יוצרים
+          ⬆ סרטון הבא של {currentGroup?.creator.name ?? "היוצר"} • ⬅ ליוצר הבא
         </p>
       </div>
 
@@ -657,59 +703,131 @@ function ShortsPage() {
   );
 }
 
-/* ---------- STORY ROW ---------- */
-function StoryRow({
-  shorts, activeIndex, progress, onSelect, rowRef, compact,
+/* ---------- FEED TABS ---------- */
+function FeedTabs({
+  tab, onChange, hasFollowing, followingCount, compact,
 }: {
-  shorts: Short[]; activeIndex: number; progress: number;
+  tab: FeedTab;
+  onChange: (t: FeedTab) => void;
+  hasFollowing: boolean;
+  followingCount: number;
+  compact?: boolean;
+}) {
+  const baseBtn = "rounded-full px-4 py-1.5 text-xs font-bold transition-all";
+  const activeCls = compact
+    ? "bg-white text-black shadow-md"
+    : "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold";
+  const inactiveCls = compact
+    ? "bg-white/10 text-white/80 hover:bg-white/20"
+    : "bg-secondary text-foreground/70 hover:bg-secondary/80";
+  return (
+    <div className={cn("flex items-center justify-center gap-2", compact ? "px-3 pb-2" : "mb-3")}>
+      <button
+        type="button"
+        onClick={() => onChange("all")}
+        className={cn(baseBtn, tab === "all" ? activeCls : inactiveCls)}
+      >
+        הכל
+      </button>
+      {hasFollowing && (
+        <button
+          type="button"
+          onClick={() => onChange("following")}
+          className={cn(baseBtn, "flex items-center gap-1.5", tab === "following" ? activeCls : inactiveCls)}
+        >
+          עוקב
+          {followingCount > 0 && (
+            <span className={cn(
+              "rounded-full px-1.5 text-[10px] leading-4",
+              tab === "following" ? "bg-black/20 text-current" : "bg-primary/20 text-primary",
+            )}>
+              {followingCount}
+            </span>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ---------- EMPTY TAB ---------- */
+function EmptyTab({ tab, onSwitch }: { tab: FeedTab; onSwitch: () => void }) {
+  if (tab === "following") {
+    return (
+      <div className="mx-auto flex aspect-[9/16] max-h-[78vh] w-full max-w-[420px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-card/50 p-6 text-center">
+        <Music2 className="h-10 w-10 text-primary" />
+        <h3 className="font-display text-lg font-bold">אין עדיין יוצרים שאתה עוקב אחריהם</h3>
+        <p className="text-sm text-muted-foreground">עקוב אחרי יוצרים בטאב "הכל" כדי לראות אותם כאן</p>
+        <Button onClick={onSwitch} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
+          לטאב הכל
+        </Button>
+      </div>
+    );
+  }
+  return null;
+}
+
+/* ---------- STORY ROW (creators carousel) ---------- */
+function StoryRow({
+  creators, activeIndex, progress, onSelect, rowRef, compact,
+}: {
+  creators: CreatorGroup[]; activeIndex: number; progress: number;
   onSelect: (i: number) => void; rowRef: React.RefObject<HTMLDivElement | null>;
   compact?: boolean;
 }) {
   return (
-    <div ref={rowRef} className={cn("flex gap-3 overflow-x-auto pb-2 scrollbar-thin shorts-snap-x", compact ? "px-3" : "mb-4 pb-3")}>
-      {!compact && (
-      <button className="flex shrink-0 flex-col items-center gap-1.5">
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-card hover:border-primary">
-          <Plus className="h-6 w-6 text-primary" />
-        </div>
-        <span className="text-xs font-medium">אתה</span>
-      </button>
+    <div
+      ref={rowRef}
+      className={cn(
+        "flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin shorts-snap-x",
+        compact ? "px-3" : "mb-4 pb-3",
       )}
-      {shorts.map((s, i) => {
+    >
+      {!compact && (
+        <button className="flex shrink-0 flex-col items-center gap-1.5">
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-card hover:border-primary">
+            <Plus className="h-6 w-6 text-primary" />
+          </div>
+          <span className="text-xs font-medium">אתה</span>
+        </button>
+      )}
+      {creators.map((c, i) => {
         const active = i === activeIndex;
+        const baseSize = compact ? "h-12 w-12" : "h-16 w-16";
+        const activeSize = compact ? "h-16 w-16" : "h-20 w-20";
+        const isPremium = c.videos[0]?.isPremium;
         return (
           <button
-            key={s.id}
+            key={c.creator_id}
             data-idx={i}
             onClick={() => onSelect(i)}
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative rounded-full p-[2px] transition-all duration-700 ease-out animate-fade-in",
-              compact ? "h-12 w-12" : "h-16 w-16",
-              s.isPremium
-                ? "bg-gradient-to-tr from-primary/70 via-primary-glow/70 to-primary/70"
+              "relative rounded-full p-[2px] transition-all duration-500 ease-out animate-fade-in",
+              active ? activeSize : baseSize,
+              isPremium
+                ? "bg-gradient-to-tr from-primary/80 via-primary-glow/80 to-primary/80"
                 : "bg-gradient-to-tr from-muted-foreground/30 to-muted",
-              active && "scale-105",
+              active && "ring-2 ring-primary/50 shadow-gold",
             )}>
               {active && (
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -inset-0.5 rounded-full opacity-70"
+                  className="pointer-events-none absolute -inset-0.5 rounded-full opacity-80"
                   style={{
                     background:
-                      "conic-gradient(from 0deg, oklch(0.82 0.10 78 / 0.9), transparent 60%, oklch(0.82 0.10 78 / 0.9))",
-                    WebkitMask:
-                      "radial-gradient(circle, transparent 60%, black 62%)",
+                      "conic-gradient(from 0deg, oklch(0.82 0.10 78 / 0.95), transparent 60%, oklch(0.82 0.10 78 / 0.95))",
+                    WebkitMask: "radial-gradient(circle, transparent 60%, black 62%)",
                     mask: "radial-gradient(circle, transparent 60%, black 62%)",
                     animation: "spin 6s linear infinite",
                   }}
                 />
               )}
               <Avatar className="relative h-full w-full border-2 border-background">
-                <AvatarImage src={s.creator.avatar || undefined} />
+                <AvatarImage src={c.creator.avatar || undefined} />
                 <AvatarFallback className="bg-secondary text-xs font-bold">
-                  {s.creator.name.slice(0, 2)}
+                  {c.creator.name.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               {active && (
@@ -718,10 +836,18 @@ function StoryRow({
                     strokeDasharray={`${(progress / 100) * 301.6} 301.6`} />
                 </svg>
               )}
+              {c.videos.length > 1 && (
+                <span className="absolute -bottom-1 -right-1 z-10 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-md">
+                  {c.videos.length}
+                </span>
+              )}
             </div>
             {!compact && (
-              <span className={cn("max-w-[70px] truncate text-xs", active && "font-semibold text-primary")}>
-                {s.creator.name}
+              <span className={cn(
+                "max-w-[80px] truncate text-xs transition-all",
+                active ? "font-bold text-primary" : "text-foreground/70",
+              )}>
+                {c.creator.name}
               </span>
             )}
           </button>
@@ -742,6 +868,8 @@ type VideoPlayerProps = {
   creatorChanged: boolean;
   slideDir: "up" | "down" | "left" | "right" | null;
   heartPulse?: number;
+  videoIndex?: number;
+  videoCount?: number;
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onLike: () => void;
@@ -755,6 +883,7 @@ type VideoPlayerProps = {
 function VideoPlayer(props: VideoPlayerProps) {
   const {
     short, videoRef, isMuted, isPlaying, progress, liked, creatorChanged, slideDir, heartPulse,
+    videoIndex = 0, videoCount = 0,
     onTogglePlay, onToggleMute, onLike, onShare, onComment, fmt, mobileFull, fullScreen,
   } = props;
 
@@ -790,9 +919,24 @@ function VideoPlayer(props: VideoPlayerProps) {
         onClick={onTogglePlay}
       />
 
-      {/* Top progress bar */}
-      <div className="absolute left-0 right-0 top-0 h-[2px] bg-white/15 z-20">
-        <div className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150" style={{ width: `${progress}%` }} />
+      {/* Top segmented progress bar — one segment per video of the current creator */}
+      <div className="absolute left-0 right-0 top-0 z-20 flex gap-1 px-1.5 pt-1.5">
+        {videoCount > 1 ? (
+          Array.from({ length: videoCount }).map((_, i) => (
+            <div key={i} className="h-[2.5px] flex-1 overflow-hidden rounded-full bg-white/20">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150"
+                style={{
+                  width: i < videoIndex ? "100%" : i === videoIndex ? `${progress}%` : "0%",
+                }}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="h-[2.5px] flex-1 overflow-hidden rounded-full bg-white/15">
+            <div className="h-full bg-gradient-to-r from-primary to-primary-glow progress-glow transition-[width] duration-150" style={{ width: `${progress}%` }} />
+          </div>
+        )}
       </div>
 
       {short.isPremium && (
