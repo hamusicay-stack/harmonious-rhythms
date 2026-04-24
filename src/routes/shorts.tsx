@@ -596,6 +596,7 @@ function ShortsPage() {
                 liked={likedSet.has(current.id)}
                 creatorChanged={creatorChanged}
                 slideDir={slideDir}
+                heartPulse={heartPulse}
                 videoIndex={videoIndex}
                 videoCount={currentGroup?.videos.length ?? 0}
                 onTogglePlay={togglePlay}
