@@ -703,59 +703,131 @@ function ShortsPage() {
   );
 }
 
-/* ---------- STORY ROW ---------- */
-function StoryRow({
-  shorts, activeIndex, progress, onSelect, rowRef, compact,
+/* ---------- FEED TABS ---------- */
+function FeedTabs({
+  tab, onChange, hasFollowing, followingCount, compact,
 }: {
-  shorts: Short[]; activeIndex: number; progress: number;
+  tab: FeedTab;
+  onChange: (t: FeedTab) => void;
+  hasFollowing: boolean;
+  followingCount: number;
+  compact?: boolean;
+}) {
+  const baseBtn = "rounded-full px-4 py-1.5 text-xs font-bold transition-all";
+  const activeCls = compact
+    ? "bg-white text-black shadow-md"
+    : "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold";
+  const inactiveCls = compact
+    ? "bg-white/10 text-white/80 hover:bg-white/20"
+    : "bg-secondary text-foreground/70 hover:bg-secondary/80";
+  return (
+    <div className={cn("flex items-center justify-center gap-2", compact ? "px-3 pb-2" : "mb-3")}>
+      <button
+        type="button"
+        onClick={() => onChange("all")}
+        className={cn(baseBtn, tab === "all" ? activeCls : inactiveCls)}
+      >
+        הכל
+      </button>
+      {hasFollowing && (
+        <button
+          type="button"
+          onClick={() => onChange("following")}
+          className={cn(baseBtn, "flex items-center gap-1.5", tab === "following" ? activeCls : inactiveCls)}
+        >
+          עוקב
+          {followingCount > 0 && (
+            <span className={cn(
+              "rounded-full px-1.5 text-[10px] leading-4",
+              tab === "following" ? "bg-black/20 text-current" : "bg-primary/20 text-primary",
+            )}>
+              {followingCount}
+            </span>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ---------- EMPTY TAB ---------- */
+function EmptyTab({ tab, onSwitch }: { tab: FeedTab; onSwitch: () => void }) {
+  if (tab === "following") {
+    return (
+      <div className="mx-auto flex aspect-[9/16] max-h-[78vh] w-full max-w-[420px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-card/50 p-6 text-center">
+        <Music2 className="h-10 w-10 text-primary" />
+        <h3 className="font-display text-lg font-bold">אין עדיין יוצרים שאתה עוקב אחריהם</h3>
+        <p className="text-sm text-muted-foreground">עקוב אחרי יוצרים בטאב "הכל" כדי לראות אותם כאן</p>
+        <Button onClick={onSwitch} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
+          לטאב הכל
+        </Button>
+      </div>
+    );
+  }
+  return null;
+}
+
+/* ---------- STORY ROW (creators carousel) ---------- */
+function StoryRow({
+  creators, activeIndex, progress, onSelect, rowRef, compact,
+}: {
+  creators: CreatorGroup[]; activeIndex: number; progress: number;
   onSelect: (i: number) => void; rowRef: React.RefObject<HTMLDivElement | null>;
   compact?: boolean;
 }) {
   return (
-    <div ref={rowRef} className={cn("flex gap-3 overflow-x-auto pb-2 scrollbar-thin shorts-snap-x", compact ? "px-3" : "mb-4 pb-3")}>
-      {!compact && (
-      <button className="flex shrink-0 flex-col items-center gap-1.5">
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-card hover:border-primary">
-          <Plus className="h-6 w-6 text-primary" />
-        </div>
-        <span className="text-xs font-medium">אתה</span>
-      </button>
+    <div
+      ref={rowRef}
+      className={cn(
+        "flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin shorts-snap-x",
+        compact ? "px-3" : "mb-4 pb-3",
       )}
-      {shorts.map((s, i) => {
+    >
+      {!compact && (
+        <button className="flex shrink-0 flex-col items-center gap-1.5">
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-card hover:border-primary">
+            <Plus className="h-6 w-6 text-primary" />
+          </div>
+          <span className="text-xs font-medium">אתה</span>
+        </button>
+      )}
+      {creators.map((c, i) => {
         const active = i === activeIndex;
+        const baseSize = compact ? "h-12 w-12" : "h-16 w-16";
+        const activeSize = compact ? "h-16 w-16" : "h-20 w-20";
+        const isPremium = c.videos[0]?.isPremium;
         return (
           <button
-            key={s.id}
+            key={c.creator_id}
             data-idx={i}
             onClick={() => onSelect(i)}
             className="flex shrink-0 flex-col items-center gap-1.5"
           >
             <div className={cn(
-              "relative rounded-full p-[2px] transition-all duration-700 ease-out animate-fade-in",
-              compact ? "h-12 w-12" : "h-16 w-16",
-              s.isPremium
-                ? "bg-gradient-to-tr from-primary/70 via-primary-glow/70 to-primary/70"
+              "relative rounded-full p-[2px] transition-all duration-500 ease-out animate-fade-in",
+              active ? activeSize : baseSize,
+              isPremium
+                ? "bg-gradient-to-tr from-primary/80 via-primary-glow/80 to-primary/80"
                 : "bg-gradient-to-tr from-muted-foreground/30 to-muted",
-              active && "scale-105",
+              active && "ring-2 ring-primary/50 shadow-gold",
             )}>
               {active && (
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -inset-0.5 rounded-full opacity-70"
+                  className="pointer-events-none absolute -inset-0.5 rounded-full opacity-80"
                   style={{
                     background:
-                      "conic-gradient(from 0deg, oklch(0.82 0.10 78 / 0.9), transparent 60%, oklch(0.82 0.10 78 / 0.9))",
-                    WebkitMask:
-                      "radial-gradient(circle, transparent 60%, black 62%)",
+                      "conic-gradient(from 0deg, oklch(0.82 0.10 78 / 0.95), transparent 60%, oklch(0.82 0.10 78 / 0.95))",
+                    WebkitMask: "radial-gradient(circle, transparent 60%, black 62%)",
                     mask: "radial-gradient(circle, transparent 60%, black 62%)",
                     animation: "spin 6s linear infinite",
                   }}
                 />
               )}
               <Avatar className="relative h-full w-full border-2 border-background">
-                <AvatarImage src={s.creator.avatar || undefined} />
+                <AvatarImage src={c.creator.avatar || undefined} />
                 <AvatarFallback className="bg-secondary text-xs font-bold">
-                  {s.creator.name.slice(0, 2)}
+                  {c.creator.name.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               {active && (
@@ -764,10 +836,18 @@ function StoryRow({
                     strokeDasharray={`${(progress / 100) * 301.6} 301.6`} />
                 </svg>
               )}
+              {c.videos.length > 1 && (
+                <span className="absolute -bottom-1 -right-1 z-10 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-md">
+                  {c.videos.length}
+                </span>
+              )}
             </div>
             {!compact && (
-              <span className={cn("max-w-[70px] truncate text-xs", active && "font-semibold text-primary")}>
-                {s.creator.name}
+              <span className={cn(
+                "max-w-[80px] truncate text-xs transition-all",
+                active ? "font-bold text-primary" : "text-foreground/70",
+              )}>
+                {c.creator.name}
               </span>
             )}
           </button>
