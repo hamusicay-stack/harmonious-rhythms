@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 import { ImageLightbox } from "@/components/marketplace/ImageLightbox";
 import { ReportListingDialog } from "@/components/marketplace/ReportListingDialog";
+import { ChatThreadDialog } from "@/components/marketplace/ChatThreadDialog";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
@@ -281,6 +282,9 @@ function ListingDetailPage() {
                   </a>
                 )}
               </div>
+              {!isOwner && (
+                <ChatThreadDialog listingId={listing.id} sellerId={listing.seller_id} listingTitle={listing.title} />
+              )}
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant={hasLiked ? "default" : "outline"}
