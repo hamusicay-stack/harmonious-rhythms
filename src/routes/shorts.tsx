@@ -73,8 +73,21 @@ type CreatorGroup = {
   videos: Short[];
 };
 
+function useIsLgUp() {
+  const [isLg, setIsLg] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setIsLg(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return isLg;
+}
+
 function ShortsPage() {
   const { user, profile } = useAuth();
+  const isLg = useIsLgUp();
   const { stop: stopFloatingAudio } = useAudioPlayer();
   // Stop the global floating audio (FloatingAudioPlayer) the moment Shorts mounts
   // so the previous track doesn't keep playing under the video.
