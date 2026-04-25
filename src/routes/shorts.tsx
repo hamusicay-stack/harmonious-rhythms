@@ -1308,26 +1308,63 @@ function UploadDialog({
             <p className="text-[11px] text-muted-foreground">Enter / פסיק / רווח כדי להוסיף תגית</p>
           </div>
           <div className="space-y-2">
-            <Label>קובץ סרטון (עד 60MB, פורמט MP4 מומלץ, יחס אנכי 9:16) *</Label>
+            <div className="flex items-center justify-between">
+              <Label>קובץ סרטון (עד 60MB, יחס אנכי 9:16) *</Label>
+              {isPremiumUser && (
+                <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-primary-glow/20 px-2 py-0.5 text-[10px] font-bold text-primary">
+                  <Crown className="h-3 w-3" /> פרימיום — בחירה מרובה
+                </span>
+              )}
+            </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="block">
                 <span className="sr-only">בחר סרטון קיים</span>
-                <Input type="file" accept="video/*" onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)} />
-              </label>
-              <label className="cursor-pointer">
-                <input
+                <Input
                   type="file"
                   accept="video/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                  multiple={isPremiumUser}
+                  onClick={(e) => { if (!tryAddMoreClick()) e.preventDefault(); }}
+                  onChange={(e) => handleFileChange(e.target.files)}
                 />
-                <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition hover:bg-accent hover:text-accent-foreground">
-                  פתח מצלמה
-                </div>
               </label>
+              {(isPremiumUser || files.length === 0) && (
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    capture="environment"
+                    className="hidden"
+                    onClick={(e) => { if (!tryAddMoreClick()) e.preventDefault(); }}
+                    onChange={(e) => handleFileChange(e.target.files)}
+                  />
+                  <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition hover:bg-accent hover:text-accent-foreground">
+                    פתח מצלמה
+                  </div>
+                </label>
+              )}
             </div>
-            {file && <p className="text-xs text-muted-foreground">{file.name} • {(file.size / 1024 / 1024).toFixed(1)}MB</p>}
+            {files.length > 0 && (
+              <ul className="space-y-1">
+                {files.map((f, i) => (
+                  <li key={`${f.name}-${i}`} className="flex items-center justify-between gap-2 rounded-md bg-muted/40 px-2 py-1 text-xs">
+                    <span className="truncate">{f.name} • {(f.size / 1024 / 1024).toFixed(1)}MB</span>
+                    <button type="button" onClick={() => removeFileAt(i)} className="text-muted-foreground hover:text-destructive" aria-label="הסר קובץ">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {!isPremiumUser && files.length >= 1 && (
+              <button
+                type="button"
+                onClick={() => setShowUpsell(true)}
+                className="flex w-full items-center justify-center gap-1 rounded-md border border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10"
+              >
+                <Crown className="h-3.5 w-3.5" />
+                רוצה להעלות עוד סרטונים? שדרג לפרימיום
+              </button>
+            )}
           </div>
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
             💡 הסרטון יישלח לאישור מנהל לפני שיוצג בפיד. משתמשים מאושרים מראש (Trusted) פרסומיהם עולים מיד.
