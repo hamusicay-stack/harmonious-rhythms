@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame } from "lucide-react";
+import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame, Pencil, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
+import { CATEGORIES, BRANDS, CITIES, CONDITIONS, CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
+import { watermarkImage } from "@/lib/watermark";
 
 const MAX_IMAGES = 10;
 
