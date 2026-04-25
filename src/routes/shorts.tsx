@@ -367,6 +367,13 @@ function ShortsPage() {
     return () => clearTimeout(t);
   }, [slideDir, creatorIndex, videoIndex]);
 
+  // Auto-clear heart-pop overlay after the animation completes so it doesn't linger on screen
+  useEffect(() => {
+    if (heartPulse === 0) return;
+    const t = setTimeout(() => setHeartPulse(0), 600);
+    return () => clearTimeout(t);
+  }, [heartPulse]);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     touchStartX.current = e.touches[0].clientX;
