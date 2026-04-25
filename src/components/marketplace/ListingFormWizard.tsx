@@ -169,11 +169,15 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     if (!user || !e.target.files) return;
     const files = Array.from(e.target.files).slice(0, MAX_IMAGES - images.length);
     if (files.length === 0) return;
+    // Reset input so picking the same file again works
+    e.target.value = "";
     setUploading(true);
     try {
       const urls: string[] = [];
-      for (const file of files) {
-        if (file.size > 15 * 1024 * 1024) { toast.error(`${file.name}: מעל 15MB`); continue; }
+      for (const rawFile of files) {
+        if (rawFile.size > 15 * 1024 * 1024) { toast.error(`${rawFile.name}: מעל 15MB`); continue; }
+        // Apply brand watermark before uploading (fail-open)
+        const file = await watermarkImage(rawFile);
         const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
         const { error } = await supabase.storage.from("marketplace").upload(path, file, {
           cacheControl: "31536000",
@@ -185,6 +189,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         urls.push(data.publicUrl);
       }
       setImages((prev) => [...prev, ...urls]);
+      if (urls.length) toast.success(`${urls.length} תמונות הועלו עם סימן מים`);
     } finally {
       setUploading(false);
     }
