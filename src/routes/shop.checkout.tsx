@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ShoppingBag, Loader2, ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ShoppingBag, Loader2, ArrowRight, ArrowLeft, Check, User, MapPin, Receipt } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatILS } from "@/lib/shopUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { getActiveRefCode } from "@/lib/affiliate";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/checkout")({
@@ -23,6 +24,13 @@ export const Route = createFileRoute("/shop/checkout")({
   }),
   component: CheckoutPage,
 });
+
+const focusToCenter = (e: React.FocusEvent<HTMLElement>) => {
+  // Smoothly bring the focused field above the on-screen keyboard
+  setTimeout(() => {
+    e.currentTarget?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, 80);
+};
 
 function CheckoutPage() {
   const { items, subtotal, clear } = useCart();
@@ -51,15 +59,66 @@ function CheckoutPage() {
     }
   }, [user, profile]);
 
-  const hasPhysical = items.some((i) => i.product_type !== "digital");
+  const hasPhysical = useMemo(() => items.some((i) => i.product_type !== "digital"), [items]);
   const shipping = hasPhysical && subtotal < 500 && subtotal > 0 ? 35 : 0;
   const total = subtotal + shipping;
 
+  // Stepper: 1 = details, 2 = shipping (skipped if digital-only), 3 = review
+  const steps = hasPhysical
+    ? [
+        { n: 1, label: "פרטים", icon: User },
+        { n: 2, label: "משלוח", icon: MapPin },
+        { n: 3, label: "סיכום", icon: Receipt },
+      ]
+    : [
+        { n: 1, label: "פרטים", icon: User },
+        { n: 3, label: "סיכום", icon: Receipt },
+      ];
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const validateStep1 = (): string[] => {
+    const errs: string[] = [];
+    if (!form.customer_name.trim()) errs.push("שם מלא");
+    if (!form.customer_email.trim()) errs.push("אימייל");
+    else if (!/^\S+@\S+\.\S+$/.test(form.customer_email)) errs.push("אימייל תקין");
+    if (!form.customer_phone.trim()) errs.push("טלפון");
+    return errs;
+  };
+  const validateStep2 = (): string[] => {
+    const errs: string[] = [];
+    if (hasPhysical) {
+      if (!form.address_line.trim()) errs.push("כתובת");
+      if (!form.city.trim()) errs.push("עיר");
+    }
+    return errs;
+  };
+
+  const showErrors = (errs: string[]) => {
+    if (errs.length === 0) return;
+    toast.error("יש להשלים שדות חובה", {
+      description: errs.map((e) => `• ${e}`).join("\n"),
+    });
+  };
+
+  const goNext = () => {
+    if (step === 1) {
+      const errs = validateStep1();
+      if (errs.length) return showErrors(errs);
+      setStep(hasPhysical ? 2 : 3);
+    } else if (step === 2) {
+      const errs = validateStep2();
+      if (errs.length) return showErrors(errs);
+      setStep(3);
+    }
+  };
+  const goBack = () => {
+    if (step === 3) setStep(hasPhysical ? 2 : 1);
+    else if (step === 2) setStep(1);
+  };
+
   const submit = async () => {
-    if (!form.customer_name.trim()) return toast.error("חסר שם מלא");
-    if (!form.customer_email.trim()) return toast.error("חסר אימייל");
-    if (!form.customer_phone.trim()) return toast.error("חסר טלפון");
-    if (hasPhysical && (!form.address_line || !form.city)) return toast.error("חסרים פרטי משלוח");
+    const errs = [...validateStep1(), ...validateStep2()];
+    if (errs.length) return showErrors(errs);
     if (items.length === 0) return toast.error("העגלה ריקה");
 
     setSubmitting(true);
@@ -101,7 +160,6 @@ function CheckoutPage() {
       const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems);
       if (itemsErr) throw itemsErr;
 
-      // Affiliate conversion tracking — if a ref cookie exists, record one conversion per product
       const refCode = getActiveRefCode();
       if (refCode) {
         await Promise.all(items.map((it) =>
@@ -141,57 +199,177 @@ function CheckoutPage() {
 
   return (
     <SiteLayout>
-      <div className="container mx-auto px-4 py-8 md:px-8" dir="rtl">
+      <div className="container mx-auto px-4 py-6 md:px-8 md:py-8" dir="rtl">
         <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowRight className="h-4 w-4" /> המשך קניות
         </Link>
-        <h1 className="mb-6 text-3xl font-bold">תשלום</h1>
+        <h1 className="mb-4 text-2xl font-bold md:text-3xl">תשלום</h1>
+
+        {/* Stepper */}
+        <div className="mb-6 flex items-center justify-between gap-2">
+          {steps.map((s, i) => {
+            const Icon = s.icon;
+            const isActive = step === s.n;
+            const isDone = (step === 3 && s.n !== 3) || (step === 2 && s.n === 1);
+            return (
+              <div key={s.n} className="flex flex-1 items-center gap-2">
+                <div className={cn(
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+                  isActive && "border-primary bg-primary text-primary-foreground shadow-gold",
+                  isDone && "border-primary bg-primary/20 text-primary",
+                  !isActive && !isDone && "border-border bg-muted text-muted-foreground",
+                )}>
+                  {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                </div>
+                <div className={cn("text-xs font-semibold whitespace-nowrap", !isActive && "text-muted-foreground")}>
+                  {s.label}
+                </div>
+                {i < steps.length - 1 && (
+                  <div className={cn("h-[2px] flex-1 rounded-full", isDone ? "bg-primary/60" : "bg-border")} />
+                )}
+              </div>
+            );
+          })}
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <Card className="p-5">
-            <h2 className="mb-4 text-lg font-bold">פרטי לקוח</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label>שם מלא *</Label>
-                <Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
-              </div>
-              <div>
-                <Label>טלפון *</Label>
-                <Input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} />
-              </div>
-              <div className="md:col-span-2">
-                <Label>אימייל *</Label>
-                <Input type="email" value={form.customer_email} onChange={(e) => setForm({ ...form, customer_email: e.target.value })} />
-              </div>
-            </div>
-
-            {hasPhysical && (
+          <Card className="p-4 md:p-5">
+            {step === 1 && (
               <>
-                <h2 className="mb-4 mt-6 text-lg font-bold">כתובת למשלוח</h2>
+                <h2 className="mb-4 text-lg font-bold">פרטי לקוח</h2>
                 <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label htmlFor="cust-name">שם מלא *</Label>
+                    <Input
+                      id="cust-name"
+                      autoComplete="name"
+                      value={form.customer_name}
+                      onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+                      onFocus={focusToCenter}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="cust-phone">טלפון *</Label>
+                    <Input
+                      id="cust-phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      dir="ltr"
+                      value={form.customer_phone}
+                      onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
+                      onFocus={focusToCenter}
+                    />
+                  </div>
                   <div className="md:col-span-2">
-                    <Label>כתובת *</Label>
-                    <Input value={form.address_line} onChange={(e) => setForm({ ...form, address_line: e.target.value })} placeholder="רחוב ומספר בית" />
-                  </div>
-                  <div>
-                    <Label>עיר *</Label>
-                    <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>מיקוד</Label>
-                    <Input value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} />
+                    <Label htmlFor="cust-email">אימייל *</Label>
+                    <Input
+                      id="cust-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      dir="ltr"
+                      value={form.customer_email}
+                      onChange={(e) => setForm({ ...form, customer_email: e.target.value })}
+                      onFocus={focusToCenter}
+                    />
                   </div>
                 </div>
               </>
             )}
 
-            <div className="mt-6">
-              <Label>הערות להזמנה (אופציונלי)</Label>
-              <Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-            </div>
+            {step === 2 && hasPhysical && (
+              <>
+                <h2 className="mb-4 text-lg font-bold">כתובת למשלוח</h2>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="md:col-span-2">
+                    <Label htmlFor="addr">כתובת *</Label>
+                    <Input
+                      id="addr"
+                      autoComplete="street-address"
+                      placeholder="רחוב ומספר בית"
+                      value={form.address_line}
+                      onChange={(e) => setForm({ ...form, address_line: e.target.value })}
+                      onFocus={focusToCenter}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="city">עיר *</Label>
+                    <Input
+                      id="city"
+                      autoComplete="address-level2"
+                      value={form.city}
+                      onChange={(e) => setForm({ ...form, city: e.target.value })}
+                      onFocus={focusToCenter}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="zip">מיקוד</Label>
+                    <Input
+                      id="zip"
+                      inputMode="numeric"
+                      autoComplete="postal-code"
+                      value={form.postal_code}
+                      onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
+                      onFocus={focusToCenter}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
 
-            <div className="mt-6 rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-              💳 שלב התשלום יחובר בקרוב. בינתיים — סיום ההזמנה ייצור הזמנה במצב "ממתין לתשלום" וצוות החנות ייצור איתך קשר.
+            {step === 3 && (
+              <>
+                <h2 className="mb-4 text-lg font-bold">סיכום ואישור</h2>
+                <div className="space-y-3 rounded-lg border bg-muted/30 p-4 text-sm">
+                  <div>
+                    <div className="mb-1 text-xs font-semibold text-muted-foreground">פרטי לקוח</div>
+                    <div className="font-medium">{form.customer_name}</div>
+                    <div className="text-muted-foreground">{form.customer_email} · {form.customer_phone}</div>
+                  </div>
+                  {hasPhysical && (
+                    <div className="border-t pt-3">
+                      <div className="mb-1 text-xs font-semibold text-muted-foreground">כתובת למשלוח</div>
+                      <div>{form.address_line}, {form.city}{form.postal_code ? `, ${form.postal_code}` : ""}</div>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-5">
+                  <Label htmlFor="notes">הערות להזמנה (אופציונלי)</Label>
+                  <Textarea
+                    id="notes"
+                    rows={3}
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    onFocus={focusToCenter}
+                  />
+                </div>
+                <div className="mt-5 rounded-lg bg-muted/50 p-4 text-xs text-muted-foreground">
+                  💳 שלב התשלום יחובר בקרוב. סיום ההזמנה ייצור הזמנה במצב "ממתין לתשלום" וצוות החנות ייצור איתך קשר.
+                </div>
+              </>
+            )}
+
+            {/* Step navigation */}
+            <div className="mt-6 flex items-center justify-between gap-3">
+              {step > 1 ? (
+                <Button type="button" variant="outline" onClick={goBack} className="gap-1">
+                  <ArrowRight className="h-4 w-4" />
+                  חזור
+                </Button>
+              ) : <span />}
+
+              {step < 3 ? (
+                <Button type="button" onClick={goNext} size="lg" className="gap-1">
+                  המשך
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button onClick={submit} disabled={submitting} size="lg" className="gap-1">
+                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                  סיום הזמנה
+                </Button>
+              )}
             </div>
           </Card>
 
@@ -223,11 +401,6 @@ function CheckoutPage() {
                 <span className="font-bold text-primary">{formatILS(total)}</span>
               </div>
             </div>
-
-            <Button onClick={submit} disabled={submitting} className="mt-4 w-full" size="lg">
-              {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-              סיום הזמנה
-            </Button>
           </Card>
         </div>
       </div>
