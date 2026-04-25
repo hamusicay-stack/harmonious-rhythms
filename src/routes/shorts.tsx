@@ -587,69 +587,68 @@ function ShortsPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 md:px-8">
-        <div className="hidden gap-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)_300px]">
-          <aside className="space-y-4">
-            <BannerSlot position="shorts_left" className="aspect-[2/3] overflow-hidden rounded-2xl" />
-            <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-4">
-              <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase text-primary">
-                ✨ עבורך
+      {isLg && (
+        <div className="container mx-auto px-4 py-6 md:px-8">
+          <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_300px]">
+            <aside className="space-y-4">
+              <BannerSlot position="shorts_left" className="aspect-[2/3] overflow-hidden rounded-2xl" />
+              <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-4">
+                <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase text-primary">
+                  ✨ עבורך
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {user
+                    ? "הפיד מותאם אישית לפי לייקים ועוקבים שלך"
+                    : "התחבר כדי לקבל פיד מותאם אישית"}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {user
-                  ? "הפיד מותאם אישית לפי לייקים ועוקבים שלך"
-                  : "התחבר כדי לקבל פיד מותאם אישית"}
-              </p>
-            </div>
-          </aside>
+            </aside>
 
-          <main>
-            <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} />
-            <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} />
-            {current ? (
-              <VideoPlayer
-                short={current}
-                videoRef={videoRef}
-                isMuted={isMuted}
-                isPlaying={isPlaying}
-                progress={progress}
-                liked={likedSet.has(current.id)}
-                creatorChanged={creatorChanged}
-                slideDir={slideDir}
-                heartPulse={heartPulse}
-                videoIndex={videoIndex}
-                videoCount={currentGroup?.videos.length ?? 0}
-                onTogglePlay={togglePlay}
-                onToggleMute={() => setIsMuted((m) => !m)}
-                onLike={() => toggleLike(current.id)}
-                onShare={shareWhatsApp}
-                onComment={() => setCommentsOpen(true)}
-                fmt={fmt}
-              />
-            ) : (
-              <EmptyTab tab={tab} onSwitch={() => setTab("all")} />
-            )}
-          </main>
+            <main>
+              <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} />
+              <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} />
+              {current ? (
+                <VideoPlayer
+                  short={current}
+                  videoRef={videoRef}
+                  isMuted={isMuted}
+                  isPlaying={isPlaying}
+                  progress={progress}
+                  liked={likedSet.has(current.id)}
+                  creatorChanged={creatorChanged}
+                  slideDir={slideDir}
+                  heartPulse={heartPulse}
+                  videoIndex={videoIndex}
+                  videoCount={currentGroup?.videos.length ?? 0}
+                  onTogglePlay={togglePlay}
+                  onToggleMute={() => setIsMuted((m) => !m)}
+                  onLike={() => toggleLike(current.id)}
+                  onShare={shareWhatsApp}
+                  onComment={() => setCommentsOpen(true)}
+                  fmt={fmt}
+                />
+              ) : (
+                <EmptyTab tab={tab} onSwitch={() => setTab("all")} />
+              )}
+            </main>
 
-          <aside className="space-y-4">
-            <BannerSlot position="shorts_right_top" className="aspect-square overflow-hidden rounded-2xl" />
-            <div className="rounded-2xl border border-border/60 bg-card-elevated p-4">
-              <h3 className="mb-2 font-display text-sm font-bold">פורום המוזיקאים</h3>
-              <p className="mb-3 text-xs text-muted-foreground">דיונים חמים מהקהילה</p>
-              <Link to="/forum">
-                <Button variant="outline" size="sm" className="w-full">
-                  <MessageSquare className="ml-1 h-3 w-3" />
-                  לפורום
-                </Button>
-              </Link>
-            </div>
-            <BannerSlot position="shorts_right_bottom" className="aspect-video overflow-hidden rounded-2xl" />
-          </aside>
+            <aside className="space-y-4">
+              <BannerSlot position="shorts_right_top" className="aspect-square overflow-hidden rounded-2xl" />
+              <div className="rounded-2xl border border-border/60 bg-card-elevated p-4">
+                <h3 className="mb-2 font-display text-sm font-bold">פורום המוזיקאים</h3>
+                <p className="mb-3 text-xs text-muted-foreground">דיונים חמים מהקהילה</p>
+                <Link to="/forum">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <MessageSquare className="ml-1 h-3 w-3" />
+                    לפורום
+                  </Button>
+                </Link>
+              </div>
+              <BannerSlot position="shorts_right_bottom" className="aspect-video overflow-hidden rounded-2xl" />
+            </aside>
+          </div>
         </div>
-
-        {/* Mobile placeholder spacer (real player rendered below as fixed full-screen) */}
-        <div className="lg:hidden h-[1px]" aria-hidden />
-      </div>
+      )}
 
       {/* MOBILE FULL-SCREEN STAGE */}
       <div
