@@ -1227,37 +1227,41 @@ function UploadDialog({
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (!title.trim()) { toast.error("כותרת חובה"); return; }
-    if (!file) { toast.error("יש לבחור סרטון"); return; }
-    if (file.size > MAX_SHORT_FILE_SIZE) { toast.error("גודל מקסימלי 60MB"); return; }
+    if (files.length === 0) { toast.error("יש לבחור סרטון"); return; }
 
     const allowed = await checkQuota();
     if (!allowed) return;
 
     setUploading(true);
-    const ext = file.name.split(".").pop() || "mp4";
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("shorts").upload(path, file, {
-      cacheControl: "3600", upsert: false, contentType: file.type,
-    });
-    if (upErr) { setUploading(false); toast.error(upErr.message); return; }
-
-    const { data: pub } = supabase.storage.from("shorts").getPublicUrl(path);
-
-    const { error: insErr } = await supabase.from("shorts_videos").insert({
-      creator_id: user.id,
-      title: title.trim(),
-      description: description.trim() || null,
-      video_url: pub.publicUrl,
-      status: "pending",
-      tags: tags.length > 0 ? tags : [],
-    });
-    setUploading(false);
-    if (insErr) { toast.error(insErr.message); return; }
-
-    toast.success("הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
-    setTitle(""); setDescription(""); setFile(null); setTags([]); setTagDraft("");
-    onOpenChange(false);
-    onUploaded();
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const ext = f.name.split(".").pop() || "mp4";
+        const path = `${user.id}/${Date.now()}-${i}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("shorts").upload(path, f, {
+          cacheControl: "3600", upsert: false, contentType: f.type,
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from("shorts").getPublicUrl(path);
+        const { error: insErr } = await supabase.from("shorts_videos").insert({
+          creator_id: user.id,
+          title: files.length > 1 ? `${title.trim()} (${i + 1})` : title.trim(),
+          description: description.trim() || null,
+          video_url: pub.publicUrl,
+          status: "pending",
+          tags: tags.length > 0 ? tags : [],
+        });
+        if (insErr) throw insErr;
+      }
+      toast.success(files.length > 1 ? `${files.length} סרטונים הועלו!` : "הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
+      setTitle(""); setDescription(""); setFiles([]); setTags([]); setTagDraft("");
+      onOpenChange(false);
+      onUploaded();
+    } catch (e: any) {
+      toast.error(e?.message ?? "ההעלאה נכשלה");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
