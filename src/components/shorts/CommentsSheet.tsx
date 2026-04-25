@@ -151,7 +151,17 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
 
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
           {loading && comments.length === 0 && (
-            <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="shimmer h-9 w-9 shrink-0 rounded-full" />
+                  <div className="flex-1 space-y-2 pt-1">
+                    <div className="shimmer h-3 w-24 rounded-full" />
+                    <div className="shimmer h-3 w-3/4 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
           {!loading && comments.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
