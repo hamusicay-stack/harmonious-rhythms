@@ -1138,10 +1138,27 @@ function UploadDialog({
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
   const [nextAllowedAt, setNextAllowedAt] = useState<Date | null>(null);
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
+
+  // Detect premium / admin / trusted on dialog open to enable multi-upload
+  useEffect(() => {
+    if (!open || !user) return;
+    (async () => {
+      const [{ data: roles }, { data: trusted }, { data: prof }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id),
+        supabase.from("shorts_trusted_uploaders").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("subscription_tier").eq("id", user.id).maybeSingle(),
+      ]);
+      const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+      const isTrusted = !!trusted;
+      const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
+      setIsPremiumUser(isAdmin || isTrusted || tier === "premium" || tier === "vip" || tier === "pro");
+    })();
+  }, [open, user]);
 
   const addTag = (raw: string) => {
     const t = raw.trim().replace(/^#+/, "").replace(/\s+/g, "_").slice(0, 30);
@@ -1152,17 +1169,26 @@ function UploadDialog({
     setTagDraft("");
   };
 
-  const handleFileChange = (nextFile: File | null) => {
-    if (!nextFile) return;
-    if (!nextFile.type.startsWith("video/")) {
-      toast.error("יש לבחור קובץ וידאו תקין");
-      return;
+  const handleFileChange = (list: FileList | null) => {
+    if (!list || list.length === 0) return;
+    const arr = Array.from(list);
+    // Free users: only one file allowed
+    const allowed = isPremiumUser ? arr : arr.slice(0, 1);
+    for (const f of allowed) {
+      if (!f.type.startsWith("video/")) { toast.error(`${f.name}: לא קובץ וידאו`); return; }
+      if (f.size > MAX_SHORT_FILE_SIZE) { toast.error(`${f.name}: מעל 60MB`); return; }
     }
-    if (nextFile.size > MAX_SHORT_FILE_SIZE) {
-      toast.error("גודל מקסימלי 60MB");
-      return;
+    setFiles(isPremiumUser ? allowed : allowed.slice(0, 1));
+  };
+
+  const removeFileAt = (i: number) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
+
+  const tryAddMoreClick = () => {
+    if (!isPremiumUser && files.length >= 1) {
+      setShowUpsell(true);
+      return false;
     }
-    setFile(nextFile);
+    return true;
   };
 
   /** Returns true if the user is allowed to upload now; false if quota hit (sets upsell dialog). */
