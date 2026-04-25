@@ -342,13 +342,6 @@ function ShortsPage() {
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
-      // Hard-stop the previous video to prevent double audio when swapping src/key
-      try {
-        v.pause();
-        v.muted = true;
-        v.removeAttribute("src");
-        v.load();
-      } catch { /* noop */ }
     };
   }, [current?.id, goNext]);
 
