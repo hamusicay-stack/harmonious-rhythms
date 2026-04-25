@@ -29,7 +29,7 @@ export function CartDrawer() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="flex w-full flex-col sm:max-w-md" dir="rtl">
+      <SheetContent side="left" className="flex w-full flex-col px-3 sm:max-w-md sm:px-6" dir="rtl">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-primary" />
@@ -79,8 +79,8 @@ export function CartDrawer() {
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(it.id)}>
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        <Button size="icon" variant="ghost" className="h-10 w-10 -mr-1" onClick={() => remove(it.id)} aria-label="הסר מוצר">
+                          <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </div>
