@@ -651,64 +651,88 @@ function ShortsPage() {
       )}
 
       {/* MOBILE FULL-SCREEN STAGE */}
-      <div
-        className="lg:hidden shorts-stage"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Floating top stories overlay */}
-        <div className="pointer-events-auto absolute inset-x-0 top-0 z-30 bg-gradient-to-b from-black/75 via-black/40 to-transparent pb-6 pt-[max(env(safe-area-inset-top),0.5rem)]">
-          <div className="flex items-center justify-between px-3 pb-2">
-            <div className="flex items-center gap-2 text-white">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary-glow shadow-gold">
-                <Music2 className="h-4 w-4 text-primary-foreground" />
+      {!isLg && (
+        <div
+          className="shorts-stage"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Floating top stories overlay */}
+          <div className="pointer-events-auto absolute inset-x-0 top-0 z-30 bg-gradient-to-b from-black/75 via-black/40 to-transparent pb-6 pt-[max(env(safe-area-inset-top),0.5rem)]">
+            <div className="flex items-center justify-between px-3 pb-2">
+              <div className="flex items-center gap-2 text-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary-glow shadow-gold">
+                  <Music2 className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <span className="font-display text-sm font-bold">שורטס</span>
               </div>
-              <span className="font-display text-sm font-bold">שורטס</span>
+              <div className="flex items-center gap-2">
+                {user ? (
+                  <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} onUploaded={loadShorts}>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-gold"
+                      aria-label="העלה סרטון"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      העלה
+                    </button>
+                  </UploadDialog>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm hover:bg-white/25"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    העלה
+                  </Link>
+                )}
+                <Link to="/" className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-sm hover:bg-white/20" aria-label="סגור">
+                  <X className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
-            <Link to="/" className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-sm hover:bg-white/20" aria-label="סגור">
-              <X className="h-4 w-4" />
-            </Link>
+            <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} compact />
+            <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} compact />
           </div>
-          <FeedTabs tab={tab} onChange={setTab} hasFollowing={!!user} followingCount={followedCreatorIds.size} compact />
-          <StoryRow creators={creators} activeIndex={creatorIndex} progress={progress} onSelect={selectCreator} rowRef={storyRowRef} compact />
-        </div>
 
-        {current && (
-          <div
-            className="absolute inset-0 will-change-transform"
-            style={{
-              transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`,
-              transition: dragging ? "none" : "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)",
-            }}
-          >
-            <VideoPlayer
-              short={current}
-              videoRef={videoRef}
-              isMuted={isMuted}
-              isPlaying={isPlaying}
-              progress={progress}
-              liked={likedSet.has(current.id)}
-              creatorChanged={creatorChanged}
-              slideDir={slideDir}
-              heartPulse={heartPulse}
-              videoIndex={videoIndex}
-              videoCount={currentGroup?.videos.length ?? 0}
-              onTogglePlay={togglePlay}
-              onToggleMute={() => setIsMuted((m) => !m)}
-              onLike={() => toggleLike(current.id)}
-              onShare={shareWhatsApp}
-              onComment={() => setCommentsOpen(true)}
-              fmt={fmt}
-              mobileFull
-              fullScreen
-            />
-          </div>
-        )}
-        <p className="absolute bottom-[max(env(safe-area-inset-bottom),0.25rem)] left-0 right-0 text-center text-[10px] text-white/50 pointer-events-none">
-          ⬆ סרטון הבא של {currentGroup?.creator.name ?? "היוצר"} • ⬅ ליוצר הבא
-        </p>
-      </div>
+          {current && (
+            <div
+              className="absolute inset-0 will-change-transform"
+              style={{
+                transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0)`,
+                transition: dragging ? "none" : "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            >
+              <VideoPlayer
+                short={current}
+                videoRef={videoRef}
+                isMuted={isMuted}
+                isPlaying={isPlaying}
+                progress={progress}
+                liked={likedSet.has(current.id)}
+                creatorChanged={creatorChanged}
+                slideDir={slideDir}
+                heartPulse={heartPulse}
+                videoIndex={videoIndex}
+                videoCount={currentGroup?.videos.length ?? 0}
+                onTogglePlay={togglePlay}
+                onToggleMute={() => setIsMuted((m) => !m)}
+                onLike={() => toggleLike(current.id)}
+                onShare={shareWhatsApp}
+                onComment={() => setCommentsOpen(true)}
+                fmt={fmt}
+                mobileFull
+                fullScreen
+              />
+            </div>
+          )}
+          <p className="absolute bottom-[max(env(safe-area-inset-bottom),0.25rem)] left-0 right-0 text-center text-[10px] text-white/50 pointer-events-none">
+            ⬆ סרטון הבא של {currentGroup?.creator.name ?? "היוצר"} • ⬅ ליוצר הבא
+          </p>
+        </div>
+      )}
 
       <CommentsSheet
         open={commentsOpen}
