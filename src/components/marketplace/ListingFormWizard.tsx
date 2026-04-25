@@ -576,13 +576,26 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                   </div>
                 ))}
                 {images.length < MAX_IMAGES && (
-                  <label className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition">
-                    {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5 text-muted-foreground" />}
-                    <span className="text-xs text-muted-foreground mt-1">הוסף</span>
-                    <input type="file" accept="image/*" multiple capture="environment" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                  </label>
+                  <div className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 p-1">
+                    {uploading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        <label className="cursor-pointer text-[11px] text-muted-foreground flex flex-col items-center gap-0.5 hover:text-primary transition">
+                          <Upload className="h-4 w-4" />
+                          גלריה
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                        </label>
+                        <label className="cursor-pointer text-[11px] text-muted-foreground flex flex-col items-center gap-0.5 hover:text-primary transition">
+                          <span>📷 מצלמה</span>
+                          <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                        </label>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
+              <p className="text-[11px] text-muted-foreground">לכל תמונה יתווסף אוטומטית סימן מים של "המוזיקאי" כדי להגן עליך מגניבת תוכן.</p>
             </div>
 
             <div className="space-y-3 pt-4 border-t">
