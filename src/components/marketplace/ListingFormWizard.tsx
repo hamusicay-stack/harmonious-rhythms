@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame } from "lucide-react";
+import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame, Pencil, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { CATEGORIES, BRANDS, CITIES, CONDITIONS } from "@/lib/marketplaceData";
+import { CATEGORIES, BRANDS, CITIES, CONDITIONS, CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
+import { watermarkImage } from "@/lib/watermark";
 
 const MAX_IMAGES = 10;
 
@@ -167,11 +169,15 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     if (!user || !e.target.files) return;
     const files = Array.from(e.target.files).slice(0, MAX_IMAGES - images.length);
     if (files.length === 0) return;
+    // Reset input so picking the same file again works
+    e.target.value = "";
     setUploading(true);
     try {
       const urls: string[] = [];
-      for (const file of files) {
-        if (file.size > 15 * 1024 * 1024) { toast.error(`${file.name}: מעל 15MB`); continue; }
+      for (const rawFile of files) {
+        if (rawFile.size > 15 * 1024 * 1024) { toast.error(`${rawFile.name}: מעל 15MB`); continue; }
+        // Apply brand watermark before uploading (fail-open)
+        const file = await watermarkImage(rawFile);
         const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
         const { error } = await supabase.storage.from("marketplace").upload(path, file, {
           cacheControl: "31536000",
@@ -183,6 +189,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         urls.push(data.publicUrl);
       }
       setImages((prev) => [...prev, ...urls]);
+      if (urls.length) toast.success(`${urls.length} תמונות הועלו עם סימן מים`);
     } finally {
       setUploading(false);
     }
@@ -341,7 +348,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     navigate({ to: "/marketplace" });
   };
 
-  const totalSteps = isEdit ? 4 : 5;
+  const totalSteps = isEdit ? 5 : 6;
   const stepIndex = isEdit ? step - 1 : step;
   const canProceedFromStep0 = sellerType === "private" || (sellerType === "business" && hasBusinessAccount);
 
@@ -569,13 +576,26 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                   </div>
                 ))}
                 {images.length < MAX_IMAGES && (
-                  <label className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition">
-                    {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5 text-muted-foreground" />}
-                    <span className="text-xs text-muted-foreground mt-1">הוסף</span>
-                    <input type="file" accept="image/*" multiple capture="environment" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                  </label>
+                  <div className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 p-1">
+                    {uploading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        <label className="cursor-pointer text-[11px] text-muted-foreground flex flex-col items-center gap-0.5 hover:text-primary transition">
+                          <Upload className="h-4 w-4" />
+                          גלריה
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                        </label>
+                        <label className="cursor-pointer text-[11px] text-muted-foreground flex flex-col items-center gap-0.5 hover:text-primary transition">
+                          <span>📷 מצלמה</span>
+                          <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                        </label>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
+              <p className="text-[11px] text-muted-foreground">לכל תמונה יתווסף אוטומטית סימן מים של "המוזיקאי" כדי להגן עליך מגניבת תוכן.</p>
             </div>
 
             <div className="space-y-3 pt-4 border-t">
@@ -689,18 +709,115 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
           </>
         )}
 
+        {step === 5 && (
+          <>
+            <h2 className="text-lg font-semibold flex items-center gap-2"><Eye className="h-5 w-5 text-primary" />סקירה אחרונה לפני פרסום</h2>
+            <p className="text-xs text-muted-foreground">בדוק שהכל נראה טוב — אפשר לערוך כל שדה בלחיצה על העיפרון.</p>
+
+            {/* Image strip */}
+            <div className="rounded-xl border bg-muted/30 p-3 relative">
+              <button type="button" onClick={() => setStep(3)} className="absolute top-2 left-2 p-1.5 rounded-full bg-background border hover:bg-muted" aria-label="ערוך תמונות">
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+              {images.length > 0 ? (
+                <div className="flex gap-2 overflow-x-auto">
+                  {images.map((url) => (
+                    <img key={url} src={url} alt="" className="h-20 w-20 rounded-lg object-cover flex-shrink-0" />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-destructive">אין תמונות</p>
+              )}
+            </div>
+
+            {/* Summary card mimicking the listing card */}
+            <div className="rounded-xl border bg-card p-4 space-y-3">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-base truncate">{form.title || "—"}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {CATEGORY_LABELS[form.category] || form.customCategory || form.category || "—"}
+                    {form.subcategory && ` · ${form.subcategory === "אחר" ? form.customSubcategory : form.subcategory}`}
+                  </div>
+                </div>
+                <button type="button" onClick={() => setStep(1)} className="p-1.5 rounded-full hover:bg-muted" aria-label="ערוך קטגוריה">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between border-t pt-3">
+                <div className="text-2xl font-bold text-primary">₪{form.price ? Number(form.price).toLocaleString() : "—"}</div>
+                <button type="button" onClick={() => setStep(2)} className="p-1.5 rounded-full hover:bg-muted" aria-label="ערוך מחיר">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <dl className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm border-t pt-3">
+                <dt className="text-muted-foreground">יצרן</dt>
+                <dd className="text-end">{form.brand === "אחר" ? form.customBrand : form.brand || "—"}</dd>
+                {form.model && (<><dt className="text-muted-foreground">דגם</dt><dd className="text-end">{form.model}</dd></>)}
+                {form.year && (<><dt className="text-muted-foreground">שנה</dt><dd className="text-end">{form.year}</dd></>)}
+                <dt className="text-muted-foreground">מצב</dt>
+                <dd className="text-end">{CONDITION_LABELS[form.item_condition] || form.item_condition}</dd>
+                {(form.city || form.customCity) && (<><dt className="text-muted-foreground">עיר</dt><dd className="text-end">{form.city === "אחר" ? form.customCity : form.city}</dd></>)}
+              </dl>
+
+              {form.description && (
+                <div className="border-t pt-3 relative">
+                  <div className="text-xs text-muted-foreground mb-1">תיאור</div>
+                  <p className="text-sm whitespace-pre-wrap line-clamp-4">{form.description}</p>
+                  <button type="button" onClick={() => setStep(2)} className="absolute top-2 left-0 p-1.5 rounded-full hover:bg-muted" aria-label="ערוך תיאור">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <div className="border-t pt-3 flex items-center justify-between">
+                <div className="flex flex-wrap gap-2">
+                  {isUrgent && <Badge variant="destructive" className="gap-1"><Flame className="h-3 w-3" />מכירה דחופה</Badge>}
+                  {sellerType === "business" && <Badge>מוכר עסקי</Badge>}
+                  {audioFile && <Badge variant="secondary"><Music className="h-3 w-3" />אודיו</Badge>}
+                  {videoFile && <Badge variant="secondary">סרטון</Badge>}
+                </div>
+                <button type="button" onClick={() => setStep(3)} className="p-1.5 rounded-full hover:bg-muted" aria-label="ערוך מדיה">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="border-t pt-3 flex items-center justify-between">
+                <div className="text-sm">
+                  <div>{form.phone || "—"}</div>
+                  {(phoneHasWhatsapp || form.whatsapp) && (
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <MessageCircle className="h-3 w-3" />יש וואטסאפ
+                    </div>
+                  )}
+                </div>
+                <button type="button" onClick={() => setStep(4)} className="p-1.5 rounded-full hover:bg-muted" aria-label="ערוך פרטי קשר">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-700 dark:text-emerald-400">
+              ✓ אישור סופי לפני פרסום. בלחיצה על "פרסם", המודעה תועלה לאישור.
+            </div>
+          </>
+        )}
+
         <div className="flex gap-2 justify-between pt-4">
           {step > (isEdit ? 1 : 0) ? (
             <Button variant="outline" onClick={() => setStep(step - 1)}><ArrowRight className="h-4 w-4" />חזרה</Button>
           ) : <Link to="/marketplace"><Button variant="ghost">ביטול</Button></Link>}
-          {step < 4 ? (
+          {step < 5 ? (
             <Button onClick={goNext} disabled={!isEdit && step === 0 && !canProceedFromStep0}>
-              הבא<ArrowLeft className="h-4 w-4" />
+              {step === 4 ? "סקירה אחרונה" : "הבא"}<ArrowLeft className="h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={submit} disabled={submitting}>
+            <Button onClick={submit} disabled={submitting} className="gap-2">
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isEdit ? "שמור שינויים" : "שלח לפרסום"}
+              <Check className="h-4 w-4" />
+              {isEdit ? "שמור שינויים" : "אשר ופרסם"}
             </Button>
           )}
         </div>

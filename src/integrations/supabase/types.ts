@@ -963,6 +963,85 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_chat_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_chat_threads: {
+        Row: {
+          buyer_id: string
+          buyer_unread: number
+          created_at: string
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          listing_id: string
+          seller_id: string
+          seller_unread: number
+        }
+        Insert: {
+          buyer_id: string
+          buyer_unread?: number
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          listing_id: string
+          seller_id: string
+          seller_unread?: number
+        }
+        Update: {
+          buyer_id?: string
+          buyer_unread?: number
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          listing_id?: string
+          seller_id?: string
+          seller_unread?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_chat_threads_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_likes: {
         Row: {
           created_at: string
@@ -1042,6 +1121,7 @@ export type Database = {
           followup_sent_at: string | null
           id: string
           images: string[] | null
+          is_sold: boolean
           is_urgent: boolean
           item_condition: string
           model: string | null
@@ -1050,6 +1130,7 @@ export type Database = {
           region: string | null
           seller_id: string
           seller_type: string
+          sold_at: string | null
           specs: Json | null
           status: string
           subcategory: string | null
@@ -1076,6 +1157,7 @@ export type Database = {
           followup_sent_at?: string | null
           id?: string
           images?: string[] | null
+          is_sold?: boolean
           is_urgent?: boolean
           item_condition?: string
           model?: string | null
@@ -1084,6 +1166,7 @@ export type Database = {
           region?: string | null
           seller_id: string
           seller_type?: string
+          sold_at?: string | null
           specs?: Json | null
           status?: string
           subcategory?: string | null
@@ -1110,6 +1193,7 @@ export type Database = {
           followup_sent_at?: string | null
           id?: string
           images?: string[] | null
+          is_sold?: boolean
           is_urgent?: boolean
           item_condition?: string
           model?: string | null
@@ -1118,6 +1202,7 @@ export type Database = {
           region?: string | null
           seller_id?: string
           seller_type?: string
+          sold_at?: string | null
           specs?: Json | null
           status?: string
           subcategory?: string | null
