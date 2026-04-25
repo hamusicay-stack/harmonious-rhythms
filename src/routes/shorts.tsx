@@ -370,7 +370,7 @@ function ShortsPage() {
   // Auto-clear heart-pop overlay after the animation completes so it doesn't linger on screen
   useEffect(() => {
     if (heartPulse === 0) return;
-    const t = setTimeout(() => setHeartPulse(0), 600);
+    const t = setTimeout(() => setHeartPulse(0), 800);
     return () => clearTimeout(t);
   }, [heartPulse]);
 
@@ -470,7 +470,7 @@ function ShortsPage() {
       if (liked) next.delete(id); else next.add(id);
       return next;
     });
-    let error: Error | null = null;
+    let error: { code?: string; message: string } | null = null;
     if (liked) {
       const { error: deleteError } = await supabase.from("user_likes").delete()
         .eq("user_id", user.id).eq("item_type", "shorts_video").eq("item_id", id);
@@ -478,7 +478,10 @@ function ShortsPage() {
     } else {
       const { error: insertError } = await supabase.from("user_likes")
         .insert({ user_id: user.id, item_type: "shorts_video", item_id: id });
-      error = insertError;
+      // Idempotent: ignore duplicate-key (already liked) — surface other errors only
+      if (insertError && insertError.code !== "23505" && !/duplicate key/i.test(insertError.message)) {
+        error = insertError;
+      }
     }
 
     if (error) {
@@ -488,7 +491,7 @@ function ShortsPage() {
         if (liked) next.add(id); else next.delete(id);
         return next;
       });
-      toast.error(error.message);
+      toast.error("לא הצלחנו לעדכן את הלייק. נסה שוב.");
     }
   };
 
