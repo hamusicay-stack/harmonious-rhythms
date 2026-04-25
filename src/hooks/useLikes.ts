@@ -39,13 +39,14 @@ export function useLike(itemType: LikeItemType, itemId: string | undefined) {
         .from("user_likes").delete()
         .eq("user_id", user.id).eq("item_type", itemType).eq("item_id", itemId);
       if (!error) setLiked(false);
-      else toast.error(error.message);
+      else toast.error("לא הצלחנו להסיר את הלייק");
     } else {
       const { error } = await supabase
         .from("user_likes")
         .insert({ user_id: user.id, item_type: itemType, item_id: itemId });
-      if (!error) setLiked(true);
-      else if (!error.message.includes("duplicate")) toast.error(error.message);
+      // Idempotent: duplicate-key means it was already liked — just sync state
+      if (!error || error.code === "23505" || /duplicate key/i.test(error.message)) setLiked(true);
+      else toast.error("לא הצלחנו לסמן לייק");
     }
     setLoading(false);
   }, [user, itemType, itemId, liked]);

@@ -342,6 +342,13 @@ function ShortsPage() {
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
+      // Hard-stop the previous video to prevent double audio when swapping src/key
+      try {
+        v.pause();
+        v.muted = true;
+        v.removeAttribute("src");
+        v.load();
+      } catch { /* noop */ }
     };
   }, [current?.id, goNext]);
 
@@ -370,7 +377,7 @@ function ShortsPage() {
   // Auto-clear heart-pop overlay after the animation completes so it doesn't linger on screen
   useEffect(() => {
     if (heartPulse === 0) return;
-    const t = setTimeout(() => setHeartPulse(0), 600);
+    const t = setTimeout(() => setHeartPulse(0), 800);
     return () => clearTimeout(t);
   }, [heartPulse]);
 
@@ -470,7 +477,7 @@ function ShortsPage() {
       if (liked) next.delete(id); else next.add(id);
       return next;
     });
-    let error: Error | null = null;
+    let error: { code?: string; message: string } | null = null;
     if (liked) {
       const { error: deleteError } = await supabase.from("user_likes").delete()
         .eq("user_id", user.id).eq("item_type", "shorts_video").eq("item_id", id);
@@ -478,7 +485,10 @@ function ShortsPage() {
     } else {
       const { error: insertError } = await supabase.from("user_likes")
         .insert({ user_id: user.id, item_type: "shorts_video", item_id: id });
-      error = insertError;
+      // Idempotent: ignore duplicate-key (already liked) — surface other errors only
+      if (insertError && insertError.code !== "23505" && !/duplicate key/i.test(insertError.message)) {
+        error = insertError;
+      }
     }
 
     if (error) {
@@ -488,7 +498,7 @@ function ShortsPage() {
         if (liked) next.add(id); else next.delete(id);
         return next;
       });
-      toast.error(error.message);
+      toast.error("לא הצלחנו לעדכן את הלייק. נסה שוב.");
     }
   };
 
@@ -1128,10 +1138,27 @@ function UploadDialog({
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
   const [nextAllowedAt, setNextAllowedAt] = useState<Date | null>(null);
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
+
+  // Detect premium / admin / trusted on dialog open to enable multi-upload
+  useEffect(() => {
+    if (!open || !user) return;
+    (async () => {
+      const [{ data: roles }, { data: trusted }, { data: prof }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id),
+        supabase.from("shorts_trusted_uploaders").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("subscription_tier").eq("id", user.id).maybeSingle(),
+      ]);
+      const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+      const isTrusted = !!trusted;
+      const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
+      setIsPremiumUser(isAdmin || isTrusted || tier === "premium" || tier === "vip" || tier === "pro");
+    })();
+  }, [open, user]);
 
   const addTag = (raw: string) => {
     const t = raw.trim().replace(/^#+/, "").replace(/\s+/g, "_").slice(0, 30);
@@ -1142,17 +1169,26 @@ function UploadDialog({
     setTagDraft("");
   };
 
-  const handleFileChange = (nextFile: File | null) => {
-    if (!nextFile) return;
-    if (!nextFile.type.startsWith("video/")) {
-      toast.error("יש לבחור קובץ וידאו תקין");
-      return;
+  const handleFileChange = (list: FileList | null) => {
+    if (!list || list.length === 0) return;
+    const arr = Array.from(list);
+    // Free users: only one file allowed
+    const allowed = isPremiumUser ? arr : arr.slice(0, 1);
+    for (const f of allowed) {
+      if (!f.type.startsWith("video/")) { toast.error(`${f.name}: לא קובץ וידאו`); return; }
+      if (f.size > MAX_SHORT_FILE_SIZE) { toast.error(`${f.name}: מעל 60MB`); return; }
     }
-    if (nextFile.size > MAX_SHORT_FILE_SIZE) {
-      toast.error("גודל מקסימלי 60MB");
-      return;
+    setFiles(isPremiumUser ? allowed : allowed.slice(0, 1));
+  };
+
+  const removeFileAt = (i: number) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
+
+  const tryAddMoreClick = () => {
+    if (!isPremiumUser && files.length >= 1) {
+      setShowUpsell(true);
+      return false;
     }
-    setFile(nextFile);
+    return true;
   };
 
   /** Returns true if the user is allowed to upload now; false if quota hit (sets upsell dialog). */
@@ -1191,37 +1227,41 @@ function UploadDialog({
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (!title.trim()) { toast.error("כותרת חובה"); return; }
-    if (!file) { toast.error("יש לבחור סרטון"); return; }
-    if (file.size > MAX_SHORT_FILE_SIZE) { toast.error("גודל מקסימלי 60MB"); return; }
+    if (files.length === 0) { toast.error("יש לבחור סרטון"); return; }
 
     const allowed = await checkQuota();
     if (!allowed) return;
 
     setUploading(true);
-    const ext = file.name.split(".").pop() || "mp4";
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("shorts").upload(path, file, {
-      cacheControl: "3600", upsert: false, contentType: file.type,
-    });
-    if (upErr) { setUploading(false); toast.error(upErr.message); return; }
-
-    const { data: pub } = supabase.storage.from("shorts").getPublicUrl(path);
-
-    const { error: insErr } = await supabase.from("shorts_videos").insert({
-      creator_id: user.id,
-      title: title.trim(),
-      description: description.trim() || null,
-      video_url: pub.publicUrl,
-      status: "pending",
-      tags: tags.length > 0 ? tags : [],
-    });
-    setUploading(false);
-    if (insErr) { toast.error(insErr.message); return; }
-
-    toast.success("הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
-    setTitle(""); setDescription(""); setFile(null); setTags([]); setTagDraft("");
-    onOpenChange(false);
-    onUploaded();
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const ext = f.name.split(".").pop() || "mp4";
+        const path = `${user.id}/${Date.now()}-${i}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("shorts").upload(path, f, {
+          cacheControl: "3600", upsert: false, contentType: f.type,
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from("shorts").getPublicUrl(path);
+        const { error: insErr } = await supabase.from("shorts_videos").insert({
+          creator_id: user.id,
+          title: files.length > 1 ? `${title.trim()} (${i + 1})` : title.trim(),
+          description: description.trim() || null,
+          video_url: pub.publicUrl,
+          status: "pending",
+          tags: tags.length > 0 ? tags : [],
+        });
+        if (insErr) throw insErr;
+      }
+      toast.success(files.length > 1 ? `${files.length} סרטונים הועלו!` : "הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
+      setTitle(""); setDescription(""); setFiles([]); setTags([]); setTagDraft("");
+      onOpenChange(false);
+      onUploaded();
+    } catch (e: any) {
+      toast.error(e?.message ?? "ההעלאה נכשלה");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -1268,26 +1308,63 @@ function UploadDialog({
             <p className="text-[11px] text-muted-foreground">Enter / פסיק / רווח כדי להוסיף תגית</p>
           </div>
           <div className="space-y-2">
-            <Label>קובץ סרטון (עד 60MB, פורמט MP4 מומלץ, יחס אנכי 9:16) *</Label>
+            <div className="flex items-center justify-between">
+              <Label>קובץ סרטון (עד 60MB, יחס אנכי 9:16) *</Label>
+              {isPremiumUser && (
+                <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-primary-glow/20 px-2 py-0.5 text-[10px] font-bold text-primary">
+                  <Crown className="h-3 w-3" /> פרימיום — בחירה מרובה
+                </span>
+              )}
+            </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="block">
                 <span className="sr-only">בחר סרטון קיים</span>
-                <Input type="file" accept="video/*" onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)} />
-              </label>
-              <label className="cursor-pointer">
-                <input
+                <Input
                   type="file"
                   accept="video/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                  multiple={isPremiumUser}
+                  onClick={(e) => { if (!tryAddMoreClick()) e.preventDefault(); }}
+                  onChange={(e) => handleFileChange(e.target.files)}
                 />
-                <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition hover:bg-accent hover:text-accent-foreground">
-                  פתח מצלמה
-                </div>
               </label>
+              {(isPremiumUser || files.length === 0) && (
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    capture="environment"
+                    className="hidden"
+                    onClick={(e) => { if (!tryAddMoreClick()) e.preventDefault(); }}
+                    onChange={(e) => handleFileChange(e.target.files)}
+                  />
+                  <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition hover:bg-accent hover:text-accent-foreground">
+                    פתח מצלמה
+                  </div>
+                </label>
+              )}
             </div>
-            {file && <p className="text-xs text-muted-foreground">{file.name} • {(file.size / 1024 / 1024).toFixed(1)}MB</p>}
+            {files.length > 0 && (
+              <ul className="space-y-1">
+                {files.map((f, i) => (
+                  <li key={`${f.name}-${i}`} className="flex items-center justify-between gap-2 rounded-md bg-muted/40 px-2 py-1 text-xs">
+                    <span className="truncate">{f.name} • {(f.size / 1024 / 1024).toFixed(1)}MB</span>
+                    <button type="button" onClick={() => removeFileAt(i)} className="text-muted-foreground hover:text-destructive" aria-label="הסר קובץ">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {!isPremiumUser && files.length >= 1 && (
+              <button
+                type="button"
+                onClick={() => setShowUpsell(true)}
+                className="flex w-full items-center justify-center gap-1 rounded-md border border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10"
+              >
+                <Crown className="h-3.5 w-3.5" />
+                רוצה להעלות עוד סרטונים? שדרג לפרימיום
+              </button>
+            )}
           </div>
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
             💡 הסרטון יישלח לאישור מנהל לפני שיוצג בפיד. משתמשים מאושרים מראש (Trusted) פרסומיהם עולים מיד.

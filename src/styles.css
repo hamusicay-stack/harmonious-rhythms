@@ -155,10 +155,15 @@
   100% { transform: translateX(0); opacity: 1; }
 }
 @keyframes heartPop {
-  0%   { transform: scale(1); }
-  35%  { transform: scale(1.45); filter: drop-shadow(0 0 12px oklch(0.70 0.22 15 / 0.7)); }
-  70%  { transform: scale(0.92); }
-  100% { transform: scale(1); }
+  0%   { transform: scale(0.6); opacity: 0; }
+  20%  { transform: scale(1.4); opacity: 1; filter: drop-shadow(0 0 18px oklch(0.70 0.22 15 / 0.85)); }
+  55%  { transform: scale(1.05); opacity: 1; }
+  80%  { transform: scale(1.1); opacity: 0.9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+@keyframes shimmerSlide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 @keyframes shortsSpring {
   0%   { transform: translate3d(var(--from-x, 0), var(--from-y, 0), 0); }
@@ -172,7 +177,19 @@
   .animate-shorts-down  { animation: shortsSlideDown 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
   .animate-shorts-left  { animation: shortsSlideLeft 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
   .animate-shorts-right { animation: shortsSlideRight 0.42s cubic-bezier(0.22, 0.61, 0.36, 1); }
-  .animate-heart-pop    { animation: heartPop 0.5s cubic-bezier(0.22, 0.61, 0.36, 1); }
+  .animate-heart-pop    { animation: heartPop 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--muted) 50%, transparent);
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 12%, transparent), transparent);
+    animation: shimmerSlide 1.6s infinite;
+  }
   .animate-shorts-spring { animation: shortsSpring 0.5s cubic-bezier(0.22, 1.2, 0.36, 1); }
   .shorts-stage {
     position: fixed;
