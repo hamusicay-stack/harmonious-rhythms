@@ -24,7 +24,7 @@ const ROLE_LABELS: Record<AppRole, string> = {
   admin: "אדמין",
 };
 
-const ROLE_ICONS: Record<AppRole, JSX.Element> = {
+const ROLE_ICONS: Record<AppRole, ReactNode> = {
   user: <UserIcon className="h-3.5 w-3.5" />,
   member: <UserIcon className="h-3.5 w-3.5" />,
   premium: <Star className="h-3.5 w-3.5 text-amber-400" />,
