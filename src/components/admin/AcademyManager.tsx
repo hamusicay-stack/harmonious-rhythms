@@ -11,12 +11,14 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download, Gift, BarChart3, ChevronDown, ChevronLeft } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download, Gift, BarChart3, ChevronDown, ChevronLeft, Music } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { SortableList } from "@/components/academy/SortableList";
 import { CourseGiftDialog } from "./CourseGiftDialog";
 import { AcademyAnalytics } from "./AcademyAnalytics";
+import { extractMp3FromYouTube } from "@/lib/extractMp3.functions";
 
 type Course = {
   id: string;
