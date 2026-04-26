@@ -50,13 +50,23 @@ type Podcast = {
   created_at: string;
 };
 
+function youtubeVideoId(url: string) {
+  return url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1] ?? null;
+}
+
+function youtubePlaylistId(url: string) {
+  return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+}
+
 function ytEmbed(url: string) {
-  const v = url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
-  const list = url.match(/[?&]list=([\w-]+)/);
-  if (!v) return url;
-  let embed = `https://www.youtube.com/embed/${v[1]}?rel=0&modestbranding=1`;
-  if (list) embed += `&list=${list[1]}`;
-  return embed;
+  const videoId = youtubeVideoId(url);
+  const playlistId = youtubePlaylistId(url);
+  if (videoId) {
+    const listParam = playlistId ? `&list=${playlistId}` : "";
+    return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1${listParam}`;
+  }
+  if (playlistId) return `https://www.youtube.com/embed/videoseries?list=${playlistId}&rel=0&modestbranding=1`;
+  return null;
 }
 
 function PodcastsPage() {
@@ -203,11 +213,12 @@ function PodcastsPage() {
 }
 
 function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) {
+  const youtubeEmbed = p.kind === "youtube" ? ytEmbed(p.source_url) : null;
   return (
     <Card id={p.id} className="overflow-hidden">
       <div className="aspect-video bg-muted">
-        {p.kind === "youtube" ? (
-          <iframe src={ytEmbed(p.source_url)} className="h-full w-full"
+        {youtubeEmbed ? (
+          <iframe src={youtubeEmbed} title={p.title} className="h-full w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen />
         ) : p.kind === "audio" ? (
