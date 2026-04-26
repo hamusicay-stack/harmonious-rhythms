@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
@@ -123,6 +124,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketplaceRoute,
+} as any)
+const VerifyCodeRoute = VerifyCodeRouteImport.update({
+  id: '/verify/$code',
+  path: '/verify/$code',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ShopCheckoutRoute = ShopCheckoutRouteImport.update({
   id: '/checkout',
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/seller/$sellerId': typeof SellerSellerIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
+  '/verify/$code': typeof VerifyCodeRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/seller/$sellerId': typeof SellerSellerIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
+  '/verify/$code': typeof VerifyCodeRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/seller/$sellerId': typeof SellerSellerIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
+  '/verify/$code': typeof VerifyCodeRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/seller/$sellerId'
     | '/shop/$slug'
     | '/shop/checkout'
+    | '/verify/$code'
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/seller/$sellerId'
     | '/shop/$slug'
     | '/shop/checkout'
+    | '/verify/$code'
     | '/marketplace'
     | '/pros'
     | '/shop'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/seller/$sellerId'
     | '/shop/$slug'
     | '/shop/checkout'
+    | '/verify/$code'
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
@@ -450,6 +462,7 @@ export interface RootRouteChildren {
   ShortsRoute: typeof ShortsRoute
   StoreRoute: typeof StoreRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
+  VerifyCodeRoute: typeof VerifyCodeRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -569,6 +582,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/'
       preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof MarketplaceRoute
+    }
+    '/verify/$code': {
+      id: '/verify/$code'
+      path: '/verify/$code'
+      fullPath: '/verify/$code'
+      preLoaderRoute: typeof VerifyCodeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/shop/checkout': {
       id: '/shop/checkout'
@@ -808,6 +828,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShortsRoute: ShortsRoute,
   StoreRoute: StoreRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
+  VerifyCodeRoute: VerifyCodeRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:

@@ -274,21 +274,30 @@ function AcademyPage() {
               <Award className="h-4 w-4 text-primary" />התעודות שלי
             </h2>
             <div className="grid gap-2 sm:grid-cols-2">
-              {certificates.map((cert) => (
-                <Card key={cert.id} className="border-primary/40">
-                  <CardContent className="p-3 flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-sm truncate">{cert.course_title}</h3>
-                      <p className="text-xs text-muted-foreground">#{cert.certificate_number}</p>
-                    </div>
-                    {cert.pdf_url && (
-                      <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer">
-                        <Button size="sm" variant="outline">PDF</Button>
-                      </a>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+              {certificates.map((cert) => {
+                const verifyUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/verify/${cert.certificate_number}`;
+                return (
+                  <Card key={cert.id} className="border-primary/40">
+                    <CardContent className="p-3 flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{cert.course_title}</h3>
+                        <p className="text-xs text-muted-foreground font-mono">#{cert.certificate_number}</p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        {cert.pdf_url && (
+                          <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline">PDF</Button>
+                          </a>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => {
+                          navigator.clipboard.writeText(verifyUrl);
+                          toast.success("קישור אימות הועתק");
+                        }}>אימות</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </section>
         )}
