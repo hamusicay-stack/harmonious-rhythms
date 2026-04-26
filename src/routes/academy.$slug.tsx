@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X, Headphones, Video as VideoIcon, ChevronDown } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -273,7 +273,9 @@ function CoursePage() {
             </div>
 
             {/* Sidebar */}
-            <aside className="space-y-3">
+            <aside className={theater
+              ? "fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] overflow-y-auto border-s border-white/10 bg-black/85 p-3 backdrop-blur-xl space-y-3"
+              : "space-y-3"}>
               {!enrollment && (
                 <Card className="border-primary/40">
                   <CardContent className="p-4 space-y-3">
@@ -289,7 +291,7 @@ function CoursePage() {
               )}
 
               {enrollment && (
-                <Card>
+                <Card className={theater ? "bg-white/5 border-white/10 text-white" : ""}>
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">ההתקדמות שלך</span>
@@ -310,9 +312,15 @@ function CoursePage() {
               <div className="space-y-2">
                 {modules.map((m) => {
                   const ml = lessons.filter((l) => l.module_id === m.id);
+                  const hasActive = ml.some((l) => l.id === activeLessonId);
                   return (
-                    <div key={m.id} className="rounded-lg border overflow-hidden">
-                      <div className="bg-muted/40 px-3 py-2 font-semibold text-sm">{m.title}</div>
+                    <ModuleAccordion
+                      key={m.id}
+                      title={m.title}
+                      defaultOpen={hasActive}
+                      theater={theater}
+                      count={ml.length}
+                    >
                       <div className="divide-y">
                         {ml.map((l) => {
                           const done = progress[l.id]?.is_completed;
@@ -323,7 +331,11 @@ function CoursePage() {
                               key={l.id}
                               onClick={() => !locked && setActiveLessonId(l.id)}
                               disabled={locked}
-                              className={`w-full flex items-center gap-2 px-3 py-2 text-right text-sm hover:bg-muted/30 transition-colors ${active ? "bg-primary/10" : ""} ${locked ? "opacity-50 cursor-not-allowed" : ""}`}
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-right text-sm transition-colors ${
+                                theater
+                                  ? `hover:bg-white/10 ${active ? "bg-primary/20 text-white" : "text-white/80"}`
+                                  : `hover:bg-muted/30 ${active ? "bg-primary/10" : ""}`
+                              } ${locked ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               {done ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> :
                                locked ? <Lock className="h-4 w-4 shrink-0" /> :
@@ -334,7 +346,7 @@ function CoursePage() {
                           );
                         })}
                       </div>
-                    </div>
+                    </ModuleAccordion>
                   );
                 })}
               </div>
@@ -343,6 +355,41 @@ function CoursePage() {
         )}
       </section>
     </SiteLayout>
+  );
+}
+
+function ModuleAccordion({
+  title, defaultOpen, theater, count, children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  theater?: boolean;
+  count?: number;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  useEffect(() => { if (defaultOpen) setOpen(true); }, [defaultOpen]);
+  return (
+    <div className={`rounded-lg overflow-hidden ${theater ? "border border-white/10 bg-white/5" : "border"}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`flex w-full items-center justify-between px-3 py-2 text-sm font-semibold transition-colors ${
+          theater ? "bg-white/5 text-white hover:bg-white/10" : "bg-muted/40 hover:bg-muted/60"
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          <ChevronDown className={`h-4 w-4 transition-transform ${open ? "" : "-rotate-90"}`} />
+          <span className="truncate">{title}</span>
+        </span>
+        {typeof count === "number" && (
+          <span className={`text-[10px] rounded-full px-1.5 py-0.5 ${theater ? "bg-white/10 text-white/70" : "bg-muted text-muted-foreground"}`}>
+            {count}
+          </span>
+        )}
+      </button>
+      {open && children}
+    </div>
   );
 }
 
@@ -375,6 +422,7 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const [speed, setSpeed] = useState(1);
+  const [audioMode, setAudioMode] = useState(false);
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
   const ytId = getYouTubeId(src);
   const vimeoId = getVimeoId(src);
@@ -494,21 +542,42 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
 
   return (
     <div className="relative h-full w-full">
+      {audioMode ? (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-6 bg-gradient-to-br from-primary/20 via-background to-primary-glow/20 p-6">
+          <div className="relative">
+            <div className="absolute inset-0 animate-ping rounded-full bg-primary/30" />
+            <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow shadow-2xl">
+              <Headphones className="h-14 w-14 text-primary-foreground" />
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">מצב האזנה — חוסך נתונים</p>
+        </div>
+      ) : null}
       <video
         ref={videoRef}
         src={src}
         controls
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
-        className="h-full w-full"
+        className={`h-full w-full ${audioMode ? "absolute inset-x-0 bottom-0 h-12 bg-black/80" : ""}`}
+        style={audioMode ? { objectFit: "contain" } : undefined}
       />
-      {watermark && (
+      {watermark && !audioMode && (
         <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
           style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
           {watermark}
         </div>
       )}
-      <div className="absolute bottom-14 left-2 flex gap-1 bg-black/50 rounded-md p-1">
+      <div className="absolute bottom-14 left-2 flex items-center gap-1 rounded-md bg-black/60 p-1 backdrop-blur-sm">
+        <button
+          onClick={() => setAudioMode((v) => !v)}
+          className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs ${audioMode ? "bg-primary text-primary-foreground" : "text-white hover:bg-white/10"}`}
+          title={audioMode ? "מצב וידאו" : "מצב אודיו"}
+        >
+          {audioMode ? <VideoIcon className="h-3 w-3" /> : <Headphones className="h-3 w-3" />}
+          {audioMode ? "וידאו" : "אודיו"}
+        </button>
+        <span className="mx-1 h-3 w-px bg-white/20" />
         {[0.5, 0.75, 1, 1.25, 1.5, 2].map((s) => (
           <button
             key={s}
