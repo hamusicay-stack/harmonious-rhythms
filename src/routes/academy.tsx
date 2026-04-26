@@ -404,7 +404,7 @@ function AcademyPage() {
                   <SectionGrid title="הקורסים שלי">
                     {filteredMine.map((c) => {
                       const e = enrollments.find((x) => x.course_id === c.id)!;
-                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} />;
+                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} likes={courseLikes.get(c.id) ?? 0} />;
                     })}
                   </SectionGrid>
                 )}
@@ -412,7 +412,7 @@ function AcademyPage() {
                   <SectionGrid title="קורסים">
                     {filteredCourses
                       .filter((c) => !enrollments.some((e) => e.course_id === c.id))
-                      .map((c) => <CourseCard key={c.id} course={c} />)}
+                      .map((c) => <CourseCard key={c.id} course={c} likes={courseLikes.get(c.id) ?? 0} />)}
                   </SectionGrid>
                 )}
                 {(filteredPodcastSeries.length > 0 || filteredPodcasts.length > 0) && (
@@ -428,7 +428,7 @@ function AcademyPage() {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filteredCourses.map((c) => {
                       const e = enrollments.find((x) => x.course_id === c.id);
-                      return <CourseCard key={c.id} course={c} progress={e?.progress_percent} />;
+                      return <CourseCard key={c.id} course={c} progress={e?.progress_percent} likes={courseLikes.get(c.id) ?? 0} />;
                     })}
                   </div>
                 )}
@@ -438,7 +438,7 @@ function AcademyPage() {
                 {filteredPodcastSeries.length === 0 && filteredPodcasts.length === 0 ? <EmptyState /> : (
                   <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {filteredPodcastSeries.map((s) => <PodcastSeriesCard key={s.id} series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />)}
-                    {filteredPodcasts.filter((p) => !p.series_id).map((p) => <PodcastCard key={p.id} podcast={p} />)}
+                    {filteredPodcasts.filter((p) => !p.series_id).map((p) => <PodcastCard key={p.id} podcast={p} likes={podcastLikes.get(p.id) ?? 0} />)}
                   </div>
                 )}
                 <div className="mt-4 flex justify-center">
@@ -454,7 +454,7 @@ function AcademyPage() {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filteredMine.map((c) => {
                       const e = enrollments.find((x) => x.course_id === c.id)!;
-                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} />;
+                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} likes={courseLikes.get(c.id) ?? 0} />;
                     })}
                   </div>
                 )}
