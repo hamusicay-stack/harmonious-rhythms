@@ -76,6 +76,7 @@ function CoursesManager() {
   const [editing, setEditing] = useState<Course | null>(null);
   const [open, setOpen] = useState(false);
   const [builderCourse, setBuilderCourse] = useState<Course | null>(null);
+  const [giftOpen, setGiftOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -89,15 +90,19 @@ function CoursesManager() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5 text-primary" />קורסים</CardTitle>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { setEditing(null); setOpen(true); }}><Plus className="ml-1 h-4 w-4" />קורס חדש</Button>
-          </DialogTrigger>
-          <CourseDialog course={editing} onSaved={() => { setOpen(false); setEditing(null); load(); }} />
-        </Dialog>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setGiftOpen(true)}><Gift className="ml-1 h-4 w-4" />מתנה</Button>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+            <DialogTrigger asChild>
+              <Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus className="ml-1 h-4 w-4" />קורס חדש</Button>
+            </DialogTrigger>
+            <CourseDialog course={editing} onSaved={() => { setOpen(false); setEditing(null); load(); }} />
+          </Dialog>
+        </div>
       </CardHeader>
+      <CourseGiftDialog open={giftOpen} onOpenChange={setGiftOpen} />
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
