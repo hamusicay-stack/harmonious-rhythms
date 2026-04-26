@@ -152,6 +152,16 @@ function CoursePage() {
                 </div>
                 {course.description && <p className="mt-4 whitespace-pre-line text-sm">{course.description}</p>}
               </div>
+
+              {activeLesson && enrollment && (
+                <LessonQA lessonId={activeLesson.id} courseId={course.id} />
+              )}
+
+              {enrollment && activeLesson?.module_id && (
+                <ModuleQuiz moduleId={activeLesson.module_id} courseId={course.id} />
+              )}
+
+              <CourseReviews courseId={course.id} isEnrolled={!!enrollment} />
             </div>
 
             {/* Sidebar */}
@@ -228,25 +238,13 @@ function CoursePage() {
   );
 }
 
-async function tryIssueCertificate(courseId: string, userId: string, courseTitle: string) {
-  // Check if 100% complete
+async function tryIssueCertificate(courseId: string, userId: string, _courseTitle: string) {
   const { data: enr } = await supabase.from("academy_enrollments").select("progress_percent").eq("user_id", userId).eq("course_id", courseId).maybeSingle();
   if (!enr || enr.progress_percent < 100) return;
-
-  const { data: existing } = await supabase.from("academy_certificates").select("id").eq("user_id", userId).eq("course_id", courseId).maybeSingle();
-  if (existing) return;
-
-  const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle();
-  const name = profile?.display_name ?? "תלמיד";
-  const certNum = `MUS-${Date.now().toString(36).toUpperCase()}`;
-
-  await supabase.from("academy_certificates").insert({
-    user_id: userId, course_id: courseId,
-    certificate_number: certNum,
-    recipient_name: name,
-    course_title: courseTitle,
-  });
-  toast.success("🎓 קיבלת תעודה חדשה!");
+  const { data: existing } = await supabase.from("academy_certificates").select("id, pdf_url").eq("user_id", userId).eq("course_id", courseId).maybeSingle();
+  if (existing?.pdf_url) return;
+  const { data, error } = await supabase.functions.invoke("issue-certificate", { body: { course_id: courseId } });
+  if (!error && data?.pdf_url) toast.success("🎓 קיבלת תעודה חדשה!");
 }
 
 function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; watermark: string; onProgress?: (pos: number, dur: number) => void }) {
