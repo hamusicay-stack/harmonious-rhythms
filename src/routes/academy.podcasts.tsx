@@ -379,7 +379,21 @@ function SeriesView({
         {episodes.length === 0 ? (
           <Card><CardContent className="py-12 text-center text-muted-foreground">אין עדיין פרקים בסדרה הזו</CardContent></Card>
         ) : (
-          <div className={theater ? "flex h-full w-full" : "grid gap-4 lg:grid-cols-[1fr_360px]"}>
+          <div className={theater ? "flex h-full w-full" : "grid gap-4 lg:grid-cols-[360px_1fr]"}>
+            {!theater && (
+              <aside className="order-1 space-y-2 lg:max-h-[72vh] lg:overflow-y-auto lg:pe-1">
+                {episodes.map((p) => (
+                  <button key={p.id} type="button" onClick={() => onSelect(p.id)}
+                    className={`flex w-full gap-3 rounded-lg border p-2 text-start transition hover:border-primary/40 ${p.id === selectedEpisode?.id ? "border-primary bg-primary/10" : "bg-card"}`}>
+                    {p.thumbnail_url ? <img src={p.thumbnail_url} alt={p.title} className="h-16 w-24 rounded-md object-cover" /> : <div className="flex h-16 w-24 items-center justify-center rounded-md bg-muted"><PlayCircle className="h-5 w-5" /></div>}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-xs text-muted-foreground">{p.episode_number ? `פרק ${p.episode_number}` : "פרק"}</span>
+                      <span className="line-clamp-2 text-sm font-medium">{p.title}</span>
+                    </span>
+                  </button>
+                ))}
+              </aside>
+            )}
             <div className={theater ? "flex flex-1 flex-col" : "order-2 space-y-3"}>
               {/* Player */}
               <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
