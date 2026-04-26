@@ -65,7 +65,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
           supabase.from("academy_courses").select("id, slug, title").ilike("title", like).limit(5),
           supabase.from("shop_products").select("id, slug, name").ilike("name", like).limit(5),
           supabase.from("marketplace_listings").select("id, title").ilike("title", like).limit(5),
-          supabase.from("pros").select("id, display_name").ilike("display_name", like).limit(5),
+          supabase.from("music_pros").select("id, display_name").ilike("display_name", like).limit(5),
         ]);
         if (cancelled) return;
         const out: SearchResult[] = [];
