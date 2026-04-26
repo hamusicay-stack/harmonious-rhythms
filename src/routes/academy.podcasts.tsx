@@ -283,17 +283,37 @@ function SeriesView({
   const currentIdx = selectedEpisode ? episodes.findIndex((e) => e.id === selectedEpisode.id) : -1;
   const nextEp = currentIdx >= 0 ? episodes[currentIdx + 1] : null;
 
-  // Reset on episode change
-  useEffect(() => { setShowAutoNext(false); setIframeKey((k) => k + 1); }, [selectedEpisode?.id]);
+  // Reset on episode change + track start
+  useEffect(() => {
+    setShowAutoNext(false);
+    setIframeKey((k) => k + 1);
+    if (selectedEpisode) {
+      void trackAcademyEvent({
+        itemType: "podcast",
+        itemId: selectedEpisode.id,
+        eventType: "start",
+        seriesId: selectedEpisode.series_id ?? null,
+      });
+    }
+  }, [selectedEpisode?.id]);
 
   // Listen to YouTube end event
   useEffect(() => {
-    if (!selectedEpisode || selectedEpisode.kind !== "youtube" || !autoNextOn || !nextEp) return;
+    if (!selectedEpisode || selectedEpisode.kind !== "youtube") return;
     const onMsg = (e: MessageEvent) => {
       if (typeof e.data !== "string") return;
       try {
         const data = JSON.parse(e.data);
-        if (data?.event === "onStateChange" && data?.info === 0) setShowAutoNext(true);
+        if (data?.event === "onStateChange" && data?.info === 0) {
+          void trackAcademyEvent({
+            itemType: "podcast",
+            itemId: selectedEpisode.id,
+            eventType: "complete",
+            seriesId: selectedEpisode.series_id ?? null,
+            percent: 100,
+          });
+          if (autoNextOn && nextEp) setShowAutoNext(true);
+        }
       } catch {}
     };
     window.addEventListener("message", onMsg);
