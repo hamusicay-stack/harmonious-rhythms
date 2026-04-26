@@ -300,6 +300,28 @@ function AcademyPage() {
           )}
         </div>
 
+        {/* Deep search results */}
+        {deepHits.length > 0 && (
+          <section className="mb-6 rounded-lg border bg-card p-3">
+            <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
+              <Search className="h-4 w-4 text-primary" />תוצאות מתוך התוכן ({deepHits.length})
+            </h3>
+            <ul className="space-y-1">
+              {deepHits.map((h, i) => (
+                <li key={i}>
+                  <Link to={h.link} className="flex items-start gap-2 rounded px-2 py-1.5 text-sm hover:bg-primary/10">
+                    <Badge variant="secondary" className="shrink-0 text-[10px]">{h.kind === "lesson" ? "שיעור" : "פרק"}</Badge>
+                    <span className="flex-1 min-w-0">
+                      <span className="font-medium">{h.title}</span>
+                      <span className="block text-[11px] text-muted-foreground truncate">בתוך: {h.parentTitle}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {/* Certificates */}
         {certificates.length > 0 && (
           <section className="mb-6">
