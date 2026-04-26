@@ -339,6 +339,11 @@ function ShortsPage() {
   // points at the OLD element that React has already removed; calling
   // removeAttribute("src") + load() on a stale node was the root cause of the
   // "black screen" after a few swipes.
+  // Keep a ref to goNext so the playback effect doesn't re-run (and restart
+  // the video) every time goNext's identity changes from parent re-renders.
+  const goNextRef = useRef(goNext);
+  useEffect(() => { goNextRef.current = goNext; }, [goNext]);
+
   useEffect(() => {
     if (!current) return;
     void supabase.rpc("increment_short_views", { _video_id: current.id });
@@ -367,10 +372,10 @@ function ShortsPage() {
         if (!v) return;
         setProgress((v.currentTime / (v.duration || 1)) * 100);
       };
-      onEnd = () => { goNext(); };
+      onEnd = () => { goNextRef.current(); };
       onError = () => {
         console.warn("Shorts video error, skipping:", current.id);
-        setTimeout(() => goNext(), 400);
+        setTimeout(() => goNextRef.current(), 400);
       };
       onStalled = () => { try { v?.load(); } catch { /* ignore */ } };
       v.addEventListener("timeupdate", onTime);
@@ -390,7 +395,8 @@ function ShortsPage() {
         try { v.pause(); } catch { /* ignore */ }
       }
     };
-  }, [current?.id, goNext]);
+    // Intentionally only depend on current?.id — goNext is read via ref.
+  }, [current?.id]);
 
   // Auto-scroll story row to active creator
   useEffect(() => {
