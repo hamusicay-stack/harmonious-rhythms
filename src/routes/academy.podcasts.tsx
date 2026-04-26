@@ -117,6 +117,7 @@ function PodcastsPage() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [openSeries, setOpenSeries] = useState<string | null>(null);
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -147,6 +148,7 @@ function PodcastsPage() {
 
   const activeSeries = openSeries ? series.find(s => s.id === openSeries) : null;
   const activeEpisodes = openSeries ? (bySeries.get(openSeries) ?? []) : [];
+  const selectedEpisode = activeEpisodes.find((p) => p.id === selectedEpisodeId) ?? activeEpisodes[0] ?? null;
 
   useEffect(() => {
     const fromHash = window.location.hash.replace("#", "");
@@ -156,9 +158,16 @@ function PodcastsPage() {
       return;
     }
     const podcast = podcasts.find((p) => p.id === fromHash);
-    if (podcast?.series_id) setOpenSeries(podcast.series_id);
+    if (podcast?.series_id) {
+      setOpenSeries(podcast.series_id);
+      setSelectedEpisodeId(podcast.id);
+    }
     requestAnimationFrame(() => document.getElementById(fromHash)?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, [podcasts]);
+
+  useEffect(() => {
+    if (activeEpisodes.length > 0 && !selectedEpisodeId) setSelectedEpisodeId(activeEpisodes[0].id);
+  }, [activeEpisodes, selectedEpisodeId]);
 
   const share = (p: Podcast) => {
     const url = window.location.href + "#" + p.id;
@@ -193,8 +202,26 @@ function PodcastsPage() {
               אין עדיין פרקים בסדרה הזו{isAdmin && " — הוסף קישור פלייליסט יוטיוב כדי לייבא אוטומטית"}
             </CardContent></Card>
           ) : (
-            <div className="space-y-3">
-              {activeEpisodes.map((p) => <EpisodeCard key={p.id} p={p} share={share} />)}
+            <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+              <div className="space-y-3">
+                {selectedEpisode && <EpisodeCard p={selectedEpisode} share={share} episodes={activeEpisodes} seriesTitle={activeSeries.title} expandedDefault />}
+              </div>
+              <aside className="space-y-2 lg:max-h-[72vh] lg:overflow-y-auto lg:pe-1">
+                {activeEpisodes.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setSelectedEpisodeId(p.id)}
+                    className={`flex w-full gap-3 rounded-lg border p-2 text-start transition hover:border-primary/40 ${p.id === selectedEpisode?.id ? "border-primary bg-primary/10" : "bg-card"}`}
+                  >
+                    {p.thumbnail_url ? <img src={p.thumbnail_url} alt={p.title} className="h-16 w-24 rounded-md object-cover" /> : <div className="flex h-16 w-24 items-center justify-center rounded-md bg-muted"><PlayCircle className="h-5 w-5" /></div>}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-xs text-muted-foreground">{p.episode_number ? `פרק ${p.episode_number}` : "פרק"}</span>
+                      <span className="line-clamp-2 text-sm font-medium">{p.title}</span>
+                    </span>
+                  </button>
+                ))}
+              </aside>
             </div>
           )}
         </div>
