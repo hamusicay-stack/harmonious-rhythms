@@ -65,14 +65,14 @@ function HomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <GlassCard level="z3" parallax className="p-10 text-center md:p-16">
             <h2 className="font-display text-3xl font-bold md:text-5xl">
-              מוכנים להצטרף ל<span className="text-gradient-brand">קהילה</span>?
+              תפסו מקום ב<span className="text-gradient-brand">שורה הראשונה</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-              הרשמה חינם — וכבר היום בפורום, באקדמיה ובחנות.
+              כל הכלים, הקורסים והנטוורקינג שמוזיקאי צריך כדי להצליח — במרחק הקלקה.
             </p>
             <Link to="/auth">
               <Button size="lg" className="mt-8 bg-brand text-primary-foreground shadow-card hover:opacity-90">
-                פתחו חשבון חינם
+                מתחילים ליצור עכשיו
                 <ArrowLeft className="mr-2 h-4 w-4" />
               </Button>
             </Link>
