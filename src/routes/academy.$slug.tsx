@@ -146,7 +146,12 @@ function CoursePage() {
                     src={activeLesson.video_url}
                     watermark={user?.email ?? ""}
                     onSeekReady={(fn) => { playerSeekRef.current = fn; }}
-                    onEnded={() => { if (autoNextOn && canPlayNext) setShowAutoNext(true); }}
+                    onEnded={() => {
+                      if (course && activeLesson) {
+                        void trackAcademyEvent({ itemType: "lesson", itemId: activeLesson.id, eventType: "complete", courseId: course.id, percent: 100 });
+                      }
+                      if (autoNextOn && canPlayNext) setShowAutoNext(true);
+                    }}
                     onProgress={async (pos, dur) => {
                       if (!user || !enrollment) return;
                       const completed = dur > 0 && pos / dur > 0.9;
