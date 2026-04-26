@@ -303,6 +303,12 @@ function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) 
         </div>
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+        {p.kind === "youtube" && (
+          <a href={ytWatchUrl(p.source_url)} target="_blank" rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+            <ExternalLink className="h-3 w-3" />פתח ביוטיוב
+          </a>
+        )}
       </CardContent>
       </div>
     </Card>
