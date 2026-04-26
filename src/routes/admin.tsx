@@ -38,6 +38,7 @@ import { MusicProsManager } from "@/components/admin/MusicProsManager";
 import { ShopManager } from "@/components/admin/ShopManager";
 import { ShortsManager } from "@/components/admin/ShortsManager";
 import { AffiliatesManager } from "@/components/admin/AffiliatesManager";
+import { AffiliatePayoutsManager } from "@/components/admin/AffiliatePayoutsManager";
 import { AcademyManager } from "@/components/admin/AcademyManager";
 import { Music2, ShoppingBag, Play, Sparkles, GraduationCap } from "lucide-react";
 
@@ -430,7 +431,8 @@ function AdminPage() {
               <TabsContent value="academy" className="mt-6">
                 <AcademyManager />
               </TabsContent>
-              <TabsContent value="affiliates" className="mt-6">
+              <TabsContent value="affiliates" className="mt-6 space-y-6">
+                <AffiliatePayoutsManager />
                 <AffiliatesManager />
               </TabsContent>
               <TabsContent value="automations" className="mt-6">

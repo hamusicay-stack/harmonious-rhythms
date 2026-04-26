@@ -1220,6 +1220,62 @@ export type Database = {
           },
         ]
       }
+      affiliate_payout_requests: {
+        Row: {
+          admin_notes: string | null
+          affiliate_id: string
+          amount: number
+          created_at: string
+          id: string
+          paid_at: string | null
+          payment_details: Json
+          payment_method: string
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          affiliate_id: string
+          amount: number
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          payment_details?: Json
+          payment_method: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          payment_details?: Json
+          payment_method?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_payout_requests_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_settings: {
         Row: {
           cookie_days: number
@@ -4131,7 +4187,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "content_editor"
+        | "finance"
+        | "support"
       automation_action: "send_email" | "open_whatsapp" | "create_task"
       automation_trigger:
         | "lead_status_changed"
@@ -4322,7 +4384,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "content_editor",
+        "finance",
+        "support",
+      ],
       automation_action: ["send_email", "open_whatsapp", "create_task"],
       automation_trigger: [
         "lead_status_changed",

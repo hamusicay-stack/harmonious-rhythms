@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { buildAffiliateLink } from "@/lib/affiliate";
 import { AffiliateApplyDialog } from "./AffiliateApplyDialog";
+import { AffiliateWallet } from "./AffiliateWallet";
 
 type Affiliate = {
   id: string; ref_code: string; commission_percent: number | null;
@@ -130,6 +131,13 @@ export function AffiliateDashboard() {
           <Stat icon={<TrendingUp className="h-4 w-4" />} label="סך הרווחת" value={`₪${Number(aff.total_earned).toLocaleString()}`} />
           <Stat icon={<Wallet className="h-4 w-4" />} label="שולם" value={`₪${Number(aff.total_paid).toLocaleString()}`} />
         </div>
+
+        {/* Wallet — payouts */}
+        <AffiliateWallet
+          affiliateId={aff.id}
+          totalEarned={Number(aff.total_earned)}
+          totalPaid={Number(aff.total_paid)}
+        />
 
         {/* Ref code */}
         <div className="rounded-xl border bg-card-elevated p-4 space-y-2">
