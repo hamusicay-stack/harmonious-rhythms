@@ -866,7 +866,19 @@ function PodcastsManager() {
               <Label>קובץ MP3 לפרק</Label>
               <Input dir="ltr" value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://... או העלאה" />
               <Input type="file" accept="audio/mpeg,audio/mp3" disabled={!editing} onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadAudio(file); }} />
-              <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 שישויך לאותו פרק וינוגן ברקע באתר.</p>
+              {editing && form.kind === "youtube" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={extractingId === editing.id || !form.source_url}
+                  onClick={() => handleExtractMp3(editing)}
+                >
+                  {extractingId === editing.id ? <><Loader2 className="ml-1 h-4 w-4 animate-spin" />ממיר...</> : <><Music className="ml-1 h-4 w-4" />המר אוטומטית מ-YouTube ל-MP3</>}
+                </Button>
+              )}
+              <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 ידנית או להפיק אוטומטית מהווידאו.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
