@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X, Headphones, Video as VideoIcon, ChevronDown } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
