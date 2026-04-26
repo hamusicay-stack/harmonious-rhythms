@@ -81,6 +81,7 @@ function AcademyPage() {
   const [redeeming, setRedeeming] = useState(false);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"all" | "courses" | "podcasts" | "mine">("all");
+  const [deepHits, setDeepHits] = useState<Array<{ kind: "lesson" | "podcast"; title: string; parentTitle: string; link: string }>>([]);
 
   const reload = async () => {
     const [{ data: cs }, { data: pods }, { data: series }] = await Promise.all([
