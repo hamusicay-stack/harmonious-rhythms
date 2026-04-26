@@ -502,7 +502,12 @@ function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts:
   );
 }
 
-function CourseCard({ course, progress }: { course: Course; progress?: number }) {
+const fmtCount = (n: number) => {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K`;
+  return String(n);
+};
+
+function CourseCard({ course, progress, likes = 0 }: { course: Course; progress?: number; likes?: number }) {
   return (
     <Link to="/academy/$slug" params={{ slug: course.slug }}>
       <Card className="overflow-hidden transition-smooth hover:border-primary/40 hover:shadow-elegant h-full">
@@ -520,6 +525,14 @@ function CourseCard({ course, progress }: { course: Course; progress?: number })
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{course.total_lessons} שיעורים</span>
             <span className="font-semibold text-primary">{course.price > 0 ? `₪${course.price}` : "חינם"}</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-1 border-t">
+            <span className="inline-flex items-center gap-1" title="תלמידים רשומים">
+              <Users className="h-3 w-3" />{fmtCount(course.enrollments_count ?? 0)}
+            </span>
+            <span className="inline-flex items-center gap-1" title="לייקים">
+              <Heart className="h-3 w-3" />{fmtCount(likes)}
+            </span>
           </div>
           {progress !== undefined && (
             <div className="space-y-1 pt-1">
@@ -561,7 +574,7 @@ function PodcastSeriesCard({ series, count }: { series: PodcastSeries; count: nu
   );
 }
 
-function PodcastCard({ podcast }: { podcast: Podcast }) {
+function PodcastCard({ podcast, likes = 0 }: { podcast: Podcast; likes?: number }) {
   return (
     <a href={`/academy/podcasts#${podcast.id}`} className="block">
       <Card className="overflow-hidden h-full transition-smooth hover:border-primary/40 hover:shadow-elegant">
@@ -577,7 +590,10 @@ function PodcastCard({ podcast }: { podcast: Podcast }) {
         </div>
         <CardContent className="p-3 space-y-1">
           <h3 className="font-semibold text-sm line-clamp-2">{podcast.title}</h3>
-          <p className="text-[11px] text-muted-foreground">{podcast.views_count} צפיות</p>
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{fmtCount(podcast.views_count ?? 0)}</span>
+            <span className="inline-flex items-center gap-1"><Heart className="h-3 w-3" />{fmtCount(likes)}</span>
+          </div>
         </CardContent>
       </Card>
     </a>
