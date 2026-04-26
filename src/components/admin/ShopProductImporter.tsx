@@ -107,7 +107,7 @@ export function ShopProductImporter() {
         stock_quantity: 0,
         main_image: d.main_image,
       };
-      const { error } = await supabase.from("shop_products").insert(payload);
+      const { error } = await supabase.from("shop_products").insert(payload as any);
       if (error) {
         console.error(error);
         fail++;
