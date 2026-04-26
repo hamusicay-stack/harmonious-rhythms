@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS, PRODUCT_TYPE_LABEL } from "@/lib/shopUtils";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/$slug")({
