@@ -273,7 +273,9 @@ function CoursePage() {
             </div>
 
             {/* Sidebar */}
-            <aside className="space-y-3">
+            <aside className={theater
+              ? "fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] overflow-y-auto border-s border-white/10 bg-black/85 p-3 backdrop-blur-xl space-y-3"
+              : "space-y-3"}>
               {!enrollment && (
                 <Card className="border-primary/40">
                   <CardContent className="p-4 space-y-3">
@@ -289,7 +291,7 @@ function CoursePage() {
               )}
 
               {enrollment && (
-                <Card>
+                <Card className={theater ? "bg-white/5 border-white/10 text-white" : ""}>
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">ההתקדמות שלך</span>
@@ -310,9 +312,15 @@ function CoursePage() {
               <div className="space-y-2">
                 {modules.map((m) => {
                   const ml = lessons.filter((l) => l.module_id === m.id);
+                  const hasActive = ml.some((l) => l.id === activeLessonId);
                   return (
-                    <div key={m.id} className="rounded-lg border overflow-hidden">
-                      <div className="bg-muted/40 px-3 py-2 font-semibold text-sm">{m.title}</div>
+                    <ModuleAccordion
+                      key={m.id}
+                      title={m.title}
+                      defaultOpen={hasActive}
+                      theater={theater}
+                      count={ml.length}
+                    >
                       <div className="divide-y">
                         {ml.map((l) => {
                           const done = progress[l.id]?.is_completed;
@@ -323,7 +331,11 @@ function CoursePage() {
                               key={l.id}
                               onClick={() => !locked && setActiveLessonId(l.id)}
                               disabled={locked}
-                              className={`w-full flex items-center gap-2 px-3 py-2 text-right text-sm hover:bg-muted/30 transition-colors ${active ? "bg-primary/10" : ""} ${locked ? "opacity-50 cursor-not-allowed" : ""}`}
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-right text-sm transition-colors ${
+                                theater
+                                  ? `hover:bg-white/10 ${active ? "bg-primary/20 text-white" : "text-white/80"}`
+                                  : `hover:bg-muted/30 ${active ? "bg-primary/10" : ""}`
+                              } ${locked ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               {done ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> :
                                locked ? <Lock className="h-4 w-4 shrink-0" /> :
@@ -334,7 +346,7 @@ function CoursePage() {
                           );
                         })}
                       </div>
-                    </div>
+                    </ModuleAccordion>
                   );
                 })}
               </div>
