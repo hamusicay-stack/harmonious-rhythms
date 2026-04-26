@@ -173,6 +173,8 @@ function CourseDialog({ course, onSaved }: { course: Course | null; onSaved: () 
     level: course?.level ?? "beginner",
     status: course?.status ?? "draft",
     is_featured: course?.is_featured ?? false,
+    is_free: (course as any)?.is_free ?? false,
+    preview_percent: (course as any)?.preview_percent ?? 10,
     meta_title: course?.meta_title ?? "",
     meta_description: course?.meta_description ?? "",
   });
@@ -230,6 +232,25 @@ function CourseDialog({ course, onSaved }: { course: Course | null; onSaved: () 
           <div className="flex items-end gap-2">
             <input id="featured" type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} className="h-4 w-4" />
             <Label htmlFor="featured">קורס מומלץ</Label>
+          </div>
+        </div>
+        <div className="rounded-lg border p-3 space-y-2 bg-amber-500/5 border-amber-500/20">
+          <h4 className="font-medium text-sm">גישה חינמית (Preview)</h4>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="flex items-end gap-2">
+              <input id="is_free" type="checkbox" checked={form.is_free} onChange={(e) => setForm({ ...form, is_free: e.target.checked })} className="h-4 w-4" />
+              <Label htmlFor="is_free">קורס חינמי לחלוטין (100%)</Label>
+            </div>
+            <div>
+              <Label className="text-xs">אחוז Preview למשתמש חינמי (%)</Label>
+              <Input
+                type="number" min={0} max={100}
+                value={form.preview_percent}
+                disabled={form.is_free}
+                onChange={(e) => setForm({ ...form, preview_percent: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">משתמש חינמי יוכל לצפות ב-{form.is_free ? 100 : form.preview_percent}% מהשיעורים בקורס.</p>
+            </div>
           </div>
         </div>
         <div className="rounded-lg border p-3 space-y-2 bg-muted/30">
