@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { CourseReviews } from "@/components/academy/CourseReviews";
+import { LessonQA } from "@/components/academy/LessonQA";
+import { ModuleQuiz } from "@/components/academy/ModuleQuiz";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
