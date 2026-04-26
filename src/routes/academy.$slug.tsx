@@ -309,68 +309,136 @@ async function tryIssueCertificate(courseId: string, userId: string, _courseTitl
   if (!error && data?.pdf_url) toast.success("🎓 קיבלת תעודה חדשה!");
 }
 
-function getYouTubeEmbed(url: string): string | null {
+function getYouTubeId(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
-  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&modestbranding=1&playsinline=1` : null;
+  return m?.[1] ?? null;
 }
-function getVimeoEmbed(url: string): string | null {
-  const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  return m ? `https://player.vimeo.com/video/${m[1]}` : null;
+function getVimeoId(url: string): string | null {
+  return url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1] ?? null;
 }
 
-function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; watermark: string; onProgress?: (pos: number, dur: number) => void }) {
+type PlayerProps = {
+  src: string;
+  watermark: string;
+  onProgress?: (pos: number, dur: number) => void;
+  onEnded?: () => void;
+  onSeekReady?: (seek: (seconds: number) => void) => void;
+};
+
+function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const [speed, setSpeed] = useState(1);
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
-  const ytEmbed = getYouTubeEmbed(src);
-  const vimeoEmbed = getVimeoEmbed(src);
-  const isEmbed = !!(ytEmbed || vimeoEmbed);
+  const ytId = getYouTubeId(src);
+  const vimeoId = getVimeoId(src);
 
+  // Random watermark drift
   useEffect(() => {
     const i = setInterval(() => {
-      setWmPos({
-        top: `${Math.random() * 80}%`,
-        left: `${Math.random() * 70}%`,
-      });
+      setWmPos({ top: `${Math.random() * 80}%`, left: `${Math.random() * 70}%` });
     }, 6000);
     return () => clearInterval(i);
   }, []);
 
+  // Native <video> progress + ended
   useEffect(() => {
-    if (!onProgress) return;
     const v = videoRef.current;
     if (!v) return;
     let last = 0;
     const handle = () => {
-      // Throttle to every 10s
       if (v.currentTime - last < 10 && v.currentTime < v.duration - 1) return;
       last = v.currentTime;
-      onProgress(v.currentTime, v.duration || 0);
+      onProgress?.(v.currentTime, v.duration || 0);
     };
+    const ended = () => onEnded?.();
     v.addEventListener("timeupdate", handle);
-    v.addEventListener("ended", handle);
-    return () => { v.removeEventListener("timeupdate", handle); v.removeEventListener("ended", handle); };
-  }, [onProgress]);
+    v.addEventListener("ended", ended);
+    return () => { v.removeEventListener("timeupdate", handle); v.removeEventListener("ended", ended); };
+  }, [onProgress, onEnded]);
+
+  // Expose seek for native video
+  useEffect(() => {
+    if (!ytId && !vimeoId && videoRef.current && onSeekReady) {
+      onSeekReady((sec) => { if (videoRef.current) videoRef.current.currentTime = sec; });
+    }
+  }, [onSeekReady, ytId, vimeoId]);
+
+  // YouTube IFrame API: seek + onEnded via postMessage
+  useEffect(() => {
+    if (!ytId) return;
+    const seek = (seconds: number) => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "seekTo", args: [seconds, true] }),
+        "*",
+      );
+    };
+    onSeekReady?.(seek);
+
+    if (!onEnded) return;
+    const onMsg = (e: MessageEvent) => {
+      if (typeof e.data !== "string") return;
+      try {
+        const data = JSON.parse(e.data);
+        // YT state 0 = ended
+        if (data?.event === "onStateChange" && data?.info === 0) onEnded();
+      } catch {}
+    };
+    window.addEventListener("message", onMsg);
+    // Subscribe to events from the iframe
+    const iv = setInterval(() => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "listening" }),
+        "*",
+      );
+    }, 1000);
+    setTimeout(() => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }),
+        "*",
+      );
+    }, 800);
+    return () => { window.removeEventListener("message", onMsg); clearInterval(iv); };
+  }, [ytId, onEnded, onSeekReady]);
 
   const setSpeedAndApply = (s: number) => {
     setSpeed(s);
     if (videoRef.current) videoRef.current.playbackRate = s;
   };
 
-  if (isEmbed) {
+  if (ytId) {
+    const ytSrc = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
     return (
       <div className="relative h-full w-full">
         <iframe
-          src={ytEmbed || vimeoEmbed || src}
+          ref={ytFrameRef}
+          src={ytSrc}
           className="h-full w-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
         />
         {watermark && (
-          <div
-            className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
-            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
-          >
+          <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
+            {watermark}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (vimeoId) {
+    return (
+      <div className="relative h-full w-full">
+        <iframe
+          src={`https://player.vimeo.com/video/${vimeoId}`}
+          className="h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+        {watermark && (
+          <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
             {watermark}
           </div>
         )}
@@ -389,10 +457,8 @@ function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; waterm
         className="h-full w-full"
       />
       {watermark && (
-        <div
-          className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
-          style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
-        >
+        <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+          style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
           {watermark}
         </div>
       )}
