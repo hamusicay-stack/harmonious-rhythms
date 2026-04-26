@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { useState, useEffect, MouseEvent } from "react";
+import { useState, MouseEvent } from "react";
 import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { QuickViewDialog } from "./QuickViewDialog";
+import { useListingLike } from "@/hooks/useListingLike";
 
 export type CardListing = {
   id: string;
