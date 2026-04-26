@@ -247,10 +247,22 @@ async function tryIssueCertificate(courseId: string, userId: string, _courseTitl
   if (!error && data?.pdf_url) toast.success("🎓 קיבלת תעודה חדשה!");
 }
 
+function getYouTubeEmbed(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1` : null;
+}
+function getVimeoEmbed(url: string): string | null {
+  const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return m ? `https://player.vimeo.com/video/${m[1]}` : null;
+}
+
 function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; watermark: string; onProgress?: (pos: number, dur: number) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [speed, setSpeed] = useState(1);
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
+  const ytEmbed = getYouTubeEmbed(src);
+  const vimeoEmbed = getVimeoEmbed(src);
+  const isEmbed = !!(ytEmbed || vimeoEmbed);
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -282,6 +294,27 @@ function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; waterm
     setSpeed(s);
     if (videoRef.current) videoRef.current.playbackRate = s;
   };
+
+  if (isEmbed) {
+    return (
+      <div className="relative h-full w-full">
+        <iframe
+          src={ytEmbed || vimeoEmbed || src}
+          className="h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+        {watermark && (
+          <div
+            className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
+          >
+            {watermark}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-full w-full">
@@ -315,3 +348,4 @@ function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; waterm
     </div>
   );
 }
+
