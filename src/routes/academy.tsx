@@ -416,7 +416,7 @@ function AcademyPage() {
                   </SectionGrid>
                 )}
                 {(filteredPodcastSeries.length > 0 || filteredPodcasts.length > 0) && (
-                  <PodcastStrip series={filteredPodcastSeries} podcasts={filteredPodcasts} />
+                  <PodcastStrip series={filteredPodcastSeries} podcasts={filteredPodcasts} podcastLikes={podcastLikes} />
                 )}
                 {filteredCourses.length === 0 && filteredPodcasts.length === 0 && filteredPodcastSeries.length === 0 && (
                   <EmptyState />
@@ -476,7 +476,7 @@ function SectionGrid({ title, children }: { title: string; children: React.React
   );
 }
 
-function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts: Podcast[] }) {
+function PodcastStrip({ series, podcasts, podcastLikes }: { series: PodcastSeries[]; podcasts: Podcast[]; podcastLikes: Map<string, number> }) {
   const episodeCount = (seriesId: string) => podcasts.filter((p) => p.series_id === seriesId).length;
   const standalone = podcasts.filter((p) => !p.series_id);
 
@@ -494,7 +494,7 @@ function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts:
         ))}
         {series.length === 0 && standalone.slice(0, 8).map((p) => (
           <div key={p.id} className="shrink-0 w-44 md:w-auto">
-            <PodcastCard podcast={p} />
+            <PodcastCard podcast={p} likes={podcastLikes.get(p.id) ?? 0} />
           </div>
         ))}
       </div>
