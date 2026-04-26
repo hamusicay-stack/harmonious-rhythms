@@ -197,6 +197,7 @@ function AdminPage() {
 
   return (
     <SiteLayout>
+      <div dir="rtl" className="text-right">
       <section className="border-b border-border/40 bg-hero">
         <div className="container mx-auto px-4 py-10 md:px-8">
           <h1 className="font-display text-3xl font-bold md:text-4xl">לוח בקרה למנהל</h1>
