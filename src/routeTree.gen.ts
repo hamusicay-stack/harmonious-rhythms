@@ -33,6 +33,7 @@ import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
+import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
@@ -163,6 +164,11 @@ const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   path: '/podcasts',
   getParentRoute: () => AcademyRoute,
 } as any)
+const AcademySlugRoute = AcademySlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AcademyRoute,
+} as any)
 const ShopOrderOrderIdRoute = ShopOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -297,6 +305,7 @@ export interface FileRoutesById {
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -334,6 +343,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/shorts'
     | '/store'
+    | '/academy/$slug'
     | '/academy/podcasts'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shorts'
     | '/store'
+    | '/academy/$slug'
     | '/academy/podcasts'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -401,6 +412,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/shorts'
     | '/store'
+    | '/academy/$slug'
     | '/academy/podcasts'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -614,6 +626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcademyPodcastsRouteImport
       parentRoute: typeof AcademyRoute
     }
+    '/academy/$slug': {
+      id: '/academy/$slug'
+      path: '/$slug'
+      fullPath: '/academy/$slug'
+      preLoaderRoute: typeof AcademySlugRouteImport
+      parentRoute: typeof AcademyRoute
+    }
     '/shop/order/$orderId': {
       id: '/shop/order/$orderId'
       path: '/order/$orderId'
@@ -681,10 +700,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AcademyRouteChildren {
+  AcademySlugRoute: typeof AcademySlugRoute
   AcademyPodcastsRoute: typeof AcademyPodcastsRoute
 }
 
 const AcademyRouteChildren: AcademyRouteChildren = {
+  AcademySlugRoute: AcademySlugRoute,
   AcademyPodcastsRoute: AcademyPodcastsRoute,
 }
 
