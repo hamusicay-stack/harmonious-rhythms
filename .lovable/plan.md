@@ -1,109 +1,209 @@
-## סקירה
-תיקוני חבילה משולבת — Package A מהדו"ח הקודם + הבאגים החדשים שדיווחת עליהם (לייק כפול, Skeleton, מקלדת בצ'ק-אאוט, צ'ק-אאוט מרובה שלבים, עגלה, תגיות, גייט פרימיום).
+## "Sonic Glass v5" — המניפסט הסופי המוכן לבניה
+
+מותג בינלאומי ברמת Linear / Apple / Splice. **Light Premium**, עומק דינמי, מעברי 0ms, חוויית פרו עם דיוקים אנליטיים.
 
 ---
 
-## 1. באגים טכניים (קריטי)
+### 1. שפה עיצובית
 
-### 1.1 שגיאת `duplicate key` בלייק (שורטס)
-`src/routes/shorts.tsx` — `toggleLike` (שורות 463–493):
-- לבדוק מצב נוכחי לפני INSERT, ואם כבר יש שורה — להתעלם בשקט (idempotent).
-- במקרה של שגיאה: לבלוע שגיאות `23505 / duplicate key` בלי toast; להציג toast רק על שגיאות אמיתיות (`error.code !== '23505'`).
-- ב-`useLikes.ts` — אותה הקשחה.
-
-### 1.2 שמע כפול בין סרטונים (Package A מקודם)
-ב-`onTransitionEnd`/החלפת קריאיטור: לבצע `videoRef.current.pause()` + `currentTime = 0` על הסרטון הקודם לפני טעינת ה-`src` החדש. להוסיף `key={short.id}` כבר קיים — לוודא שהוא משתנה לפני שהקודם פוסק.
-
-### 1.3 לייק "נשאר גדול" — fade-out
-ב-`@layer utilities` של `src/styles.css` (או בקומפוננטה): keyframe `heart-pop` נוכחי לא דועך. להחליף ל:
+```css
+--bg-base:#F4F6FB; --surface-glass:rgba(255,255,255,.65);
+--primary:#6B4FBB; --primary-glow:#2EC4D6; --accent:#C9479E;
+--brand-gradient:linear-gradient(135deg,#2EC4D6 0%,#6B4FBB 50%,#C9479E 100%);
+--glass-reflection:rgba(255,255,255,.4);
+--focus-ring:0 0 0 3px rgba(46,196,214,.45),0 0 24px rgba(46,196,214,.35);
+--fg:#0F1729; --muted:#6B7592;
 ```
-0%   { transform: scale(0.6); opacity: 0; }
-30%  { transform: scale(1.1); opacity: 1; }
-70%  { transform: scale(1); opacity: 1; }
-100% { transform: scale(1.05); opacity: 0; }
-```
-משך 700ms, ולהאריך את ה-`setTimeout` בשורה 373 ל-700ms.
-
-### 1.4 כפתור העלאת שורטס לא מופיע
-`canUpload` תמיד `true` למשתמש מחובר (שורה 243). אבל ב-state ההתחלתי הוא `false` ויש fragments עם `{canUpload && ...}`. נשנה את הבדיקות להציג את הכפתור לכל משתמש מחובר (ולא להישען על `canUpload`), ולהציג מודאל login למשתמש לא מחובר.
-
-### 1.5 מקלדת מסתירה שדות בצ'ק-אאוט
-`src/routes/shop.checkout.tsx`: להוסיף `scroll-margin-block: 120px` על Inputs, ו-`onFocus={(e) => e.currentTarget.scrollIntoView({ block: 'center', behavior: 'smooth' })}`. בנוסף `viewport meta` עם `interactive-widget=resizes-content` ב-`__root.tsx`.
+Dark Mode mapping מוכן תחת `.dark`.
 
 ---
 
-## 2. שיפורי UI
+### 2. Z-Axis + Reflection + Border Sweep + **Subtle Parallax**
 
-### 2.1 Shimmer בטעינת שורטס
-`src/components/shorts/ShortsSkeleton.tsx` — להחליף `animate-pulse` לקלאס חדש `animate-shimmer` (gradient נע). להוסיף keyframe ל-`styles.css`.
+| שכבה | Blur | תוספות |
+|---|---|---|
+| z0 wallpaper+mesh | — | לוגואים + Mesh דינמי |
+| z1 sections | 10px | — |
+| **z2 cards** | 20px | קו אור עליון 1px + Border Sweep ב-hover + **Parallax max 4px** |
+| **z3 modals/header** | 40px | קו אור עליון 1.5px |
 
-### 2.2 עיצוב toast בשפת המותג
-`src/components/ui/sonner.tsx`: להוסיף `richColors`, `position="top-center"`, `duration: 3000`, ו-classNames מותאמים: rounded-2xl, גרדיאנט עדין מ-`primary/10`, צל gold, אייקונים צבעוניים. החלפת ה-✓ הירוק לעיצוב של המותג.
+**Border Light Sweep:** `::before` עם `conic-gradient` מסתובב + mask, animation 1.5s ב-hover.
 
-### 2.3 טעינת תגובות מהירה — Skeleton במקום ספינר
-`src/components/shorts/CommentsSheet.tsx` שורות 153–155: להחליף את `Loader2` ב-3 שורות skeleton (אווטאר עגול + 2 שורות טקסט) שמופיעות מיד.
-
----
-
-## 3. שיפורי UX
-
-### 3.1 צ'ק-אאוט בשלבים (Stepper)
-שכתוב `shop.checkout.tsx` עם state `step: 1|2|3`:
-- שלב 1: פרטים אישיים
-- שלב 2: כתובת משלוח (מדולג אם דיגיטלי בלבד)
-- שלב 3: סיכום + הערות + תשלום
-מעל הטופס: progress indicator 3 נקודות עם תוויות. כפתורי "המשך"/"חזור" עם חצים נכונים ל-RTL (חץ ימינה=חזור, שמאלה=המשך). ולידציה מקומית לכל שלב לפני המעבר.
-טלפון/מיקוד: `inputMode="numeric"`, `autoComplete` מתאים (`tel`, `email`, `name`, `street-address`, `address-level2`, `postal-code`).
-
-### 3.2 עגלה — מרווחים מהקצה
-`src/components/shop/CartDrawer.tsx`: להוסיף `pl-2` ל-SheetContent, ולעטוף את כפתורי X / מחיקת מוצר ב-`p-2` נוספים כדי להגדיל target area ל-44×44 px לפחות.
-
-### 3.3 הסבר ויזואלי לתגיות
-`UploadDialog` (שורות 1243–1268): כבר יש בועות — נוסיף chip מלא יותר עם רקע בולט יותר וטקסט עזרה ויזואלי "הקש Enter / רווח / פסיק כדי להוסיף".
-
-### 3.4 שגיאות מקובצות במקום הרבה אדומים
-ב-`shop.checkout.tsx` `submit`: לאסוף את כל השגיאות למערך, ולהציג `toast.error` יחיד עם רשימה (`description: errors.join('\n')`) במקום toast לכל שדה.
+**Parallax (דיוק ✓):** **מקסימום 4px** תזוזה לתוכן כיוון הפוך לעכבר. אפקט מורגש לא נראה. CSS vars `--mx --my`. מבוטל ב-mobile + reduced-motion.
 
 ---
 
-## 4. מנגנון פרימיום בהעלאה
-
-`UploadDialog` ב-`shorts.tsx`:
-- שליפת `tier` כבר קיימת ב-`checkQuota`. נחלץ בדיקה זו ל-state `isPremiumUser` שנטען בפתיחת הדיאלוג.
-- אם `!isPremiumUser` ו-`file` כבר נבחר → להחביא את כפתור "פתח מצלמה" השני (או להפוך ל-disabled עם רמז "פרימיום בלבד" + Crown).
-- כפתור "החלף סרטון" (X על הקובץ הקיים) למשתמש רגיל.
-- פרימיום: לאפשר `multiple` על input הקובץ, להחזיק `files: File[]` ולהעלות בלולאה.
-- כשמשתמש רגיל מנסה להעלות סרטון שני באותן 24 שעות → ה-`showUpsell` הקיים תקין, אבל לעדכן את הטקסט להיות שיווקי יותר עם crown gold + benefits list (3 נקודות) + CTA ברור.
+### 3. Dynamic Mesh Gradient
+4-5 `radial-gradient` בעמדות `--mesh-x --mesh-y`. listener יחיד ב-`SiteLayout` ב-rAF (throttle 16ms). opacity 0.55, `mix-blend-mode: soft-light`, blur 80px. mobile/reduced-motion → 3 orbs סטטיים. GPU layer.
 
 ---
 
-## 5. RTL וגיוון
-
-- חצי "הבא/חזור" בצ'ק-אאוט: `<ArrowRight>` ל-"חזור" (כי RTL), `<ArrowLeft>` ל-"המשך".
-- בדיקה גורפת של כל הניווט בין-עמודי (כבר חלקו טופל קודם, נוודא בשלבי הצ'ק-אאוט החדשים).
+### 4. Noise + Brand Image
+`.glass-noise` (SVG 2.5%), `.brand-image` (saturate 1.05/brightness 1.02 + hover boost).
 
 ---
 
-## קבצים שיתעדכנו
-- `src/routes/shorts.tsx` — לייק idempotent, fade-out, גייט פרימיום, שמע כפול, כפתור העלאה
-- `src/hooks/useLikes.ts` — בליעת `23505`
-- `src/styles.css` — keyframes `heart-pop` חדש + `shimmer`
-- `src/components/shorts/ShortsSkeleton.tsx` — shimmer
-- `src/components/shorts/CommentsSheet.tsx` — skeleton
-- `src/components/ui/sonner.tsx` — עיצוב toast
-- `src/routes/shop.checkout.tsx` — Stepper + מקלדת + autocomplete + שגיאות מקובצות
-- `src/components/shop/CartDrawer.tsx` — מרווחים
-- `src/routes/__root.tsx` — viewport meta
+### 5. Bento Hero + Smart Feed
+שאילתה ל-`profiles.preferences` → אם קיים, כרטיס המתאים מקבל `col-span-2`. fallback סטטי.
 
 ---
 
-## QA לאחר ביצוע
-1. שורטס: double-tap על סרטון שכבר עשיתי בו לייק — אין toast אדום, הלב לא מהבהב כפול.
-2. אנימציית הלב נעלמת תוך 700ms בfade.
-3. החלפת קריאיטור/סרטון — אין שמע כפול.
-4. כפתור "העלה סרטון" מופיע לכל משתמש מחובר.
-5. צ'ק-אאוט במובייל 339×557 — שלבים עוברים חלק, מקלדת לא מסתירה שדות.
-6. עגלה — כפתור X רחוק מהקצה.
-7. משתמש רגיל לא יכול לבחור 2 קבצים; פרימיום כן.
+### 6. Command Bar — Cmd+K (לב המערכת)
 
-ללא הוספת DB / Edge Functions חדשים. שינויים קוד frontend בלבד + tweak `styles.css`.
+`<CommandPalette>` (cmdk + glass-z3):
+- **Trigger:** Cmd+K / Ctrl+K / כפתור בהדר.
+- **Sections:** ניווט, פעולות מהירות, חיפוש חי (debounced 200ms supabase RPC), פקודות (תמה, סאונד).
+- Recent + Suggested.
+- **Sound Feedback (דיוק ✓):** צליל "tick" דק בתדר גבוה (~3kHz, 40ms) על כל arrow key. צליל "select" עמוק יותר על Enter. ייחודי לפלטה.
+- אנימציה: glass blur 40px + scale-in.
+
+---
+
+### 7. Keyboard Shortcuts
+`useKeyboardShortcuts` + Help dialog ב-`?`:
+`Cmd/Ctrl+K` palette · `/` חיפוש · `Space` play · `← →` next/prev (RTL) · `J K` שורטס · `L` לייק · `G H/A/S/F` ניווט · `?` עזרה. מבוטל ב-inputs.
+
+---
+
+### 8. Predictive Prefetching (דיוק ✓)
+
+`usePredictivePrefetch`:
+- **Hover dwell ≥100ms** לפני הפעלת prefetch — מונע הצפת שרת בתנועות עכבר אגביות.
+- `<Link preload="intent">` כברירת מחדל.
+- Image preload להירו ב-hover dwell.
+- Idle prefetch של 3-5 ראוטים פופולריים אחרי 2s idle.
+
+---
+
+### 9. Contextual Quick Preview
+hover על כרטיס קורס/מוצר → כפתור "Preview" ב-overlay glass-z3 → QuickViewDialog בלי ניווט.
+
+---
+
+### 10. Mix-Blend Custom Cursor
+נקודה 8px `mix-blend-mode: difference` לבן → מתהפך אוטומטית לפי רקע. ring 28px spring, opacity 0.6. interactive → ring 56px בגרדיאנט. active → 0.85. hidden במובייל/reduced-motion/inputs.
+
+---
+
+### 11. Typography Fluid
+Readex Pro display + Assistant body. `clamp()`, letter-spacing -0.025em, line-height 1.7-1.75.
+
+---
+
+### 12. Smart Sticky Header
+`useScrollDirection` — hide on down>80px, show on up עם glass-z3. Pill nav + active `layoutId`. Cmd+K button visible.
+
+---
+
+### 13. Focus Ring טורקיז למקלדת
+`*:focus-visible { box-shadow: var(--focus-ring) }` גורף.
+
+---
+
+### 14. Skeletons + Empty States + AI Micro-Copy (דיוק ✓)
+
+**Skeletons:** Shimmer גרדיאנט מותגי, variants לפי מודול.
+**Empty States:** SVG מאוירים פר מודול.
+
+**Micro-Copy time + day aware** (`src/lib/microCopy.ts`):
+
+מילון בסיס:
+- "טוען→מכוון תדרים" · "שלח→הדהד" · "אין תוצאות→שקט באולפן" · "שגיאה→פעימה לא נקלטה" · "נשמר→נחתם במאסטר" · "סל→ארגז ציוד" · "התחבר→כנס לאולפן"
+
+וריאציות לפי שעה:
+- בוקר (6-12): "מכוון תדרים לבוקר טוב..."
+- אחה"צ (12-17): "מחמם את הסטיובים..."
+- ערב (17-23): "סשן ערב מתחיל..."
+- לילה (23-6): "שקט באולפן — לילה טוב..."
+
+**וריאציות לפי יום (חדש):**
+- שישי 11:00-17:00: "מוריד גיין לקראת שבת..."
+- מוצ"ש (שבת אחרי 19:00 / ראשון בוקר): "חמם מנועים, מתחילים שבוע..."
+
+לוגיקה: יום+שעה first, fallback לשעה, fallback למילון בסיס. הכל סטטי (ללא LLM בזמן אמת).
+
+---
+
+### 15. Framer Motion
+Heart Burst, Card Lift z2→z3, Shimmer Sweep, Count-up, Stagger 60ms, Magnetic Buttons, Active Tab `layoutId`, Page Transition fade+slide 200ms, Toast slide+blur. `bun add framer-motion`.
+
+---
+
+### 16. Adaptive Audio (דיוק ✓)
+
+**Velocity Sensitive — טווח מצומצם:**
+- מדידת מהירות עכבר ב-200ms לפני click.
+- **Volume range: 0.08 ↔ 0.15 בלבד** (לא ירגיש מקולקל).
+- **Scale Bounce חדש:** לחיצה מהירה → spring stiffness 400, scale 0.92→1. לחיצה איטית → stiffness 180, scale 0.97→1. נותן תחושת bounce אמיתי.
+
+**Spatial Audio:**
+AudioContext + StereoPannerNode. `pan = (clientX/innerWidth - 0.5) * 0.6`. Toasts מצד שמאל → צליל שמאל.
+
+**צלילים** (5 ב-ElevenLabs SFX, <200ms): click-soft, like-pop, menu-open, success-chime, error-blip + 2 ייחודיים ל-Command Bar (palette-tick 40ms, palette-select). ב-`public/sounds/`. Hook + toggle בפרופיל. Default OFF במובייל. מבוטל ב-reduced-motion.
+
+---
+
+### 17. Haptic
+`navigator.vibrate(10)` על לייק/סל/אישור. מבוטל ב-reduced-motion.
+
+---
+
+### 18. Hover & Active מקיפים
+Nav: גרדיאנט underline + active dot. Avatars: ring גרדיאנט מסתובב. Inputs: focus ring + label עולה. Cards: z2→z3 + lift + cursor expand + border sweep + parallax 4px. Buttons: shimmer + velocity-aware bounce + haptic. Badges: pulse "חדש".
+
+---
+
+### 19. ביצועים — Lighthouse Gold
+- `will-change: backdrop-filter` רק אקטיבים + `translateZ(0)` למניעת lag.
+- **Partial Hydration:** CommandPalette / CustomCursor / FloatingAudioPlayer / BackgroundMesh → `lazy()` + `Suspense` אחרי first interaction.
+- Reduced motion → mesh/orbs/cursor/transitions/sounds/sweep מבוטלים.
+- Mobile: blur z3 → 20px, mesh → orbs סטטיים, אין cursor/listener.
+- Images: `loading=lazy decoding=async` + AVIF/WebP.
+- Sound preload רק אחרי first gesture.
+- `contain: layout paint` על כרטיסים.
+- יעד: Perf 90+, A11y 100, BP 100.
+
+---
+
+### 20. נגישות
+AA contrast (נבדק על glass), ARIA על Command Bar, focus trap במודלים, skip-to-content, alt על תמונות, `prefers-reduced-motion` מכובד מקיפה.
+
+---
+
+### 21. קבצים
+
+**יצירה:**
+- `public/brand/logo-pattern.png`, `logo.png`
+- `public/sounds/*.mp3` (7: 5 בסיס + 2 palette)
+- Components: `BackgroundMesh.tsx`, `CustomCursor.tsx`, `BentoHero.tsx`, `LiveActivityTicker.tsx`, `CountUp.tsx`, `BrandImage.tsx`, `CommandPalette.tsx`, `KeyboardShortcutsHelp.tsx`, `EmptyState.tsx`
+- UI: `GlassCard.tsx` (parallax 4px+sweep), `GradientButton.tsx` (velocity bounce), `MagneticButton.tsx`, `AnimatedHeart.tsx`
+- Skeletons: `Card`, `List`, `ProductGrid`, `LessonRow`, `ForumPost`, `ProCard`, `CommentItem`
+- Hooks: `useScrollDirection`, `useUISounds` (velocity 0.08-0.15 + spatial), `useHaptic`, `useKeyboardShortcuts`, `useCommandPalette`, `usePredictivePrefetch` (100ms dwell), `useMousePosition`, `useMouseVelocity`
+- Lib: `microCopy.ts` (time+day aware), `uiSoundsStore.ts`, `audioContext.ts`
+
+**עריכה:**
+- `src/styles.css` — vars, fluid type, glass-z*, reflection, border-sweep, glass-noise, focus-ring, brand-image, mesh, GPU hints, keyframes
+- `SiteLayout.tsx` — Mesh + Cursor + CommandPalette + Shortcuts + transitions + mouse listeners
+- `SiteHeader.tsx` — smart hide + z3 + Cmd+K button + לוגו + active indicator
+- `SiteFooter.tsx`, `LikeButton.tsx`, `NotificationsBell.tsx`, `FloatingAudioPlayer.tsx` (z3+waveform)
+- `sonner.tsx` — glass-z3 + spatial sound + micro-copy
+- `skeleton.tsx` — shimmer מותגי
+- `routes/index.tsx` — BentoHero + Stats + Ticker + Smart Feed
+- `routes/profile.tsx` — toggles סאונד/haptic
+- All cards (Pro/Marketplace/Shop/Forum/Academy) → GlassCard + brand-image + skeleton + empty + Quick Preview
+
+**Deps:** `bun add framer-motion`
+
+---
+
+### 22. סדר ביצוע
+
+1. **Foundation** — vars, fluid type, glass utilities, keyframes, microCopy.ts (time+day), BackgroundMesh
+2. **Frame** — Header (smart+Cmd+K), Footer, SiteLayout (Mesh+Cursor+Palette+Shortcuts+transitions)
+3. **Bento Hero** — index + count-up + ticker + smart feed
+4. **GlassCard migration** — wrap all cards (parallax 4px + sweep + brand-image + focus)
+5. **Command Bar + Shortcuts + Prefetching** — palette + tick sounds + help + 100ms dwell prefetch
+6. **Skeletons + Empty States + Micro-Copy** — global swap
+7. **Animations** — Heart Burst, Magnetic, Stagger, active indicator, FloatingPlayer upgrade, Quick Preview
+8. **Audio + Haptic** — ElevenLabs SFX + velocity 0.08-0.15 + scale bounce + spatial + toggles
+9. **QA** — Lighthouse, reduced-motion, mobile, keyboard-only, contrast, partial hydration audit
