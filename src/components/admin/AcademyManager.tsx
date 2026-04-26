@@ -524,6 +524,10 @@ function getYoutubeVideoId(url: string) {
   return url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1] ?? null;
 }
 
+function getYoutubePlaylistId(url: string) {
+  return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+}
+
 function PodcastsManager() {
   const [items, setItems] = useState<any[]>([]);
   const [series, setSeries] = useState<any[]>([]);
@@ -558,6 +562,13 @@ function PodcastsManager() {
   const save = async () => {
     if (!form.title.trim() || !form.source_url.trim()) return toast.error("כותרת וקישור חובה");
     const videoId = form.kind === "youtube" ? getYoutubeVideoId(form.source_url) : null;
+    const playlistId = form.kind === "youtube" ? getYoutubePlaylistId(form.source_url) : null;
+    if (!videoId && playlistId) {
+      const targetSeriesId = form.series_id !== "none" ? form.series_id : await createSeriesFromPodcastForm();
+      if (targetSeriesId) await importPlaylist(targetSeriesId, form.source_url);
+      setOpen(false);
+      return;
+    }
     const payload: any = {
       title: form.title,
       description: form.description || null,
@@ -591,6 +602,19 @@ function PodcastsManager() {
     setSeriesForm({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
     load();
     if (seriesForm.playlist_url.trim()) await importPlaylist(data.id, seriesForm.playlist_url.trim());
+  };
+
+  const createSeriesFromPodcastForm = async () => {
+    const { data, error } = await supabase.from("academy_podcast_series").insert({
+      title: form.title,
+      description: form.description || null,
+      cover_url: form.thumbnail_url || null,
+    } as any).select("id").single();
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+    return data.id as string;
   };
 
   const importPlaylist = async (seriesId: string, playlistUrl?: string) => {
