@@ -77,39 +77,48 @@ function EditProPage() {
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("music_pros").update({
-      display_name: pro.display_name,
-      headline: pro.headline,
-      bio: pro.bio,
-      region: pro.region,
-      cities: pro.cities,
-      specialties: pro.specialties,
-      genres: pro.genres,
-      gear_list: pro.gear_list,
-      brand_color: pro.brand_color,
-      hourly_price_min: pro.hourly_price_min,
-      profile_image: pro.profile_image,
-      cover_image: pro.cover_image,
-      whatsapp: pro.whatsapp,
-      phone: pro.phone,
-      instagram: pro.instagram,
-      youtube: pro.youtube,
-      website: pro.website,
-    }).eq("id", proId);
+    try {
+      const { error: updErr } = await supabase.from("music_pros").update({
+        display_name: pro.display_name,
+        headline: pro.headline,
+        bio: pro.bio,
+        region: pro.region,
+        cities: pro.cities,
+        specialties: pro.specialties,
+        genres: pro.genres,
+        gear_list: pro.gear_list,
+        brand_color: pro.brand_color,
+        hourly_price_min: pro.hourly_price_min,
+        profile_image: pro.profile_image,
+        cover_image: pro.cover_image,
+        whatsapp: pro.whatsapp,
+        phone: pro.phone,
+        instagram: pro.instagram,
+        youtube: pro.youtube,
+        website: pro.website,
+      }).eq("id", proId);
+      if (updErr) throw updErr;
 
-    // Sync packages: delete existing, re-insert
-    await supabase.from("music_pro_packages").delete().eq("pro_id", proId);
-    if (packages.length > 0) {
-      await supabase.from("music_pro_packages").insert(
-        packages.filter((p) => p.title.trim()).map((p, i) => ({
+      // Sync packages: delete existing, re-insert
+      const { error: delErr } = await supabase.from("music_pro_packages").delete().eq("pro_id", proId);
+      if (delErr) throw delErr;
+      if (packages.length > 0) {
+        const rows = packages.filter((p) => p.title.trim()).map((p, i) => ({
           pro_id: proId, title: p.title, description: p.description || null,
           price: p.price, unit: p.unit, display_order: i,
-        }))
-      );
+        }));
+        if (rows.length > 0) {
+          const { error: insErr } = await supabase.from("music_pro_packages").insert(rows);
+          if (insErr) throw insErr;
+        }
+      }
+      toast.success("השינויים נשמרו בהצלחה");
+    } catch (e: any) {
+      console.error("Failed to save pro profile", e);
+      toast.error(e?.message ?? "השמירה נכשלה");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("נשמר");
   };
 
   const addMedia = async (type: "audio" | "video", url: string, title: string) => {
