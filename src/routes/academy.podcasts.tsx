@@ -232,7 +232,7 @@ function PodcastsPage() {
             {standalone.length > 0 && (
               <section>
                 <h2 className="mb-4 text-xl font-semibold">פרקים בודדים</h2>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-3">
                   {standalone.map((p) => <EpisodeCard key={p.id} p={p} share={share} />)}
                 </div>
               </section>
