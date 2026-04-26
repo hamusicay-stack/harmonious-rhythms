@@ -135,6 +135,38 @@ function AcademyPage() {
     () => { reload(); },
   );
 
+  // Deep search across lessons + podcasts (debounced)
+  useEffect(() => {
+    const q = search.trim();
+    if (q.length < 3) { setDeepHits([]); return; }
+    const handle = setTimeout(async () => {
+      const [lessons, pods] = await Promise.all([
+        supabase
+          .from("academy_lessons")
+          .select("id,title,course_id,academy_courses!inner(slug,title,status)")
+          .ilike("title", `%${q}%`)
+          .eq("academy_courses.status", "published")
+          .limit(8),
+        supabase
+          .from("academy_podcasts")
+          .select("id,title,description,series_id,academy_podcast_series(title)")
+          .or(`title.ilike.%${q}%,description.ilike.%${q}%`)
+          .eq("is_active", true)
+          .limit(8),
+      ]);
+      const hits: Array<{ kind: "lesson" | "podcast"; title: string; parentTitle: string; link: string }> = [];
+      (lessons.data ?? []).forEach((l: any) => {
+        const c = l.academy_courses;
+        if (c?.slug) hits.push({ kind: "lesson", title: l.title, parentTitle: c.title, link: `/academy/${c.slug}` });
+      });
+      (pods.data ?? []).forEach((p: any) => {
+        hits.push({ kind: "podcast", title: p.title, parentTitle: p.academy_podcast_series?.title ?? "פרק בודד", link: "/academy/podcasts" });
+      });
+      setDeepHits(hits);
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [search]);
+
   const redeemCode = async () => {
     if (!user) return toast.error("יש להתחבר כדי להזין קוד");
     if (!code.trim()) return;
