@@ -668,8 +668,12 @@ function PodcastsManager() {
                           {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={async () => {
-                          if (!confirm(`למחוק את הסדרה "${s.title}"? הפרקים יישמרו ללא שיוך.`)) return;
-                          await supabase.from("academy_podcast_series").delete().eq("id", s.id);
+                          if (!confirm(`למחוק את הסדרה "${s.title}" ואת כל הפרקים שבתוכה?`)) return;
+                          const { error: episodesError } = await supabase.from("academy_podcasts").delete().eq("series_id", s.id);
+                          if (episodesError) return toast.error(episodesError.message);
+                          const { error: seriesError } = await supabase.from("academy_podcast_series").delete().eq("id", s.id);
+                          if (seriesError) return toast.error(seriesError.message);
+                          toast.success("הסדרה וכל הפרקים נמחקו");
                           load();
                         }}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
                       </div>
@@ -679,10 +683,10 @@ function PodcastsManager() {
               </div>
             </div>
           )}
-          {items.length > 0 && (
+          {items.some((p) => !p.series_id) && (
             <div className="space-y-2">
-              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">פרקים</h4>
-              {items.map((p) => (
+              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">פרקים בודדים</h4>
+              {items.filter((p) => !p.series_id).map((p) => (
                 <Card key={p.id}><CardContent className="flex items-center justify-between gap-2 p-3">
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-sm truncate">{p.title}</div>

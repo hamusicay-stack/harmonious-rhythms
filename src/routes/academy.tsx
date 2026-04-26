@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft } from "lucide-react";
+import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,12 +52,22 @@ type Podcast = {
   source_url: string;
   thumbnail_url: string | null;
   views_count: number;
+  series_id: string | null;
+};
+
+type PodcastSeries = {
+  id: string;
+  title: string;
+  description: string | null;
+  cover_url: string | null;
+  host_name: string | null;
 };
 
 function AcademyPage() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [podcastSeries, setPodcastSeries] = useState<PodcastSeries[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +77,7 @@ function AcademyPage() {
   const [tab, setTab] = useState<"all" | "courses" | "podcasts" | "mine">("all");
 
   const reload = async () => {
-    const [{ data: cs }, { data: pods }] = await Promise.all([
+    const [{ data: cs }, { data: pods }, { data: series }] = await Promise.all([
       supabase
         .from("academy_courses")
         .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured")
@@ -76,14 +86,21 @@ function AcademyPage() {
         .order("display_order"),
       supabase
         .from("academy_podcasts")
-        .select("id,title,description,kind,source_url,thumbnail_url,views_count")
+        .select("id,title,description,kind,source_url,thumbnail_url,views_count,series_id")
         .eq("is_active", true)
         .order("sort_order")
         .order("created_at", { ascending: false })
         .limit(12),
+      supabase
+        .from("academy_podcast_series")
+        .select("id,title,description,cover_url,host_name")
+        .eq("is_active", true)
+        .order("sort_order")
+        .order("created_at", { ascending: false }),
     ]);
     setCourses((cs ?? []) as Course[]);
     setPodcasts((pods ?? []) as Podcast[]);
+    setPodcastSeries((series ?? []) as PodcastSeries[]);
 
     if (user) {
       const [{ data: enr }, { data: certs }] = await Promise.all([
@@ -108,7 +125,7 @@ function AcademyPage() {
   }, [user]);
 
   useAcademyRealtime(
-    ["academy_courses", "academy_podcasts", "academy_enrollments"],
+    ["academy_courses", "academy_podcasts", "academy_podcast_series", "academy_enrollments"],
     () => { reload(); },
   );
 
@@ -151,9 +168,12 @@ function AcademyPage() {
     !q || c.title.toLowerCase().includes(q) || (c.subtitle ?? "").toLowerCase().includes(q);
   const matchPodcast = (p: Podcast) =>
     !q || p.title.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q);
+  const matchSeries = (s: PodcastSeries) =>
+    !q || s.title.toLowerCase().includes(q) || (s.description ?? "").toLowerCase().includes(q) || (s.host_name ?? "").toLowerCase().includes(q);
 
   const filteredCourses = courses.filter(matchCourse);
   const filteredPodcasts = podcasts.filter(matchPodcast);
+  const filteredPodcastSeries = podcastSeries.filter(matchSeries);
   const filteredMine = myCourses.filter(matchCourse);
 
   return (
@@ -305,10 +325,10 @@ function AcademyPage() {
                       .map((c) => <CourseCard key={c.id} course={c} />)}
                   </SectionGrid>
                 )}
-                {filteredPodcasts.length > 0 && (
-                  <PodcastStrip podcasts={filteredPodcasts} />
+                {(filteredPodcastSeries.length > 0 || filteredPodcasts.length > 0) && (
+                  <PodcastStrip series={filteredPodcastSeries} podcasts={filteredPodcasts.filter((p) => !p.series_id)} />
                 )}
-                {filteredCourses.length === 0 && filteredPodcasts.length === 0 && (
+                {filteredCourses.length === 0 && filteredPodcasts.length === 0 && filteredPodcastSeries.length === 0 && (
                   <EmptyState />
                 )}
               </TabsContent>
@@ -325,9 +345,10 @@ function AcademyPage() {
               </TabsContent>
 
               <TabsContent value="podcasts">
-                {filteredPodcasts.length === 0 ? <EmptyState /> : (
+                {filteredPodcastSeries.length === 0 && filteredPodcasts.length === 0 ? <EmptyState /> : (
                   <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {filteredPodcasts.map((p) => <PodcastCard key={p.id} podcast={p} />)}
+                    {filteredPodcastSeries.map((s) => <PodcastSeriesCard key={s.id} series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />)}
+                    {filteredPodcasts.filter((p) => !p.series_id).map((p) => <PodcastCard key={p.id} podcast={p} />)}
                   </div>
                 )}
                 <div className="mt-4 flex justify-center">
@@ -365,15 +386,20 @@ function SectionGrid({ title, children }: { title: string; children: React.React
   );
 }
 
-function PodcastStrip({ podcasts }: { podcasts: Podcast[] }) {
+function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts: Podcast[] }) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-lg font-bold"><Mic className="h-4 w-4" />פודקאסטים</h2>
-        <Link to="/academy/podcasts" className="text-xs text-primary hover:underline">לכל הפרקים</Link>
+        <Link to="/academy/podcasts" className="text-xs text-primary hover:underline">לכל התיקיות</Link>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
-        {podcasts.slice(0, 8).map((p) => (
+        {series.slice(0, 8).map((s) => (
+          <div key={s.id} className="shrink-0 w-44 md:w-auto">
+            <PodcastSeriesCard series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />
+          </div>
+        ))}
+        {series.length === 0 && podcasts.slice(0, 8).map((p) => (
           <div key={p.id} className="shrink-0 w-44 md:w-auto">
             <PodcastCard podcast={p} />
           </div>
@@ -416,6 +442,29 @@ function CourseCard({ course, progress }: { course: Course; progress?: number })
         </CardContent>
       </Card>
     </Link>
+  );
+}
+
+function PodcastSeriesCard({ series, count }: { series: PodcastSeries; count: number }) {
+  return (
+    <a href={`/academy/podcasts#series-${series.id}`} className="block">
+      <Card className="overflow-hidden h-full transition-smooth hover:border-primary/40 hover:shadow-elegant">
+        <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/30 relative">
+          {series.cover_url ? (
+            <img src={series.cover_url} alt={series.title} className="h-full w-full object-cover" loading="lazy" />
+          ) : (
+            <div className="flex h-full items-center justify-center"><FolderOpen className="h-10 w-10 text-primary/50" /></div>
+          )}
+          <div className="absolute bottom-2 right-2 rounded-full bg-background/90 p-2 shadow-sm">
+            <FolderOpen className="h-4 w-4 text-primary" />
+          </div>
+        </div>
+        <CardContent className="p-3 space-y-1">
+          <h3 className="font-semibold text-sm line-clamp-2">{series.title}</h3>
+          <p className="text-[11px] text-muted-foreground">{series.host_name ? `${series.host_name} · ` : ""}{count} פרקים</p>
+        </CardContent>
+      </Card>
+    </a>
   );
 }
 

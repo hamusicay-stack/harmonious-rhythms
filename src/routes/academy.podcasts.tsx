@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2 } from "lucide-react";
+import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,15 +47,34 @@ type Podcast = {
   views_count: number;
   series_id: string | null;
   episode_number: number | null;
+  sort_order: number;
   created_at: string;
 };
 
 function youtubeVideoId(url: string) {
-  return url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1] ?? null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") return parsed.pathname.split("/").filter(Boolean)[0] ?? null;
+    if (host.endsWith("youtube.com")) {
+      const fromQuery = parsed.searchParams.get("v");
+      if (fromQuery) return fromQuery;
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      const marker = ["embed", "shorts", "live"].find((part) => parts.includes(part));
+      if (marker) return parts[parts.indexOf(marker) + 1] ?? null;
+    }
+  } catch {
+    return url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/)?.[1] ?? null;
+  }
+  return null;
 }
 
 function youtubePlaylistId(url: string) {
-  return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+  try {
+    return new URL(url).searchParams.get("list");
+  } catch {
+    return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+  }
 }
 
 function ytEmbed(url: string) {
@@ -80,7 +99,7 @@ function PodcastsPage() {
     setLoading(true);
     const [s, p] = await Promise.all([
       supabase.from("academy_podcast_series").select("*").eq("is_active", true).order("sort_order").order("created_at", { ascending: false }),
-      supabase.from("academy_podcasts").select("*").eq("is_active", true).order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
+      supabase.from("academy_podcasts").select("*").eq("is_active", true).order("sort_order").order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
     ]);
     setSeries((s.data as any) ?? []);
     setPodcasts((p.data as any) ?? []);
@@ -97,11 +116,26 @@ function PodcastsPage() {
       if (!map.has(p.series_id)) map.set(p.series_id, []);
       map.get(p.series_id)!.push(p);
     }
+    for (const items of map.values()) {
+      items.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.episode_number ?? 9999) - (b.episode_number ?? 9999));
+    }
     return map;
   }, [podcasts]);
 
   const activeSeries = openSeries ? series.find(s => s.id === openSeries) : null;
   const activeEpisodes = openSeries ? (bySeries.get(openSeries) ?? []) : [];
+
+  useEffect(() => {
+    const fromHash = window.location.hash.replace("#", "");
+    if (!fromHash || !podcasts.length) return;
+    if (fromHash.startsWith("series-")) {
+      setOpenSeries(fromHash.replace("series-", ""));
+      return;
+    }
+    const podcast = podcasts.find((p) => p.id === fromHash);
+    if (podcast?.series_id) setOpenSeries(podcast.series_id);
+    requestAnimationFrame(() => document.getElementById(fromHash)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }, [podcasts]);
 
   const share = (p: Podcast) => {
     const url = window.location.href + "#" + p.id;
@@ -136,7 +170,7 @@ function PodcastsPage() {
               אין עדיין פרקים בסדרה הזו{isAdmin && " — הוסף קישור פלייליסט יוטיוב כדי לייבא אוטומטית"}
             </CardContent></Card>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3">
               {activeEpisodes.map((p) => <EpisodeCard key={p.id} p={p} share={share} />)}
             </div>
           )}
@@ -171,24 +205,26 @@ function PodcastsPage() {
           <>
             {series.length > 0 && (
               <section className="mb-10">
-                <h2 className="mb-4 text-xl font-semibold">סדרות</h2>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <h2 className="mb-4 text-xl font-semibold">תיקיות פודקאסטים</h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {series.map((s) => {
                     const count = bySeries.get(s.id)?.length ?? 0;
                     return (
                       <button key={s.id} onClick={() => setOpenSeries(s.id)}
-                        className="group overflow-hidden rounded-2xl border bg-card text-start shadow-sm transition hover:shadow-lg">
-                        <div className="aspect-square bg-gradient-to-br from-primary/30 to-accent/30">
+                        className="group overflow-hidden rounded-2xl border bg-card text-start shadow-sm transition hover:border-primary/40 hover:shadow-lg">
+                        <div className="aspect-video bg-gradient-to-br from-primary/30 to-accent/30 relative">
                           {s.cover_url ? (
                             <img src={s.cover_url} alt={s.title} className="h-full w-full object-cover transition group-hover:scale-105" />
                           ) : (
                             <div className="flex h-full items-center justify-center"><FolderOpen className="h-16 w-16 text-primary/60" /></div>
                           )}
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 to-transparent p-3">
+                            <Badge variant="secondary" className="gap-1"><FolderOpen className="h-3 w-3" />{count} פרקים</Badge>
+                          </div>
                         </div>
                         <div className="p-3">
                           <h3 className="font-semibold line-clamp-1">{s.title}</h3>
                           {s.host_name && <p className="text-xs text-muted-foreground line-clamp-1">{s.host_name}</p>}
-                          <Badge variant="secondary" className="mt-2 text-xs">{count} פרקים</Badge>
                         </div>
                       </button>
                     );
@@ -200,7 +236,7 @@ function PodcastsPage() {
             {standalone.length > 0 && (
               <section>
                 <h2 className="mb-4 text-xl font-semibold">פרקים בודדים</h2>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-3">
                   {standalone.map((p) => <EpisodeCard key={p.id} p={p} share={share} />)}
                 </div>
               </section>
@@ -214,13 +250,27 @@ function PodcastsPage() {
 
 function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) {
   const youtubeEmbed = p.kind === "youtube" ? ytEmbed(p.source_url) : null;
+  const [expanded, setExpanded] = useState(false);
   return (
-    <Card id={p.id} className="overflow-hidden">
-      <div className="aspect-video bg-muted">
-        {youtubeEmbed ? (
-          <iframe src={youtubeEmbed} title={p.title} className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    <Card id={p.id} className="overflow-hidden scroll-mt-24">
+      <div className="grid gap-0 md:grid-cols-[minmax(260px,420px)_1fr]">
+      <div className="aspect-video bg-muted md:h-full md:min-h-52">
+        {youtubeEmbed && expanded ? (
+          <iframe src={`${youtubeEmbed}&autoplay=1`} title={p.title} className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen />
+        ) : youtubeEmbed ? (
+          <button type="button" onClick={() => setExpanded(true)} className="relative h-full w-full overflow-hidden text-start">
+            {p.thumbnail_url ? (
+              <img src={p.thumbnail_url} alt={p.title} className="h-full w-full object-cover" loading="lazy" />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20" />
+            )}
+            <span className="absolute inset-0 flex items-center justify-center bg-background/20">
+              <span className="rounded-full bg-background/90 p-4 shadow-lg"><PlayCircle className="h-8 w-8 fill-primary text-primary" /></span>
+            </span>
+          </button>
         ) : p.kind === "audio" ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/20 to-accent/20 p-4">
             {p.thumbnail_url && <img src={p.thumbnail_url} alt={p.title} className="h-20 w-20 rounded-lg object-cover" />}
@@ -245,6 +295,7 @@ function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) 
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
       </CardContent>
+      </div>
     </Card>
   );
 }
@@ -371,10 +422,10 @@ function SeriesAdminControls({ series, onChange }: { series: Series; onChange: (
   };
 
   const removeSeries = async () => {
-    if (!confirm("למחוק את הסדרה? הפרקים יישמרו אך לא יהיו משויכים.")) return;
+    if (!confirm("למחוק את הסדרה ואת כל הפרקים שבתוכה?")) return;
     const { error } = await supabase.from("academy_podcast_series").delete().eq("id", series.id);
     if (error) return toast.error(error.message);
-    toast.success("נמחק");
+    toast.success("הסדרה וכל הפרקים נמחקו");
     onChange();
   };
 
