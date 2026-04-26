@@ -718,6 +718,48 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_view_events: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          event_type: string
+          id: string
+          item_id: string
+          item_type: string
+          percent: number | null
+          position_seconds: number | null
+          series_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          event_type: string
+          id?: string
+          item_id: string
+          item_type: string
+          percent?: number | null
+          position_seconds?: number | null
+          series_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          event_type?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          percent?: number | null
+          position_seconds?: number | null
+          series_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       academy_webinar_qa: {
         Row: {
           answered: boolean
@@ -3968,6 +4010,10 @@ export type Database = {
           _revoke?: boolean
           _role: Database["public"]["Enums"]["app_role"]
         }
+        Returns: string
+      }
+      admin_grant_course_access_by_email: {
+        Args: { _course_id: string; _email: string }
         Returns: string
       }
       admin_list_admins: {

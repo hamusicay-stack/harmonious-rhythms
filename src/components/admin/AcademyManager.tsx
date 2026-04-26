@@ -11,9 +11,12 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download, Gift, BarChart3, ChevronDown, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
+import { SortableList } from "@/components/academy/SortableList";
+import { CourseGiftDialog } from "./CourseGiftDialog";
+import { AcademyAnalytics } from "./AcademyAnalytics";
 
 type Course = {
   id: string;
@@ -49,18 +52,20 @@ type Lesson = {
 export function AcademyManager() {
   return (
     <Tabs defaultValue="courses" dir="rtl" className="space-y-4">
-      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-5">
+      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
         <TabsTrigger value="courses"><GraduationCap className="ml-1 h-4 w-4" />קורסים</TabsTrigger>
         <TabsTrigger value="codes"><Key className="ml-1 h-4 w-4" />קודי גישה</TabsTrigger>
         <TabsTrigger value="broadcasts"><Megaphone className="ml-1 h-4 w-4" />ברודקאסט</TabsTrigger>
         <TabsTrigger value="podcasts"><Mic className="ml-1 h-4 w-4" />פודקאסטים</TabsTrigger>
         <TabsTrigger value="quizzes"><ClipboardCheck className="ml-1 h-4 w-4" />מבחנים</TabsTrigger>
+        <TabsTrigger value="analytics"><BarChart3 className="ml-1 h-4 w-4" />אנליטיקס</TabsTrigger>
       </TabsList>
       <TabsContent value="courses"><CoursesManager /></TabsContent>
       <TabsContent value="codes"><AccessCodesManager /></TabsContent>
       <TabsContent value="broadcasts"><BroadcastsManager /></TabsContent>
       <TabsContent value="podcasts"><PodcastsManager /></TabsContent>
       <TabsContent value="quizzes"><QuizzesManager /></TabsContent>
+      <TabsContent value="analytics"><AcademyAnalytics /></TabsContent>
     </Tabs>
   );
 }
@@ -71,6 +76,7 @@ function CoursesManager() {
   const [editing, setEditing] = useState<Course | null>(null);
   const [open, setOpen] = useState(false);
   const [builderCourse, setBuilderCourse] = useState<Course | null>(null);
+  const [giftOpen, setGiftOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -84,15 +90,19 @@ function CoursesManager() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5 text-primary" />קורסים</CardTitle>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { setEditing(null); setOpen(true); }}><Plus className="ml-1 h-4 w-4" />קורס חדש</Button>
-          </DialogTrigger>
-          <CourseDialog course={editing} onSaved={() => { setOpen(false); setEditing(null); load(); }} />
-        </Dialog>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setGiftOpen(true)}><Gift className="ml-1 h-4 w-4" />מתנה</Button>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+            <DialogTrigger asChild>
+              <Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus className="ml-1 h-4 w-4" />קורס חדש</Button>
+            </DialogTrigger>
+            <CourseDialog course={editing} onSaved={() => { setOpen(false); setEditing(null); load(); }} />
+          </Dialog>
+        </div>
       </CardHeader>
+      <CourseGiftDialog open={giftOpen} onOpenChange={setGiftOpen} />
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
@@ -538,6 +548,22 @@ function PodcastsManager() {
   const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", audio_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 });
   const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
   const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
+  const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>(null);
+
+  const reorderEpisodes = async (seriesId: string, ordered: any[]) => {
+    // Optimistic update
+    const others = items.filter((p) => p.series_id !== seriesId);
+    const updated = ordered.map((ep, idx) => ({ ...ep, sort_order: idx, episode_number: idx + 1 }));
+    setItems([...others, ...updated]);
+    // Persist
+    const updates = await Promise.all(
+      updated.map((ep) =>
+        supabase.from("academy_podcasts").update({ sort_order: ep.sort_order, episode_number: ep.episode_number }).eq("id", ep.id),
+      ),
+    );
+    if (updates.some((u) => u.error)) toast.error("שמירה חלקית של הסדר");
+    else toast.success("הסדר נשמר");
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -666,35 +692,70 @@ function PodcastsManager() {
             <div className="space-y-2">
               <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">סדרות</h4>
               <div className="grid gap-2 md:grid-cols-2">
-                {series.map((s) => (
-                  <Card key={s.id} className="border-border/60">
-                    <CardContent className="flex items-center justify-between gap-2 p-3">
-                      <div className="flex min-w-0 items-center gap-3 flex-1">
-                        {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover shrink-0" /> : <FolderOpen className="h-10 w-10 text-primary shrink-0" />}
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-medium text-sm">{s.title}</div>
-                          <div className="text-[11px] text-muted-foreground truncate">
-                            {s.host_name && `${s.host_name} · `}{items.filter((p) => p.series_id === s.id).length} פרקים
+                {series.map((s) => {
+                  const seriesEpisodes = items
+                    .filter((p) => p.series_id === s.id)
+                    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.episode_number ?? 0) - (b.episode_number ?? 0));
+                  const isExpanded = expandedSeriesId === s.id;
+                  return (
+                    <Card key={s.id} className="border-border/60 md:col-span-2">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedSeriesId(isExpanded ? null : s.id)}
+                            className="flex min-w-0 items-center gap-3 flex-1 text-right"
+                          >
+                            {isExpanded ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronLeft className="h-4 w-4 shrink-0" />}
+                            {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover shrink-0" /> : <FolderOpen className="h-10 w-10 text-primary shrink-0" />}
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-medium text-sm">{s.title}</div>
+                              <div className="text-[11px] text-muted-foreground truncate">
+                                {s.host_name && `${s.host_name} · `}{seriesEpisodes.length} פרקים
+                              </div>
+                            </div>
+                          </button>
+                          <div className="flex gap-1 shrink-0">
+                            <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id} title="ייבא פלייליסט">
+                              {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={async () => {
+                              if (!confirm(`למחוק את הסדרה "${s.title}" ואת כל הפרקים שבתוכה?`)) return;
+                              const { error: episodesError } = await supabase.from("academy_podcasts").delete().eq("series_id", s.id);
+                              if (episodesError) return toast.error(episodesError.message);
+                              const { error: seriesError } = await supabase.from("academy_podcast_series").delete().eq("id", s.id);
+                              if (seriesError) return toast.error(seriesError.message);
+                              toast.success("הסדרה וכל הפרקים נמחקו");
+                              load();
+                            }}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id} title="ייבא פלייליסט">
-                          {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={async () => {
-                          if (!confirm(`למחוק את הסדרה "${s.title}" ואת כל הפרקים שבתוכה?`)) return;
-                          const { error: episodesError } = await supabase.from("academy_podcasts").delete().eq("series_id", s.id);
-                          if (episodesError) return toast.error(episodesError.message);
-                          const { error: seriesError } = await supabase.from("academy_podcast_series").delete().eq("id", s.id);
-                          if (seriesError) return toast.error(seriesError.message);
-                          toast.success("הסדרה וכל הפרקים נמחקו");
-                          load();
-                        }}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        {isExpanded && seriesEpisodes.length > 0 && (
+                          <div className="mt-3 border-t pt-3">
+                            <p className="mb-2 text-[11px] text-muted-foreground">גרור לסידור הפרקים בתוך הסדרה</p>
+                            <SortableList items={seriesEpisodes} onReorder={(reordered) => reorderEpisodes(s.id, reordered)}>
+                              {(ep, handle) => (
+                                <div className="flex items-center gap-2 rounded-lg border bg-card p-2">
+                                  {handle}
+                                  <span className="w-6 text-center text-xs font-mono text-muted-foreground">{ep.episode_number ?? "-"}</span>
+                                  {ep.thumbnail_url && <img src={ep.thumbnail_url} alt="" className="h-8 w-12 rounded object-cover" />}
+                                  <div className="min-w-0 flex-1">
+                                    <div className="truncate text-sm font-medium">{ep.title}</div>
+                                    <div className="text-[10px] text-muted-foreground">
+                                      {ep.views_count} צפיות{!ep.is_active && " · מושבת"}{ep.audio_url && " · 🎧"}
+                                    </div>
+                                  </div>
+                                  <Button size="sm" variant="ghost" onClick={() => startEdit(ep)}><Pencil className="h-3.5 w-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => del(ep.id)}><Trash2 className="h-3.5 w-3.5 text-rose-500" /></Button>
+                                </div>
+                              )}
+                            </SortableList>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -13,6 +13,7 @@ import { LessonQA } from "@/components/academy/LessonQA";
 import { ModuleQuiz } from "@/components/academy/ModuleQuiz";
 import { ChaptersList } from "@/components/academy/ChaptersList";
 import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
+import { trackAcademyEvent } from "@/lib/academyAnalytics";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
@@ -113,6 +114,18 @@ function CoursePage() {
     if (canPlayNext && nextLesson) setActiveLessonId(nextLesson.id);
   };
 
+  // Track lesson start
+  useEffect(() => {
+    if (activeLesson && canWatch && course) {
+      void trackAcademyEvent({
+        itemType: "lesson",
+        itemId: activeLesson.id,
+        eventType: "start",
+        courseId: course.id,
+      });
+    }
+  }, [activeLesson?.id, canWatch, course?.id]);
+
   return (
     <SiteLayout>
       <section className="container mx-auto px-4 py-6 md:px-8 md:py-8">
@@ -133,7 +146,12 @@ function CoursePage() {
                     src={activeLesson.video_url}
                     watermark={user?.email ?? ""}
                     onSeekReady={(fn) => { playerSeekRef.current = fn; }}
-                    onEnded={() => { if (autoNextOn && canPlayNext) setShowAutoNext(true); }}
+                    onEnded={() => {
+                      if (course && activeLesson) {
+                        void trackAcademyEvent({ itemType: "lesson", itemId: activeLesson.id, eventType: "complete", courseId: course.id, percent: 100 });
+                      }
+                      if (autoNextOn && canPlayNext) setShowAutoNext(true);
+                    }}
                     onProgress={async (pos, dur) => {
                       if (!user || !enrollment) return;
                       const completed = dur > 0 && pos / dur > 0.9;
