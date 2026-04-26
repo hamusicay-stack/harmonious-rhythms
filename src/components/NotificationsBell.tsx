@@ -16,7 +16,7 @@ export function NotificationsBell() {
         <Button variant="ghost" size="icon" className="relative" aria-label="התראות">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -end-1 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center bg-rose-500 text-white border-0">
+            <Badge className="absolute -top-1 -end-1 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center bg-gradient-to-r from-primary to-primary-glow text-primary-foreground border-0 shadow-gold animate-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}

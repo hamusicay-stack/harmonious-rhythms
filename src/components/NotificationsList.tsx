@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils";
 
 function iconFor(type: string) {
   switch (type) {
-    case "like": return <Heart className="h-4 w-4 text-rose-500" />;
-    case "follow": return <UserPlus className="h-4 w-4 text-blue-500" />;
-    case "comment": return <MessageCircle className="h-4 w-4 text-emerald-500" />;
-    case "inquiry": return <Mail className="h-4 w-4 text-amber-500" />;
-    default: return <Bell className="h-4 w-4 text-muted-foreground" />;
+    case "like": return <Heart className="h-4 w-4 text-primary fill-primary/30" />;
+    case "follow": return <UserPlus className="h-4 w-4 text-primary" />;
+    case "comment": return <MessageCircle className="h-4 w-4 text-primary-glow" />;
+    case "inquiry": return <Mail className="h-4 w-4 text-primary" />;
+    default: return <Bell className="h-4 w-4 text-primary" />;
   }
 }
 
@@ -31,7 +31,7 @@ function NotificationRow({ n, onRead, onRemove }: { n: Notification; onRead: (id
   const phone = n.metadata?.phone as string | undefined;
   const content = (
     <div className="flex items-start gap-3 p-3">
-      <div className="mt-1 rounded-full bg-muted p-2">{iconFor(n.type)}</div>
+      <div className="mt-1 rounded-full bg-primary/10 p-2 ring-1 ring-primary/20">{iconFor(n.type)}</div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className={cn("text-sm font-medium truncate", !n.read_at && "text-foreground")}>{n.title}</p>
