@@ -15,6 +15,7 @@ import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight,
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudioPlayer, type AudioTrack } from "@/contexts/AudioPlayerContext";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/academy/podcasts")({
@@ -45,6 +46,8 @@ type Podcast = {
   source_url: string;
   thumbnail_url: string | null;
   views_count: number;
+  audio_url: string | null;
+  audio_status: string | null;
   series_id: string | null;
   episode_number: number | null;
   sort_order: number;
@@ -97,12 +100,24 @@ function ytWatchUrl(url: string) {
   return url;
 }
 
+function audioTrackFromPodcast(p: Podcast, seriesTitle?: string): AudioTrack | null {
+  const url = p.audio_url || (p.kind === "audio" ? p.source_url : null);
+  if (!url) return null;
+  return {
+    id: p.id,
+    url,
+    title: p.episode_number ? `פרק ${p.episode_number}: ${p.title}` : p.title,
+    artist: seriesTitle ?? "פודקאסטים",
+  };
+}
+
 function PodcastsPage() {
   const { user, isAdmin } = useAuth();
   const [series, setSeries] = useState<Series[]>([]);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [openSeries, setOpenSeries] = useState<string | null>(null);
+  const [selectedEpisodeId, setSelectedEpisodeId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -133,6 +148,7 @@ function PodcastsPage() {
 
   const activeSeries = openSeries ? series.find(s => s.id === openSeries) : null;
   const activeEpisodes = openSeries ? (bySeries.get(openSeries) ?? []) : [];
+  const selectedEpisode = activeEpisodes.find((p) => p.id === selectedEpisodeId) ?? activeEpisodes[0] ?? null;
 
   useEffect(() => {
     const fromHash = window.location.hash.replace("#", "");
@@ -142,9 +158,16 @@ function PodcastsPage() {
       return;
     }
     const podcast = podcasts.find((p) => p.id === fromHash);
-    if (podcast?.series_id) setOpenSeries(podcast.series_id);
+    if (podcast?.series_id) {
+      setOpenSeries(podcast.series_id);
+      setSelectedEpisodeId(podcast.id);
+    }
     requestAnimationFrame(() => document.getElementById(fromHash)?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, [podcasts]);
+
+  useEffect(() => {
+    if (activeEpisodes.length > 0 && !selectedEpisodeId) setSelectedEpisodeId(activeEpisodes[0].id);
+  }, [activeEpisodes, selectedEpisodeId]);
 
   const share = (p: Podcast) => {
     const url = window.location.href + "#" + p.id;
@@ -179,8 +202,26 @@ function PodcastsPage() {
               אין עדיין פרקים בסדרה הזו{isAdmin && " — הוסף קישור פלייליסט יוטיוב כדי לייבא אוטומטית"}
             </CardContent></Card>
           ) : (
-            <div className="space-y-3">
-              {activeEpisodes.map((p) => <EpisodeCard key={p.id} p={p} share={share} />)}
+            <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+              <div className="space-y-3">
+                {selectedEpisode && <EpisodeCard p={selectedEpisode} share={share} episodes={activeEpisodes} seriesTitle={activeSeries.title} expandedDefault />}
+              </div>
+              <aside className="space-y-2 lg:max-h-[72vh] lg:overflow-y-auto lg:pe-1">
+                {activeEpisodes.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setSelectedEpisodeId(p.id)}
+                    className={`flex w-full gap-3 rounded-lg border p-2 text-start transition hover:border-primary/40 ${p.id === selectedEpisode?.id ? "border-primary bg-primary/10" : "bg-card"}`}
+                  >
+                    {p.thumbnail_url ? <img src={p.thumbnail_url} alt={p.title} className="h-16 w-24 rounded-md object-cover" /> : <div className="flex h-16 w-24 items-center justify-center rounded-md bg-muted"><PlayCircle className="h-5 w-5" /></div>}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-xs text-muted-foreground">{p.episode_number ? `פרק ${p.episode_number}` : "פרק"}</span>
+                      <span className="line-clamp-2 text-sm font-medium">{p.title}</span>
+                    </span>
+                  </button>
+                ))}
+              </aside>
             </div>
           )}
         </div>
@@ -257,9 +298,17 @@ function PodcastsPage() {
   );
 }
 
-function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) {
+function EpisodeCard({ p, share, episodes = [p], seriesTitle, expandedDefault = false }: { p: Podcast; share: (p: Podcast) => void; episodes?: Podcast[]; seriesTitle?: string; expandedDefault?: boolean }) {
   const youtubeEmbed = p.kind === "youtube" ? ytEmbed(p.source_url) : null;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(expandedDefault);
+  const { playQueue } = useAudioPlayer();
+  const audioTracks = episodes.map((episode) => audioTrackFromPodcast(episode, seriesTitle)).filter(Boolean) as AudioTrack[];
+  const currentAudio = audioTrackFromPodcast(p, seriesTitle);
+  const playAudio = () => {
+    if (!currentAudio) return;
+    playQueue(audioTracks.length ? audioTracks : [currentAudio], p.id);
+    void supabase.from("academy_podcasts").update({ views_count: p.views_count + 1 }).eq("id", p.id);
+  };
   return (
     <Card id={p.id} className="overflow-hidden scroll-mt-24">
       <div className="grid gap-0 md:grid-cols-[minmax(260px,420px)_1fr]">
@@ -303,6 +352,11 @@ function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) 
         </div>
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+        {currentAudio && (
+          <Button variant="outline" size="sm" className="mt-3" onClick={playAudio}>
+            <Headphones className="me-1 h-4 w-4" />האזנה ברקע
+          </Button>
+        )}
         {p.kind === "youtube" && (
           <a href={ytWatchUrl(p.source_url)} target="_blank" rel="noopener noreferrer"
             className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">

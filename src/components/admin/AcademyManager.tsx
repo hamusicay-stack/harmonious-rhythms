@@ -535,7 +535,7 @@ function PodcastsManager() {
   const [open, setOpen] = useState(false);
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 });
+  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", audio_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 });
   const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
   const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
 
@@ -554,10 +554,10 @@ function PodcastsManager() {
 
   const startEdit = (p: any) => {
     setEditing(p);
-    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", series_id: p.series_id ?? "none", episode_number: p.episode_number?.toString() ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
+    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", audio_url: p.audio_url ?? "", series_id: p.series_id ?? "none", episode_number: p.episode_number?.toString() ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
     setOpen(true);
   };
-  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 }); setOpen(true); };
+  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", audio_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 }); setOpen(true); };
 
   const save = async () => {
     if (!form.title.trim() || !form.source_url.trim()) return toast.error("כותרת וקישור חובה");
@@ -575,6 +575,8 @@ function PodcastsManager() {
       kind: form.kind,
       source_url: form.source_url,
       thumbnail_url: form.thumbnail_url || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null),
+      audio_url: form.audio_url || null,
+      audio_status: form.audio_url ? "manual" : "none",
       series_id: form.series_id === "none" ? null : form.series_id,
       episode_number: form.episode_number ? Number(form.episode_number) : null,
       youtube_video_id: videoId,
@@ -586,6 +588,19 @@ function PodcastsManager() {
       : await supabase.from("academy_podcasts").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("נשמר"); setOpen(false); load();
+  };
+
+  const uploadAudio = async (file: File) => {
+    if (!editing?.id) return toast.error("קודם שמור את הפרק ואז העלה MP3 בעריכה");
+    const ext = file.name.split(".").pop() || "mp3";
+    const path = `episodes/${editing.id}-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("podcast-audio").upload(path, file, { contentType: file.type || "audio/mpeg", upsert: false });
+    if (error) return toast.error(error.message);
+    const { data } = supabase.storage.from("podcast-audio").getPublicUrl(path);
+    setForm({ ...form, audio_url: data.publicUrl });
+    await supabase.from("academy_podcasts").update({ audio_url: data.publicUrl, audio_status: "manual", audio_generated_at: new Date().toISOString() }).eq("id", editing.id);
+    toast.success("קובץ ה-MP3 נשמר לפרק");
+    load();
   };
 
   const createSeries = async () => {
@@ -754,6 +769,12 @@ function PodcastsManager() {
               <p className="mt-1 text-[11px] text-muted-foreground">אם תדביק קישור פלייליסט — הוא ייובא אוטומטית כסדרה חדשה</p>
             </div>
             <div><Label>תמונת כיסוי (URL)</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+              <Label>קובץ MP3 לפרק</Label>
+              <Input dir="ltr" value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://... או העלאה" />
+              <Input type="file" accept="audio/mpeg,audio/mp3" disabled={!editing} onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadAudio(file); }} />
+              <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 שישויך לאותו פרק וינוגן ברקע באתר.</p>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
               <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
