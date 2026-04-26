@@ -769,6 +769,12 @@ function PodcastsManager() {
               <p className="mt-1 text-[11px] text-muted-foreground">אם תדביק קישור פלייליסט — הוא ייובא אוטומטית כסדרה חדשה</p>
             </div>
             <div><Label>תמונת כיסוי (URL)</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+              <Label>קובץ MP3 לפרק</Label>
+              <Input dir="ltr" value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://... או העלאה" />
+              <Input type="file" accept="audio/mpeg,audio/mp3" disabled={!editing} onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadAudio(file); }} />
+              <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 שישויך לאותו פרק וינוגן ברקע באתר.</p>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
               <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
