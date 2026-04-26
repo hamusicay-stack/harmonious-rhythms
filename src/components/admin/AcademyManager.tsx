@@ -768,6 +768,11 @@ function PodcastsManager() {
                                     </div>
                                   </div>
                                   <Button size="sm" variant="ghost" onClick={() => startEdit(ep)}><Pencil className="h-3.5 w-3.5" /></Button>
+                                  {ep.kind === "youtube" && !ep.audio_url && (
+                                    <Button size="sm" variant="ghost" onClick={() => handleExtractMp3(ep)} disabled={extractingId === ep.id} title="המר ל-MP3 אוטומטית">
+                                      {extractingId === ep.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Music className="h-3.5 w-3.5 text-emerald-500" />}
+                                    </Button>
+                                  )}
                                   <Button size="sm" variant="ghost" onClick={() => del(ep.id)}><Trash2 className="h-3.5 w-3.5 text-rose-500" /></Button>
                                 </div>
                               )}
