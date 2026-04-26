@@ -684,52 +684,62 @@ function PodcastsManager() {
         </div>
       )}
       <Dialog open={seriesOpen} onOpenChange={setSeriesOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto" dir="rtl">
           <DialogHeader><DialogTitle>סדרת פודקאסט חדשה</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>שם הסדרה</Label><Input value={seriesForm.title} onChange={(e) => setSeriesForm({ ...seriesForm, title: e.target.value })} /></div>
             <div><Label>שם העורך / המנחה</Label><Input value={seriesForm.host_name} onChange={(e) => setSeriesForm({ ...seriesForm, host_name: e.target.value })} /></div>
             <div><Label>תיאור</Label><Textarea value={seriesForm.description} onChange={(e) => setSeriesForm({ ...seriesForm, description: e.target.value })} /></div>
-            <div><Label>תמונת תיקייה</Label><Input value={seriesForm.cover_url} onChange={(e) => setSeriesForm({ ...seriesForm, cover_url: e.target.value })} /></div>
-            <div><Label>פלייליסט YouTube לייבוא מיידי</Label><Input dir="ltr" value={seriesForm.playlist_url} onChange={(e) => setSeriesForm({ ...seriesForm, playlist_url: e.target.value })} placeholder="https://www.youtube.com/playlist?list=..." /></div>
+            <div><Label>תמונת תיקייה (URL)</Label><Input value={seriesForm.cover_url} onChange={(e) => setSeriesForm({ ...seriesForm, cover_url: e.target.value })} /></div>
+            <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+              <Label className="text-xs">פלייליסט YouTube לייבוא מיידי (אופציונלי)</Label>
+              <Input dir="ltr" value={seriesForm.playlist_url} onChange={(e) => setSeriesForm({ ...seriesForm, playlist_url: e.target.value })} placeholder="https://www.youtube.com/playlist?list=..." />
+              <p className="text-[11px] text-muted-foreground">אם לא תמלא שם / תמונה — נשאב אוטומטית מיוטיוב</p>
+            </div>
           </div>
-          <DialogFooter><Button variant="outline" onClick={() => setSeriesOpen(false)}>ביטול</Button><Button onClick={createSeries}>צור</Button></DialogFooter>
+          <DialogFooter className="gap-2"><Button variant="outline" onClick={() => setSeriesOpen(false)}>ביטול</Button><Button onClick={createSeries}>צור</Button></DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{editing ? "ערוך" : "פודקאסט חדש"}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto" dir="rtl">
+          <DialogHeader><DialogTitle>{editing ? "ערוך פרק" : "פרק / פודקאסט חדש"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div><Label>כותרת</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-            <div><Label>תיאור</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-            <div>
-              <Label>סוג</Label>
-              <Select value={form.kind} onValueChange={(v) => setForm({ ...form, kind: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="youtube">YouTube</SelectItem>
-                  <SelectItem value="audio">אודיו (MP3)</SelectItem>
-                  <SelectItem value="video">וידאו (MP4)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div><Label>קישור</Label><Input value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} /></div>
-            <div><Label>תמונת כיסוי</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
             <div>
               <Label>שייך לסדרה</Label>
               <Select value={form.series_id} onValueChange={(v) => setForm({ ...form, series_id: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">ללא סדרה</SelectItem>
+                  <SelectItem value="none">ללא סדרה (פרק בודד)</SelectItem>
                   {series.map((s) => <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
-            <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
+            <div><Label>כותרת</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+            <div><Label>תיאור</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+            <div>
+              <Label>סוג</Label>
+              <Select value={form.kind} onValueChange={(v) => setForm({ ...form, kind: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="youtube">YouTube (סרטון או פלייליסט)</SelectItem>
+                  <SelectItem value="audio">אודיו (MP3)</SelectItem>
+                  <SelectItem value="video">וידאו (MP4)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>קישור</Label>
+              <Input dir="ltr" value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} placeholder="https://..." />
+              <p className="mt-1 text-[11px] text-muted-foreground">אם תדביק קישור פלייליסט — הוא ייובא אוטומטית כסדרה חדשה</p>
+            </div>
+            <div><Label>תמונת כיסוי (URL)</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
+              <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
+            </div>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />פעיל</label>
           </div>
-          <DialogFooter><Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button><Button onClick={save}>שמור</Button></DialogFooter>
+          <DialogFooter className="gap-2"><Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button><Button onClick={save}>שמור</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
