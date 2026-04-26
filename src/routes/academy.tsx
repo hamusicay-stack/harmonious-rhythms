@@ -244,8 +244,8 @@ function AcademyPage() {
             <GraduationCap className="h-7 w-7 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold md:text-3xl">האקדמיה של המוזיקאי</h1>
-            <p className="text-sm text-muted-foreground">ללמוד, להתפתח, להתמקצע — עם הטובים ביותר.</p>
+            <h1 className="text-2xl font-bold md:text-3xl">אל תפסיקו ללמוד. תתחילו להוביל.</h1>
+            <p className="text-sm text-muted-foreground">הקורסים המעמיקים ביותר על הכלים המובילים בשוק, מפי המומחים הגדולים ביותר.</p>
           </div>
           <Link to="/academy/podcasts" className="hidden md:block">
             <Button variant="outline" size="sm"><Mic className="ml-1 h-4 w-4" />כל הפודקאסטים</Button>
