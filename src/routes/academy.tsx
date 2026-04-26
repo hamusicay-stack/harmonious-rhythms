@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen } from "lucide-react";
+import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen, Eye, Heart, Users } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ type Course = {
   total_lessons: number;
   duration_minutes: number;
   is_featured: boolean;
+  enrollments_count: number;
 };
 
 type Enrollment = {
@@ -73,6 +74,8 @@ function AcademyPage() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [courseLikes, setCourseLikes] = useState<Map<string, number>>(new Map());
+  const [podcastLikes, setPodcastLikes] = useState<Map<string, number>>(new Map());
   const [podcastSeries, setPodcastSeries] = useState<PodcastSeries[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
@@ -87,7 +90,7 @@ function AcademyPage() {
     const [{ data: cs }, { data: pods }, { data: series }] = await Promise.all([
       supabase
         .from("academy_courses")
-        .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured")
+        .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured,enrollments_count")
         .eq("status", "published")
         .order("is_featured", { ascending: false })
         .order("display_order"),
@@ -107,6 +110,24 @@ function AcademyPage() {
     setCourses((cs ?? []) as Course[]);
     setPodcasts((pods ?? []) as Podcast[]);
     setPodcastSeries((series ?? []) as PodcastSeries[]);
+
+    // Aggregate likes for courses & podcasts (graceful if no rows yet)
+    const courseIds = (cs ?? []).map((c) => c.id);
+    const podIds = (pods ?? []).map((p) => p.id);
+    const [{ data: cLikes }, { data: pLikes }] = await Promise.all([
+      courseIds.length
+        ? supabase.from("user_likes").select("item_id").eq("item_type", "academy_course").in("item_id", courseIds)
+        : Promise.resolve({ data: [] as { item_id: string }[] }),
+      podIds.length
+        ? supabase.from("user_likes").select("item_id").eq("item_type", "academy_podcast").in("item_id", podIds)
+        : Promise.resolve({ data: [] as { item_id: string }[] }),
+    ]);
+    const cMap = new Map<string, number>();
+    for (const l of cLikes ?? []) cMap.set(l.item_id, (cMap.get(l.item_id) ?? 0) + 1);
+    const pMap = new Map<string, number>();
+    for (const l of pLikes ?? []) pMap.set(l.item_id, (pMap.get(l.item_id) ?? 0) + 1);
+    setCourseLikes(cMap);
+    setPodcastLikes(pMap);
 
     if (user) {
       const [{ data: enr }, { data: certs }] = await Promise.all([
@@ -383,7 +404,7 @@ function AcademyPage() {
                   <SectionGrid title="הקורסים שלי">
                     {filteredMine.map((c) => {
                       const e = enrollments.find((x) => x.course_id === c.id)!;
-                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} />;
+                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} likes={courseLikes.get(c.id) ?? 0} />;
                     })}
                   </SectionGrid>
                 )}
@@ -391,11 +412,11 @@ function AcademyPage() {
                   <SectionGrid title="קורסים">
                     {filteredCourses
                       .filter((c) => !enrollments.some((e) => e.course_id === c.id))
-                      .map((c) => <CourseCard key={c.id} course={c} />)}
+                      .map((c) => <CourseCard key={c.id} course={c} likes={courseLikes.get(c.id) ?? 0} />)}
                   </SectionGrid>
                 )}
                 {(filteredPodcastSeries.length > 0 || filteredPodcasts.length > 0) && (
-                  <PodcastStrip series={filteredPodcastSeries} podcasts={filteredPodcasts} />
+                  <PodcastStrip series={filteredPodcastSeries} podcasts={filteredPodcasts} podcastLikes={podcastLikes} />
                 )}
                 {filteredCourses.length === 0 && filteredPodcasts.length === 0 && filteredPodcastSeries.length === 0 && (
                   <EmptyState />
@@ -407,7 +428,7 @@ function AcademyPage() {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filteredCourses.map((c) => {
                       const e = enrollments.find((x) => x.course_id === c.id);
-                      return <CourseCard key={c.id} course={c} progress={e?.progress_percent} />;
+                      return <CourseCard key={c.id} course={c} progress={e?.progress_percent} likes={courseLikes.get(c.id) ?? 0} />;
                     })}
                   </div>
                 )}
@@ -417,7 +438,7 @@ function AcademyPage() {
                 {filteredPodcastSeries.length === 0 && filteredPodcasts.length === 0 ? <EmptyState /> : (
                   <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {filteredPodcastSeries.map((s) => <PodcastSeriesCard key={s.id} series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />)}
-                    {filteredPodcasts.filter((p) => !p.series_id).map((p) => <PodcastCard key={p.id} podcast={p} />)}
+                    {filteredPodcasts.filter((p) => !p.series_id).map((p) => <PodcastCard key={p.id} podcast={p} likes={podcastLikes.get(p.id) ?? 0} />)}
                   </div>
                 )}
                 <div className="mt-4 flex justify-center">
@@ -433,7 +454,7 @@ function AcademyPage() {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filteredMine.map((c) => {
                       const e = enrollments.find((x) => x.course_id === c.id)!;
-                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} />;
+                      return <CourseCard key={c.id} course={c} progress={e.progress_percent} likes={courseLikes.get(c.id) ?? 0} />;
                     })}
                   </div>
                 )}
@@ -455,7 +476,7 @@ function SectionGrid({ title, children }: { title: string; children: React.React
   );
 }
 
-function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts: Podcast[] }) {
+function PodcastStrip({ series, podcasts, podcastLikes }: { series: PodcastSeries[]; podcasts: Podcast[]; podcastLikes: Map<string, number> }) {
   const episodeCount = (seriesId: string) => podcasts.filter((p) => p.series_id === seriesId).length;
   const standalone = podcasts.filter((p) => !p.series_id);
 
@@ -473,7 +494,7 @@ function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts:
         ))}
         {series.length === 0 && standalone.slice(0, 8).map((p) => (
           <div key={p.id} className="shrink-0 w-44 md:w-auto">
-            <PodcastCard podcast={p} />
+            <PodcastCard podcast={p} likes={podcastLikes.get(p.id) ?? 0} />
           </div>
         ))}
       </div>
@@ -481,7 +502,12 @@ function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts:
   );
 }
 
-function CourseCard({ course, progress }: { course: Course; progress?: number }) {
+const fmtCount = (n: number) => {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K`;
+  return String(n);
+};
+
+function CourseCard({ course, progress, likes = 0 }: { course: Course; progress?: number; likes?: number }) {
   return (
     <Link to="/academy/$slug" params={{ slug: course.slug }}>
       <Card className="overflow-hidden transition-smooth hover:border-primary/40 hover:shadow-elegant h-full">
@@ -499,6 +525,14 @@ function CourseCard({ course, progress }: { course: Course; progress?: number })
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{course.total_lessons} שיעורים</span>
             <span className="font-semibold text-primary">{course.price > 0 ? `₪${course.price}` : "חינם"}</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-1 border-t">
+            <span className="inline-flex items-center gap-1" title="תלמידים רשומים">
+              <Users className="h-3 w-3" />{fmtCount(course.enrollments_count ?? 0)}
+            </span>
+            <span className="inline-flex items-center gap-1" title="לייקים">
+              <Heart className="h-3 w-3" />{fmtCount(likes)}
+            </span>
           </div>
           {progress !== undefined && (
             <div className="space-y-1 pt-1">
@@ -540,7 +574,7 @@ function PodcastSeriesCard({ series, count }: { series: PodcastSeries; count: nu
   );
 }
 
-function PodcastCard({ podcast }: { podcast: Podcast }) {
+function PodcastCard({ podcast, likes = 0 }: { podcast: Podcast; likes?: number }) {
   return (
     <a href={`/academy/podcasts#${podcast.id}`} className="block">
       <Card className="overflow-hidden h-full transition-smooth hover:border-primary/40 hover:shadow-elegant">
@@ -556,7 +590,10 @@ function PodcastCard({ podcast }: { podcast: Podcast }) {
         </div>
         <CardContent className="p-3 space-y-1">
           <h3 className="font-semibold text-sm line-clamp-2">{podcast.title}</h3>
-          <p className="text-[11px] text-muted-foreground">{podcast.views_count} צפיות</p>
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{fmtCount(podcast.views_count ?? 0)}</span>
+            <span className="inline-flex items-center gap-1"><Heart className="h-3 w-3" />{fmtCount(likes)}</span>
+          </div>
         </CardContent>
       </Card>
     </a>

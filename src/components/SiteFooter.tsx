@@ -1,16 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { Music2, Facebook, Instagram, Youtube } from "lucide-react";
+import { Facebook, Instagram, Youtube } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/40 bg-card/40">
       <div className="container mx-auto grid grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4 md:px-8">
         <div className="col-span-2 md:col-span-1">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow">
-              <Music2 className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-display text-lg font-bold">המוזיקאי</span>
+          <Link to="/" className="flex items-center" aria-label="המוזיקאי — דף הבית">
+            <img src={logoImg} alt="המוזיקאי" className="h-8 w-auto" />
           </Link>
           <p className="mt-4 text-sm text-muted-foreground">
             הפלטפורמה המובילה למוזיקאים בישראל ובעולם.

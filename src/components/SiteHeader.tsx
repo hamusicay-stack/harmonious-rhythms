@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Music2, Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon } from "lucide-react";
+import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -70,13 +71,12 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
         )}
       >
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
-          <Link to="/" className="group flex items-center gap-2.5">
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand shadow-card transition-transform group-hover:scale-105">
-              <Music2 className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-display text-xl font-extrabold tracking-tight">
-              המוזיק<span className="text-gradient-brand">אי</span>
-            </span>
+          <Link to="/" className="group flex items-center" aria-label="המוזיקאי — דף הבית">
+            <img
+              src={logoImg}
+              alt="המוזיקאי"
+              className="h-9 w-auto transition-transform group-hover:scale-[1.03]"
+            />
           </Link>
 
           <nav className="hidden items-center gap-0.5 md:flex">

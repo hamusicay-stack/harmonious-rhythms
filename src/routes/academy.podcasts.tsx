@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle, ExternalLink, Maximize2, Minimize2 } from "lucide-react";
+import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle, ExternalLink, Maximize2, Minimize2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
@@ -522,6 +522,11 @@ function EpisodeCard({ p, share, episodes = [p], seriesTitle, expandedDefault = 
         </div>
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+        <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1" title="צפיות">
+            <Eye className="h-3 w-3" />{p.views_count ?? 0}
+          </span>
+        </div>
         {currentAudio && (
           <Button variant="outline" size="sm" className="mt-3" onClick={playAudio}>
             <Headphones className="me-1 h-4 w-4" />האזנה ברקע
