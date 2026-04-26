@@ -21,7 +21,7 @@ type Media = { id: string; type: string; url: string; title: string | null };
 
 function EditProPage() {
   const { proId } = Route.useParams();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,6 +36,13 @@ function EditProPage() {
         supabase.from("music_pro_packages").select("*").eq("pro_id", proId).order("display_order"),
         supabase.from("music_pro_media").select("*").eq("pro_id", proId).order("display_order"),
       ]);
+      // Defensive: ensure array fields are never null
+      if (p) {
+        p.specialties = p.specialties ?? [];
+        p.genres = p.genres ?? [];
+        p.cities = p.cities ?? [];
+        p.gear_list = p.gear_list ?? [];
+      }
       setPro(p);
       setPackages((pk as EditablePackage[]) ?? []);
       setMedia((m as Media[]) ?? []);
@@ -43,10 +50,18 @@ function EditProPage() {
     })();
   }, [proId]);
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  if (loading || authLoading) return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   if (!pro) return <div className="container mx-auto px-4 py-16 text-center">לא נמצא</div>;
-  if (!isAdmin && user?.id !== pro.user_id) {
-    return <div className="container mx-auto px-4 py-16 text-center">אין הרשאה</div>;
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center space-y-4">
+        <p>יש להתחבר כדי לערוך פרופיל</p>
+        <Button onClick={() => navigate({ to: "/auth" })}>התחברות</Button>
+      </div>
+    );
+  }
+  if (!isAdmin && user.id !== pro.user_id) {
+    return <div className="container mx-auto px-4 py-16 text-center">אין לך הרשאה לערוך פרופיל זה</div>;
   }
 
   const isVip = pro.subscription_tier === "vip";
@@ -62,39 +77,48 @@ function EditProPage() {
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("music_pros").update({
-      display_name: pro.display_name,
-      headline: pro.headline,
-      bio: pro.bio,
-      region: pro.region,
-      cities: pro.cities,
-      specialties: pro.specialties,
-      genres: pro.genres,
-      gear_list: pro.gear_list,
-      brand_color: pro.brand_color,
-      hourly_price_min: pro.hourly_price_min,
-      profile_image: pro.profile_image,
-      cover_image: pro.cover_image,
-      whatsapp: pro.whatsapp,
-      phone: pro.phone,
-      instagram: pro.instagram,
-      youtube: pro.youtube,
-      website: pro.website,
-    }).eq("id", proId);
+    try {
+      const { error: updErr } = await supabase.from("music_pros").update({
+        display_name: pro.display_name,
+        headline: pro.headline,
+        bio: pro.bio,
+        region: pro.region,
+        cities: pro.cities,
+        specialties: pro.specialties,
+        genres: pro.genres,
+        gear_list: pro.gear_list,
+        brand_color: pro.brand_color,
+        hourly_price_min: pro.hourly_price_min,
+        profile_image: pro.profile_image,
+        cover_image: pro.cover_image,
+        whatsapp: pro.whatsapp,
+        phone: pro.phone,
+        instagram: pro.instagram,
+        youtube: pro.youtube,
+        website: pro.website,
+      }).eq("id", proId);
+      if (updErr) throw updErr;
 
-    // Sync packages: delete existing, re-insert
-    await supabase.from("music_pro_packages").delete().eq("pro_id", proId);
-    if (packages.length > 0) {
-      await supabase.from("music_pro_packages").insert(
-        packages.filter((p) => p.title.trim()).map((p, i) => ({
+      // Sync packages: delete existing, re-insert
+      const { error: delErr } = await supabase.from("music_pro_packages").delete().eq("pro_id", proId);
+      if (delErr) throw delErr;
+      if (packages.length > 0) {
+        const rows = packages.filter((p) => p.title.trim()).map((p, i) => ({
           pro_id: proId, title: p.title, description: p.description || null,
           price: p.price, unit: p.unit, display_order: i,
-        }))
-      );
+        }));
+        if (rows.length > 0) {
+          const { error: insErr } = await supabase.from("music_pro_packages").insert(rows);
+          if (insErr) throw insErr;
+        }
+      }
+      toast.success("השינויים נשמרו בהצלחה");
+    } catch (e: any) {
+      console.error("Failed to save pro profile", e);
+      toast.error(e?.message ?? "השמירה נכשלה");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("נשמר");
   };
 
   const addMedia = async (type: "audio" | "video", url: string, title: string) => {
@@ -116,9 +140,12 @@ function EditProPage() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8 text-right">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-bold">עריכת פרופיל</h1>
-        <Link to="/pros/$proId" params={{ proId }} className="text-sm text-primary hover:underline">צפה בפרופיל →</Link>
+        <div className="flex items-center gap-3 text-sm">
+          <Link to="/pros/my-inquiries" className="text-muted-foreground hover:text-primary">📥 ההזמנות שלי</Link>
+          <Link to="/pros/$proId" params={{ proId }} className="text-primary hover:underline">צפה בפרופיל →</Link>
+        </div>
       </div>
 
       <Card>
