@@ -4194,6 +4194,9 @@ export type Database = {
         | "content_editor"
         | "finance"
         | "support"
+        | "member"
+        | "premium"
+        | "vip"
       automation_action: "send_email" | "open_whatsapp" | "create_task"
       automation_trigger:
         | "lead_status_changed"
@@ -4391,6 +4394,9 @@ export const Constants = {
         "content_editor",
         "finance",
         "support",
+        "member",
+        "premium",
+        "vip",
       ],
       automation_action: ["send_email", "open_whatsapp", "create_task"],
       automation_trigger: [
