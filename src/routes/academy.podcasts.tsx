@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,13 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle, ExternalLink } from "lucide-react";
+import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle, ExternalLink, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer, type AudioTrack } from "@/contexts/AudioPlayerContext";
+import { ChaptersList } from "@/components/academy/ChaptersList";
+import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/academy/podcasts")({
@@ -178,54 +180,16 @@ function PodcastsPage() {
   // Inside-series view
   if (activeSeries) {
     return (
-      <SiteLayout>
-        <div className="container mx-auto px-4 py-8">
-          <Button variant="ghost" onClick={() => setOpenSeries(null)} className="mb-4">
-            <ArrowRight className="me-2 h-4 w-4" />חזרה לכל הפודקאסטים
-          </Button>
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center">
-            {activeSeries.cover_url && (
-              <img src={activeSeries.cover_url} alt={activeSeries.title}
-                className="h-32 w-32 rounded-2xl object-cover shadow-lg" />
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold">{activeSeries.title}</h1>
-              {activeSeries.host_name && <p className="text-muted-foreground">מנחה: {activeSeries.host_name}</p>}
-              {activeSeries.description && <p className="mt-2 text-sm text-muted-foreground">{activeSeries.description}</p>}
-              <p className="mt-2 text-xs text-muted-foreground">{activeEpisodes.length} פרקים</p>
-            </div>
-            {isAdmin && <SeriesAdminControls series={activeSeries} onChange={load} />}
-          </div>
-
-          {activeEpisodes.length === 0 ? (
-            <Card><CardContent className="py-12 text-center text-muted-foreground">
-              אין עדיין פרקים בסדרה הזו{isAdmin && " — הוסף קישור פלייליסט יוטיוב כדי לייבא אוטומטית"}
-            </CardContent></Card>
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-              <div className="space-y-3">
-                {selectedEpisode && <EpisodeCard p={selectedEpisode} share={share} episodes={activeEpisodes} seriesTitle={activeSeries.title} expandedDefault />}
-              </div>
-              <aside className="space-y-2 lg:max-h-[72vh] lg:overflow-y-auto lg:pe-1">
-                {activeEpisodes.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setSelectedEpisodeId(p.id)}
-                    className={`flex w-full gap-3 rounded-lg border p-2 text-start transition hover:border-primary/40 ${p.id === selectedEpisode?.id ? "border-primary bg-primary/10" : "bg-card"}`}
-                  >
-                    {p.thumbnail_url ? <img src={p.thumbnail_url} alt={p.title} className="h-16 w-24 rounded-md object-cover" /> : <div className="flex h-16 w-24 items-center justify-center rounded-md bg-muted"><PlayCircle className="h-5 w-5" /></div>}
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-xs text-muted-foreground">{p.episode_number ? `פרק ${p.episode_number}` : "פרק"}</span>
-                      <span className="line-clamp-2 text-sm font-medium">{p.title}</span>
-                    </span>
-                  </button>
-                ))}
-              </aside>
-            </div>
-          )}
-        </div>
-      </SiteLayout>
+      <SeriesView
+        series={activeSeries}
+        episodes={activeEpisodes}
+        selectedEpisode={selectedEpisode}
+        onSelect={setSelectedEpisodeId}
+        onBack={() => setOpenSeries(null)}
+        share={share}
+        isAdmin={isAdmin}
+        onChange={load}
+      />
     );
   }
 
@@ -292,6 +256,191 @@ function PodcastsPage() {
               </section>
             )}
           </>
+        )}
+      </div>
+    </SiteLayout>
+  );
+}
+
+function SeriesView({
+  series, episodes, selectedEpisode, onSelect, onBack, share, isAdmin, onChange,
+}: {
+  series: Series;
+  episodes: Podcast[];
+  selectedEpisode: Podcast | null;
+  onSelect: (id: string) => void;
+  onBack: () => void;
+  share: (p: Podcast) => void;
+  isAdmin: boolean;
+  onChange: () => void;
+}) {
+  const [theater, setTheater] = useState(false);
+  const [autoNextOn, setAutoNextOn] = useState(true);
+  const [showAutoNext, setShowAutoNext] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
+  const ytFrameRef = useRef<HTMLIFrameElement>(null);
+
+  const currentIdx = selectedEpisode ? episodes.findIndex((e) => e.id === selectedEpisode.id) : -1;
+  const nextEp = currentIdx >= 0 ? episodes[currentIdx + 1] : null;
+
+  // Reset on episode change
+  useEffect(() => { setShowAutoNext(false); setIframeKey((k) => k + 1); }, [selectedEpisode?.id]);
+
+  // Listen to YouTube end event
+  useEffect(() => {
+    if (!selectedEpisode || selectedEpisode.kind !== "youtube" || !autoNextOn || !nextEp) return;
+    const onMsg = (e: MessageEvent) => {
+      if (typeof e.data !== "string") return;
+      try {
+        const data = JSON.parse(e.data);
+        if (data?.event === "onStateChange" && data?.info === 0) setShowAutoNext(true);
+      } catch {}
+    };
+    window.addEventListener("message", onMsg);
+    const iv = setInterval(() => {
+      ytFrameRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening" }), "*");
+    }, 1000);
+    setTimeout(() => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }), "*",
+      );
+    }, 800);
+    return () => { window.removeEventListener("message", onMsg); clearInterval(iv); };
+  }, [selectedEpisode?.id, selectedEpisode?.kind, autoNextOn, nextEp]);
+
+  const seekVideo = (seconds: number) => {
+    if (!selectedEpisode) return;
+    if (selectedEpisode.kind === "youtube") {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "seekTo", args: [seconds, true] }), "*",
+      );
+    } else {
+      const v = document.getElementById(`ep-media-${selectedEpisode.id}`) as HTMLMediaElement | null;
+      if (v) { v.currentTime = seconds; v.play().catch(() => {}); }
+    }
+  };
+
+  const goNext = () => {
+    setShowAutoNext(false);
+    if (nextEp) onSelect(nextEp.id);
+  };
+
+  const ytEmbedUrl = selectedEpisode && selectedEpisode.kind === "youtube"
+    ? (() => {
+        const vId = youtubeVideoId(selectedEpisode.source_url);
+        return vId ? `https://www.youtube-nocookie.com/embed/${vId}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1` : null;
+      })()
+    : null;
+
+  return (
+    <SiteLayout>
+      <div className={theater ? "fixed inset-0 z-40 flex flex-col bg-black" : "container mx-auto px-4 py-8"}>
+        {!theater && (
+          <>
+            <Button variant="ghost" onClick={onBack} className="mb-4">
+              <ArrowRight className="me-2 h-4 w-4" />חזרה לכל הפודקאסטים
+            </Button>
+            <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center">
+              {series.cover_url && (
+                <img src={series.cover_url} alt={series.title} className="h-28 w-28 rounded-2xl object-cover shadow-lg" />
+              )}
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold md:text-3xl">{series.title}</h1>
+                {series.host_name && <p className="text-muted-foreground">מנחה: {series.host_name}</p>}
+                {series.description && <p className="mt-1 text-sm text-muted-foreground">{series.description}</p>}
+                <p className="mt-1 text-xs text-muted-foreground">{episodes.length} פרקים</p>
+              </div>
+              {isAdmin && <SeriesAdminControls series={series} onChange={onChange} />}
+            </div>
+          </>
+        )}
+
+        {episodes.length === 0 ? (
+          <Card><CardContent className="py-12 text-center text-muted-foreground">אין עדיין פרקים בסדרה הזו</CardContent></Card>
+        ) : (
+          <div className={theater ? "flex h-full w-full" : "grid gap-4 lg:grid-cols-[1fr_360px]"}>
+            <div className={theater ? "flex flex-1 flex-col" : "space-y-3"}>
+              {/* Player */}
+              <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
+                {selectedEpisode && ytEmbedUrl ? (
+                  <iframe
+                    key={iframeKey}
+                    ref={ytFrameRef}
+                    src={ytEmbedUrl}
+                    title={selectedEpisode.title}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                  />
+                ) : selectedEpisode && selectedEpisode.kind === "audio" ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-primary/20 to-accent/20 p-6">
+                    {selectedEpisode.thumbnail_url && <img src={selectedEpisode.thumbnail_url} alt={selectedEpisode.title} className="h-32 w-32 rounded-xl object-cover" />}
+                    <Headphones className="h-10 w-10 text-primary" />
+                    <audio id={`ep-media-${selectedEpisode.id}`} src={selectedEpisode.source_url} controls className="w-full max-w-md"
+                      onEnded={() => { if (autoNextOn && nextEp) setShowAutoNext(true); }} />
+                  </div>
+                ) : selectedEpisode ? (
+                  <video id={`ep-media-${selectedEpisode.id}`} src={selectedEpisode.source_url} controls className="h-full w-full"
+                    poster={selectedEpisode.thumbnail_url ?? undefined}
+                    onEnded={() => { if (autoNextOn && nextEp) setShowAutoNext(true); }} />
+                ) : null}
+
+                <div className="absolute end-2 top-2 z-10 flex gap-1">
+                  <button type="button" onClick={() => setAutoNextOn((v) => !v)}
+                    className={`rounded-md px-2 py-1 text-xs ${autoNextOn ? "bg-primary text-primary-foreground" : "bg-black/60 text-white"}`}>
+                    Auto-Next {autoNextOn ? "ON" : "OFF"}
+                  </button>
+                  <button type="button" onClick={() => setTheater((v) => !v)}
+                    className="rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
+                    title={theater ? "צא ממצב קולנוע" : "מצב קולנוע"}>
+                    {theater ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {showAutoNext && nextEp && (
+                  <AutoNextOverlay
+                    nextTitle={nextEp.episode_number ? `פרק ${nextEp.episode_number}: ${nextEp.title}` : nextEp.title}
+                    onNext={goNext}
+                    onCancel={() => setShowAutoNext(false)}
+                  />
+                )}
+              </div>
+
+              {!theater && selectedEpisode && (
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">{selectedEpisode.episode_number ? `פרק ${selectedEpisode.episode_number}` : ""}</p>
+                      <h2 className="text-lg font-bold line-clamp-2">{selectedEpisode.title}</h2>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => share(selectedEpisode)}><Share2 className="h-4 w-4" /></Button>
+                  </div>
+                  {selectedEpisode.description && (
+                    <p className="whitespace-pre-line text-sm text-muted-foreground">{selectedEpisode.description}</p>
+                  )}
+                </div>
+              )}
+
+              {!theater && selectedEpisode && (
+                <ChaptersList text={selectedEpisode.description} onSeek={seekVideo} />
+              )}
+            </div>
+
+            {!theater && (
+              <aside className="space-y-2 lg:max-h-[72vh] lg:overflow-y-auto lg:pe-1">
+                {episodes.map((p) => (
+                  <button key={p.id} type="button" onClick={() => onSelect(p.id)}
+                    className={`flex w-full gap-3 rounded-lg border p-2 text-start transition hover:border-primary/40 ${p.id === selectedEpisode?.id ? "border-primary bg-primary/10" : "bg-card"}`}>
+                    {p.thumbnail_url ? <img src={p.thumbnail_url} alt={p.title} className="h-16 w-24 rounded-md object-cover" /> : <div className="flex h-16 w-24 items-center justify-center rounded-md bg-muted"><PlayCircle className="h-5 w-5" /></div>}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-xs text-muted-foreground">{p.episode_number ? `פרק ${p.episode_number}` : "פרק"}</span>
+                      <span className="line-clamp-2 text-sm font-medium">{p.title}</span>
+                    </span>
+                  </button>
+                ))}
+              </aside>
+            )}
+          </div>
         )}
       </div>
     </SiteLayout>

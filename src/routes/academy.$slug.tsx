@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { CourseReviews } from "@/components/academy/CourseReviews";
 import { LessonQA } from "@/components/academy/LessonQA";
 import { ModuleQuiz } from "@/components/academy/ModuleQuiz";
+import { ChaptersList } from "@/components/academy/ChaptersList";
+import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
@@ -50,6 +52,10 @@ function CoursePage() {
   const [enrollment, setEnrollment] = useState<any>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [theater, setTheater] = useState(false);
+  const [autoNextOn, setAutoNextOn] = useState(true);
+  const [showAutoNext, setShowAutoNext] = useState(false);
+  const playerSeekRef = useRef<((sec: number) => void) | null>(null);
 
   const refresh = useCallback(async () => {
     const [{ data: mods }, { data: lsns }] = await Promise.all([
@@ -79,6 +85,14 @@ function CoursePage() {
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  // ESC exits theater
+  useEffect(() => {
+    if (!theater) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setTheater(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [theater]);
+
   const enroll = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (course.price > 0) { toast.info("רכישת קורסים תוטמע בקרוב — בינתיים השתמש בקוד גישה"); return; }
@@ -90,6 +104,14 @@ function CoursePage() {
 
   const activeLesson = lessons.find((l) => l.id === activeLessonId);
   const canWatch = !!enrollment || activeLesson?.is_preview;
+  const activeIndex = lessons.findIndex((l) => l.id === activeLessonId);
+  const nextLesson = activeIndex >= 0 ? lessons[activeIndex + 1] : null;
+  const canPlayNext = nextLesson && (!!enrollment || nextLesson.is_preview);
+
+  const goNext = () => {
+    setShowAutoNext(false);
+    if (canPlayNext && nextLesson) setActiveLessonId(nextLesson.id);
+  };
 
   return (
     <SiteLayout>
@@ -101,15 +123,17 @@ function CoursePage() {
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-4">
+          <div className={theater ? "fixed inset-0 z-40 flex flex-col bg-black" : "grid gap-6 lg:grid-cols-[1fr_360px]"}>
+            <div className={theater ? "flex h-full w-full flex-col" : "space-y-4"}>
               {/* Player */}
-              <div className="aspect-video rounded-xl overflow-hidden bg-black relative">
+              <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
                 {activeLesson && canWatch && activeLesson.video_url ? (
                   <SecureVideoPlayer
                     key={activeLesson.id}
                     src={activeLesson.video_url}
                     watermark={user?.email ?? ""}
+                    onSeekReady={(fn) => { playerSeekRef.current = fn; }}
+                    onEnded={() => { if (autoNextOn && canPlayNext) setShowAutoNext(true); }}
                     onProgress={async (pos, dur) => {
                       if (!user || !enrollment) return;
                       const completed = dur > 0 && pos / dur > 0.9;
@@ -123,8 +147,6 @@ function CoursePage() {
                       }, { onConflict: "user_id,lesson_id" });
                       if (completed && !progress[activeLesson.id]?.is_completed) {
                         refresh();
-                        // Try issue certificate
-                        await supabase.functions.invoke("noop").catch(() => {});
                         await tryIssueCertificate(course.id, user.id, course.title);
                       }
                     }}
@@ -139,19 +161,59 @@ function CoursePage() {
                     <PlayCircle className="h-12 w-12" />
                   </div>
                 )}
+
+                <div className="absolute end-2 top-2 z-10 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setAutoNextOn((v) => !v)}
+                    className={`rounded-md px-2 py-1 text-xs ${autoNextOn ? "bg-primary text-primary-foreground" : "bg-black/60 text-white"}`}
+                    title="Auto-Next"
+                  >
+                    Auto-Next {autoNextOn ? "ON" : "OFF"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheater((v) => !v)}
+                    className="rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
+                    title={theater ? "צא ממצב קולנוע" : "מצב קולנוע"}
+                  >
+                    {theater ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {showAutoNext && nextLesson && (
+                  <AutoNextOverlay
+                    nextTitle={nextLesson.title}
+                    onNext={goNext}
+                    onCancel={() => setShowAutoNext(false)}
+                  />
+                )}
               </div>
 
-              <div>
-                <h1 className="text-2xl font-bold">{course.title}</h1>
-                {course.subtitle && <p className="text-muted-foreground mt-1">{course.subtitle}</p>}
-                <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                  <span>{course.total_lessons} שיעורים</span>
-                  <span>·</span>
-                  <span>רמה: {course.level}</span>
-                  {course.duration_minutes > 0 && <><span>·</span><Clock className="inline h-3.5 w-3.5" />{course.duration_minutes} דקות</>}
-                </div>
-                {course.description && <p className="mt-4 whitespace-pre-line text-sm">{course.description}</p>}
-              </div>
+              {!theater && (
+                <>
+                  <div>
+                    <h1 className="text-2xl font-bold">{activeLesson?.title ?? course.title}</h1>
+                    {course.subtitle && <p className="text-muted-foreground mt-1">{course.subtitle}</p>}
+                    <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
+                      <span>{course.total_lessons} שיעורים</span>
+                      <span>·</span>
+                      <span>רמה: {course.level}</span>
+                      {course.duration_minutes > 0 && <><span>·</span><Clock className="inline h-3.5 w-3.5" />{course.duration_minutes} דקות</>}
+                    </div>
+                    {activeLesson?.description ? (
+                      <p className="mt-4 whitespace-pre-line text-sm">{activeLesson.description}</p>
+                    ) : course.description ? (
+                      <p className="mt-4 whitespace-pre-line text-sm">{course.description}</p>
+                    ) : null}
+                  </div>
+
+                  <ChaptersList
+                    text={activeLesson?.description ?? course.description}
+                    onSeek={(s) => playerSeekRef.current?.(s)}
+                  />
+                </>
+              )}
 
               {activeLesson && enrollment && (
                 <LessonQA lessonId={activeLesson.id} courseId={course.id} />
@@ -247,68 +309,136 @@ async function tryIssueCertificate(courseId: string, userId: string, _courseTitl
   if (!error && data?.pdf_url) toast.success("🎓 קיבלת תעודה חדשה!");
 }
 
-function getYouTubeEmbed(url: string): string | null {
+function getYouTubeId(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
-  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&modestbranding=1&playsinline=1` : null;
+  return m?.[1] ?? null;
 }
-function getVimeoEmbed(url: string): string | null {
-  const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  return m ? `https://player.vimeo.com/video/${m[1]}` : null;
+function getVimeoId(url: string): string | null {
+  return url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1] ?? null;
 }
 
-function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; watermark: string; onProgress?: (pos: number, dur: number) => void }) {
+type PlayerProps = {
+  src: string;
+  watermark: string;
+  onProgress?: (pos: number, dur: number) => void;
+  onEnded?: () => void;
+  onSeekReady?: (seek: (seconds: number) => void) => void;
+};
+
+function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const [speed, setSpeed] = useState(1);
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
-  const ytEmbed = getYouTubeEmbed(src);
-  const vimeoEmbed = getVimeoEmbed(src);
-  const isEmbed = !!(ytEmbed || vimeoEmbed);
+  const ytId = getYouTubeId(src);
+  const vimeoId = getVimeoId(src);
 
+  // Random watermark drift
   useEffect(() => {
     const i = setInterval(() => {
-      setWmPos({
-        top: `${Math.random() * 80}%`,
-        left: `${Math.random() * 70}%`,
-      });
+      setWmPos({ top: `${Math.random() * 80}%`, left: `${Math.random() * 70}%` });
     }, 6000);
     return () => clearInterval(i);
   }, []);
 
+  // Native <video> progress + ended
   useEffect(() => {
-    if (!onProgress) return;
     const v = videoRef.current;
     if (!v) return;
     let last = 0;
     const handle = () => {
-      // Throttle to every 10s
       if (v.currentTime - last < 10 && v.currentTime < v.duration - 1) return;
       last = v.currentTime;
-      onProgress(v.currentTime, v.duration || 0);
+      onProgress?.(v.currentTime, v.duration || 0);
     };
+    const ended = () => onEnded?.();
     v.addEventListener("timeupdate", handle);
-    v.addEventListener("ended", handle);
-    return () => { v.removeEventListener("timeupdate", handle); v.removeEventListener("ended", handle); };
-  }, [onProgress]);
+    v.addEventListener("ended", ended);
+    return () => { v.removeEventListener("timeupdate", handle); v.removeEventListener("ended", ended); };
+  }, [onProgress, onEnded]);
+
+  // Expose seek for native video
+  useEffect(() => {
+    if (!ytId && !vimeoId && videoRef.current && onSeekReady) {
+      onSeekReady((sec) => { if (videoRef.current) videoRef.current.currentTime = sec; });
+    }
+  }, [onSeekReady, ytId, vimeoId]);
+
+  // YouTube IFrame API: seek + onEnded via postMessage
+  useEffect(() => {
+    if (!ytId) return;
+    const seek = (seconds: number) => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "seekTo", args: [seconds, true] }),
+        "*",
+      );
+    };
+    onSeekReady?.(seek);
+
+    if (!onEnded) return;
+    const onMsg = (e: MessageEvent) => {
+      if (typeof e.data !== "string") return;
+      try {
+        const data = JSON.parse(e.data);
+        // YT state 0 = ended
+        if (data?.event === "onStateChange" && data?.info === 0) onEnded();
+      } catch {}
+    };
+    window.addEventListener("message", onMsg);
+    // Subscribe to events from the iframe
+    const iv = setInterval(() => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "listening" }),
+        "*",
+      );
+    }, 1000);
+    setTimeout(() => {
+      ytFrameRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }),
+        "*",
+      );
+    }, 800);
+    return () => { window.removeEventListener("message", onMsg); clearInterval(iv); };
+  }, [ytId, onEnded, onSeekReady]);
 
   const setSpeedAndApply = (s: number) => {
     setSpeed(s);
     if (videoRef.current) videoRef.current.playbackRate = s;
   };
 
-  if (isEmbed) {
+  if (ytId) {
+    const ytSrc = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
     return (
       <div className="relative h-full w-full">
         <iframe
-          src={ytEmbed || vimeoEmbed || src}
+          ref={ytFrameRef}
+          src={ytSrc}
           className="h-full w-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
         />
         {watermark && (
-          <div
-            className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
-            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
-          >
+          <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
+            {watermark}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (vimeoId) {
+    return (
+      <div className="relative h-full w-full">
+        <iframe
+          src={`https://player.vimeo.com/video/${vimeoId}`}
+          className="h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+        {watermark && (
+          <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+            style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
             {watermark}
           </div>
         )}
@@ -327,10 +457,8 @@ function SecureVideoPlayer({ src, watermark, onProgress }: { src: string; waterm
         className="h-full w-full"
       />
       {watermark && (
-        <div
-          className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
-          style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
-        >
+        <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
+          style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
           {watermark}
         </div>
       )}
