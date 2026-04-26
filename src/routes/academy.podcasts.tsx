@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle } from "lucide-react";
+import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
@@ -80,12 +80,21 @@ function youtubePlaylistId(url: string) {
 function ytEmbed(url: string) {
   const videoId = youtubeVideoId(url);
   const playlistId = youtubePlaylistId(url);
+  // Use youtube-nocookie domain — better for embedding, fewer restrictions
   if (videoId) {
     const listParam = playlistId ? `&list=${playlistId}` : "";
-    return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1${listParam}`;
+    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1${listParam}`;
   }
-  if (playlistId) return `https://www.youtube.com/embed/videoseries?list=${playlistId}&rel=0&modestbranding=1`;
+  if (playlistId) return `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}&rel=0&modestbranding=1&playsinline=1`;
   return null;
+}
+
+function ytWatchUrl(url: string) {
+  const videoId = youtubeVideoId(url);
+  const playlistId = youtubePlaylistId(url);
+  if (videoId) return `https://www.youtube.com/watch?v=${videoId}${playlistId ? `&list=${playlistId}` : ""}`;
+  if (playlistId) return `https://www.youtube.com/playlist?list=${playlistId}`;
+  return url;
 }
 
 function PodcastsPage() {
@@ -294,6 +303,12 @@ function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) 
         </div>
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+        {p.kind === "youtube" && (
+          <a href={ytWatchUrl(p.source_url)} target="_blank" rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+            <ExternalLink className="h-3 w-3" />פתח ביוטיוב
+          </a>
+        )}
       </CardContent>
       </div>
     </Card>

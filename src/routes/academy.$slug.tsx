@@ -248,8 +248,8 @@ async function tryIssueCertificate(courseId: string, userId: string, _courseTitl
 }
 
 function getYouTubeEmbed(url: string): string | null {
-  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-  return m ? `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1` : null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&modestbranding=1&playsinline=1` : null;
 }
 function getVimeoEmbed(url: string): string | null {
   const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
