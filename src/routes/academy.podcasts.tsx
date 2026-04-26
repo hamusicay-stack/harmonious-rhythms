@@ -166,7 +166,7 @@ function PodcastsPage() {
               אין עדיין פרקים בסדרה הזו{isAdmin && " — הוסף קישור פלייליסט יוטיוב כדי לייבא אוטומטית"}
             </CardContent></Card>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3">
               {activeEpisodes.map((p) => <EpisodeCard key={p.id} p={p} share={share} />)}
             </div>
           )}
@@ -201,24 +201,26 @@ function PodcastsPage() {
           <>
             {series.length > 0 && (
               <section className="mb-10">
-                <h2 className="mb-4 text-xl font-semibold">סדרות</h2>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <h2 className="mb-4 text-xl font-semibold">תיקיות פודקאסטים</h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {series.map((s) => {
                     const count = bySeries.get(s.id)?.length ?? 0;
                     return (
                       <button key={s.id} onClick={() => setOpenSeries(s.id)}
-                        className="group overflow-hidden rounded-2xl border bg-card text-start shadow-sm transition hover:shadow-lg">
-                        <div className="aspect-square bg-gradient-to-br from-primary/30 to-accent/30">
+                        className="group overflow-hidden rounded-2xl border bg-card text-start shadow-sm transition hover:border-primary/40 hover:shadow-lg">
+                        <div className="aspect-video bg-gradient-to-br from-primary/30 to-accent/30 relative">
                           {s.cover_url ? (
                             <img src={s.cover_url} alt={s.title} className="h-full w-full object-cover transition group-hover:scale-105" />
                           ) : (
                             <div className="flex h-full items-center justify-center"><FolderOpen className="h-16 w-16 text-primary/60" /></div>
                           )}
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 to-transparent p-3">
+                            <Badge variant="secondary" className="gap-1"><FolderOpen className="h-3 w-3" />{count} פרקים</Badge>
+                          </div>
                         </div>
                         <div className="p-3">
                           <h3 className="font-semibold line-clamp-1">{s.title}</h3>
                           {s.host_name && <p className="text-xs text-muted-foreground line-clamp-1">{s.host_name}</p>}
-                          <Badge variant="secondary" className="mt-2 text-xs">{count} פרקים</Badge>
                         </div>
                       </button>
                     );
