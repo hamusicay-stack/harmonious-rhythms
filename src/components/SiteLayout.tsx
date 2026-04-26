@@ -3,6 +3,7 @@ import { useLocation } from "@tanstack/react-router";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { BannerSlot } from "./BannerSlot";
+import { SidebarAd } from "./SidebarAd";
 import { BackgroundMesh } from "./BackgroundMesh";
 import { CustomCursor } from "./CustomCursor";
 import { CommandPalette } from "./CommandPalette";
@@ -50,6 +51,14 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       )}
 
       <main className="flex-1">{children}</main>
+
+      {/* Discreet side ads — only visible on xl+ screens, dismissible. */}
+      {showBanners && (
+        <>
+          <SidebarAd side="right" position="sidebar_right" />
+          <SidebarAd side="left" position="sidebar_left" />
+        </>
+      )}
 
       {showBanners && (
         <div className="container mx-auto px-4 pb-4 md:px-8">
