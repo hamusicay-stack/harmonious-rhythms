@@ -80,12 +80,21 @@ function youtubePlaylistId(url: string) {
 function ytEmbed(url: string) {
   const videoId = youtubeVideoId(url);
   const playlistId = youtubePlaylistId(url);
+  // Use youtube-nocookie domain — better for embedding, fewer restrictions
   if (videoId) {
     const listParam = playlistId ? `&list=${playlistId}` : "";
-    return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1${listParam}`;
+    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1${listParam}`;
   }
-  if (playlistId) return `https://www.youtube.com/embed/videoseries?list=${playlistId}&rel=0&modestbranding=1`;
+  if (playlistId) return `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}&rel=0&modestbranding=1&playsinline=1`;
   return null;
+}
+
+function ytWatchUrl(url: string) {
+  const videoId = youtubeVideoId(url);
+  const playlistId = youtubePlaylistId(url);
+  if (videoId) return `https://www.youtube.com/watch?v=${videoId}${playlistId ? `&list=${playlistId}` : ""}`;
+  if (playlistId) return `https://www.youtube.com/playlist?list=${playlistId}`;
+  return url;
 }
 
 function PodcastsPage() {
