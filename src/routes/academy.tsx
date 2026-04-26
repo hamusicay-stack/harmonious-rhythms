@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen } from "lucide-react";
+import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen, Eye, Heart, Users } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ type Course = {
   total_lessons: number;
   duration_minutes: number;
   is_featured: boolean;
+  enrollments_count: number;
 };
 
 type Enrollment = {
