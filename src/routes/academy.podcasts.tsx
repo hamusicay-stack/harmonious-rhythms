@@ -52,11 +52,29 @@ type Podcast = {
 };
 
 function youtubeVideoId(url: string) {
-  return url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1] ?? null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") return parsed.pathname.split("/").filter(Boolean)[0] ?? null;
+    if (host.endsWith("youtube.com")) {
+      const fromQuery = parsed.searchParams.get("v");
+      if (fromQuery) return fromQuery;
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      const marker = ["embed", "shorts", "live"].find((part) => parts.includes(part));
+      if (marker) return parts[parts.indexOf(marker) + 1] ?? null;
+    }
+  } catch {
+    return url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/)?.[1] ?? null;
+  }
+  return null;
 }
 
 function youtubePlaylistId(url: string) {
-  return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+  try {
+    return new URL(url).searchParams.get("list");
+  } catch {
+    return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+  }
 }
 
 function ytEmbed(url: string) {
