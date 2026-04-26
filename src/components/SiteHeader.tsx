@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Music2, Search, Menu, X, LogOut, User as UserIcon, Shield } from "lucide-react";
+import { Music2, Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { toast } from "sonner";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/shorts", label: "שורטס" },
@@ -26,14 +28,19 @@ const navItems = [
   { to: "/about", label: "אודות" },
 ] as const;
 
-export function SiteHeader() {
+interface Props {
+  onCommandPalette?: () => void;
+}
+
+export function SiteHeader({ onCommandPalette }: Props = {}) {
   const [open, setOpen] = useState(false);
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+  const { direction, scrollY } = useScrollDirection(80);
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success("התנתקת בהצלחה");
+    toast.success("סוף סשן");
     navigate({ to: "/" });
   };
 
@@ -44,152 +51,178 @@ export function SiteHeader() {
     .join("")
     .toUpperCase();
 
+  const hidden = direction === "down" && scrollY > 80;
+  const elevated = scrollY > 8;
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
-        <Link to="/" className="flex items-center gap-2 transition-smooth hover:opacity-80">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow shadow-gold">
-            <Music2 className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            המוזיק<span className="text-gradient-gold">אי</span>
-          </span>
-        </Link>
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-transform duration-300 ease-out",
+        hidden ? "-translate-y-full" : "translate-y-0",
+      )}
+    >
+      <div
+        className={cn(
+          "border-b transition-all duration-300",
+          elevated
+            ? "glass-z3 border-white/40"
+            : "border-transparent bg-background/40 backdrop-blur-md",
+        )}
+      >
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
+          <Link to="/" className="group flex items-center gap-2.5">
+            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand shadow-card transition-transform group-hover:scale-105">
+              <Music2 className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-display text-xl font-extrabold tracking-tight">
+              המוזיק<span className="text-gradient-brand">אי</span>
+            </span>
+          </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-smooth hover:bg-secondary hover:text-foreground"
-              activeProps={{ className: "text-primary" }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="icon" aria-label="חיפוש">
-            <Search className="h-4 w-4" />
-          </Button>
-          <CartDrawer />
-          <NotificationsBell />
-
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full transition-smooth hover:opacity-80">
-                  <Avatar className="h-9 w-9 border border-border/60">
-                    <AvatarImage src={profile?.avatar_url ?? undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-xs font-semibold text-primary-foreground">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="text-right">
-                  <div className="font-semibold">{profile?.display_name ?? "משתמש"}</div>
-                  <div className="text-xs font-normal text-muted-foreground">{user.email}</div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/profile" })} className="cursor-pointer">
-                  <UserIcon className="ml-2 h-4 w-4" />
-                  הפרופיל שלי
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
-                    <Shield className="ml-2 h-4 w-4 text-primary" />
-                    ניהול המערכת
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
-                  <LogOut className="ml-2 h-4 w-4" />
-                  התנתקות
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Link to="/auth">
-                <Button variant="ghost" size="sm">התחברות</Button>
-              </Link>
-              <Link to="/auth" search={{ mode: "signup" }}>
-                <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold hover:opacity-90">
-                  הרשמה
-                </Button>
-              </Link>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 md:hidden">
-          <NotificationsBell />
-          <CartDrawer />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setOpen(!open)}
-            aria-label="תפריט"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </div>
-
-      {open && (
-        <div className="border-t border-border/40 bg-background md:hidden">
-          <nav className="container mx-auto flex flex-col gap-1 px-4 py-4">
+          <nav className="hidden items-center gap-0.5 md:flex">
             {navItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                className="relative rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "text-foreground bg-white/55 shadow-soft" }}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="mt-2 flex flex-col gap-2 border-t border-border/40 pt-4">
-              {user ? (
-                <>
-                  <Link to="/profile" onClick={() => setOpen(false)}>
-                    <Button variant="outline" className="w-full">
-                      <UserIcon className="ml-2 h-4 w-4" />
-                      הפרופיל שלי
-                    </Button>
-                  </Link>
+          </nav>
+
+          <div className="hidden items-center gap-1.5 md:flex">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCommandPalette}
+              className="gap-2 rounded-full bg-white/40 px-3 text-muted-foreground hover:bg-white/70"
+              aria-label="פלטת פקודות"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span className="hidden text-xs lg:inline">חיפוש מהיר</span>
+              <kbd className="hidden rounded border border-border/60 bg-white/60 px-1.5 py-0.5 text-[10px] font-medium lg:inline-flex">
+                <CommandIcon className="h-2.5 w-2.5" />K
+              </kbd>
+            </Button>
+            <CartDrawer />
+            <NotificationsBell />
+
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full transition-transform hover:scale-105">
+                    <Avatar className="h-9 w-9 border-2 border-white/60 shadow-soft">
+                      <AvatarImage src={profile?.avatar_url ?? undefined} />
+                      <AvatarFallback className="bg-brand text-xs font-semibold text-white">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 glass-z3 border-white/40">
+                  <DropdownMenuLabel className="text-right">
+                    <div className="font-semibold">{profile?.display_name ?? "משתמש"}</div>
+                    <div className="text-xs font-normal text-muted-foreground">{user.email}</div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate({ to: "/profile" })} className="cursor-pointer">
+                    <UserIcon className="ml-2 h-4 w-4" />
+                    הפרופיל שלי
+                  </DropdownMenuItem>
                   {isAdmin && (
-                    <Link to="/admin" onClick={() => setOpen(false)}>
-                      <Button variant="outline" className="w-full border-primary/40 text-primary">
-                        <Shield className="ml-2 h-4 w-4" />
-                        ניהול המערכת
+                    <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
+                      <Shield className="ml-2 h-4 w-4 text-primary" />
+                      ניהול המערכת
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="ml-2 h-4 w-4" />
+                    סוף סשן
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm" className="rounded-full">כנס לאולפן</Button>
+                </Link>
+                <Link to="/auth" search={{ mode: "signup" }}>
+                  <Button size="sm" className="rounded-full bg-brand text-white shadow-card hover:opacity-95">
+                    הרשמה
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1 md:hidden">
+            <NotificationsBell />
+            <CartDrawer />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setOpen(!open)}
+              aria-label="תפריט"
+              className="rounded-full"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+        </div>
+
+        {open && (
+          <div className="glass-z2 border-t border-white/40 md:hidden">
+            <nav className="container mx-auto flex flex-col gap-1 px-4 py-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-white/60 hover:text-foreground"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="mt-2 flex flex-col gap-2 border-t border-border/40 pt-4">
+                {user ? (
+                  <>
+                    <Link to="/profile" onClick={() => setOpen(false)}>
+                      <Button variant="outline" className="w-full rounded-full">
+                        <UserIcon className="ml-2 h-4 w-4" />
+                        הפרופיל שלי
                       </Button>
                     </Link>
-                  )}
-                  <Button onClick={() => { handleSignOut(); setOpen(false); }} variant="ghost" className="w-full text-destructive">
-                    <LogOut className="ml-2 h-4 w-4" />
-                    התנתקות
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link to="/auth" onClick={() => setOpen(false)}>
-                    <Button variant="outline" className="w-full">התחברות</Button>
-                  </Link>
-                  <Link to="/auth" onClick={() => setOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                      הרשמה
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setOpen(false)}>
+                        <Button variant="outline" className="w-full rounded-full border-primary/40 text-primary">
+                          <Shield className="ml-2 h-4 w-4" />
+                          ניהול המערכת
+                        </Button>
+                      </Link>
+                    )}
+                    <Button onClick={() => { handleSignOut(); setOpen(false); }} variant="ghost" className="w-full rounded-full text-destructive">
+                      <LogOut className="ml-2 h-4 w-4" />
+                      סוף סשן
                     </Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </nav>
-        </div>
-      )}
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth" onClick={() => setOpen(false)}>
+                      <Button variant="outline" className="w-full rounded-full">כנס לאולפן</Button>
+                    </Link>
+                    <Link to="/auth" onClick={() => setOpen(false)}>
+                      <Button className="w-full rounded-full bg-brand text-white">הרשמה</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </nav>
+          </div>
+        )}
+      </div>
     </header>
   );
 }
