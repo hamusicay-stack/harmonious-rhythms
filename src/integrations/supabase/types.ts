@@ -523,6 +523,10 @@ export type Database = {
       }
       academy_podcasts: {
         Row: {
+          audio_error: string | null
+          audio_generated_at: string | null
+          audio_status: string
+          audio_url: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -542,6 +546,10 @@ export type Database = {
           youtube_video_id: string | null
         }
         Insert: {
+          audio_error?: string | null
+          audio_generated_at?: string | null
+          audio_status?: string
+          audio_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -561,6 +569,10 @@ export type Database = {
           youtube_video_id?: string | null
         }
         Update: {
+          audio_error?: string | null
+          audio_generated_at?: string | null
+          audio_status?: string
+          audio_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
