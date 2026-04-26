@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { buildAffiliateLink } from "@/lib/affiliate";
 import { AffiliateApplyDialog } from "./AffiliateApplyDialog";
+import { AffiliateWallet } from "./AffiliateWallet";
 
 type Affiliate = {
   id: string; ref_code: string; commission_percent: number | null;
