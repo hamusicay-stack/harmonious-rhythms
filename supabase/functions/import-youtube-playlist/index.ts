@@ -70,7 +70,7 @@ async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
   const textOf = (value: any): string => {
     if (!value) return "";
     if (typeof value.simpleText === "string") return value.simpleText;
-    if (Array.isArray(value.runs)) return value.runs.map((run) => run.text ?? "").join("");
+    if (Array.isArray(value.runs)) return value.runs.map((run: any) => run.text ?? "").join("");
     return "";
   };
 
