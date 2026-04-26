@@ -25,17 +25,19 @@ export function AffiliatesManager() {
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         <Tabs defaultValue="apps" dir="rtl">
-          <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-5">
+          <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
             <TabsTrigger value="apps" className="shrink-0 text-xs sm:text-sm">בקשות</TabsTrigger>
             <TabsTrigger value="affs" className="shrink-0 text-xs sm:text-sm">שותפים</TabsTrigger>
             <TabsTrigger value="convs" className="shrink-0 text-xs sm:text-sm">המרות</TabsTrigger>
             <TabsTrigger value="overrides" className="shrink-0 text-xs sm:text-sm">עמלות מוצר</TabsTrigger>
+            <TabsTrigger value="lottery" className="shrink-0 text-xs sm:text-sm gap-1"><Trophy className="h-3 w-3" />הגרלה</TabsTrigger>
             <TabsTrigger value="settings" className="shrink-0 text-xs sm:text-sm">הגדרות</TabsTrigger>
           </TabsList>
           <TabsContent value="apps" className="mt-4"><Applications /></TabsContent>
           <TabsContent value="affs" className="mt-4"><Affiliates /></TabsContent>
           <TabsContent value="convs" className="mt-4"><Conversions /></TabsContent>
           <TabsContent value="overrides" className="mt-4"><Overrides /></TabsContent>
+          <TabsContent value="lottery" className="mt-4"><LotteryReport /></TabsContent>
           <TabsContent value="settings" className="mt-4"><Settings /></TabsContent>
         </Tabs>
       </CardContent>
