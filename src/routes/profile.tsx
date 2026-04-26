@@ -20,6 +20,7 @@ import { labelOf, SPECIALTIES } from "@/lib/prosData";
 import { NotificationsList } from "@/components/NotificationsList";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
+import { UserBadges } from "@/components/UserBadges";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
