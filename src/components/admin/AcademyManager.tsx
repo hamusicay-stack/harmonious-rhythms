@@ -683,7 +683,7 @@ function PodcastsManager() {
               </div>
             </div>
           )}
-          {items.length > 0 && (
+          {items.some((p) => !p.series_id) && (
             <div className="space-y-2">
               <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">פרקים בודדים</h4>
               {items.filter((p) => !p.series_id).map((p) => (
