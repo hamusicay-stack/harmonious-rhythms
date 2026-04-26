@@ -1196,6 +1196,7 @@ function UploadDialog({
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [courseLink, setCourseLink] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
   const [nextAllowedAt, setNextAllowedAt] = useState<Date | null>(null);
@@ -1307,11 +1308,12 @@ function UploadDialog({
           video_url: pub.publicUrl,
           status: "pending",
           tags: tags.length > 0 ? tags : [],
+          course_link: courseLink.trim() || null,
         });
         if (insErr) throw insErr;
       }
       toast.success(files.length > 1 ? `${files.length} סרטונים הועלו!` : "הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
-      setTitle(""); setDescription(""); setFiles([]); setTags([]); setTagDraft("");
+      setTitle(""); setDescription(""); setFiles([]); setTags([]); setTagDraft(""); setCourseLink("");
       onOpenChange(false);
       onUploaded();
     } catch (e: any) {
@@ -1422,6 +1424,20 @@ function UploadDialog({
                 רוצה להעלות עוד סרטונים? שדרג לפרימיום
               </button>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <GraduationCap className="h-3.5 w-3.5 text-primary" />
+              קישור לשיעור מלא (אופציונלי)
+            </Label>
+            <Input
+              value={courseLink}
+              onChange={(e) => setCourseLink(e.target.value)}
+              placeholder="/academy/my-course או https://..."
+              dir="ltr"
+              maxLength={500}
+            />
+            <p className="text-[11px] text-muted-foreground">צופים יראו כפתור "לשיעור המלא" על השורט.</p>
           </div>
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
             💡 הסרטון יישלח לאישור מנהל לפני שיוצג בפיד. משתמשים מאושרים מראש (Trusted) פרסומיהם עולים מיד.
