@@ -53,7 +53,7 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
     .join("")
     .toUpperCase();
 
-  const hidden = direction === "down" && scrollY > 80;
+  const hidden = false; // Always visible — sticky header per spec
   const elevated = scrollY > 8;
 
   return (

@@ -27,13 +27,16 @@ export function CustomCursor() {
     const ring = ringRef.current;
     if (!dot || !ring) return;
 
-    let mx = window.innerWidth / 2;
-    let my = window.innerHeight / 2;
+    // Start at current mouse position (avoid jump to center on mount)
+    let mx = -100;
+    let my = -100;
     let rx = mx;
     let ry = my;
+    let hasMoved = false;
     let raf = 0;
 
     const tick = () => {
+      if (!hasMoved) { raf = requestAnimationFrame(tick); return; }
       // Spring follow for ring
       rx += (mx - rx) * 0.18;
       ry += (my - ry) * 0.18;
@@ -47,6 +50,7 @@ export function CustomCursor() {
     const onMove = (e: MouseEvent) => {
       mx = e.clientX;
       my = e.clientY;
+      if (!hasMoved) { hasMoved = true; rx = mx; ry = my; dot.style.opacity = "1"; ring.style.opacity = "0.6"; }
       const t = e.target as HTMLElement | null;
       if (t && t.closest("a, button, [role='button'], input, textarea, select, [data-cursor-hover]")) {
         if (!hovering) setHovering(true);
