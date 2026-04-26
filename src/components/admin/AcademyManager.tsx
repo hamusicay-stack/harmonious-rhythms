@@ -520,6 +520,10 @@ function BroadcastsManager() {
 }
 
 // ============= Podcasts Manager =============
+function getYoutubeVideoId(url: string) {
+  return url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1] ?? null;
+}
+
 function PodcastsManager() {
   const [items, setItems] = useState<any[]>([]);
   const [series, setSeries] = useState<any[]>([]);
@@ -553,12 +557,53 @@ function PodcastsManager() {
 
   const save = async () => {
     if (!form.title.trim() || !form.source_url.trim()) return toast.error("כותרת וקישור חובה");
-    const payload = { ...form, description: form.description || null, thumbnail_url: form.thumbnail_url || null };
+    const videoId = form.kind === "youtube" ? getYoutubeVideoId(form.source_url) : null;
+    const payload: any = {
+      title: form.title,
+      description: form.description || null,
+      kind: form.kind,
+      source_url: form.source_url,
+      thumbnail_url: form.thumbnail_url || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null),
+      series_id: form.series_id === "none" ? null : form.series_id,
+      episode_number: form.episode_number ? Number(form.episode_number) : null,
+      youtube_video_id: videoId,
+      is_active: form.is_active,
+      sort_order: form.sort_order,
+    };
     const { error } = editing
       ? await supabase.from("academy_podcasts").update(payload).eq("id", editing.id)
       : await supabase.from("academy_podcasts").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("נשמר"); setOpen(false); load();
+  };
+
+  const createSeries = async () => {
+    if (!seriesForm.title.trim()) return toast.error("שם סדרה חובה");
+    const { data, error } = await supabase.from("academy_podcast_series").insert({
+      title: seriesForm.title,
+      description: seriesForm.description || null,
+      host_name: seriesForm.host_name || null,
+      cover_url: seriesForm.cover_url || null,
+    } as any).select("*").single();
+    if (error) return toast.error(error.message);
+    toast.success("הסדרה נוצרה");
+    setSeriesOpen(false);
+    setSeriesForm({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
+    load();
+    if (seriesForm.playlist_url.trim()) await importPlaylist(data.id, seriesForm.playlist_url.trim());
+  };
+
+  const importPlaylist = async (seriesId: string, playlistUrl?: string) => {
+    const url = playlistUrl ?? prompt("הדבק קישור פלייליסט ציבורי מיוטיוב") ?? "";
+    if (!url.trim()) return;
+    setImportingSeriesId(seriesId);
+    const { data, error } = await supabase.functions.invoke("import-youtube-playlist", {
+      body: { series_id: seriesId, playlist_url: url.trim() },
+    });
+    setImportingSeriesId(null);
+    if (error || data?.error) return toast.error(error?.message ?? data.error);
+    toast.success(`יובאו ${data.imported} פרקים`);
+    load();
   };
   const del = async (id: string) => {
     if (!confirm("למחוק?")) return;
