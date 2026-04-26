@@ -418,10 +418,10 @@ function SeriesAdminControls({ series, onChange }: { series: Series; onChange: (
   };
 
   const removeSeries = async () => {
-    if (!confirm("למחוק את הסדרה? הפרקים יישמרו אך לא יהיו משויכים.")) return;
+    if (!confirm("למחוק את הסדרה ואת כל הפרקים שבתוכה?")) return;
     const { error } = await supabase.from("academy_podcast_series").delete().eq("id", series.id);
     if (error) return toast.error(error.message);
-    toast.success("נמחק");
+    toast.success("הסדרה וכל הפרקים נמחקו");
     onChange();
   };
 
