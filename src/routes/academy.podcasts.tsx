@@ -246,13 +246,27 @@ function PodcastsPage() {
 
 function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) {
   const youtubeEmbed = p.kind === "youtube" ? ytEmbed(p.source_url) : null;
+  const [expanded, setExpanded] = useState(false);
   return (
-    <Card id={p.id} className="overflow-hidden">
-      <div className="aspect-video bg-muted">
-        {youtubeEmbed ? (
-          <iframe src={youtubeEmbed} title={p.title} className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    <Card id={p.id} className="overflow-hidden scroll-mt-24">
+      <div className="grid gap-0 md:grid-cols-[minmax(260px,420px)_1fr]">
+      <div className="aspect-video bg-muted md:h-full md:min-h-52">
+        {youtubeEmbed && expanded ? (
+          <iframe src={`${youtubeEmbed}&autoplay=1`} title={p.title} className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen />
+        ) : youtubeEmbed ? (
+          <button type="button" onClick={() => setExpanded(true)} className="relative h-full w-full overflow-hidden text-start">
+            {p.thumbnail_url ? (
+              <img src={p.thumbnail_url} alt={p.title} className="h-full w-full object-cover" loading="lazy" />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20" />
+            )}
+            <span className="absolute inset-0 flex items-center justify-center bg-background/20">
+              <span className="rounded-full bg-background/90 p-4 shadow-lg"><PlayCircle className="h-8 w-8 fill-primary text-primary" /></span>
+            </span>
+          </button>
         ) : p.kind === "audio" ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/20 to-accent/20 p-4">
             {p.thumbnail_url && <img src={p.thumbnail_url} alt={p.title} className="h-20 w-20 rounded-lg object-cover" />}
@@ -277,6 +291,7 @@ function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) 
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
       </CardContent>
+      </div>
     </Card>
   );
 }
