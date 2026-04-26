@@ -543,6 +543,22 @@ function PodcastsManager() {
   const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", audio_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 });
   const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
   const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
+  const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>(null);
+
+  const reorderEpisodes = async (seriesId: string, ordered: any[]) => {
+    // Optimistic update
+    const others = items.filter((p) => p.series_id !== seriesId);
+    const updated = ordered.map((ep, idx) => ({ ...ep, sort_order: idx, episode_number: idx + 1 }));
+    setItems([...others, ...updated]);
+    // Persist
+    const updates = await Promise.all(
+      updated.map((ep) =>
+        supabase.from("academy_podcasts").update({ sort_order: ep.sort_order, episode_number: ep.episode_number }).eq("id", ep.id),
+      ),
+    );
+    if (updates.some((u) => u.error)) toast.error("שמירה חלקית של הסדר");
+    else toast.success("הסדר נשמר");
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
