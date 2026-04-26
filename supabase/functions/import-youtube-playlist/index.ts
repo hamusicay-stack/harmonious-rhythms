@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
     for (let i = 0; i < episodes.length; i++) {
       const ep = episodes[i];
       const sourceUrl = `https://www.youtube.com/watch?v=${ep.videoId}&list=${playlistId}`;
-      const { error } = await admin.from("academy_podcasts").upsert({
+      const payload = {
         series_id,
         youtube_video_id: ep.videoId,
         title: ep.title,
@@ -123,7 +123,18 @@ Deno.serve(async (req) => {
         episode_number: i + 1,
         sort_order: i,
         created_by: user.id,
-      }, { onConflict: "series_id,youtube_video_id", ignoreDuplicates: false });
+        is_active: true,
+      };
+
+      const { data: existing } = await admin
+        .from("academy_podcasts")
+        .select("id")
+        .eq("youtube_video_id", ep.videoId)
+        .maybeSingle();
+
+      const { error } = existing?.id
+        ? await admin.from("academy_podcasts").update(payload).eq("id", existing.id)
+        : await admin.from("academy_podcasts").insert(payload);
       if (error) skipped++; else imported++;
     }
 
