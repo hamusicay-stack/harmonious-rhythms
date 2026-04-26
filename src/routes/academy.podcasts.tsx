@@ -298,9 +298,17 @@ function PodcastsPage() {
   );
 }
 
-function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) {
+function EpisodeCard({ p, share, episodes = [p], seriesTitle, expandedDefault = false }: { p: Podcast; share: (p: Podcast) => void; episodes?: Podcast[]; seriesTitle?: string; expandedDefault?: boolean }) {
   const youtubeEmbed = p.kind === "youtube" ? ytEmbed(p.source_url) : null;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(expandedDefault);
+  const { playQueue } = useAudioPlayer();
+  const audioTracks = episodes.map((episode) => audioTrackFromPodcast(episode, seriesTitle)).filter(Boolean) as AudioTrack[];
+  const currentAudio = audioTrackFromPodcast(p, seriesTitle);
+  const playAudio = () => {
+    if (!currentAudio) return;
+    playQueue(audioTracks.length ? audioTracks : [currentAudio], p.id);
+    void supabase.from("academy_podcasts").update({ views_count: p.views_count + 1 }).eq("id", p.id);
+  };
   return (
     <Card id={p.id} className="overflow-hidden scroll-mt-24">
       <div className="grid gap-0 md:grid-cols-[minmax(260px,420px)_1fr]">
@@ -344,6 +352,11 @@ function EpisodeCard({ p, share }: { p: Podcast; share: (p: Podcast) => void }) 
         </div>
         <h3 className="font-semibold line-clamp-2">{p.title}</h3>
         {p.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+        {currentAudio && (
+          <Button variant="outline" size="sm" className="mt-3" onClick={playAudio}>
+            <Headphones className="me-1 h-4 w-4" />האזנה ברקע
+          </Button>
+        )}
         {p.kind === "youtube" && (
           <a href={ytWatchUrl(p.source_url)} target="_blank" rel="noopener noreferrer"
             className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">
