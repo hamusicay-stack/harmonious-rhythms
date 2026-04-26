@@ -31,12 +31,12 @@ export function useDeviceGuard() {
       const { data, error } = await supabase.rpc("register_device", { _device_id: deviceId, _user_agent: ua });
       if (!error && data === false && !toastShownThisSession) {
         toastShownThisSession = true;
-        toast.error("חרגת מהמגבלה של 2 מכשירים פעילים", {
+        toast.error("אופס! חרגת ממגבלת המכשירים", {
           id: TOAST_ID, // dedupe — same id replaces existing toast
           duration: 10000,
-          description: "כדי להמשיך להשתמש כאן, נתק מכשיר אחר",
+          description: "כדי להמשיך ליהנות מהתוכן, בואו נתנתק ממכשירים אחרים",
           action: {
-            label: "נתק שאר המכשירים",
+            label: "נתק הכל וחבר אותי מכאן",
             onClick: async () => {
               const { error: delErr } = await supabase
                 .from("user_device_sessions" as any)
