@@ -445,6 +445,29 @@ function CourseCard({ course, progress }: { course: Course; progress?: number })
   );
 }
 
+function PodcastSeriesCard({ series, count }: { series: PodcastSeries; count: number }) {
+  return (
+    <a href={`/academy/podcasts#series-${series.id}`} className="block">
+      <Card className="overflow-hidden h-full transition-smooth hover:border-primary/40 hover:shadow-elegant">
+        <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/30 relative">
+          {series.cover_url ? (
+            <img src={series.cover_url} alt={series.title} className="h-full w-full object-cover" loading="lazy" />
+          ) : (
+            <div className="flex h-full items-center justify-center"><FolderOpen className="h-10 w-10 text-primary/50" /></div>
+          )}
+          <div className="absolute bottom-2 right-2 rounded-full bg-background/90 p-2 shadow-sm">
+            <FolderOpen className="h-4 w-4 text-primary" />
+          </div>
+        </div>
+        <CardContent className="p-3 space-y-1">
+          <h3 className="font-semibold text-sm line-clamp-2">{series.title}</h3>
+          <p className="text-[11px] text-muted-foreground">{series.host_name ? `${series.host_name} · ` : ""}{count} פרקים</p>
+        </CardContent>
+      </Card>
+    </a>
+  );
+}
+
 function PodcastCard({ podcast }: { podcast: Podcast }) {
   return (
     <a href={`/academy/podcasts#${podcast.id}`} className="block">
