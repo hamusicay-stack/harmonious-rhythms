@@ -52,6 +52,10 @@ function CoursePage() {
   const [enrollment, setEnrollment] = useState<any>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [theater, setTheater] = useState(false);
+  const [autoNextOn, setAutoNextOn] = useState(true);
+  const [showAutoNext, setShowAutoNext] = useState(false);
+  const playerSeekRef = useRef<((sec: number) => void) | null>(null);
 
   const refresh = useCallback(async () => {
     const [{ data: mods }, { data: lsns }] = await Promise.all([
@@ -81,6 +85,14 @@ function CoursePage() {
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  // ESC exits theater
+  useEffect(() => {
+    if (!theater) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setTheater(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [theater]);
+
   const enroll = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
     if (course.price > 0) { toast.info("רכישת קורסים תוטמע בקרוב — בינתיים השתמש בקוד גישה"); return; }
@@ -92,6 +104,14 @@ function CoursePage() {
 
   const activeLesson = lessons.find((l) => l.id === activeLessonId);
   const canWatch = !!enrollment || activeLesson?.is_preview;
+  const activeIndex = lessons.findIndex((l) => l.id === activeLessonId);
+  const nextLesson = activeIndex >= 0 ? lessons[activeIndex + 1] : null;
+  const canPlayNext = nextLesson && (!!enrollment || nextLesson.is_preview);
+
+  const goNext = () => {
+    setShowAutoNext(false);
+    if (canPlayNext && nextLesson) setActiveLessonId(nextLesson.id);
+  };
 
   return (
     <SiteLayout>
