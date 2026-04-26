@@ -421,7 +421,7 @@ function CourseCard({ course, progress }: { course: Course; progress?: number })
 
 function PodcastCard({ podcast }: { podcast: Podcast }) {
   return (
-    <Link to="/academy/podcasts" className="block">
+    <a href={`/academy/podcasts#${podcast.id}`} className="block">
       <Card className="overflow-hidden h-full transition-smooth hover:border-primary/40 hover:shadow-elegant">
         <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/30 relative">
           {podcast.thumbnail_url ? (
