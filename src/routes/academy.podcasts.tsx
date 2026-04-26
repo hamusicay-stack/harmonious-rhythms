@@ -371,7 +371,7 @@ function SeriesView({
                 {series.description && <p className="mt-1 text-sm text-muted-foreground">{series.description}</p>}
                 <p className="mt-1 text-xs text-muted-foreground">{episodes.length} פרקים</p>
               </div>
-              {isAdmin && <SeriesAdminControls series={series} onChange={onChange} />}
+              {/* Admin controls (playlist import, delete series) moved to /admin */}
             </div>
           </>
         )}
