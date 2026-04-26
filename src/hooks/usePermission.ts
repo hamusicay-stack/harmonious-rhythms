@@ -14,7 +14,7 @@ async function fetchAccess(userId: string | null) {
     if (userId) {
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
       const list = ((data ?? []) as { role: AppRole }[]).map(r => r.role);
-      roles.push(...(list.length ? list : ["user"]));
+      roles.push(...(list.length ? list : ["user" as AppRole]));
     }
     const { data: perms } = await supabase
       .from("role_permissions")
