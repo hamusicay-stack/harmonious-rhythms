@@ -11,8 +11,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
+import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 
 type Course = {
   id: string;
@@ -521,25 +522,34 @@ function BroadcastsManager() {
 // ============= Podcasts Manager =============
 function PodcastsManager() {
   const [items, setItems] = useState<any[]>([]);
+  const [series, setSeries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [seriesOpen, setSeriesOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", is_active: true, sort_order: 0 });
+  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 });
+  const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
+  const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("academy_podcasts").select("*").order("sort_order").order("created_at", { ascending: false });
-    if (error) toast.error(error.message); else setItems(data ?? []);
+    const [podcastsRes, seriesRes] = await Promise.all([
+      supabase.from("academy_podcasts").select("*").order("series_id", { nullsFirst: false }).order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
+      supabase.from("academy_podcast_series").select("*").order("sort_order").order("created_at", { ascending: false }),
+    ]);
+    if (podcastsRes.error) toast.error(podcastsRes.error.message); else setItems(podcastsRes.data ?? []);
+    if (seriesRes.error) toast.error(seriesRes.error.message); else setSeries(seriesRes.data ?? []);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);
+  useAcademyRealtime(["academy_podcasts", "academy_podcast_series"], load);
 
   const startEdit = (p: any) => {
     setEditing(p);
-    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
+    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", series_id: p.series_id ?? "none", episode_number: p.episode_number?.toString() ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
     setOpen(true);
   };
-  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", is_active: true, sort_order: 0 }); setOpen(true); };
+  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 }); setOpen(true); };
 
   const save = async () => {
     if (!form.title.trim() || !form.source_url.trim()) return toast.error("כותרת וקישור חובה");
