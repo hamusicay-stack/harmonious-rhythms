@@ -54,24 +54,24 @@ function timeVariant(key: CopyKey, { hour }: TimeContext): string | null {
   return "שקט באולפן — לילה טוב...";
 }
 
-/** Base dictionary (fallback) */
+/** Base dictionary (fallback) — Brand voice: warm, pro, community-first. */
 const BASE: Record<CopyKey, string> = {
   loading:    "מכוון תדרים...",
-  uploading:  "מקליט...",
+  uploading:  "מקליט את הציוד שלכם...",
   submit:     "הדהד",
-  send:       "הדהד",
-  publish:    "הדהד",
-  noResults:  "שקט באולפן",
-  error:      "פעימה לא נקלטה",
-  saved:      "נחתם במאסטר",
+  send:       "שלח",
+  publish:    "העלה לבמה",
+  noResults:  "שקט באולפן — לא נמצאו תוצאות",
+  error:      "נראה שיש זיוף קטן, בואו ננסה שוב",
+  saved:      "נחתם במאסטר ✓",
   addToCart:  "אורז את הציוד...",
   cart:       "ארגז ציוד",
-  signIn:     "כנס לאולפן",
+  signIn:     "כנסו לאולפן",
   signOut:    "סוף סשן",
-  search:     "חפש תו, ז'אנר או אמן...",
-  comment:    "הוסף תגובה",
+  search:     "חפשו תו, ז'אנר, אמן או ציוד...",
+  comment:    "הוסיפו את הפעימה שלכם",
   like:       "אהבתי",
-  share:      "שתף",
+  share:      "שתפו עם הקהילה",
 };
 
 export function getMicroCopy(key: CopyKey): string {
