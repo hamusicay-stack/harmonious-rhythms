@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Play, Plus, Crown, Eye,
-  Music2, MessageSquare, Upload, AlertTriangle, X,
+  Music2, MessageSquare, Upload, AlertTriangle, X, GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +52,7 @@ type Short = {
   views: number;
   uploadedAgo: string;
   isPremium: boolean;
+  courseLink: string | null;
 };
 
 const formatAgo = (iso: string) => {
@@ -127,7 +128,7 @@ function ShortsPage() {
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
-        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(80);
@@ -209,6 +210,7 @@ function ShortsPage() {
           views: r.views_count ?? 0,
           uploadedAgo: formatAgo(r.created_at),
           isPremium: r.is_premium,
+          courseLink: (r as { course_link?: string | null }).course_link ?? null,
         };
       });
 
@@ -1130,6 +1132,23 @@ function VideoPlayer(props: VideoPlayerProps) {
             <HashtagText text={short.description} />
           </p>
         )}
+        {short.courseLink && (
+          (() => {
+            const isExternal = /^https?:\/\//i.test(short.courseLink);
+            const cls = "mt-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-gold hover:scale-[1.03] transition-transform";
+            return isExternal ? (
+              <a href={short.courseLink} target="_blank" rel="noopener noreferrer" className={cls}>
+                <GraduationCap className="h-3.5 w-3.5" />
+                לשיעור המלא
+              </a>
+            ) : (
+              <Link to={short.courseLink as string} className={cls}>
+                <GraduationCap className="h-3.5 w-3.5" />
+                לשיעור המלא
+              </Link>
+            );
+          })()
+        )}
         <div className="mt-2 flex items-center gap-1 text-[11px] opacity-70">
           <Eye className="h-3 w-3" />
           {fmt(short.views)} צפיות
@@ -1177,6 +1196,7 @@ function UploadDialog({
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [courseLink, setCourseLink] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
   const [nextAllowedAt, setNextAllowedAt] = useState<Date | null>(null);
@@ -1288,11 +1308,12 @@ function UploadDialog({
           video_url: pub.publicUrl,
           status: "pending",
           tags: tags.length > 0 ? tags : [],
+          course_link: courseLink.trim() || null,
         });
         if (insErr) throw insErr;
       }
       toast.success(files.length > 1 ? `${files.length} סרטונים הועלו!` : "הסרטון הועלה! יוצג לאחר אישור מנהל (אם נדרש)");
-      setTitle(""); setDescription(""); setFiles([]); setTags([]); setTagDraft("");
+      setTitle(""); setDescription(""); setFiles([]); setTags([]); setTagDraft(""); setCourseLink("");
       onOpenChange(false);
       onUploaded();
     } catch (e: any) {
@@ -1403,6 +1424,20 @@ function UploadDialog({
                 רוצה להעלות עוד סרטונים? שדרג לפרימיום
               </button>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <GraduationCap className="h-3.5 w-3.5 text-primary" />
+              קישור לשיעור מלא (אופציונלי)
+            </Label>
+            <Input
+              value={courseLink}
+              onChange={(e) => setCourseLink(e.target.value)}
+              placeholder="/academy/my-course או https://..."
+              dir="ltr"
+              maxLength={500}
+            />
+            <p className="text-[11px] text-muted-foreground">צופים יראו כפתור "לשיעור המלא" על השורט.</p>
           </div>
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
             💡 הסרטון יישלח לאישור מנהל לפני שיוצג בפיד. משתמשים מאושרים מראש (Trusted) פרסומיהם עולים מיד.

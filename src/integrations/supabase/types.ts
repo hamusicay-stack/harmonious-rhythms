@@ -3701,6 +3701,7 @@ export type Database = {
       shorts_videos: {
         Row: {
           admin_notes: string | null
+          course_link: string | null
           created_at: string
           creator_id: string
           description: string | null
@@ -3722,6 +3723,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          course_link?: string | null
           created_at?: string
           creator_id: string
           description?: string | null
@@ -3743,6 +3745,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          course_link?: string | null
           created_at?: string
           creator_id?: string
           description?: string | null
