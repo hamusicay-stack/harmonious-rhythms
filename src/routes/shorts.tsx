@@ -1339,7 +1339,10 @@ function UploadDialog({
         <DialogHeader>
           <DialogTitle className="text-right">העלאת סרטון שורטס</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <form
+          className="space-y-4"
+          onSubmit={(e) => { e.preventDefault(); if (!uploading) submit(); }}
+        >
           <div className="space-y-2">
             <Label>כותרת *</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="למשל: סולו קלידים בחתונה" />
@@ -1451,14 +1454,14 @@ function UploadDialog({
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
             💡 הסרטון יישלח לאישור מנהל לפני שיוצג בפיד. משתמשים מאושרים מראש (Trusted) פרסומיהם עולים מיד.
           </p>
-        </div>
         <DialogFooter>
-          <Button onClick={submit} disabled={uploading} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
+          <Button type="submit" disabled={uploading} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
             {uploading && <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />}
             <Upload className="ml-1 h-4 w-4" />
             העלה
           </Button>
         </DialogFooter>
+        </form>
       </DialogContent>
 
       {/* Premium upsell when free user hits the daily quota */}
