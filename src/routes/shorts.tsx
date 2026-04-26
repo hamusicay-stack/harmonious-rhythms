@@ -1142,7 +1142,7 @@ function VideoPlayer(props: VideoPlayerProps) {
                 לשיעור המלא
               </a>
             ) : (
-              <Link to={short.courseLink} className={cls}>
+              <Link to={short.courseLink as string} className={cls}>
                 <GraduationCap className="h-3.5 w-3.5" />
                 לשיעור המלא
               </Link>
