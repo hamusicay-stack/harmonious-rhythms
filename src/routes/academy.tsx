@@ -81,6 +81,7 @@ function AcademyPage() {
   const [redeeming, setRedeeming] = useState(false);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"all" | "courses" | "podcasts" | "mine">("all");
+  const [deepHits, setDeepHits] = useState<Array<{ kind: "lesson" | "podcast"; title: string; parentTitle: string; link: string }>>([]);
 
   const reload = async () => {
     const [{ data: cs }, { data: pods }, { data: series }] = await Promise.all([
@@ -133,6 +134,38 @@ function AcademyPage() {
     ["academy_courses", "academy_podcasts", "academy_podcast_series", "academy_enrollments"],
     () => { reload(); },
   );
+
+  // Deep search across lessons + podcasts (debounced)
+  useEffect(() => {
+    const q = search.trim();
+    if (q.length < 3) { setDeepHits([]); return; }
+    const handle = setTimeout(async () => {
+      const [lessons, pods] = await Promise.all([
+        supabase
+          .from("academy_lessons")
+          .select("id,title,course_id,academy_courses!inner(slug,title,status)")
+          .ilike("title", `%${q}%`)
+          .eq("academy_courses.status", "published")
+          .limit(8),
+        supabase
+          .from("academy_podcasts")
+          .select("id,title,description,series_id,academy_podcast_series(title)")
+          .or(`title.ilike.%${q}%,description.ilike.%${q}%`)
+          .eq("is_active", true)
+          .limit(8),
+      ]);
+      const hits: Array<{ kind: "lesson" | "podcast"; title: string; parentTitle: string; link: string }> = [];
+      (lessons.data ?? []).forEach((l: any) => {
+        const c = l.academy_courses;
+        if (c?.slug) hits.push({ kind: "lesson", title: l.title, parentTitle: c.title, link: `/academy/${c.slug}` });
+      });
+      (pods.data ?? []).forEach((p: any) => {
+        hits.push({ kind: "podcast", title: p.title, parentTitle: p.academy_podcast_series?.title ?? "פרק בודד", link: "/academy/podcasts" });
+      });
+      setDeepHits(hits);
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [search]);
 
   const redeemCode = async () => {
     if (!user) return toast.error("יש להתחבר כדי להזין קוד");
@@ -267,6 +300,28 @@ function AcademyPage() {
           )}
         </div>
 
+        {/* Deep search results */}
+        {deepHits.length > 0 && (
+          <section className="mb-6 rounded-lg border bg-card p-3">
+            <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
+              <Search className="h-4 w-4 text-primary" />תוצאות מתוך התוכן ({deepHits.length})
+            </h3>
+            <ul className="space-y-1">
+              {deepHits.map((h, i) => (
+                <li key={i}>
+                  <Link to={h.link} className="flex items-start gap-2 rounded px-2 py-1.5 text-sm hover:bg-primary/10">
+                    <Badge variant="secondary" className="shrink-0 text-[10px]">{h.kind === "lesson" ? "שיעור" : "פרק"}</Badge>
+                    <span className="flex-1 min-w-0">
+                      <span className="font-medium">{h.title}</span>
+                      <span className="block text-[11px] text-muted-foreground truncate">בתוך: {h.parentTitle}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {/* Certificates */}
         {certificates.length > 0 && (
           <section className="mb-6">
@@ -274,21 +329,30 @@ function AcademyPage() {
               <Award className="h-4 w-4 text-primary" />התעודות שלי
             </h2>
             <div className="grid gap-2 sm:grid-cols-2">
-              {certificates.map((cert) => (
-                <Card key={cert.id} className="border-primary/40">
-                  <CardContent className="p-3 flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-sm truncate">{cert.course_title}</h3>
-                      <p className="text-xs text-muted-foreground">#{cert.certificate_number}</p>
-                    </div>
-                    {cert.pdf_url && (
-                      <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer">
-                        <Button size="sm" variant="outline">PDF</Button>
-                      </a>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+              {certificates.map((cert) => {
+                const verifyUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/verify/${cert.certificate_number}`;
+                return (
+                  <Card key={cert.id} className="border-primary/40">
+                    <CardContent className="p-3 flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{cert.course_title}</h3>
+                        <p className="text-xs text-muted-foreground font-mono">#{cert.certificate_number}</p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        {cert.pdf_url && (
+                          <a href={cert.pdf_url} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline">PDF</Button>
+                          </a>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => {
+                          navigator.clipboard.writeText(verifyUrl);
+                          toast.success("קישור אימות הועתק");
+                        }}>אימות</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </section>
         )}

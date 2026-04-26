@@ -11,12 +11,14 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download, Gift, BarChart3, ChevronDown, ChevronLeft } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download, Gift, BarChart3, ChevronDown, ChevronLeft, Music } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { SortableList } from "@/components/academy/SortableList";
 import { CourseGiftDialog } from "./CourseGiftDialog";
 import { AcademyAnalytics } from "./AcademyAnalytics";
+import { extractMp3FromYouTube } from "@/lib/extractMp3.functions";
 
 type Course = {
   id: string;
@@ -549,6 +551,26 @@ function PodcastsManager() {
   const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
   const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
   const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>(null);
+  const [extractingId, setExtractingId] = useState<string | null>(null);
+  const extractMp3 = useServerFn(extractMp3FromYouTube);
+
+  const handleExtractMp3 = async (podcast: any) => {
+    if (podcast.kind !== "youtube" || !podcast.source_url) {
+      return toast.error("המרה אוטומטית זמינה רק לפרקי YouTube");
+    }
+    setExtractingId(podcast.id);
+    toast.info("מתחיל המרה ל-MP3 — עשוי לקחת עד דקה");
+    try {
+      const res = await extractMp3({ data: { podcast_id: podcast.id, youtube_url: podcast.source_url } });
+      if (res.ok) toast.success("ה-MP3 הועלה ושויך לפרק 🎧");
+      else toast.error(res.error || "ההמרה נכשלה");
+    } catch (e: any) {
+      toast.error(e?.message ?? "שגיאה בהמרה");
+    } finally {
+      setExtractingId(null);
+      load();
+    }
+  };
 
   const reorderEpisodes = async (seriesId: string, ordered: any[]) => {
     // Optimistic update
@@ -746,6 +768,11 @@ function PodcastsManager() {
                                     </div>
                                   </div>
                                   <Button size="sm" variant="ghost" onClick={() => startEdit(ep)}><Pencil className="h-3.5 w-3.5" /></Button>
+                                  {ep.kind === "youtube" && !ep.audio_url && (
+                                    <Button size="sm" variant="ghost" onClick={() => handleExtractMp3(ep)} disabled={extractingId === ep.id} title="המר ל-MP3 אוטומטית">
+                                      {extractingId === ep.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Music className="h-3.5 w-3.5 text-emerald-500" />}
+                                    </Button>
+                                  )}
                                   <Button size="sm" variant="ghost" onClick={() => del(ep.id)}><Trash2 className="h-3.5 w-3.5 text-rose-500" /></Button>
                                 </div>
                               )}
@@ -772,6 +799,11 @@ function PodcastsManager() {
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                    {p.kind === "youtube" && !p.audio_url && (
+                      <Button size="sm" variant="ghost" onClick={() => handleExtractMp3(p)} disabled={extractingId === p.id} title="המר ל-MP3 אוטומטית">
+                        {extractingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Music className="h-4 w-4 text-emerald-500" />}
+                      </Button>
+                    )}
                     <Button size="sm" variant="ghost" onClick={() => del(p.id)}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
                   </div>
                 </CardContent></Card>
@@ -834,7 +866,19 @@ function PodcastsManager() {
               <Label>קובץ MP3 לפרק</Label>
               <Input dir="ltr" value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://... או העלאה" />
               <Input type="file" accept="audio/mpeg,audio/mp3" disabled={!editing} onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadAudio(file); }} />
-              <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 שישויך לאותו פרק וינוגן ברקע באתר.</p>
+              {editing && form.kind === "youtube" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={extractingId === editing.id || !form.source_url}
+                  onClick={() => handleExtractMp3(editing)}
+                >
+                  {extractingId === editing.id ? <><Loader2 className="ml-1 h-4 w-4 animate-spin" />ממיר...</> : <><Music className="ml-1 h-4 w-4" />המר אוטומטית מ-YouTube ל-MP3</>}
+                </Button>
+              )}
+              <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 ידנית או להפיק אוטומטית מהווידאו.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
