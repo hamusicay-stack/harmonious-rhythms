@@ -99,7 +99,7 @@ function PodcastsPage() {
     setLoading(true);
     const [s, p] = await Promise.all([
       supabase.from("academy_podcast_series").select("*").eq("is_active", true).order("sort_order").order("created_at", { ascending: false }),
-      supabase.from("academy_podcasts").select("*").eq("is_active", true).order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
+      supabase.from("academy_podcasts").select("*").eq("is_active", true).order("sort_order").order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
     ]);
     setSeries((s.data as any) ?? []);
     setPodcasts((p.data as any) ?? []);
@@ -116,11 +116,22 @@ function PodcastsPage() {
       if (!map.has(p.series_id)) map.set(p.series_id, []);
       map.get(p.series_id)!.push(p);
     }
+    for (const items of map.values()) {
+      items.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.episode_number ?? 9999) - (b.episode_number ?? 9999));
+    }
     return map;
   }, [podcasts]);
 
   const activeSeries = openSeries ? series.find(s => s.id === openSeries) : null;
   const activeEpisodes = openSeries ? (bySeries.get(openSeries) ?? []) : [];
+
+  useEffect(() => {
+    const fromHash = window.location.hash.replace("#", "");
+    if (!fromHash || !podcasts.length) return;
+    const podcast = podcasts.find((p) => p.id === fromHash);
+    if (podcast?.series_id) setOpenSeries(podcast.series_id);
+    requestAnimationFrame(() => document.getElementById(fromHash)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }, [podcasts]);
 
   const share = (p: Podcast) => {
     const url = window.location.href + "#" + p.id;
