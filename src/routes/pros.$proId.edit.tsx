@@ -140,9 +140,12 @@ function EditProPage() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8 text-right">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-bold">עריכת פרופיל</h1>
-        <Link to="/pros/$proId" params={{ proId }} className="text-sm text-primary hover:underline">צפה בפרופיל →</Link>
+        <div className="flex items-center gap-3 text-sm">
+          <Link to="/pros/my-inquiries" className="text-muted-foreground hover:text-primary">📥 ההזמנות שלי</Link>
+          <Link to="/pros/$proId" params={{ proId }} className="text-primary hover:underline">צפה בפרופיל →</Link>
+        </div>
       </div>
 
       <Card>
