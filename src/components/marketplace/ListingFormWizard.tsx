@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { CATEGORIES, BRANDS, CITIES, CONDITIONS, CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 import { watermarkImage } from "@/lib/watermark";
+import { EngagementMeter } from "./EngagementMeter";
 
 const MAX_IMAGES = 10;
 
@@ -713,6 +714,24 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
           <>
             <h2 className="text-lg font-semibold flex items-center gap-2"><Eye className="h-5 w-5 text-primary" />סקירה אחרונה לפני פרסום</h2>
             <p className="text-xs text-muted-foreground">בדוק שהכל נראה טוב — אפשר לערוך כל שדה בלחיצה על העיפרון.</p>
+
+            {/* AI engagement meter — shows score + improvement tips before publish */}
+            <EngagementMeter
+              input={{
+                title: form.title as string,
+                description: form.description as string,
+                price: form.price as string,
+                category: CATEGORY_LABELS[form.category as string] || (form.customCategory as string) || (form.category as string),
+                brand: form.brand === "אחר" ? (form.customBrand as string) : (form.brand as string),
+                model: form.model as string,
+                year: form.year as string,
+                item_condition: CONDITION_LABELS[form.item_condition as string] || (form.item_condition as string),
+                images_count: images.length,
+                has_audio: !!audioFile,
+                has_video: !!videoFile,
+                city: form.city === "אחר" ? (form.customCity as string) : (form.city as string),
+              }}
+            />
 
             {/* Image strip */}
             <div className="rounded-xl border bg-muted/30 p-3 relative">
