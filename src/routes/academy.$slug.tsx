@@ -114,6 +114,18 @@ function CoursePage() {
     if (canPlayNext && nextLesson) setActiveLessonId(nextLesson.id);
   };
 
+  // Track lesson start
+  useEffect(() => {
+    if (activeLesson && canWatch && course) {
+      void trackAcademyEvent({
+        itemType: "lesson",
+        itemId: activeLesson.id,
+        eventType: "start",
+        courseId: course.id,
+      });
+    }
+  }, [activeLesson?.id, canWatch, course?.id]);
+
   return (
     <SiteLayout>
       <section className="container mx-auto px-4 py-6 md:px-8 md:py-8">
