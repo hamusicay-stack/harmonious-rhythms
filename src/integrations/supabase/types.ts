@@ -161,10 +161,12 @@ export type Database = {
           instructor_id: string | null
           instructor_name: string | null
           is_featured: boolean
+          is_free: boolean
           level: string
           meta_description: string | null
           meta_keywords: string | null
           meta_title: string | null
+          preview_percent: number
           price: number
           slug: string
           status: string
@@ -187,10 +189,12 @@ export type Database = {
           instructor_id?: string | null
           instructor_name?: string | null
           is_featured?: boolean
+          is_free?: boolean
           level?: string
           meta_description?: string | null
           meta_keywords?: string | null
           meta_title?: string | null
+          preview_percent?: number
           price?: number
           slug: string
           status?: string
@@ -213,10 +217,12 @@ export type Database = {
           instructor_id?: string | null
           instructor_name?: string | null
           is_featured?: boolean
+          is_free?: boolean
           level?: string
           meta_description?: string | null
           meta_keywords?: string | null
           meta_title?: string | null
+          preview_percent?: number
           price?: number
           slug?: string
           status?: string

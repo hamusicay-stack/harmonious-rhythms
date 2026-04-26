@@ -214,6 +214,19 @@ function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* Sticky CTA — mobile only */}
+      {!outOfStock && (
+        <div className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 py-2.5 flex items-center gap-3 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.3)]">
+          <div className="flex flex-col leading-tight">
+            <span className="text-[11px] text-muted-foreground">סה״כ</span>
+            <span className="text-base font-bold text-primary">{formatILS(finalPrice * qty)}</span>
+          </div>
+          <Button size="lg" className="flex-1 h-11" onClick={addToCart}>
+            <ShoppingBag className="ml-2 h-4 w-4" /> הוסף לסל
+          </Button>
+        </div>
+      )}
     </SiteLayout>
   );
 }

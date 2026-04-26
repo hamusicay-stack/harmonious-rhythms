@@ -115,11 +115,19 @@ function CoursePage() {
     if (error) toast.error(error.message); else { toast.success("נרשמת!"); refresh(); }
   };
 
+  // Course-level preview gate: free course OR first N% of lessons unlocked for everyone
+  const previewPercent = (course as any)?.is_free ? 100 : Math.max(0, Math.min(100, (course as any)?.preview_percent ?? 10));
+  const previewCount = Math.max(0, Math.ceil((lessons.length * previewPercent) / 100));
+  const isLessonUnlockedByPreview = (lessonId: string) => {
+    const idx = lessons.findIndex(l => l.id === lessonId);
+    return idx >= 0 && idx < previewCount;
+  };
+
   const activeLesson = lessons.find((l) => l.id === activeLessonId);
-  const canWatch = !!enrollment || activeLesson?.is_preview;
+  const canWatch = !!enrollment || activeLesson?.is_preview || (activeLesson ? isLessonUnlockedByPreview(activeLesson.id) : false);
   const activeIndex = lessons.findIndex((l) => l.id === activeLessonId);
   const nextLesson = activeIndex >= 0 ? lessons[activeIndex + 1] : null;
-  const canPlayNext = nextLesson && (!!enrollment || nextLesson.is_preview);
+  const canPlayNext = nextLesson && (!!enrollment || nextLesson.is_preview || isLessonUnlockedByPreview(nextLesson.id));
 
   const goNext = () => {
     setShowAutoNext(false);
@@ -325,7 +333,7 @@ function CoursePage() {
                         {ml.map((l) => {
                           const done = progress[l.id]?.is_completed;
                           const active = l.id === activeLessonId;
-                          const locked = !enrollment && !l.is_preview;
+                          const locked = !enrollment && !l.is_preview && !isLessonUnlockedByPreview(l.id);
                           return (
                             <button
                               key={l.id}
