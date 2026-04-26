@@ -15,6 +15,7 @@ import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight,
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudioPlayer, type AudioTrack } from "@/contexts/AudioPlayerContext";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/academy/podcasts")({
@@ -45,6 +46,8 @@ type Podcast = {
   source_url: string;
   thumbnail_url: string | null;
   views_count: number;
+  audio_url: string | null;
+  audio_status: string | null;
   series_id: string | null;
   episode_number: number | null;
   sort_order: number;
@@ -95,6 +98,17 @@ function ytWatchUrl(url: string) {
   if (videoId) return `https://www.youtube.com/watch?v=${videoId}${playlistId ? `&list=${playlistId}` : ""}`;
   if (playlistId) return `https://www.youtube.com/playlist?list=${playlistId}`;
   return url;
+}
+
+function audioTrackFromPodcast(p: Podcast, seriesTitle?: string): AudioTrack | null {
+  const url = p.audio_url || (p.kind === "audio" ? p.source_url : null);
+  if (!url) return null;
+  return {
+    id: p.id,
+    url,
+    title: p.episode_number ? `פרק ${p.episode_number}: ${p.title}` : p.title,
+    artist: seriesTitle ?? "פודקאסטים",
+  };
 }
 
 function PodcastsPage() {
