@@ -386,15 +386,20 @@ function SectionGrid({ title, children }: { title: string; children: React.React
   );
 }
 
-function PodcastStrip({ podcasts }: { podcasts: Podcast[] }) {
+function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts: Podcast[] }) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-lg font-bold"><Mic className="h-4 w-4" />פודקאסטים</h2>
-        <Link to="/academy/podcasts" className="text-xs text-primary hover:underline">לכל הפרקים</Link>
+        <Link to="/academy/podcasts" className="text-xs text-primary hover:underline">לכל התיקיות</Link>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
-        {podcasts.slice(0, 8).map((p) => (
+        {series.slice(0, 8).map((s) => (
+          <div key={s.id} className="shrink-0 w-44 md:w-auto">
+            <PodcastSeriesCard series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />
+          </div>
+        ))}
+        {series.length === 0 && podcasts.slice(0, 8).map((p) => (
           <div key={p.id} className="shrink-0 w-44 md:w-auto">
             <PodcastCard podcast={p} />
           </div>
