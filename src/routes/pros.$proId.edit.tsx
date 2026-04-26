@@ -21,7 +21,7 @@ type Media = { id: string; type: string; url: string; title: string | null };
 
 function EditProPage() {
   const { proId } = Route.useParams();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,6 +36,13 @@ function EditProPage() {
         supabase.from("music_pro_packages").select("*").eq("pro_id", proId).order("display_order"),
         supabase.from("music_pro_media").select("*").eq("pro_id", proId).order("display_order"),
       ]);
+      // Defensive: ensure array fields are never null
+      if (p) {
+        p.specialties = p.specialties ?? [];
+        p.genres = p.genres ?? [];
+        p.cities = p.cities ?? [];
+        p.gear_list = p.gear_list ?? [];
+      }
       setPro(p);
       setPackages((pk as EditablePackage[]) ?? []);
       setMedia((m as Media[]) ?? []);
@@ -43,10 +50,18 @@ function EditProPage() {
     })();
   }, [proId]);
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  if (loading || authLoading) return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   if (!pro) return <div className="container mx-auto px-4 py-16 text-center">לא נמצא</div>;
-  if (!isAdmin && user?.id !== pro.user_id) {
-    return <div className="container mx-auto px-4 py-16 text-center">אין הרשאה</div>;
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center space-y-4">
+        <p>יש להתחבר כדי לערוך פרופיל</p>
+        <Button onClick={() => navigate({ to: "/auth" })}>התחברות</Button>
+      </div>
+    );
+  }
+  if (!isAdmin && user.id !== pro.user_id) {
+    return <div className="container mx-auto px-4 py-16 text-center">אין לך הרשאה לערוך פרופיל זה</div>;
   }
 
   const isVip = pro.subscription_tier === "vip";
