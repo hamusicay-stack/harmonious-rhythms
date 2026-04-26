@@ -638,49 +638,66 @@ function PodcastsManager() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <h3 className="font-semibold">פודקאסטים</h3>
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+        <h3 className="font-semibold">פודקאסטים וסדרות</h3>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => setSeriesOpen(true)}><FolderOpen className="ml-1 h-4 w-4" />סדרה</Button>
-          <Button size="sm" onClick={startNew}><Plus className="ml-1 h-4 w-4" />פרק</Button>
+          <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => setSeriesOpen(true)}><FolderOpen className="ml-1 h-4 w-4" />סדרה חדשה</Button>
+          <Button size="sm" className="flex-1 sm:flex-none" onClick={startNew}><Plus className="ml-1 h-4 w-4" />פרק חדש</Button>
         </div>
       </div>
       {loading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : (
         <div className="space-y-4">
           {series.length > 0 && (
-            <div className="grid gap-2 md:grid-cols-2">
-              {series.map((s) => (
-                <Card key={s.id} className="border-border/60">
-                  <CardContent className="flex items-center justify-between gap-3 p-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover" /> : <FolderOpen className="h-8 w-8 text-primary" />}
-                      <div className="min-w-0">
-                        <div className="truncate font-medium">{s.title}</div>
-                        <div className="text-xs text-muted-foreground">{items.filter((p) => p.series_id === s.id).length} פרקים {s.youtube_playlist_id && "· YouTube"}</div>
+            <div className="space-y-2">
+              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">סדרות</h4>
+              <div className="grid gap-2 md:grid-cols-2">
+                {series.map((s) => (
+                  <Card key={s.id} className="border-border/60">
+                    <CardContent className="flex items-center justify-between gap-2 p-3">
+                      <div className="flex min-w-0 items-center gap-3 flex-1">
+                        {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover shrink-0" /> : <FolderOpen className="h-10 w-10 text-primary shrink-0" />}
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium text-sm">{s.title}</div>
+                          <div className="text-[11px] text-muted-foreground truncate">
+                            {s.host_name && `${s.host_name} · `}{items.filter((p) => p.series_id === s.id).length} פרקים
+                          </div>
+                        </div>
                       </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id} title="ייבא פלייליסט">
+                          {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={async () => {
+                          if (!confirm(`למחוק את הסדרה "${s.title}"? הפרקים יישמרו ללא שיוך.`)) return;
+                          await supabase.from("academy_podcast_series").delete().eq("id", s.id);
+                          load();
+                        }}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+          {items.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">פרקים</h4>
+              {items.map((p) => (
+                <Card key={p.id}><CardContent className="flex items-center justify-between gap-2 p-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm truncate">{p.title}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {p.kind} · {p.views_count} צפיות{p.series_id && ` · ${series.find((s) => s.id === p.series_id)?.title ?? "סדרה"}`}{p.episode_number && ` · פרק ${p.episode_number}`}{!p.is_active && " · מושבת"}
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id}>
-                      {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="ghost" onClick={() => del(p.id)}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
+                  </div>
+                </CardContent></Card>
               ))}
             </div>
           )}
-          {items.map((p) => (
-            <Card key={p.id}><CardContent className="p-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium">{p.title}</div>
-                <div className="text-xs text-muted-foreground">
-                  {p.kind} · {p.views_count} צפיות {p.series_id && `· ${series.find((s) => s.id === p.series_id)?.title ?? "סדרה"}`} {!p.is_active && "· מושבת"}
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => del(p.id)}><Trash2 className="h-4 w-4" /></Button>
-              </div>
-            </CardContent></Card>
-          ))}
         </div>
       )}
       <Dialog open={seriesOpen} onOpenChange={setSeriesOpen}>
