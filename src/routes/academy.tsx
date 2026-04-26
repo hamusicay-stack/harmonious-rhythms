@@ -237,15 +237,15 @@ function AcademyPage() {
 
   return (
     <SiteLayout>
-      <section className="container mx-auto px-4 py-6 md:px-8 md:py-10">
+      <section dir="rtl" className="container mx-auto px-4 py-6 md:px-8 md:py-10 text-right">
         {/* Header */}
         <header className="mb-6 flex items-center gap-3">
           <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-3">
             <GraduationCap className="h-7 w-7 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold md:text-3xl">האקדמיה של המוזיקאי</h1>
-            <p className="text-sm text-muted-foreground">ללמוד, להתפתח, להתמקצע — עם הטובים ביותר.</p>
+            <h1 className="text-2xl font-bold md:text-3xl">אל תפסיקו ללמוד. תתחילו להוביל.</h1>
+            <p className="text-sm text-muted-foreground">הקורסים המעמיקים ביותר על הכלים המובילים בשוק, מפי המומחים הגדולים ביותר.</p>
           </div>
           <Link to="/academy/podcasts" className="hidden md:block">
             <Button variant="outline" size="sm"><Mic className="ml-1 h-4 w-4" />כל הפודקאסטים</Button>
