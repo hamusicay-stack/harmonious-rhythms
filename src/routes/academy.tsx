@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/academy")({
