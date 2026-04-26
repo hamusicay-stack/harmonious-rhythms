@@ -180,54 +180,16 @@ function PodcastsPage() {
   // Inside-series view
   if (activeSeries) {
     return (
-      <SiteLayout>
-        <div className="container mx-auto px-4 py-8">
-          <Button variant="ghost" onClick={() => setOpenSeries(null)} className="mb-4">
-            <ArrowRight className="me-2 h-4 w-4" />חזרה לכל הפודקאסטים
-          </Button>
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center">
-            {activeSeries.cover_url && (
-              <img src={activeSeries.cover_url} alt={activeSeries.title}
-                className="h-32 w-32 rounded-2xl object-cover shadow-lg" />
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold">{activeSeries.title}</h1>
-              {activeSeries.host_name && <p className="text-muted-foreground">מנחה: {activeSeries.host_name}</p>}
-              {activeSeries.description && <p className="mt-2 text-sm text-muted-foreground">{activeSeries.description}</p>}
-              <p className="mt-2 text-xs text-muted-foreground">{activeEpisodes.length} פרקים</p>
-            </div>
-            {isAdmin && <SeriesAdminControls series={activeSeries} onChange={load} />}
-          </div>
-
-          {activeEpisodes.length === 0 ? (
-            <Card><CardContent className="py-12 text-center text-muted-foreground">
-              אין עדיין פרקים בסדרה הזו{isAdmin && " — הוסף קישור פלייליסט יוטיוב כדי לייבא אוטומטית"}
-            </CardContent></Card>
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-              <div className="space-y-3">
-                {selectedEpisode && <EpisodeCard p={selectedEpisode} share={share} episodes={activeEpisodes} seriesTitle={activeSeries.title} expandedDefault />}
-              </div>
-              <aside className="space-y-2 lg:max-h-[72vh] lg:overflow-y-auto lg:pe-1">
-                {activeEpisodes.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setSelectedEpisodeId(p.id)}
-                    className={`flex w-full gap-3 rounded-lg border p-2 text-start transition hover:border-primary/40 ${p.id === selectedEpisode?.id ? "border-primary bg-primary/10" : "bg-card"}`}
-                  >
-                    {p.thumbnail_url ? <img src={p.thumbnail_url} alt={p.title} className="h-16 w-24 rounded-md object-cover" /> : <div className="flex h-16 w-24 items-center justify-center rounded-md bg-muted"><PlayCircle className="h-5 w-5" /></div>}
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-xs text-muted-foreground">{p.episode_number ? `פרק ${p.episode_number}` : "פרק"}</span>
-                      <span className="line-clamp-2 text-sm font-medium">{p.title}</span>
-                    </span>
-                  </button>
-                ))}
-              </aside>
-            </div>
-          )}
-        </div>
-      </SiteLayout>
+      <SeriesView
+        series={activeSeries}
+        episodes={activeEpisodes}
+        selectedEpisode={selectedEpisode}
+        onSelect={setSelectedEpisodeId}
+        onBack={() => setOpenSeries(null)}
+        share={share}
+        isAdmin={isAdmin}
+        onChange={load}
+      />
     );
   }
 
