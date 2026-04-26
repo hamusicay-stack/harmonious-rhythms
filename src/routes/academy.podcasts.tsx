@@ -380,7 +380,7 @@ function SeriesView({
           <Card><CardContent className="py-12 text-center text-muted-foreground">אין עדיין פרקים בסדרה הזו</CardContent></Card>
         ) : (
           <div className={theater ? "flex h-full w-full" : "grid gap-4 lg:grid-cols-[1fr_360px]"}>
-            <div className={theater ? "flex flex-1 flex-col" : "space-y-3"}>
+            <div className={theater ? "flex flex-1 flex-col" : "order-2 space-y-3"}>
               {/* Player */}
               <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
                 {selectedEpisode && ytEmbedUrl ? (
