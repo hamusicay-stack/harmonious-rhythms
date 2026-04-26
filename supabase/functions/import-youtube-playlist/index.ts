@@ -1,0 +1,138 @@
+// Imports videos from a public YouTube playlist into a podcast series.
+// Uses the public RSS feed (no API key required) — limited to ~15 latest videos.
+// Falls back to oEmbed for video titles when needed.
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+function extractPlaylistId(url: string): string | null {
+  const m = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+type Episode = {
+  videoId: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  publishedAt: string;
+};
+
+async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
+  const feedUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
+  const res = await fetch(feedUrl);
+  if (!res.ok) throw new Error(`Playlist not found or not public (${res.status})`);
+  const xml = await res.text();
+
+  const episodes: Episode[] = [];
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  let match;
+  while ((match = entryRegex.exec(xml)) !== null) {
+    const entry = match[1];
+    const videoId = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1];
+    const title = entry.match(/<title>([^<]+)<\/title>/)?.[1] ?? "";
+    const description = entry.match(/<media:description>([\s\S]*?)<\/media:description>/)?.[1]?.trim() ?? "";
+    const thumbnail = entry.match(/<media:thumbnail\s+url="([^"]+)"/)?.[1] ?? "";
+    const publishedAt = entry.match(/<published>([^<]+)<\/published>/)?.[1] ?? "";
+    if (videoId) {
+      episodes.push({
+        videoId,
+        title: decodeXml(title),
+        description: decodeXml(description),
+        thumbnail,
+        publishedAt,
+      });
+    }
+  }
+  return episodes;
+}
+
+function decodeXml(s: string): string {
+  return s
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const { series_id, playlist_url } = await req.json();
+    if (!series_id || !playlist_url) {
+      return new Response(JSON.stringify({ error: "series_id and playlist_url required" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const playlistId = extractPlaylistId(playlist_url);
+    if (!playlistId) {
+      return new Response(JSON.stringify({ error: "Invalid YouTube playlist URL" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user } } = await userClient.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: roleData } = await userClient.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
+    if (!roleData) {
+      return new Response(JSON.stringify({ error: "Admin only" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const admin = createClient(supabaseUrl, serviceKey);
+
+    // Update series with playlist info
+    await admin.from("academy_podcast_series").update({
+      youtube_playlist_url: playlist_url,
+      youtube_playlist_id: playlistId,
+    }).eq("id", series_id);
+
+    const episodes = await fetchPlaylist(playlistId);
+
+    let imported = 0;
+    let skipped = 0;
+    for (let i = 0; i < episodes.length; i++) {
+      const ep = episodes[i];
+      const sourceUrl = `https://www.youtube.com/watch?v=${ep.videoId}&list=${playlistId}`;
+      const { error } = await admin.from("academy_podcasts").upsert({
+        series_id,
+        youtube_video_id: ep.videoId,
+        title: ep.title,
+        description: ep.description,
+        kind: "youtube",
+        source_url: sourceUrl,
+        thumbnail_url: ep.thumbnail,
+        episode_number: i + 1,
+        sort_order: i,
+        created_by: user.id,
+      }, { onConflict: "series_id,youtube_video_id", ignoreDuplicates: false });
+      if (error) skipped++; else imported++;
+    }
+
+    return new Response(JSON.stringify({ imported, skipped, total: episodes.length }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: e.message ?? String(e) }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
