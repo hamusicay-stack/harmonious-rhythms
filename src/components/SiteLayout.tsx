@@ -7,6 +7,7 @@ import { BackgroundMesh } from "./BackgroundMesh";
 import { CustomCursor } from "./CustomCursor";
 import { CommandPalette } from "./CommandPalette";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 
 const PAGE_PREFIX: Record<string, string> = {
   "/": "home",
@@ -30,6 +31,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
     onCommandPalette: () => setPaletteOpen((v) => !v),
     onSearch: () => setPaletteOpen(true),
   });
+
+  usePredictivePrefetch(100);
 
   return (
     <div className="relative flex min-h-screen flex-col">
