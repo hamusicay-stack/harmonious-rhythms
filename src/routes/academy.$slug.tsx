@@ -123,15 +123,17 @@ function CoursePage() {
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-4">
+          <div className={theater ? "fixed inset-0 z-40 flex flex-col bg-black" : "grid gap-6 lg:grid-cols-[1fr_360px]"}>
+            <div className={theater ? "flex h-full w-full flex-col" : "space-y-4"}>
               {/* Player */}
-              <div className="aspect-video rounded-xl overflow-hidden bg-black relative">
+              <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
                 {activeLesson && canWatch && activeLesson.video_url ? (
                   <SecureVideoPlayer
                     key={activeLesson.id}
                     src={activeLesson.video_url}
                     watermark={user?.email ?? ""}
+                    onSeekReady={(fn) => { playerSeekRef.current = fn; }}
+                    onEnded={() => { if (autoNextOn && canPlayNext) setShowAutoNext(true); }}
                     onProgress={async (pos, dur) => {
                       if (!user || !enrollment) return;
                       const completed = dur > 0 && pos / dur > 0.9;
@@ -145,8 +147,6 @@ function CoursePage() {
                       }, { onConflict: "user_id,lesson_id" });
                       if (completed && !progress[activeLesson.id]?.is_completed) {
                         refresh();
-                        // Try issue certificate
-                        await supabase.functions.invoke("noop").catch(() => {});
                         await tryIssueCertificate(course.id, user.id, course.title);
                       }
                     }}
@@ -161,19 +161,59 @@ function CoursePage() {
                     <PlayCircle className="h-12 w-12" />
                   </div>
                 )}
+
+                <div className="absolute end-2 top-2 z-10 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setAutoNextOn((v) => !v)}
+                    className={`rounded-md px-2 py-1 text-xs ${autoNextOn ? "bg-primary text-primary-foreground" : "bg-black/60 text-white"}`}
+                    title="Auto-Next"
+                  >
+                    Auto-Next {autoNextOn ? "ON" : "OFF"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheater((v) => !v)}
+                    className="rounded-md bg-black/60 p-1.5 text-white hover:bg-black/80"
+                    title={theater ? "צא ממצב קולנוע" : "מצב קולנוע"}
+                  >
+                    {theater ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {showAutoNext && nextLesson && (
+                  <AutoNextOverlay
+                    nextTitle={nextLesson.title}
+                    onNext={goNext}
+                    onCancel={() => setShowAutoNext(false)}
+                  />
+                )}
               </div>
 
-              <div>
-                <h1 className="text-2xl font-bold">{course.title}</h1>
-                {course.subtitle && <p className="text-muted-foreground mt-1">{course.subtitle}</p>}
-                <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                  <span>{course.total_lessons} שיעורים</span>
-                  <span>·</span>
-                  <span>רמה: {course.level}</span>
-                  {course.duration_minutes > 0 && <><span>·</span><Clock className="inline h-3.5 w-3.5" />{course.duration_minutes} דקות</>}
-                </div>
-                {course.description && <p className="mt-4 whitespace-pre-line text-sm">{course.description}</p>}
-              </div>
+              {!theater && (
+                <>
+                  <div>
+                    <h1 className="text-2xl font-bold">{activeLesson?.title ?? course.title}</h1>
+                    {course.subtitle && <p className="text-muted-foreground mt-1">{course.subtitle}</p>}
+                    <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
+                      <span>{course.total_lessons} שיעורים</span>
+                      <span>·</span>
+                      <span>רמה: {course.level}</span>
+                      {course.duration_minutes > 0 && <><span>·</span><Clock className="inline h-3.5 w-3.5" />{course.duration_minutes} דקות</>}
+                    </div>
+                    {activeLesson?.description ? (
+                      <p className="mt-4 whitespace-pre-line text-sm">{activeLesson.description}</p>
+                    ) : course.description ? (
+                      <p className="mt-4 whitespace-pre-line text-sm">{course.description}</p>
+                    ) : null}
+                  </div>
+
+                  <ChaptersList
+                    text={activeLesson?.description ?? course.description}
+                    onSeek={(s) => playerSeekRef.current?.(s)}
+                  />
+                </>
+              )}
 
               {activeLesson && enrollment && (
                 <LessonQA lessonId={activeLesson.id} courseId={course.id} />
