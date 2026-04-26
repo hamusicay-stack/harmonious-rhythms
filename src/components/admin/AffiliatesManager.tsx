@@ -333,3 +333,137 @@ function Settings() {
     </div>
   );
 }
+
+type LotteryRow = { affiliate_id: string; ref_code: string; display_name: string | null; email: string | null; unique_visitors: number; total_clicks: number };
+
+function LotteryReport() {
+  const [rows, setRows] = useState<LotteryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [minThreshold, setMinThreshold] = useState<number>(1);
+  const [days, setDays] = useState<number>(30);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const since = new Date(Date.now() - days * 86400000).toISOString();
+    const { data: clicks } = await supabase
+      .from("affiliate_clicks")
+      .select("affiliate_id, ref_code, visitor_id")
+      .gte("created_at", since);
+
+    const map = new Map<string, { ref_code: string; visitors: Set<string>; total: number }>();
+    for (const c of clicks ?? []) {
+      let agg = map.get(c.affiliate_id);
+      if (!agg) { agg = { ref_code: c.ref_code, visitors: new Set(), total: 0 }; map.set(c.affiliate_id, agg); }
+      if (c.visitor_id) agg.visitors.add(c.visitor_id);
+      agg.total += 1;
+    }
+
+    const affIds = Array.from(map.keys());
+    let profilesMap = new Map<string, { display_name: string | null; email: string | null }>();
+    if (affIds.length > 0) {
+      const { data: affs } = await supabase.from("affiliates").select("id, user_id").in("id", affIds);
+      const userIds = (affs ?? []).map((a) => a.user_id);
+      const { data: profs } = await supabase.from("profiles").select("id, display_name, email").in("id", userIds);
+      const profMap = new Map((profs ?? []).map((p) => [p.id, p]));
+      profilesMap = new Map((affs ?? []).map((a) => [a.id, {
+        display_name: profMap.get(a.user_id)?.display_name ?? null,
+        email: profMap.get(a.user_id)?.email ?? null,
+      }]));
+    }
+
+    const list: LotteryRow[] = affIds.map((id) => {
+      const agg = map.get(id)!;
+      const prof = profilesMap.get(id);
+      return {
+        affiliate_id: id,
+        ref_code: agg.ref_code,
+        display_name: prof?.display_name ?? null,
+        email: prof?.email ?? null,
+        unique_visitors: agg.visitors.size,
+        total_clicks: agg.total,
+      };
+    }).sort((a, b) => b.unique_visitors - a.unique_visitors);
+
+    setRows(list);
+    setLoading(false);
+  }, [days]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const filtered = rows.filter((r) => r.unique_visitors >= minThreshold);
+
+  const exportCsv = () => {
+    const header = ["שם", "אימייל", "קוד שותף", "כניסות ייחודיות", "סך לחיצות"];
+    const lines = [header.join(",")];
+    for (const r of filtered) {
+      const row = [r.display_name ?? "", r.email ?? "", r.ref_code, r.unique_visitors, r.total_clicks]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",");
+      lines.push(row);
+    }
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lottery-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`יוצא ${filtered.length} שותפים`);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border bg-card-elevated p-4 space-y-3">
+        <div className="grid gap-3 md:grid-cols-3">
+          <div>
+            <Label className="text-xs">תקופה (ימים אחרונים)</Label>
+            <Input type="number" min={1} max={365} value={days} onChange={(e) => setDays(Number(e.target.value) || 30)} />
+          </div>
+          <div>
+            <Label className="text-xs">סף מינימלי לכניסות ייחודיות</Label>
+            <Input type="number" min={1} value={minThreshold} onChange={(e) => setMinThreshold(Number(e.target.value) || 1)} />
+          </div>
+          <div className="flex items-end">
+            <Button onClick={exportCsv} disabled={filtered.length === 0} className="w-full">
+              <Download className="ml-1 h-4 w-4" />ייצא לאקסל ({filtered.length})
+            </Button>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          רק שותפים עם <strong>{minThreshold}+</strong> כניסות ייחודיות מ-{days} הימים האחרונים יכללו בייצוא.
+        </p>
+      </div>
+
+      {loading ? <Loader2 className="mx-auto my-8 h-5 w-5 animate-spin" /> : filtered.length === 0 ? (
+        <p className="py-8 text-center text-muted-foreground text-sm">אין שותפים שעמדו בסף</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>שותף</TableHead>
+                <TableHead>קוד</TableHead>
+                <TableHead>כניסות ייחודיות</TableHead>
+                <TableHead>סך לחיצות</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((r, i) => (
+                <TableRow key={r.affiliate_id}>
+                  <TableCell className="text-xs font-bold">{i + 1}</TableCell>
+                  <TableCell>
+                    <div className="font-semibold text-xs">{r.display_name ?? "—"}</div>
+                    <div className="text-[10px] text-muted-foreground">{r.email}</div>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">{r.ref_code}</TableCell>
+                  <TableCell className="text-xs font-bold text-primary">{r.unique_visitors}</TableCell>
+                  <TableCell className="text-xs">{r.total_clicks}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}
