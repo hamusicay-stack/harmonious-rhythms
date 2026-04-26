@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 
 type Course = {
@@ -48,14 +48,18 @@ type Lesson = {
 export function AcademyManager() {
   return (
     <Tabs defaultValue="courses" dir="rtl" className="space-y-4">
-      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-3">
+      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-5">
         <TabsTrigger value="courses"><GraduationCap className="ml-1 h-4 w-4" />קורסים</TabsTrigger>
         <TabsTrigger value="codes"><Key className="ml-1 h-4 w-4" />קודי גישה</TabsTrigger>
         <TabsTrigger value="broadcasts"><Megaphone className="ml-1 h-4 w-4" />ברודקאסט</TabsTrigger>
+        <TabsTrigger value="podcasts"><Mic className="ml-1 h-4 w-4" />פודקאסטים</TabsTrigger>
+        <TabsTrigger value="quizzes"><ClipboardCheck className="ml-1 h-4 w-4" />מבחנים</TabsTrigger>
       </TabsList>
       <TabsContent value="courses"><CoursesManager /></TabsContent>
       <TabsContent value="codes"><AccessCodesManager /></TabsContent>
       <TabsContent value="broadcasts"><BroadcastsManager /></TabsContent>
+      <TabsContent value="podcasts"><PodcastsManager /></TabsContent>
+      <TabsContent value="quizzes"><QuizzesManager /></TabsContent>
     </Tabs>
   );
 }
@@ -511,5 +515,201 @@ function BroadcastsManager() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// ============= Podcasts Manager =============
+function PodcastsManager() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", is_active: true, sort_order: 0 });
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("academy_podcasts").select("*").order("sort_order").order("created_at", { ascending: false });
+    if (error) toast.error(error.message); else setItems(data ?? []);
+    setLoading(false);
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const startEdit = (p: any) => {
+    setEditing(p);
+    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
+    setOpen(true);
+  };
+  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", is_active: true, sort_order: 0 }); setOpen(true); };
+
+  const save = async () => {
+    if (!form.title.trim() || !form.source_url.trim()) return toast.error("כותרת וקישור חובה");
+    const payload = { ...form, description: form.description || null, thumbnail_url: form.thumbnail_url || null };
+    const { error } = editing
+      ? await supabase.from("academy_podcasts").update(payload).eq("id", editing.id)
+      : await supabase.from("academy_podcasts").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success("נשמר"); setOpen(false); load();
+  };
+  const del = async (id: string) => {
+    if (!confirm("למחוק?")) return;
+    const { error } = await supabase.from("academy_podcasts").delete().eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("נמחק"); load(); }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <h3 className="font-semibold">פודקאסטים</h3>
+        <Button size="sm" onClick={startNew}><Plus className="ml-1 h-4 w-4" />חדש</Button>
+      </div>
+      {loading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : (
+        <div className="space-y-2">
+          {items.map((p) => (
+            <Card key={p.id}><CardContent className="p-3 flex items-center justify-between">
+              <div>
+                <div className="font-medium">{p.title}</div>
+                <div className="text-xs text-muted-foreground">{p.kind} · {p.views_count} צפיות {!p.is_active && "· מושבת"}</div>
+              </div>
+              <div className="flex gap-1">
+                <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => del(p.id)}><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </CardContent></Card>
+          ))}
+        </div>
+      )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{editing ? "ערוך" : "פודקאסט חדש"}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>כותרת</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+            <div><Label>תיאור</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+            <div>
+              <Label>סוג</Label>
+              <Select value={form.kind} onValueChange={(v) => setForm({ ...form, kind: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="youtube">YouTube</SelectItem>
+                  <SelectItem value="audio">אודיו (MP3)</SelectItem>
+                  <SelectItem value="video">וידאו (MP4)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>קישור</Label><Input value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} /></div>
+            <div><Label>תמונת כיסוי</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />פעיל</label>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button><Button onClick={save}>שמור</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ============= Quizzes Manager =============
+function QuizzesManager() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const [courseId, setCourseId] = useState<string>("");
+  const [modules, setModules] = useState<any[]>([]);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [activeQuiz, setActiveQuiz] = useState<any | null>(null);
+  const [questions, setQuestions] = useState<any[]>([]);
+
+  useEffect(() => { (async () => {
+    const { data } = await supabase.from("academy_courses").select("id,title").order("title");
+    setCourses(data ?? []);
+  })(); }, []);
+
+  useEffect(() => { if (!courseId) return; (async () => {
+    const [{ data: ms }, { data: qs }] = await Promise.all([
+      supabase.from("academy_modules").select("id,title").eq("course_id", courseId).order("display_order"),
+      supabase.from("academy_quizzes").select("*").eq("course_id", courseId).order("created_at"),
+    ]);
+    setModules(ms ?? []); setQuizzes(qs ?? []); setActiveQuiz(null); setQuestions([]);
+  })(); }, [courseId]);
+
+  const loadQuestions = async (q: any) => {
+    setActiveQuiz(q);
+    const { data } = await supabase.from("academy_quiz_questions").select("*").eq("quiz_id", q.id).order("display_order");
+    setQuestions(data ?? []);
+  };
+
+  const addQuiz = async () => {
+    const title = prompt("שם המבחן");
+    if (!title) return;
+    const moduleId = modules[0]?.id ?? null;
+    const { error } = await supabase.from("academy_quizzes").insert({ course_id: courseId, module_id: moduleId, title });
+    if (error) toast.error(error.message); else setCourseId(courseId);
+  };
+
+  const addQuestion = async () => {
+    if (!activeQuiz) return;
+    const q = prompt("שאלה?"); if (!q) return;
+    const a1 = prompt("תשובה 1") ?? "";
+    const a2 = prompt("תשובה 2") ?? "";
+    const a3 = prompt("תשובה 3") ?? "";
+    const a4 = prompt("תשובה 4") ?? "";
+    const correct = Number(prompt("מספר תשובה נכונה (1-4)") ?? "1") - 1;
+    const { error } = await supabase.from("academy_quiz_questions").insert({
+      quiz_id: activeQuiz.id, question: q, choices: [a1, a2, a3, a4].filter(Boolean),
+      correct_index: correct, display_order: questions.length,
+    });
+    if (error) toast.error(error.message); else loadQuestions(activeQuiz);
+  };
+
+  const delQ = async (id: string) => {
+    if (!confirm("למחוק שאלה?")) return;
+    await supabase.from("academy_quiz_questions").delete().eq("id", id);
+    if (activeQuiz) loadQuestions(activeQuiz);
+  };
+
+  return (
+    <div className="space-y-3">
+      <Select value={courseId} onValueChange={setCourseId}>
+        <SelectTrigger><SelectValue placeholder="בחר קורס" /></SelectTrigger>
+        <SelectContent>
+          {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+        </SelectContent>
+      </Select>
+
+      {courseId && (
+        <>
+          <div className="flex justify-between"><h4 className="font-semibold">מבחנים בקורס</h4><Button size="sm" onClick={addQuiz}><Plus className="ml-1 h-4 w-4" />מבחן</Button></div>
+          {quizzes.map((q) => (
+            <Card key={q.id} className={activeQuiz?.id === q.id ? "border-primary" : ""}>
+              <CardContent className="p-3 flex items-center justify-between">
+                <button onClick={() => loadQuestions(q)} className="text-right flex-1">{q.title}</button>
+                <Button size="sm" variant="ghost" onClick={async () => {
+                  if (!confirm("למחוק מבחן?")) return;
+                  await supabase.from("academy_quizzes").delete().eq("id", q.id);
+                  setCourseId(courseId);
+                }}><Trash2 className="h-4 w-4" /></Button>
+              </CardContent>
+            </Card>
+          ))}
+
+          {activeQuiz && (
+            <Card className="bg-muted/30">
+              <CardContent className="p-3 space-y-2">
+                <div className="flex justify-between">
+                  <h5 className="font-semibold">שאלות ({questions.length})</h5>
+                  <Button size="sm" onClick={addQuestion}><Plus className="ml-1 h-4 w-4" />שאלה</Button>
+                </div>
+                {questions.map((q, i) => (
+                  <div key={q.id} className="flex justify-between border-t pt-2 text-sm">
+                    <div>
+                      <div className="font-medium">{i + 1}. {q.question}</div>
+                      <div className="text-xs text-muted-foreground">תשובה: {q.choices[q.correct_index]}</div>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => delQ(q.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
   );
 }

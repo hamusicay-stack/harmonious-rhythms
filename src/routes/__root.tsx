@@ -7,6 +7,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { FloatingAudioPlayer } from "@/components/pros/FloatingAudioPlayer";
 import { NotificationsProvider } from "@/hooks/useNotifications";
 import { captureAffiliateRef } from "@/lib/affiliate";
+import { useDeviceGuard } from "@/hooks/useDeviceGuard";
 
 import appCss from "../styles.css?url";
 
@@ -75,6 +76,7 @@ function RootComponent() {
       <NotificationsProvider>
         <CartProvider>
           <AudioPlayerProvider>
+            <DeviceGuardInner />
             <Outlet />
             <FloatingAudioPlayer />
             <Toaster richColors position="top-center" />
@@ -83,4 +85,9 @@ function RootComponent() {
       </NotificationsProvider>
     </AuthProvider>
   );
+}
+
+function DeviceGuardInner() {
+  useDeviceGuard();
+  return null;
 }
