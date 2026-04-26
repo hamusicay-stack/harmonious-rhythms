@@ -1164,6 +1164,7 @@ export type Database = {
           id: string
           notes: string | null
           order_amount: number
+          order_id: string | null
           paid_at: string | null
           scope_id: string
           scope_type: string
@@ -1179,6 +1180,7 @@ export type Database = {
           id?: string
           notes?: string | null
           order_amount?: number
+          order_id?: string | null
           paid_at?: string | null
           scope_id: string
           scope_type: string
@@ -1194,6 +1196,7 @@ export type Database = {
           id?: string
           notes?: string | null
           order_amount?: number
+          order_id?: string | null
           paid_at?: string | null
           scope_id?: string
           scope_type?: string
@@ -1206,6 +1209,13 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_conversions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
             referencedColumns: ["id"]
           },
         ]
