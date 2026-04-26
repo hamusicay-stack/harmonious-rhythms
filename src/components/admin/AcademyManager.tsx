@@ -551,6 +551,26 @@ function PodcastsManager() {
   const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
   const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
   const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>(null);
+  const [extractingId, setExtractingId] = useState<string | null>(null);
+  const extractMp3 = useServerFn(extractMp3FromYouTube);
+
+  const handleExtractMp3 = async (podcast: any) => {
+    if (podcast.kind !== "youtube" || !podcast.source_url) {
+      return toast.error("המרה אוטומטית זמינה רק לפרקי YouTube");
+    }
+    setExtractingId(podcast.id);
+    toast.info("מתחיל המרה ל-MP3 — עשוי לקחת עד דקה");
+    try {
+      const res = await extractMp3({ data: { podcast_id: podcast.id, youtube_url: podcast.source_url } });
+      if (res.ok) toast.success("ה-MP3 הועלה ושויך לפרק 🎧");
+      else toast.error(res.error || "ההמרה נכשלה");
+    } catch (e: any) {
+      toast.error(e?.message ?? "שגיאה בהמרה");
+    } finally {
+      setExtractingId(null);
+      load();
+    }
+  };
 
   const reorderEpisodes = async (seriesId: string, ordered: any[]) => {
     // Optimistic update
