@@ -167,12 +167,24 @@ Deno.serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceKey);
 
     // Update series with playlist info
-    await admin.from("academy_podcast_series").update({
+    const { episodes, meta } = await fetchPlaylist(playlistId);
+
+    // Update series with playlist info + auto-fill metadata if missing
+    const { data: existingSeries } = await admin
+      .from("academy_podcast_series").select("title, host_name, cover_url, description").eq("id", series_id).maybeSingle();
+
+    const seriesUpdate: Record<string, unknown> = {
       youtube_playlist_url: playlist_url,
       youtube_playlist_id: playlistId,
-    }).eq("id", series_id);
-
-    const episodes = await fetchPlaylist(playlistId);
+    };
+    if (meta.title && (!existingSeries?.title || existingSeries.title.trim() === "")) seriesUpdate.title = meta.title;
+    if (meta.channelName && !existingSeries?.host_name) seriesUpdate.host_name = meta.channelName;
+    if (meta.description && !existingSeries?.description) seriesUpdate.description = meta.description;
+    if (!existingSeries?.cover_url) {
+      const cover = meta.thumbnail ?? (episodes[0]?.thumbnail ?? null);
+      if (cover) seriesUpdate.cover_url = cover;
+    }
+    await admin.from("academy_podcast_series").update(seriesUpdate).eq("id", series_id);
 
     let imported = 0;
     let skipped = 0;
@@ -205,7 +217,7 @@ Deno.serve(async (req) => {
       if (error) skipped++; else imported++;
     }
 
-    return new Response(JSON.stringify({ imported, skipped, total: episodes.length }), {
+    return new Response(JSON.stringify({ imported, skipped, total: episodes.length, series: meta }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
