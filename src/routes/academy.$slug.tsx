@@ -495,21 +495,42 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
 
   return (
     <div className="relative h-full w-full">
+      {audioMode ? (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-6 bg-gradient-to-br from-primary/20 via-background to-primary-glow/20 p-6">
+          <div className="relative">
+            <div className="absolute inset-0 animate-ping rounded-full bg-primary/30" />
+            <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow shadow-2xl">
+              <Headphones className="h-14 w-14 text-primary-foreground" />
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">מצב האזנה — חוסך נתונים</p>
+        </div>
+      ) : null}
       <video
         ref={videoRef}
         src={src}
         controls
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
-        className="h-full w-full"
+        className={`h-full w-full ${audioMode ? "absolute inset-x-0 bottom-0 h-12 bg-black/80" : ""}`}
+        style={audioMode ? { objectFit: "contain" } : undefined}
       />
-      {watermark && (
+      {watermark && !audioMode && (
         <div className="pointer-events-none absolute text-white/30 text-sm font-mono select-none transition-all duration-1000"
           style={{ top: wmPos.top, left: wmPos.left, textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
           {watermark}
         </div>
       )}
-      <div className="absolute bottom-14 left-2 flex gap-1 bg-black/50 rounded-md p-1">
+      <div className="absolute bottom-14 left-2 flex items-center gap-1 rounded-md bg-black/60 p-1 backdrop-blur-sm">
+        <button
+          onClick={() => setAudioMode((v) => !v)}
+          className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs ${audioMode ? "bg-primary text-primary-foreground" : "text-white hover:bg-white/10"}`}
+          title={audioMode ? "מצב וידאו" : "מצב אודיו"}
+        >
+          {audioMode ? <VideoIcon className="h-3 w-3" /> : <Headphones className="h-3 w-3" />}
+          {audioMode ? "וידאו" : "אודיו"}
+        </button>
+        <span className="mx-1 h-3 w-px bg-white/20" />
         {[0.5, 0.75, 1, 1.25, 1.5, 2].map((s) => (
           <button
             key={s}
