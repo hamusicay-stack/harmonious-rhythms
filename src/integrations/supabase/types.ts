@@ -1164,6 +1164,7 @@ export type Database = {
           id: string
           notes: string | null
           order_amount: number
+          order_id: string | null
           paid_at: string | null
           scope_id: string
           scope_type: string
@@ -1179,6 +1180,7 @@ export type Database = {
           id?: string
           notes?: string | null
           order_amount?: number
+          order_id?: string | null
           paid_at?: string | null
           scope_id: string
           scope_type: string
@@ -1194,6 +1196,7 @@ export type Database = {
           id?: string
           notes?: string | null
           order_amount?: number
+          order_id?: string | null
           paid_at?: string | null
           scope_id?: string
           scope_type?: string
@@ -1206,6 +1209,13 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_conversions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -4079,17 +4089,30 @@ export type Database = {
           read_ct: number
         }[]
       }
-      record_affiliate_conversion: {
-        Args: {
-          _notes?: string
-          _order_amount: number
-          _ref_code: string
-          _scope_id: string
-          _scope_type: string
-          _user_id?: string
-        }
-        Returns: string
-      }
+      record_affiliate_conversion:
+        | {
+            Args: {
+              _notes?: string
+              _order_amount: number
+              _ref_code: string
+              _scope_id: string
+              _scope_type: string
+              _user_id?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _notes?: string
+              _order_amount: number
+              _order_id?: string
+              _ref_code: string
+              _scope_id: string
+              _scope_type: string
+              _user_id?: string
+            }
+            Returns: string
+          }
       redeem_academy_access_code: { Args: { _code: string }; Returns: string }
       register_device: {
         Args: { _device_id: string; _user_agent: string }
