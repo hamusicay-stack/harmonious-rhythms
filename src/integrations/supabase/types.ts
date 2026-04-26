@@ -476,14 +476,62 @@ export type Database = {
           },
         ]
       }
+      academy_podcast_series: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          host_name: string | null
+          id: string
+          is_active: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+          youtube_playlist_id: string | null
+          youtube_playlist_url: string | null
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          host_name?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+          youtube_playlist_id?: string | null
+          youtube_playlist_url?: string | null
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          host_name?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          youtube_playlist_id?: string | null
+          youtube_playlist_url?: string | null
+        }
+        Relationships: []
+      }
       academy_podcasts: {
         Row: {
           created_at: string
           created_by: string | null
           description: string | null
+          duration_seconds: number | null
+          episode_number: number | null
           id: string
           is_active: boolean
           kind: string
+          series_id: string | null
           sort_order: number
           source_url: string
           thumbnail_url: string | null
@@ -491,14 +539,18 @@ export type Database = {
           updated_at: string
           views_count: number
           visibility: string
+          youtube_video_id: string | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          duration_seconds?: number | null
+          episode_number?: number | null
           id?: string
           is_active?: boolean
           kind?: string
+          series_id?: string | null
           sort_order?: number
           source_url: string
           thumbnail_url?: string | null
@@ -506,14 +558,18 @@ export type Database = {
           updated_at?: string
           views_count?: number
           visibility?: string
+          youtube_video_id?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          duration_seconds?: number | null
+          episode_number?: number | null
           id?: string
           is_active?: boolean
           kind?: string
+          series_id?: string | null
           sort_order?: number
           source_url?: string
           thumbnail_url?: string | null
@@ -521,8 +577,17 @@ export type Database = {
           updated_at?: string
           views_count?: number
           visibility?: string
+          youtube_video_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "academy_podcasts_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "academy_podcast_series"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       academy_quiz_attempts: {
         Row: {
