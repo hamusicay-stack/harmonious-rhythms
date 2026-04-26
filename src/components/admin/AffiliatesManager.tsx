@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Loader2, CheckCircle2, XCircle, Sparkles, Plus, Trash2, Save } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Sparkles, Plus, Trash2, Save, Trophy, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
