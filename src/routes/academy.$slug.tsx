@@ -149,6 +149,22 @@ function CoursePage() {
           <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
         ) : (
           <div className={theater ? "fixed inset-0 z-40 flex flex-col bg-black" : "grid gap-6 lg:grid-cols-[1fr_360px]"}>
+            {theater && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setTheater(false)}
+                  className="fixed top-4 left-4 z-[60] flex items-center gap-2 rounded-full bg-white/95 px-4 py-2.5 text-sm font-bold text-black shadow-2xl backdrop-blur-sm transition-all hover:scale-105 hover:bg-white"
+                  aria-label="יציאה ממצב מסך מלא"
+                >
+                  <X className="h-5 w-5" />
+                  <span>יציאה</span>
+                </button>
+                <div className="pointer-events-none fixed bottom-4 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[11px] text-white/80 backdrop-blur-sm">
+                  לחץ ESC או "יציאה" כדי לחזור
+                </div>
+              </>
+            )}
             <div className={theater ? "flex h-full w-full flex-col" : "space-y-4"}>
               {/* Player */}
               <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
