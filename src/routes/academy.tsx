@@ -438,7 +438,7 @@ function PodcastCard({ podcast }: { podcast: Podcast }) {
           <p className="text-[11px] text-muted-foreground">{podcast.views_count} צפיות</p>
         </CardContent>
       </Card>
-    </Link>
+    </a>
   );
 }
 
