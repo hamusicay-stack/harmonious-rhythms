@@ -40,7 +40,8 @@ import { ShortsManager } from "@/components/admin/ShortsManager";
 import { AffiliatesManager } from "@/components/admin/AffiliatesManager";
 import { AffiliatePayoutsManager } from "@/components/admin/AffiliatePayoutsManager";
 import { AcademyManager } from "@/components/admin/AcademyManager";
-import { Music2, ShoppingBag, Play, Sparkles, GraduationCap } from "lucide-react";
+import { RolesPermissionsManager } from "@/components/admin/RolesPermissionsManager";
+import { Music2, ShoppingBag, Play, Sparkles, GraduationCap, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
