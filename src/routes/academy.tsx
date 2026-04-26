@@ -270,11 +270,19 @@ function AcademyPage() {
 
         {/* Tabs */}
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-          <TabsList className="mb-4 w-full justify-start overflow-x-auto">
-            <TabsTrigger value="all">הכל</TabsTrigger>
-            <TabsTrigger value="courses">קורסים</TabsTrigger>
-            <TabsTrigger value="podcasts">פודקאסטים</TabsTrigger>
-            <TabsTrigger value="mine" disabled={!user}>שלי</TabsTrigger>
+          <TabsList className="mb-4 grid w-full grid-cols-4 h-auto p-1">
+            <TabsTrigger value="all" className="flex flex-col gap-0.5 py-2 text-xs sm:flex-row sm:gap-1.5 sm:text-sm">
+              <PlayCircle className="h-4 w-4" />הכל
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="flex flex-col gap-0.5 py-2 text-xs sm:flex-row sm:gap-1.5 sm:text-sm">
+              <GraduationCap className="h-4 w-4" />קורסים
+            </TabsTrigger>
+            <TabsTrigger value="podcasts" className="flex flex-col gap-0.5 py-2 text-xs sm:flex-row sm:gap-1.5 sm:text-sm">
+              <Mic className="h-4 w-4" />פודקאסטים
+            </TabsTrigger>
+            <TabsTrigger value="mine" disabled={!user} className="flex flex-col gap-0.5 py-2 text-xs sm:flex-row sm:gap-1.5 sm:text-sm">
+              <CheckCircle2 className="h-4 w-4" />שלי
+            </TabsTrigger>
           </TabsList>
 
           {loading ? (
