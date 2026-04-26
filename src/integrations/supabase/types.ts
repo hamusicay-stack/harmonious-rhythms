@@ -342,6 +342,39 @@ export type Database = {
           },
         ]
       }
+      academy_lesson_qa: {
+        Row: {
+          body: string
+          course_id: string
+          created_at: string
+          id: string
+          is_instructor: boolean
+          lesson_id: string
+          parent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          course_id: string
+          created_at?: string
+          id?: string
+          is_instructor?: boolean
+          lesson_id: string
+          parent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          course_id?: string
+          created_at?: string
+          id?: string
+          is_instructor?: boolean
+          lesson_id?: string
+          parent_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       academy_lessons: {
         Row: {
           course_id: string
@@ -488,6 +521,123 @@ export type Database = {
           updated_at?: string
           views_count?: number
           visibility?: string
+        }
+        Relationships: []
+      }
+      academy_quiz_attempts: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          passed: boolean
+          quiz_id: string
+          score_percent: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          passed?: boolean
+          quiz_id: string
+          score_percent?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          passed?: boolean
+          quiz_id?: string
+          score_percent?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      academy_quiz_questions: {
+        Row: {
+          choices: Json
+          correct_index: number
+          display_order: number
+          id: string
+          question: string
+          quiz_id: string
+        }
+        Insert: {
+          choices?: Json
+          correct_index?: number
+          display_order?: number
+          id?: string
+          question: string
+          quiz_id: string
+        }
+        Update: {
+          choices?: Json
+          correct_index?: number
+          display_order?: number
+          id?: string
+          question?: string
+          quiz_id?: string
+        }
+        Relationships: []
+      }
+      academy_quizzes: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          module_id: string | null
+          pass_percent: number
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id?: string | null
+          pass_percent?: number
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id?: string | null
+          pass_percent?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      academy_reviews: {
+        Row: {
+          body: string | null
+          course_id: string
+          created_at: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3607,6 +3757,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_device_sessions: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          last_seen_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          last_seen_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          last_seen_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_follows: {
         Row: {
           created_at: string
@@ -3651,6 +3828,33 @@ export type Database = {
           id?: string
           item_id?: string
           item_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
           user_id?: string
         }
         Relationships: []
@@ -3764,6 +3968,10 @@ export type Database = {
         Returns: string
       }
       redeem_academy_access_code: { Args: { _code: string }; Returns: string }
+      register_device: {
+        Args: { _device_id: string; _user_agent: string }
+        Returns: boolean
+      }
       track_banner_event: {
         Args: { _banner_id: string; _event_type: string }
         Returns: undefined
