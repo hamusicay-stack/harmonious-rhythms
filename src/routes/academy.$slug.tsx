@@ -375,6 +375,7 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const [speed, setSpeed] = useState(1);
+  const [audioMode, setAudioMode] = useState(false);
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
   const ytId = getYouTubeId(src);
   const vimeoId = getVimeoId(src);
