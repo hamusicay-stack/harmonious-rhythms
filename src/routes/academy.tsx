@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft } from "lucide-react";
+import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,12 +52,22 @@ type Podcast = {
   source_url: string;
   thumbnail_url: string | null;
   views_count: number;
+  series_id: string | null;
+};
+
+type PodcastSeries = {
+  id: string;
+  title: string;
+  description: string | null;
+  cover_url: string | null;
+  host_name: string | null;
 };
 
 function AcademyPage() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [podcastSeries, setPodcastSeries] = useState<PodcastSeries[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +77,7 @@ function AcademyPage() {
   const [tab, setTab] = useState<"all" | "courses" | "podcasts" | "mine">("all");
 
   const reload = async () => {
-    const [{ data: cs }, { data: pods }] = await Promise.all([
+    const [{ data: cs }, { data: pods }, { data: series }] = await Promise.all([
       supabase
         .from("academy_courses")
         .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured")
@@ -76,14 +86,21 @@ function AcademyPage() {
         .order("display_order"),
       supabase
         .from("academy_podcasts")
-        .select("id,title,description,kind,source_url,thumbnail_url,views_count")
+        .select("id,title,description,kind,source_url,thumbnail_url,views_count,series_id")
         .eq("is_active", true)
         .order("sort_order")
         .order("created_at", { ascending: false })
         .limit(12),
+      supabase
+        .from("academy_podcast_series")
+        .select("id,title,description,cover_url,host_name")
+        .eq("is_active", true)
+        .order("sort_order")
+        .order("created_at", { ascending: false }),
     ]);
     setCourses((cs ?? []) as Course[]);
     setPodcasts((pods ?? []) as Podcast[]);
+    setPodcastSeries((series ?? []) as PodcastSeries[]);
 
     if (user) {
       const [{ data: enr }, { data: certs }] = await Promise.all([
@@ -108,7 +125,7 @@ function AcademyPage() {
   }, [user]);
 
   useAcademyRealtime(
-    ["academy_courses", "academy_podcasts", "academy_enrollments"],
+    ["academy_courses", "academy_podcasts", "academy_podcast_series", "academy_enrollments"],
     () => { reload(); },
   );
 
