@@ -615,15 +615,40 @@ function PodcastsManager() {
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold">פודקאסטים</h3>
-        <Button size="sm" onClick={startNew}><Plus className="ml-1 h-4 w-4" />חדש</Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setSeriesOpen(true)}><FolderOpen className="ml-1 h-4 w-4" />סדרה</Button>
+          <Button size="sm" onClick={startNew}><Plus className="ml-1 h-4 w-4" />פרק</Button>
+        </div>
       </div>
       {loading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : (
-        <div className="space-y-2">
+        <div className="space-y-4">
+          {series.length > 0 && (
+            <div className="grid gap-2 md:grid-cols-2">
+              {series.map((s) => (
+                <Card key={s.id} className="border-border/60">
+                  <CardContent className="flex items-center justify-between gap-3 p-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover" /> : <FolderOpen className="h-8 w-8 text-primary" />}
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">{s.title}</div>
+                        <div className="text-xs text-muted-foreground">{items.filter((p) => p.series_id === s.id).length} פרקים {s.youtube_playlist_id && "· YouTube"}</div>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id}>
+                      {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
           {items.map((p) => (
             <Card key={p.id}><CardContent className="p-3 flex items-center justify-between">
               <div>
                 <div className="font-medium">{p.title}</div>
-                <div className="text-xs text-muted-foreground">{p.kind} · {p.views_count} צפיות {!p.is_active && "· מושבת"}</div>
+                <div className="text-xs text-muted-foreground">
+                  {p.kind} · {p.views_count} צפיות {p.series_id && `· ${series.find((s) => s.id === p.series_id)?.title ?? "סדרה"}`} {!p.is_active && "· מושבת"}
+                </div>
               </div>
               <div className="flex gap-1">
                 <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
@@ -633,6 +658,19 @@ function PodcastsManager() {
           ))}
         </div>
       )}
+      <Dialog open={seriesOpen} onOpenChange={setSeriesOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>סדרת פודקאסט חדשה</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>שם הסדרה</Label><Input value={seriesForm.title} onChange={(e) => setSeriesForm({ ...seriesForm, title: e.target.value })} /></div>
+            <div><Label>שם העורך / המנחה</Label><Input value={seriesForm.host_name} onChange={(e) => setSeriesForm({ ...seriesForm, host_name: e.target.value })} /></div>
+            <div><Label>תיאור</Label><Textarea value={seriesForm.description} onChange={(e) => setSeriesForm({ ...seriesForm, description: e.target.value })} /></div>
+            <div><Label>תמונת תיקייה</Label><Input value={seriesForm.cover_url} onChange={(e) => setSeriesForm({ ...seriesForm, cover_url: e.target.value })} /></div>
+            <div><Label>פלייליסט YouTube לייבוא מיידי</Label><Input dir="ltr" value={seriesForm.playlist_url} onChange={(e) => setSeriesForm({ ...seriesForm, playlist_url: e.target.value })} placeholder="https://www.youtube.com/playlist?list=..." /></div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setSeriesOpen(false)}>ביטול</Button><Button onClick={createSeries}>צור</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? "ערוך" : "פודקאסט חדש"}</DialogTitle></DialogHeader>
@@ -652,6 +690,17 @@ function PodcastsManager() {
             </div>
             <div><Label>קישור</Label><Input value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} /></div>
             <div><Label>תמונת כיסוי</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div>
+              <Label>שייך לסדרה</Label>
+              <Select value={form.series_id} onValueChange={(v) => setForm({ ...form, series_id: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">ללא סדרה</SelectItem>
+                  {series.map((s) => <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
             <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />פעיל</label>
           </div>
