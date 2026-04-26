@@ -1132,6 +1132,23 @@ function VideoPlayer(props: VideoPlayerProps) {
             <HashtagText text={short.description} />
           </p>
         )}
+        {short.courseLink && (
+          (() => {
+            const isExternal = /^https?:\/\//i.test(short.courseLink);
+            const cls = "mt-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-gold hover:scale-[1.03] transition-transform";
+            return isExternal ? (
+              <a href={short.courseLink} target="_blank" rel="noopener noreferrer" className={cls}>
+                <GraduationCap className="h-3.5 w-3.5" />
+                לשיעור המלא
+              </a>
+            ) : (
+              <Link to={short.courseLink} className={cls}>
+                <GraduationCap className="h-3.5 w-3.5" />
+                לשיעור המלא
+              </Link>
+            );
+          })()
+        )}
         <div className="mt-2 flex items-center gap-1 text-[11px] opacity-70">
           <Eye className="h-3 w-3" />
           {fmt(short.views)} צפיות
