@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { CourseReviews } from "@/components/academy/CourseReviews";
 import { LessonQA } from "@/components/academy/LessonQA";
 import { ModuleQuiz } from "@/components/academy/ModuleQuiz";
+import { ChaptersList } from "@/components/academy/ChaptersList";
+import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
