@@ -50,9 +50,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
       <DialogContent
         className="glass-z3 glass-noise max-w-xl gap-0 border-white/40 p-0 shadow-elevated [&>button.absolute]:hidden"
       >
-        <VisuallyHidden>
-          <DialogTitle>פלטת פקודות</DialogTitle>
-        </VisuallyHidden>
+        <DialogTitle className="sr-only">פלטת פקודות</DialogTitle>
         <Command
           label="פלטת פקודות"
           className="[&_[cmdk-input]]:w-full [&_[cmdk-input]]:bg-transparent [&_[cmdk-input]]:px-5 [&_[cmdk-input]]:py-4 [&_[cmdk-input]]:text-base [&_[cmdk-input]]:outline-none"
