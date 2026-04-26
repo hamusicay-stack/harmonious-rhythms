@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Play, Plus, Crown, Eye,
-  Music2, MessageSquare, Upload, AlertTriangle, X,
+  Music2, MessageSquare, Upload, AlertTriangle, X, GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +52,7 @@ type Short = {
   views: number;
   uploadedAgo: string;
   isPremium: boolean;
+  courseLink: string | null;
 };
 
 const formatAgo = (iso: string) => {
@@ -127,7 +128,7 @@ function ShortsPage() {
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
-        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(80);
@@ -209,6 +210,7 @@ function ShortsPage() {
           views: r.views_count ?? 0,
           uploadedAgo: formatAgo(r.created_at),
           isPremium: r.is_premium,
+          courseLink: (r as { course_link?: string | null }).course_link ?? null,
         };
       });
 
