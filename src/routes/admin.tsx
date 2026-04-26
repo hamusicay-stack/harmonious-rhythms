@@ -392,6 +392,10 @@ function AdminPage() {
                 <SupplierOrdersManager />
               </TabsContent>
 
+              <TabsContent value="roles" className="mt-6">
+                <RolesPermissionsManager />
+              </TabsContent>
+
               <TabsContent value="admins" className="mt-6">
                 <AdminsManager />
               </TabsContent>
