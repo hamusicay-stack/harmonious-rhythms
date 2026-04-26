@@ -687,35 +687,70 @@ function PodcastsManager() {
             <div className="space-y-2">
               <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">סדרות</h4>
               <div className="grid gap-2 md:grid-cols-2">
-                {series.map((s) => (
-                  <Card key={s.id} className="border-border/60">
-                    <CardContent className="flex items-center justify-between gap-2 p-3">
-                      <div className="flex min-w-0 items-center gap-3 flex-1">
-                        {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover shrink-0" /> : <FolderOpen className="h-10 w-10 text-primary shrink-0" />}
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-medium text-sm">{s.title}</div>
-                          <div className="text-[11px] text-muted-foreground truncate">
-                            {s.host_name && `${s.host_name} · `}{items.filter((p) => p.series_id === s.id).length} פרקים
+                {series.map((s) => {
+                  const seriesEpisodes = items
+                    .filter((p) => p.series_id === s.id)
+                    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.episode_number ?? 0) - (b.episode_number ?? 0));
+                  const isExpanded = expandedSeriesId === s.id;
+                  return (
+                    <Card key={s.id} className="border-border/60 md:col-span-2">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedSeriesId(isExpanded ? null : s.id)}
+                            className="flex min-w-0 items-center gap-3 flex-1 text-right"
+                          >
+                            {isExpanded ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronLeft className="h-4 w-4 shrink-0" />}
+                            {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover shrink-0" /> : <FolderOpen className="h-10 w-10 text-primary shrink-0" />}
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-medium text-sm">{s.title}</div>
+                              <div className="text-[11px] text-muted-foreground truncate">
+                                {s.host_name && `${s.host_name} · `}{seriesEpisodes.length} פרקים
+                              </div>
+                            </div>
+                          </button>
+                          <div className="flex gap-1 shrink-0">
+                            <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id} title="ייבא פלייליסט">
+                              {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={async () => {
+                              if (!confirm(`למחוק את הסדרה "${s.title}" ואת כל הפרקים שבתוכה?`)) return;
+                              const { error: episodesError } = await supabase.from("academy_podcasts").delete().eq("series_id", s.id);
+                              if (episodesError) return toast.error(episodesError.message);
+                              const { error: seriesError } = await supabase.from("academy_podcast_series").delete().eq("id", s.id);
+                              if (seriesError) return toast.error(seriesError.message);
+                              toast.success("הסדרה וכל הפרקים נמחקו");
+                              load();
+                            }}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id} title="ייבא פלייליסט">
-                          {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={async () => {
-                          if (!confirm(`למחוק את הסדרה "${s.title}" ואת כל הפרקים שבתוכה?`)) return;
-                          const { error: episodesError } = await supabase.from("academy_podcasts").delete().eq("series_id", s.id);
-                          if (episodesError) return toast.error(episodesError.message);
-                          const { error: seriesError } = await supabase.from("academy_podcast_series").delete().eq("id", s.id);
-                          if (seriesError) return toast.error(seriesError.message);
-                          toast.success("הסדרה וכל הפרקים נמחקו");
-                          load();
-                        }}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        {isExpanded && seriesEpisodes.length > 0 && (
+                          <div className="mt-3 border-t pt-3">
+                            <p className="mb-2 text-[11px] text-muted-foreground">גרור לסידור הפרקים בתוך הסדרה</p>
+                            <SortableList items={seriesEpisodes} onReorder={(reordered) => reorderEpisodes(s.id, reordered)}>
+                              {(ep, handle) => (
+                                <div className="flex items-center gap-2 rounded-lg border bg-card p-2">
+                                  {handle}
+                                  <span className="w-6 text-center text-xs font-mono text-muted-foreground">{ep.episode_number ?? "-"}</span>
+                                  {ep.thumbnail_url && <img src={ep.thumbnail_url} alt="" className="h-8 w-12 rounded object-cover" />}
+                                  <div className="min-w-0 flex-1">
+                                    <div className="truncate text-sm font-medium">{ep.title}</div>
+                                    <div className="text-[10px] text-muted-foreground">
+                                      {ep.views_count} צפיות{!ep.is_active && " · מושבת"}{ep.audio_url && " · 🎧"}
+                                    </div>
+                                  </div>
+                                  <Button size="sm" variant="ghost" onClick={() => startEdit(ep)}><Pencil className="h-3.5 w-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => del(ep.id)}><Trash2 className="h-3.5 w-3.5 text-rose-500" /></Button>
+                                </div>
+                              )}
+                            </SortableList>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}
