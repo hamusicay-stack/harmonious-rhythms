@@ -53,15 +53,17 @@ async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
   return episodes;
 }
 
-async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
+type PlaylistMeta = { title?: string; channelName?: string; thumbnail?: string; description?: string };
+
+async function fetchPlaylistPage(playlistId: string): Promise<{ episodes: Episode[]; meta: PlaylistMeta }> {
   const res = await fetch(`https://www.youtube.com/playlist?list=${playlistId}`, {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
-  if (!res.ok) return [];
+  if (!res.ok) return { episodes: [], meta: {} };
   const html = await res.text();
   const rawJson = html.match(/var ytInitialData = (\{[\s\S]*?\});<\/script>/)?.[1]
     ?? html.match(/window\["ytInitialData"\]\s*=\s*(\{[\s\S]*?\});/)?.[1];
-  if (!rawJson) return [];
+  if (!rawJson) return { episodes: [], meta: {} };
 
   const initialData = JSON.parse(rawJson);
   const videos: Episode[] = [];
@@ -73,6 +75,24 @@ async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
     if (Array.isArray(value.runs)) return value.runs.map((run: any) => run.text ?? "").join("");
     return "";
   };
+
+  const meta: PlaylistMeta = {};
+  const sidebar = initialData?.sidebar?.playlistSidebarRenderer?.items ?? [];
+  for (const item of sidebar) {
+    const primary = item?.playlistSidebarPrimaryInfoRenderer;
+    if (primary) {
+      meta.title = textOf(primary.title);
+      meta.description = textOf(primary.description);
+      meta.thumbnail = primary.thumbnailRenderer?.playlistVideoThumbnailRenderer?.thumbnail?.thumbnails?.at(-1)?.url;
+    }
+    const secondary = item?.playlistSidebarSecondaryInfoRenderer;
+    if (secondary) {
+      meta.channelName = textOf(secondary.videoOwner?.videoOwnerRenderer?.title);
+    }
+  }
+  // Fallback from header
+  if (!meta.title) meta.title = textOf(initialData?.header?.playlistHeaderRenderer?.title);
+  if (!meta.channelName) meta.channelName = textOf(initialData?.header?.playlistHeaderRenderer?.ownerText);
 
   const visit = (node: any) => {
     if (!node || typeof node !== "object") return;
@@ -93,7 +113,7 @@ async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
   };
 
   visit(initialData);
-  return videos;
+  return { episodes: videos, meta };
 }
 
 function decodeXml(s: string): string {
