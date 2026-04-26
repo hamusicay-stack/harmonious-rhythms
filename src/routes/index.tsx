@@ -41,10 +41,10 @@ function HomePage() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <h2 className="font-display text-3xl font-bold md:text-4xl">
-              למה <span className="text-gradient-brand">המוזיקאי</span>
+              בית אחד, אינספור <span className="text-gradient-brand">אפשרויות</span>
             </h2>
             <p className="mt-3 text-muted-foreground">
-              נבנה מהיסוד למקצוענים — בקפידה, בטעם ובלי פשרות.
+              מאקדמיה מתקדמת ועד זירת יד 2 מקצועית — בנינו עבורכם אקו-סיסטם שנועד להזניק את הקריירה המוזיקלית שלכם.
             </p>
           </div>
 
