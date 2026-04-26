@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle } from "lucide-react";
+import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2, PlayCircle, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
