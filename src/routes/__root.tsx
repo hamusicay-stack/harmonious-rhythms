@@ -75,6 +75,7 @@ function RootComponent() {
       <NotificationsProvider>
         <CartProvider>
           <AudioPlayerProvider>
+            <DeviceGuardInner />
             <Outlet />
             <FloatingAudioPlayer />
             <Toaster richColors position="top-center" />
@@ -83,4 +84,9 @@ function RootComponent() {
       </NotificationsProvider>
     </AuthProvider>
   );
+}
+
+function DeviceGuardInner() {
+  useDeviceGuard();
+  return null;
 }
