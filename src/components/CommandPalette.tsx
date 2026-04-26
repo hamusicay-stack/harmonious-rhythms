@@ -6,7 +6,6 @@ import {
   Users, Music2, User as UserIcon, Search, Sparkles, Bell, Headphones,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface Props {
   open: boolean;
