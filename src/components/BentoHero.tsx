@@ -3,8 +3,13 @@ import { MessageSquare, ShoppingBag, GraduationCap, Tags, Sparkles, Play, Crown,
 import { GlassCard } from "./GlassCard";
 import { Button } from "./ui/button";
 import { useUISounds } from "@/hooks/useUISounds";
-import { getMicroCopy } from "@/lib/microCopy";
 import { useEffect, useState, MouseEvent } from "react";
+
+const HERO_TAGLINES = [
+  "הפלטפורמה החדשה למוזיקאים",
+  "סטודיו פתוח 24/7 — תכנס תנגן",
+  "יוצרים, מפיקים ומורים — במקום אחד",
+];
 
 interface BentoHeroProps {
   onOpenCommand?: () => void;
@@ -15,7 +20,7 @@ export function BentoHero({ onOpenCommand }: BentoHeroProps) {
   const [tagline, setTagline] = useState<string>("");
 
   useEffect(() => {
-    setTagline(getMicroCopy("hero"));
+    setTagline(HERO_TAGLINES[Math.floor(Math.random() * HERO_TAGLINES.length)]);
   }, []);
 
   const handleNavClick = (e: MouseEvent<HTMLAnchorElement>) => {
