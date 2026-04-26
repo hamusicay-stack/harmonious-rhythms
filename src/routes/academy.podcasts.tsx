@@ -128,6 +128,10 @@ function PodcastsPage() {
   useEffect(() => {
     const fromHash = window.location.hash.replace("#", "");
     if (!fromHash || !podcasts.length) return;
+    if (fromHash.startsWith("series-")) {
+      setOpenSeries(fromHash.replace("series-", ""));
+      return;
+    }
     const podcast = podcasts.find((p) => p.id === fromHash);
     if (podcast?.series_id) setOpenSeries(podcast.series_id);
     requestAnimationFrame(() => document.getElementById(fromHash)?.scrollIntoView({ behavior: "smooth", block: "start" }));
