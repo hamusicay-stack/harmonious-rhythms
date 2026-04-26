@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS, PRODUCT_TYPE_LABEL } from "@/lib/shopUtils";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/$slug")({
@@ -190,7 +191,15 @@ function ProductPage() {
             {product.description && (
               <Card className="p-4">
                 <h2 className="mb-2 text-lg font-semibold">תיאור המוצר</h2>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">{product.description}</div>
+                {/^\s*<\w+/.test(product.description) ? (
+                  <div
+                    className="prose prose-sm max-w-none text-sm leading-relaxed [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_ul]:list-disc [&_ul]:pr-5 [&_ol]:list-decimal [&_ol]:pr-5 [&_a]:text-primary [&_a]:underline"
+                    dir="rtl"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">{product.description}</div>
+                )}
               </Card>
             )}
 

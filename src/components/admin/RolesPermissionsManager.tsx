@@ -38,6 +38,20 @@ const DEFAULT_PERMISSIONS = [
   "marketplace.post", "badge.verified", "badge.vip",
 ];
 
+// Hebrew labels for known permission keys (custom keys still show the raw key)
+const PERMISSION_LABELS: Record<string, { title: string; desc: string }> = {
+  "forum.read":         { title: "קריאה בפורום",            desc: "צפייה בדיונים ובתגובות" },
+  "forum.post":         { title: "כתיבה בפורום",            desc: "פתיחת פוסטים ותגובות חדשות" },
+  "shorts.view":        { title: "צפייה בשורטס",            desc: "גישה לפיד הסרטונים האנכיים" },
+  "shorts.upload":      { title: "העלאת שורטס",             desc: "פרסום סרטונים אנכיים חדשים" },
+  "academy.preview":    { title: "תצוגה מקדימה לאקדמיה",    desc: "צפייה בשיעורי הדגמה חינמיים" },
+  "academy.full":       { title: "גישה מלאה לאקדמיה",       desc: "צפייה בכל הקורסים והשיעורים" },
+  "shop.discount":      { title: "הנחה בחנות",              desc: "מחירים מוזלים למוצרים נבחרים" },
+  "marketplace.post":   { title: "פרסום ביד שניה",          desc: "פתיחת מודעות מכירה חדשות" },
+  "badge.verified":     { title: "תג מאומת",                desc: "מציג תג ✓ ליד שם המשתמש" },
+  "badge.vip":          { title: "תג VIP",                  desc: "מציג תג כתר ליד שם המשתמש" },
+};
+
 type PermRow = { id?: string; role: AppRole; permission_key: string; enabled: boolean };
 type Rule = { id: string; event_key: string; label: string; points: number; enabled: boolean };
 
@@ -145,16 +159,29 @@ function MatrixEditor() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {keys.map(key => (
-              <TableRow key={key}>
-                <TableCell className="font-mono text-xs">{key}</TableCell>
-                {ROLES.map(role => (
-                  <TableCell key={role} className="text-center">
-                    <Switch checked={get(role, key)} onCheckedChange={(v) => toggle(role, key, v)} />
+            {keys.map(key => {
+              const meta = PERMISSION_LABELS[key];
+              return (
+                <TableRow key={key}>
+                  <TableCell className="min-w-[220px]">
+                    {meta ? (
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">{meta.title}</span>
+                        <span className="text-[11px] text-muted-foreground">{meta.desc}</span>
+                        <span className="font-mono text-[10px] text-muted-foreground/60 mt-0.5">{key}</span>
+                      </div>
+                    ) : (
+                      <span className="font-mono text-xs">{key}</span>
+                    )}
                   </TableCell>
-                ))}
-              </TableRow>
-            ))}
+                  {ROLES.map(role => (
+                    <TableCell key={role} className="text-center">
+                      <Switch checked={get(role, key)} onCheckedChange={(v) => toggle(role, key, v)} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>

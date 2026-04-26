@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2, Package } from "lucide-react";
 import { toast } from "sonner";
 import { formatILS, slugify, PRODUCT_TYPE_LABEL, FULFILLMENT_LABEL, PRODUCT_STATUS_LABEL, STATUS_TAG_OPTIONS } from "@/lib/shopUtils";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 type Category = { id: string; label: string };
 type Vendor = { id: string; company_name: string };
@@ -260,7 +261,12 @@ export function ShopProductsManager() {
               </div>
               <div className="md:col-span-2">
                 <Label>תיאור מלא</Label>
-                <Textarea rows={4} value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+                <RichTextEditor
+                  value={editing.description ?? ""}
+                  onChange={(html) => setEditing({ ...editing, description: html })}
+                  placeholder="הקלד תיאור מפורט למוצר... תומך בעיצוב, רשימות וקישורים."
+                  rows={6}
+                />
               </div>
 
               <div>
