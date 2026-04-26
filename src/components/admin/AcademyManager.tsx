@@ -606,7 +606,7 @@ function PodcastsManager() {
 
   const createSeriesFromPodcastForm = async () => {
     const { data, error } = await supabase.from("academy_podcast_series").insert({
-      title: form.title,
+      title: form.title || "סדרה חדשה",
       description: form.description || null,
       cover_url: form.thumbnail_url || null,
     } as any).select("id").single();
@@ -614,6 +614,7 @@ function PodcastsManager() {
       toast.error(error.message);
       return null;
     }
+    toast.info("נפתחה סדרה חדשה — נסיים לסנכרן את הפרקים");
     return data.id as string;
   };
 
