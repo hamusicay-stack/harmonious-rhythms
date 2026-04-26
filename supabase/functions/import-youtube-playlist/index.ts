@@ -21,9 +21,9 @@ type Episode = {
   publishedAt: string;
 };
 
-async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
-  const pageEpisodes = await fetchPlaylistPage(playlistId).catch(() => [] as Episode[]);
-  if (pageEpisodes.length > 0) return pageEpisodes;
+async function fetchPlaylist(playlistId: string): Promise<{ episodes: Episode[]; meta: PlaylistMeta }> {
+  const page = await fetchPlaylistPage(playlistId).catch(() => ({ episodes: [], meta: {} as PlaylistMeta }));
+  if (page.episodes.length > 0) return page;
 
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
   const res = await fetch(feedUrl);
@@ -50,18 +50,22 @@ async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
       });
     }
   }
-  return episodes;
+  const feedTitle = xml.match(/<title>([^<]+)<\/title>/)?.[1];
+  const author = xml.match(/<author>[\s\S]*?<name>([^<]+)<\/name>/)?.[1];
+  return { episodes, meta: { title: feedTitle ? decodeXml(feedTitle) : undefined, channelName: author ? decodeXml(author) : undefined } };
 }
 
-async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
+type PlaylistMeta = { title?: string; channelName?: string; thumbnail?: string; description?: string };
+
+async function fetchPlaylistPage(playlistId: string): Promise<{ episodes: Episode[]; meta: PlaylistMeta }> {
   const res = await fetch(`https://www.youtube.com/playlist?list=${playlistId}`, {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
-  if (!res.ok) return [];
+  if (!res.ok) return { episodes: [], meta: {} };
   const html = await res.text();
   const rawJson = html.match(/var ytInitialData = (\{[\s\S]*?\});<\/script>/)?.[1]
     ?? html.match(/window\["ytInitialData"\]\s*=\s*(\{[\s\S]*?\});/)?.[1];
-  if (!rawJson) return [];
+  if (!rawJson) return { episodes: [], meta: {} };
 
   const initialData = JSON.parse(rawJson);
   const videos: Episode[] = [];
@@ -73,6 +77,24 @@ async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
     if (Array.isArray(value.runs)) return value.runs.map((run: any) => run.text ?? "").join("");
     return "";
   };
+
+  const meta: PlaylistMeta = {};
+  const sidebar = initialData?.sidebar?.playlistSidebarRenderer?.items ?? [];
+  for (const item of sidebar) {
+    const primary = item?.playlistSidebarPrimaryInfoRenderer;
+    if (primary) {
+      meta.title = textOf(primary.title);
+      meta.description = textOf(primary.description);
+      meta.thumbnail = primary.thumbnailRenderer?.playlistVideoThumbnailRenderer?.thumbnail?.thumbnails?.at(-1)?.url;
+    }
+    const secondary = item?.playlistSidebarSecondaryInfoRenderer;
+    if (secondary) {
+      meta.channelName = textOf(secondary.videoOwner?.videoOwnerRenderer?.title);
+    }
+  }
+  // Fallback from header
+  if (!meta.title) meta.title = textOf(initialData?.header?.playlistHeaderRenderer?.title);
+  if (!meta.channelName) meta.channelName = textOf(initialData?.header?.playlistHeaderRenderer?.ownerText);
 
   const visit = (node: any) => {
     if (!node || typeof node !== "object") return;
@@ -93,7 +115,7 @@ async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
   };
 
   visit(initialData);
-  return videos;
+  return { episodes: videos, meta };
 }
 
 function decodeXml(s: string): string {
@@ -145,12 +167,24 @@ Deno.serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceKey);
 
     // Update series with playlist info
-    await admin.from("academy_podcast_series").update({
+    const { episodes, meta } = await fetchPlaylist(playlistId);
+
+    // Update series with playlist info + auto-fill metadata if missing
+    const { data: existingSeries } = await admin
+      .from("academy_podcast_series").select("title, host_name, cover_url, description").eq("id", series_id).maybeSingle();
+
+    const seriesUpdate: Record<string, unknown> = {
       youtube_playlist_url: playlist_url,
       youtube_playlist_id: playlistId,
-    }).eq("id", series_id);
-
-    const episodes = await fetchPlaylist(playlistId);
+    };
+    if (meta.title && (!existingSeries?.title || existingSeries.title.trim() === "")) seriesUpdate.title = meta.title;
+    if (meta.channelName && !existingSeries?.host_name) seriesUpdate.host_name = meta.channelName;
+    if (meta.description && !existingSeries?.description) seriesUpdate.description = meta.description;
+    if (!existingSeries?.cover_url) {
+      const cover = meta.thumbnail ?? (episodes[0]?.thumbnail ?? null);
+      if (cover) seriesUpdate.cover_url = cover;
+    }
+    await admin.from("academy_podcast_series").update(seriesUpdate).eq("id", series_id);
 
     let imported = 0;
     let skipped = 0;
@@ -183,7 +217,7 @@ Deno.serve(async (req) => {
       if (error) skipped++; else imported++;
     }
 
-    return new Response(JSON.stringify({ imported, skipped, total: episodes.length }), {
+    return new Response(JSON.stringify({ imported, skipped, total: episodes.length, series: meta }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
