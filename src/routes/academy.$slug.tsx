@@ -28,6 +28,15 @@ export const Route = createFileRoute("/academy/$slug")({
   head: ({ loaderData }) => {
     const c = loaderData?.course;
     if (!c) return {};
+    const ldJson = {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      name: c.title,
+      description: c.meta_description || c.subtitle || c.description || "",
+      provider: { "@type": "Organization", name: "האקדמיה של המוזיקאי", sameAs: typeof window !== "undefined" ? window.location.origin : undefined },
+      ...(c.cover_url ? { image: c.cover_url } : {}),
+      ...(c.price ? { offers: { "@type": "Offer", price: c.price, priceCurrency: "ILS" } } : {}),
+    };
     return {
       meta: [
         { title: c.meta_title || `${c.title} — האקדמיה של המוזיקאי` },
@@ -35,6 +44,9 @@ export const Route = createFileRoute("/academy/$slug")({
         { property: "og:title", content: c.meta_title || c.title },
         { property: "og:description", content: c.meta_description || c.subtitle || "" },
         ...(c.cover_url ? [{ property: "og:image", content: c.cover_url }] : []),
+      ],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(ldJson) },
       ],
     };
   },
