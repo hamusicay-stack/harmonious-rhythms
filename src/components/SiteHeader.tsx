@@ -18,6 +18,7 @@ import { NotificationsBell } from "@/components/NotificationsBell";
 import { toast } from "sonner";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
+import { UserBadges } from "@/components/UserBadges";
 
 const navItems = [
   { to: "/shorts", label: "שורטס" },
