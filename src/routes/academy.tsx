@@ -74,6 +74,8 @@ function AcademyPage() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [courseLikes, setCourseLikes] = useState<Map<string, number>>(new Map());
+  const [podcastLikes, setPodcastLikes] = useState<Map<string, number>>(new Map());
   const [podcastSeries, setPodcastSeries] = useState<PodcastSeries[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
@@ -88,7 +90,7 @@ function AcademyPage() {
     const [{ data: cs }, { data: pods }, { data: series }] = await Promise.all([
       supabase
         .from("academy_courses")
-        .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured")
+        .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured,enrollments_count")
         .eq("status", "published")
         .order("is_featured", { ascending: false })
         .order("display_order"),
@@ -108,6 +110,24 @@ function AcademyPage() {
     setCourses((cs ?? []) as Course[]);
     setPodcasts((pods ?? []) as Podcast[]);
     setPodcastSeries((series ?? []) as PodcastSeries[]);
+
+    // Aggregate likes for courses & podcasts (graceful if no rows yet)
+    const courseIds = (cs ?? []).map((c) => c.id);
+    const podIds = (pods ?? []).map((p) => p.id);
+    const [{ data: cLikes }, { data: pLikes }] = await Promise.all([
+      courseIds.length
+        ? supabase.from("user_likes").select("item_id").eq("item_type", "academy_course").in("item_id", courseIds)
+        : Promise.resolve({ data: [] as { item_id: string }[] }),
+      podIds.length
+        ? supabase.from("user_likes").select("item_id").eq("item_type", "academy_podcast").in("item_id", podIds)
+        : Promise.resolve({ data: [] as { item_id: string }[] }),
+    ]);
+    const cMap = new Map<string, number>();
+    for (const l of cLikes ?? []) cMap.set(l.item_id, (cMap.get(l.item_id) ?? 0) + 1);
+    const pMap = new Map<string, number>();
+    for (const l of pLikes ?? []) pMap.set(l.item_id, (pMap.get(l.item_id) ?? 0) + 1);
+    setCourseLikes(cMap);
+    setPodcastLikes(pMap);
 
     if (user) {
       const [{ data: enr }, { data: certs }] = await Promise.all([
