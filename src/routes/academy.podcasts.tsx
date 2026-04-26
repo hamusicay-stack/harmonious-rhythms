@@ -78,6 +78,7 @@ function PodcastsPage() {
   };
 
   useEffect(() => { load(); }, []);
+  useAcademyRealtime(["academy_podcasts", "academy_podcast_series"], () => { load(); });
 
   const standalone = useMemo(() => podcasts.filter(p => !p.series_id), [podcasts]);
   const bySeries = useMemo(() => {
