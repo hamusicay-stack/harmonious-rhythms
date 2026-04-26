@@ -358,6 +358,41 @@ function CoursePage() {
   );
 }
 
+function ModuleAccordion({
+  title, defaultOpen, theater, count, children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  theater?: boolean;
+  count?: number;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  useEffect(() => { if (defaultOpen) setOpen(true); }, [defaultOpen]);
+  return (
+    <div className={`rounded-lg overflow-hidden ${theater ? "border border-white/10 bg-white/5" : "border"}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`flex w-full items-center justify-between px-3 py-2 text-sm font-semibold transition-colors ${
+          theater ? "bg-white/5 text-white hover:bg-white/10" : "bg-muted/40 hover:bg-muted/60"
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          <ChevronDown className={`h-4 w-4 transition-transform ${open ? "" : "-rotate-90"}`} />
+          <span className="truncate">{title}</span>
+        </span>
+        {typeof count === "number" && (
+          <span className={`text-[10px] rounded-full px-1.5 py-0.5 ${theater ? "bg-white/10 text-white/70" : "bg-muted text-muted-foreground"}`}>
+            {count}
+          </span>
+        )}
+      </button>
+      {open && children}
+    </div>
+  );
+}
+
 async function tryIssueCertificate(courseId: string, userId: string, _courseTitle: string) {
   const { data: enr } = await supabase.from("academy_enrollments").select("progress_percent").eq("user_id", userId).eq("course_id", courseId).maybeSingle();
   if (!enr || enr.progress_percent < 100) return;
