@@ -452,6 +452,7 @@ function AdminPage() {
           </TabsContent>
         </Tabs>
       </section>
+      </div>
     </SiteLayout>
   );
 }
