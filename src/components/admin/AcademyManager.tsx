@@ -52,18 +52,20 @@ type Lesson = {
 export function AcademyManager() {
   return (
     <Tabs defaultValue="courses" dir="rtl" className="space-y-4">
-      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-5">
+      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
         <TabsTrigger value="courses"><GraduationCap className="ml-1 h-4 w-4" />קורסים</TabsTrigger>
         <TabsTrigger value="codes"><Key className="ml-1 h-4 w-4" />קודי גישה</TabsTrigger>
         <TabsTrigger value="broadcasts"><Megaphone className="ml-1 h-4 w-4" />ברודקאסט</TabsTrigger>
         <TabsTrigger value="podcasts"><Mic className="ml-1 h-4 w-4" />פודקאסטים</TabsTrigger>
         <TabsTrigger value="quizzes"><ClipboardCheck className="ml-1 h-4 w-4" />מבחנים</TabsTrigger>
+        <TabsTrigger value="analytics"><BarChart3 className="ml-1 h-4 w-4" />אנליטיקס</TabsTrigger>
       </TabsList>
       <TabsContent value="courses"><CoursesManager /></TabsContent>
       <TabsContent value="codes"><AccessCodesManager /></TabsContent>
       <TabsContent value="broadcasts"><BroadcastsManager /></TabsContent>
       <TabsContent value="podcasts"><PodcastsManager /></TabsContent>
       <TabsContent value="quizzes"><QuizzesManager /></TabsContent>
+      <TabsContent value="analytics"><AcademyAnalytics /></TabsContent>
     </Tabs>
   );
 }
