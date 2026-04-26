@@ -333,7 +333,7 @@ function CoursePage() {
                         {ml.map((l) => {
                           const done = progress[l.id]?.is_completed;
                           const active = l.id === activeLessonId;
-                          const locked = !enrollment && !l.is_preview;
+                          const locked = !enrollment && !l.is_preview && !isLessonUnlockedByPreview(l.id);
                           return (
                             <button
                               key={l.id}
