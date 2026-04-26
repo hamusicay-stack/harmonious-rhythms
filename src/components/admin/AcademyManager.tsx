@@ -11,8 +11,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Megaphone, Key, GraduationCap, Layers, Video, Mic, ClipboardCheck, FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
+import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 
 type Course = {
   id: string;
@@ -519,36 +520,114 @@ function BroadcastsManager() {
 }
 
 // ============= Podcasts Manager =============
+function getYoutubeVideoId(url: string) {
+  return url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)?.[1] ?? null;
+}
+
+function getYoutubePlaylistId(url: string) {
+  return url.match(/[?&]list=([\w-]+)/)?.[1] ?? null;
+}
+
 function PodcastsManager() {
   const [items, setItems] = useState<any[]>([]);
+  const [series, setSeries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [seriesOpen, setSeriesOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", is_active: true, sort_order: 0 });
+  const [form, setForm] = useState({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 });
+  const [seriesForm, setSeriesForm] = useState({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
+  const [importingSeriesId, setImportingSeriesId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("academy_podcasts").select("*").order("sort_order").order("created_at", { ascending: false });
-    if (error) toast.error(error.message); else setItems(data ?? []);
+    const [podcastsRes, seriesRes] = await Promise.all([
+      supabase.from("academy_podcasts").select("*").order("series_id", { nullsFirst: false }).order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
+      supabase.from("academy_podcast_series").select("*").order("sort_order").order("created_at", { ascending: false }),
+    ]);
+    if (podcastsRes.error) toast.error(podcastsRes.error.message); else setItems(podcastsRes.data ?? []);
+    if (seriesRes.error) toast.error(seriesRes.error.message); else setSeries(seriesRes.data ?? []);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);
+  useAcademyRealtime(["academy_podcasts", "academy_podcast_series"], load);
 
   const startEdit = (p: any) => {
     setEditing(p);
-    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
+    setForm({ title: p.title, description: p.description ?? "", kind: p.kind, source_url: p.source_url, thumbnail_url: p.thumbnail_url ?? "", series_id: p.series_id ?? "none", episode_number: p.episode_number?.toString() ?? "", is_active: p.is_active, sort_order: p.sort_order ?? 0 });
     setOpen(true);
   };
-  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", is_active: true, sort_order: 0 }); setOpen(true); };
+  const startNew = () => { setEditing(null); setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none", episode_number: "", is_active: true, sort_order: 0 }); setOpen(true); };
 
   const save = async () => {
     if (!form.title.trim() || !form.source_url.trim()) return toast.error("כותרת וקישור חובה");
-    const payload = { ...form, description: form.description || null, thumbnail_url: form.thumbnail_url || null };
+    const videoId = form.kind === "youtube" ? getYoutubeVideoId(form.source_url) : null;
+    const playlistId = form.kind === "youtube" ? getYoutubePlaylistId(form.source_url) : null;
+    if (!videoId && playlistId) {
+      const targetSeriesId = form.series_id !== "none" ? form.series_id : await createSeriesFromPodcastForm();
+      if (targetSeriesId) await importPlaylist(targetSeriesId, form.source_url);
+      setOpen(false);
+      return;
+    }
+    const payload: any = {
+      title: form.title,
+      description: form.description || null,
+      kind: form.kind,
+      source_url: form.source_url,
+      thumbnail_url: form.thumbnail_url || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null),
+      series_id: form.series_id === "none" ? null : form.series_id,
+      episode_number: form.episode_number ? Number(form.episode_number) : null,
+      youtube_video_id: videoId,
+      is_active: form.is_active,
+      sort_order: form.sort_order,
+    };
     const { error } = editing
       ? await supabase.from("academy_podcasts").update(payload).eq("id", editing.id)
       : await supabase.from("academy_podcasts").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("נשמר"); setOpen(false); load();
+  };
+
+  const createSeries = async () => {
+    if (!seriesForm.title.trim()) return toast.error("שם סדרה חובה");
+    const { data, error } = await supabase.from("academy_podcast_series").insert({
+      title: seriesForm.title,
+      description: seriesForm.description || null,
+      host_name: seriesForm.host_name || null,
+      cover_url: seriesForm.cover_url || null,
+    } as any).select("*").single();
+    if (error) return toast.error(error.message);
+    toast.success("הסדרה נוצרה");
+    setSeriesOpen(false);
+    setSeriesForm({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
+    load();
+    if (seriesForm.playlist_url.trim()) await importPlaylist(data.id, seriesForm.playlist_url.trim());
+  };
+
+  const createSeriesFromPodcastForm = async () => {
+    const { data, error } = await supabase.from("academy_podcast_series").insert({
+      title: form.title,
+      description: form.description || null,
+      cover_url: form.thumbnail_url || null,
+    } as any).select("id").single();
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+    return data.id as string;
+  };
+
+  const importPlaylist = async (seriesId: string, playlistUrl?: string) => {
+    const url = playlistUrl ?? prompt("הדבק קישור פלייליסט ציבורי מיוטיוב") ?? "";
+    if (!url.trim()) return;
+    setImportingSeriesId(seriesId);
+    const { data, error } = await supabase.functions.invoke("import-youtube-playlist", {
+      body: { series_id: seriesId, playlist_url: url.trim() },
+    });
+    setImportingSeriesId(null);
+    if (error || data?.error) return toast.error(error?.message ?? data.error);
+    toast.success(`יובאו ${data.imported} פרקים`);
+    load();
   };
   const del = async (id: string) => {
     if (!confirm("למחוק?")) return;
@@ -560,15 +639,40 @@ function PodcastsManager() {
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold">פודקאסטים</h3>
-        <Button size="sm" onClick={startNew}><Plus className="ml-1 h-4 w-4" />חדש</Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setSeriesOpen(true)}><FolderOpen className="ml-1 h-4 w-4" />סדרה</Button>
+          <Button size="sm" onClick={startNew}><Plus className="ml-1 h-4 w-4" />פרק</Button>
+        </div>
       </div>
       {loading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : (
-        <div className="space-y-2">
+        <div className="space-y-4">
+          {series.length > 0 && (
+            <div className="grid gap-2 md:grid-cols-2">
+              {series.map((s) => (
+                <Card key={s.id} className="border-border/60">
+                  <CardContent className="flex items-center justify-between gap-3 p-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover" /> : <FolderOpen className="h-8 w-8 text-primary" />}
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">{s.title}</div>
+                        <div className="text-xs text-muted-foreground">{items.filter((p) => p.series_id === s.id).length} פרקים {s.youtube_playlist_id && "· YouTube"}</div>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => importPlaylist(s.id)} disabled={importingSeriesId === s.id}>
+                      {importingSeriesId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
           {items.map((p) => (
             <Card key={p.id}><CardContent className="p-3 flex items-center justify-between">
               <div>
                 <div className="font-medium">{p.title}</div>
-                <div className="text-xs text-muted-foreground">{p.kind} · {p.views_count} צפיות {!p.is_active && "· מושבת"}</div>
+                <div className="text-xs text-muted-foreground">
+                  {p.kind} · {p.views_count} צפיות {p.series_id && `· ${series.find((s) => s.id === p.series_id)?.title ?? "סדרה"}`} {!p.is_active && "· מושבת"}
+                </div>
               </div>
               <div className="flex gap-1">
                 <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
@@ -578,6 +682,19 @@ function PodcastsManager() {
           ))}
         </div>
       )}
+      <Dialog open={seriesOpen} onOpenChange={setSeriesOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>סדרת פודקאסט חדשה</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>שם הסדרה</Label><Input value={seriesForm.title} onChange={(e) => setSeriesForm({ ...seriesForm, title: e.target.value })} /></div>
+            <div><Label>שם העורך / המנחה</Label><Input value={seriesForm.host_name} onChange={(e) => setSeriesForm({ ...seriesForm, host_name: e.target.value })} /></div>
+            <div><Label>תיאור</Label><Textarea value={seriesForm.description} onChange={(e) => setSeriesForm({ ...seriesForm, description: e.target.value })} /></div>
+            <div><Label>תמונת תיקייה</Label><Input value={seriesForm.cover_url} onChange={(e) => setSeriesForm({ ...seriesForm, cover_url: e.target.value })} /></div>
+            <div><Label>פלייליסט YouTube לייבוא מיידי</Label><Input dir="ltr" value={seriesForm.playlist_url} onChange={(e) => setSeriesForm({ ...seriesForm, playlist_url: e.target.value })} placeholder="https://www.youtube.com/playlist?list=..." /></div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setSeriesOpen(false)}>ביטול</Button><Button onClick={createSeries}>צור</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? "ערוך" : "פודקאסט חדש"}</DialogTitle></DialogHeader>
@@ -597,6 +714,17 @@ function PodcastsManager() {
             </div>
             <div><Label>קישור</Label><Input value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} /></div>
             <div><Label>תמונת כיסוי</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div>
+              <Label>שייך לסדרה</Label>
+              <Select value={form.series_id} onValueChange={(v) => setForm({ ...form, series_id: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">ללא סדרה</SelectItem>
+                  {series.map((s) => <SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>מספר פרק</Label><Input type="number" value={form.episode_number} onChange={(e) => setForm({ ...form, episode_number: e.target.value })} /></div>
             <div><Label>סדר</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />פעיל</label>
           </div>

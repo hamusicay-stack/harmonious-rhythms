@@ -1,6 +1,5 @@
 // Imports videos from a public YouTube playlist into a podcast series.
-// Uses the public RSS feed (no API key required) — limited to ~15 latest videos.
-// Falls back to oEmbed for video titles when needed.
+// Uses public YouTube playlist sources (no API key required).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
@@ -23,6 +22,9 @@ type Episode = {
 };
 
 async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
+  const pageEpisodes = await fetchPlaylistPage(playlistId).catch(() => [] as Episode[]);
+  if (pageEpisodes.length > 0) return pageEpisodes;
+
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
   const res = await fetch(feedUrl);
   if (!res.ok) throw new Error(`Playlist not found or not public (${res.status})`);
@@ -49,6 +51,49 @@ async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
     }
   }
   return episodes;
+}
+
+async function fetchPlaylistPage(playlistId: string): Promise<Episode[]> {
+  const res = await fetch(`https://www.youtube.com/playlist?list=${playlistId}`, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
+  if (!res.ok) return [];
+  const html = await res.text();
+  const rawJson = html.match(/var ytInitialData = (\{[\s\S]*?\});<\/script>/)?.[1]
+    ?? html.match(/window\["ytInitialData"\]\s*=\s*(\{[\s\S]*?\});/)?.[1];
+  if (!rawJson) return [];
+
+  const initialData = JSON.parse(rawJson);
+  const videos: Episode[] = [];
+  const seen = new Set<string>();
+
+  const textOf = (value: any): string => {
+    if (!value) return "";
+    if (typeof value.simpleText === "string") return value.simpleText;
+    if (Array.isArray(value.runs)) return value.runs.map((run: any) => run.text ?? "").join("");
+    return "";
+  };
+
+  const visit = (node: any) => {
+    if (!node || typeof node !== "object") return;
+    const item = node.playlistVideoRenderer;
+    if (item?.videoId && !seen.has(item.videoId)) {
+      seen.add(item.videoId);
+      const thumbnails = item.thumbnail?.thumbnails ?? [];
+      videos.push({
+        videoId: item.videoId,
+        title: textOf(item.title) || "פרק ללא שם",
+        description: textOf(item.descriptionSnippet),
+        thumbnail: thumbnails.at(-1)?.url ?? `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`,
+        publishedAt: "",
+      });
+    }
+    if (Array.isArray(node)) node.forEach(visit);
+    else Object.values(node).forEach(visit);
+  };
+
+  visit(initialData);
+  return videos;
 }
 
 function decodeXml(s: string): string {
@@ -112,7 +157,7 @@ Deno.serve(async (req) => {
     for (let i = 0; i < episodes.length; i++) {
       const ep = episodes[i];
       const sourceUrl = `https://www.youtube.com/watch?v=${ep.videoId}&list=${playlistId}`;
-      const { error } = await admin.from("academy_podcasts").upsert({
+      const payload = {
         series_id,
         youtube_video_id: ep.videoId,
         title: ep.title,
@@ -123,7 +168,18 @@ Deno.serve(async (req) => {
         episode_number: i + 1,
         sort_order: i,
         created_by: user.id,
-      }, { onConflict: "series_id,youtube_video_id", ignoreDuplicates: false });
+        is_active: true,
+      };
+
+      const { data: existing } = await admin
+        .from("academy_podcasts")
+        .select("id")
+        .eq("youtube_video_id", ep.videoId)
+        .maybeSingle();
+
+      const { error } = existing?.id
+        ? await admin.from("academy_podcasts").update(payload).eq("id", existing.id)
+        : await admin.from("academy_podcasts").insert(payload);
       if (error) skipped++; else imported++;
     }
 
