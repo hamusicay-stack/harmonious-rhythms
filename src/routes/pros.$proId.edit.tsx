@@ -136,6 +136,26 @@ function EditProPage() {
     setMedia(media.filter((m) => m.id !== id));
   };
 
+  const formState: ProFormState = {
+    display_name: pro.display_name ?? "",
+    headline: pro.headline ?? "",
+    bio: pro.bio ?? "",
+    region: pro.region ?? "",
+    cities: pro.cities ?? [],
+    specialties: pro.specialties ?? [],
+    genres: pro.genres ?? [],
+    gear_list: pro.gear_list ?? [],
+    brand_color: pro.brand_color ?? "#D4A24E",
+    hourly_price_min: pro.hourly_price_min ?? null,
+    profile_image: pro.profile_image ?? null,
+    cover_image: pro.cover_image ?? null,
+    whatsapp: pro.whatsapp ?? "",
+    phone: pro.phone ?? "",
+    instagram: pro.instagram ?? "",
+    youtube: pro.youtube ?? "",
+    website: pro.website ?? "",
+  };
+
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8 text-right">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
@@ -146,91 +166,14 @@ function EditProPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="space-y-5 p-6">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <Label>שם תצוגה</Label>
-              <Input value={pro.display_name || ""} onChange={(e) => setPro({ ...pro, display_name: e.target.value })} />
-            </div>
-            <div><Label>כותרת מקצועית</Label><Input value={pro.headline || ""} onChange={(e) => setPro({ ...pro, headline: e.target.value })} placeholder="לדוגמה: קלידן לאירועים ואולפן" /></div>
-          </div>
-          <div><Label>על עצמי</Label><Textarea rows={4} value={pro.bio || ""} onChange={(e) => setPro({ ...pro, bio: e.target.value })} /></div>
-
-          <div>
-            <Label className="mb-2 block">התמחות</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {SPECIALTIES.map((s) => (
-                <button key={s.value} type="button" onClick={() => toggle("specialties", s.value)}
-                  className={`rounded-full border px-3 py-1 text-xs ${pro.specialties.includes(s.value) ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label className="mb-2 block">סגנונות</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {GENRES.map((g) => (
-                <button key={g.value} type="button" onClick={() => toggle("genres", g.value)}
-                  className={`rounded-full border px-3 py-1 text-xs ${pro.genres.includes(g.value) ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
-                  {g.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-3">
-            <div><Label>אזור</Label>
-              <select className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm" value={pro.region || ""} onChange={(e) => setPro({ ...pro, region: e.target.value })}>
-                <option value="">בחר...</option>
-                {REGIONS.map((r) => (<option key={r} value={r}>{r}</option>))}
-              </select>
-            </div>
-            <div><Label>ערים</Label>
-              <Input value={(pro.cities || []).join(", ")} onChange={(e) => setPro({ ...pro, cities: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })} /></div>
-            <div><Label>מחיר ₪</Label>
-              <Input type="number" dir="ltr" value={pro.hourly_price_min || ""} onChange={(e) => setPro({ ...pro, hourly_price_min: e.target.value ? Number(e.target.value) : null })} /></div>
-          </div>
-
-          <div><Label>ציוד</Label>
-            <Input value={(pro.gear_list || []).join(", ")} onChange={(e) => setPro({ ...pro, gear_list: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })} /></div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div><Label>תמונת פרופיל</Label>
-              <MediaUploader folder="profile" accept="image/*" value={pro.profile_image} onChange={(url) => setPro({ ...pro, profile_image: url })} /></div>
-            <div><Label>קאבר</Label>
-              <MediaUploader folder="cover" accept="image/*" value={pro.cover_image} onChange={(url) => setPro({ ...pro, cover_image: url })} /></div>
-          </div>
-
-          <div>
-            <Label>צבע מותג</Label>
-            <div className="flex items-center gap-2">
-              <input type="color" value={pro.brand_color || "#D4A24E"} onChange={(e) => setPro({ ...pro, brand_color: e.target.value })} className="h-10 w-16 rounded border" />
-              <Input dir="ltr" value={pro.brand_color || ""} onChange={(e) => setPro({ ...pro, brand_color: e.target.value })} className="max-w-[140px]" />
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div><Label>וואטסאפ</Label><Input dir="ltr" value={pro.whatsapp || ""} onChange={(e) => setPro({ ...pro, whatsapp: e.target.value })} /></div>
-            <div><Label>טלפון</Label><Input dir="ltr" value={pro.phone || ""} onChange={(e) => setPro({ ...pro, phone: e.target.value })} /></div>
-            <div><Label>Instagram</Label><Input dir="ltr" value={pro.instagram || ""} onChange={(e) => setPro({ ...pro, instagram: e.target.value })} /></div>
-            <div><Label>YouTube</Label><Input dir="ltr" value={pro.youtube || ""} onChange={(e) => setPro({ ...pro, youtube: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label>אתר</Label><Input dir="ltr" value={pro.website || ""} onChange={(e) => setPro({ ...pro, website: e.target.value })} /></div>
-          </div>
-
-          <div>
-            <Label className="mb-2 block">חבילות מחיר</Label>
-            <PackagesEditor value={packages} onChange={setPackages} />
-          </div>
-
-          <Button onClick={save} disabled={saving} size="lg" className="w-full">
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
-            שמור שינויים
-          </Button>
-        </CardContent>
-      </Card>
+      <ProProfileWizard
+        value={formState}
+        onChange={(next) => setPro({ ...pro, ...next })}
+        packages={packages}
+        onPackagesChange={setPackages}
+        onSave={save}
+        saving={saving}
+      />
 
       <Card className="mt-6">
         <CardContent className="space-y-4 p-6">
