@@ -13,6 +13,7 @@ import { LessonQA } from "@/components/academy/LessonQA";
 import { ModuleQuiz } from "@/components/academy/ModuleQuiz";
 import { ChaptersList } from "@/components/academy/ChaptersList";
 import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
+import { trackAcademyEvent } from "@/lib/academyAnalytics";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
