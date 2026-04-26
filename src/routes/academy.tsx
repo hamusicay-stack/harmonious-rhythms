@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/academy")({
@@ -65,41 +66,51 @@ function AcademyPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"all" | "courses" | "podcasts" | "mine">("all");
 
+  const reload = async () => {
+    const [{ data: cs }, { data: pods }] = await Promise.all([
+      supabase
+        .from("academy_courses")
+        .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured")
+        .eq("status", "published")
+        .order("is_featured", { ascending: false })
+        .order("display_order"),
+      supabase
+        .from("academy_podcasts")
+        .select("id,title,description,kind,source_url,thumbnail_url,views_count")
+        .eq("is_active", true)
+        .order("sort_order")
+        .order("created_at", { ascending: false })
+        .limit(12),
+    ]);
+    setCourses((cs ?? []) as Course[]);
+    setPodcasts((pods ?? []) as Podcast[]);
+
+    if (user) {
+      const [{ data: enr }, { data: certs }] = await Promise.all([
+        supabase
+          .from("academy_enrollments")
+          .select("course_id,progress_percent,last_lesson_id,last_accessed_at")
+          .eq("user_id", user.id),
+        supabase.from("academy_certificates").select("*").eq("user_id", user.id),
+      ]);
+      setEnrollments((enr ?? []) as Enrollment[]);
+      setCertificates(certs ?? []);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const [{ data: cs }, { data: pods }] = await Promise.all([
-        supabase
-          .from("academy_courses")
-          .select("id,slug,title,subtitle,cover_url,price,level,total_lessons,duration_minutes,is_featured")
-          .eq("status", "published")
-          .order("is_featured", { ascending: false })
-          .order("display_order"),
-        supabase
-          .from("academy_podcasts")
-          .select("id,title,description,kind,source_url,thumbnail_url,views_count")
-          .eq("is_active", true)
-          .order("sort_order")
-          .order("created_at", { ascending: false })
-          .limit(12),
-      ]);
-      setCourses((cs ?? []) as Course[]);
-      setPodcasts((pods ?? []) as Podcast[]);
-
-      if (user) {
-        const [{ data: enr }, { data: certs }] = await Promise.all([
-          supabase
-            .from("academy_enrollments")
-            .select("course_id,progress_percent,last_lesson_id,last_accessed_at")
-            .eq("user_id", user.id),
-          supabase.from("academy_certificates").select("*").eq("user_id", user.id),
-        ]);
-        setEnrollments((enr ?? []) as Enrollment[]);
-        setCertificates(certs ?? []);
-      }
+      await reload();
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useAcademyRealtime(
+    ["academy_courses", "academy_podcasts", "academy_enrollments"],
+    () => { reload(); },
+  );
 
   const redeemCode = async () => {
     if (!user) return toast.error("יש להתחבר כדי להזין קוד");

@@ -13,6 +13,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mic, Plus, Youtube, Upload, Headphones, Share2, FolderOpen, ArrowRight, Download, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAcademyRealtime } from "@/hooks/useAcademyRealtime";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -77,6 +78,7 @@ function PodcastsPage() {
   };
 
   useEffect(() => { load(); }, []);
+  useAcademyRealtime(["academy_podcasts", "academy_podcast_series"], () => { load(); });
 
   const standalone = useMemo(() => podcasts.filter(p => !p.series_id), [podcasts]);
   const bySeries = useMemo(() => {
