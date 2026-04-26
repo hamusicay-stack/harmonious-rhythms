@@ -4131,7 +4131,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "content_editor"
+        | "finance"
+        | "support"
       automation_action: "send_email" | "open_whatsapp" | "create_task"
       automation_trigger:
         | "lead_status_changed"
@@ -4322,7 +4328,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "content_editor",
+        "finance",
+        "support",
+      ],
       automation_action: ["send_email", "open_whatsapp", "create_task"],
       automation_trigger: [
         "lead_status_changed",
