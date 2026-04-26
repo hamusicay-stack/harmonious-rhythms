@@ -1,16 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Save, Loader2, Trash2, Plus, Music, Video } from "lucide-react";
+import { Loader2, Trash2, Plus, Music, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { MediaUploader } from "@/components/pros/MediaUploader";
-import { PackagesEditor, type EditablePackage } from "@/components/pros/PackagesEditor";
-import { SPECIALTIES, GENRES, REGIONS } from "@/lib/prosData";
+import { type EditablePackage } from "@/components/pros/PackagesEditor";
+import { ProProfileWizard, type ProFormState } from "@/components/pros/ProProfileWizard";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pros/$proId/edit")({
