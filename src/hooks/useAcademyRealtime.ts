@@ -12,8 +12,7 @@ export function useAcademyRealtime(
   useEffect(() => {
     const channel = supabase.channel(`academy-rt-${tables.join("-")}-${Math.random().toString(36).slice(2, 8)}`);
     tables.forEach((table) => {
-      channel.on(
-        // @ts-expect-error - postgres_changes typing
+      (channel as any).on(
         "postgres_changes",
         { event: "*", schema: "public", table },
         () => onChange(),
