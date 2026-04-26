@@ -392,6 +392,9 @@ function SectionGrid({ title, children }: { title: string; children: React.React
 }
 
 function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts: Podcast[] }) {
+  const episodeCount = (seriesId: string) => podcasts.filter((p) => p.series_id === seriesId).length;
+  const standalone = podcasts.filter((p) => !p.series_id);
+
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
@@ -401,10 +404,10 @@ function PodcastStrip({ series, podcasts }: { series: PodcastSeries[]; podcasts:
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
         {series.slice(0, 8).map((s) => (
           <div key={s.id} className="shrink-0 w-44 md:w-auto">
-            <PodcastSeriesCard series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />
+            <PodcastSeriesCard series={s} count={episodeCount(s.id)} />
           </div>
         ))}
-        {series.length === 0 && podcasts.slice(0, 8).map((p) => (
+        {series.length === 0 && standalone.slice(0, 8).map((p) => (
           <div key={p.id} className="shrink-0 w-44 md:w-auto">
             <PodcastCard podcast={p} />
           </div>
