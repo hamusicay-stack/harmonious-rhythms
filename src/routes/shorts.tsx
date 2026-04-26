@@ -1339,7 +1339,10 @@ function UploadDialog({
         <DialogHeader>
           <DialogTitle className="text-right">העלאת סרטון שורטס</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <form
+          className="space-y-4"
+          onSubmit={(e) => { e.preventDefault(); if (!uploading) submit(); }}
+        >
           <div className="space-y-2">
             <Label>כותרת *</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="למשל: סולו קלידים בחתונה" />
