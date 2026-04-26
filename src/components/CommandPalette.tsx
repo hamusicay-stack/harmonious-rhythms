@@ -49,8 +49,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="glass-z3 glass-noise max-w-xl gap-0 border-white/40 p-0 shadow-elevated"
-        showCloseButton={false}
+        className="glass-z3 glass-noise max-w-xl gap-0 border-white/40 p-0 shadow-elevated [&>button.absolute]:hidden"
       >
         <VisuallyHidden>
           <DialogTitle>פלטת פקודות</DialogTitle>
