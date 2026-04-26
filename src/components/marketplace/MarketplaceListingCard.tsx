@@ -47,29 +47,16 @@ function formatWa(num?: string | null) {
 export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, isTrusted }: Props) {
   const { user } = useAuth();
   const [imgIdx, setImgIdx] = useState(0);
-  const [liked, setLiked] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
+  const { liked, toggle } = useListingLike(listing.id);
   const images = listing.images?.length ? listing.images : [];
   const bumped = listing.bump_expires_at && new Date(listing.bump_expires_at) > new Date();
-
-  useEffect(() => {
-    if (!user) return;
-    let alive = true;
-    supabase.from("marketplace_likes").select("id").eq("listing_id", listing.id).eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => { if (alive) setLiked(!!data); });
-    return () => { alive = false; };
-  }, [user, listing.id]);
 
   const toggleLike = async (e: MouseEvent) => {
     stop(e);
     if (!user) { toast.error("יש להתחבר כדי לשמור מועדפים"); return; }
-    if (liked) {
-      await supabase.from("marketplace_likes").delete().eq("listing_id", listing.id).eq("user_id", user.id);
-      setLiked(false);
-    } else {
-      await supabase.from("marketplace_likes").insert({ listing_id: listing.id, user_id: user.id });
-      setLiked(true);
-    }
+    const r = await toggle();
+    if (!r.ok && r.reason === "error") toast.error("הפעולה נכשלה");
   };
 
   const openWa = (e: MouseEvent) => {
