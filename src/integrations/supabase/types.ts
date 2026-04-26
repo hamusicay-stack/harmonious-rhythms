@@ -2689,6 +2689,69 @@ export type Database = {
           },
         ]
       }
+      points_ledger: {
+        Row: {
+          created_at: string
+          event_key: string
+          id: string
+          notes: string | null
+          points: number
+          reference_id: string | null
+          reference_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_key: string
+          id?: string
+          notes?: string | null
+          points: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_key?: string
+          id?: string
+          notes?: string | null
+          points?: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      points_rules: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          event_key: string
+          id: string
+          label: string
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          event_key: string
+          id?: string
+          label: string
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          event_key?: string
+          id?: string
+          label?: string
+          points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2752,6 +2815,33 @@ export type Database = {
           username?: string | null
           website?: string | null
           youtube?: string | null
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          permission_key?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4020,6 +4110,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points: {
+        Row: {
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_push_subscriptions: {
         Row: {
           auth: string
@@ -4096,6 +4204,16 @@ export type Database = {
       affiliate_approve_application: {
         Args: { _app_id: string }
         Returns: string
+      }
+      award_points_for_event: {
+        Args: {
+          _event_key: string
+          _notes?: string
+          _reference_id?: string
+          _reference_type?: string
+          _user_id: string
+        }
+        Returns: number
       }
       delete_email: {
         Args: { message_id: number; queue_name: string }
