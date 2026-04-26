@@ -168,9 +168,12 @@ function AcademyPage() {
     !q || c.title.toLowerCase().includes(q) || (c.subtitle ?? "").toLowerCase().includes(q);
   const matchPodcast = (p: Podcast) =>
     !q || p.title.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q);
+  const matchSeries = (s: PodcastSeries) =>
+    !q || s.title.toLowerCase().includes(q) || (s.description ?? "").toLowerCase().includes(q) || (s.host_name ?? "").toLowerCase().includes(q);
 
   const filteredCourses = courses.filter(matchCourse);
   const filteredPodcasts = podcasts.filter(matchPodcast);
+  const filteredPodcastSeries = podcastSeries.filter(matchSeries);
   const filteredMine = myCourses.filter(matchCourse);
 
   return (
@@ -322,10 +325,10 @@ function AcademyPage() {
                       .map((c) => <CourseCard key={c.id} course={c} />)}
                   </SectionGrid>
                 )}
-                {filteredPodcasts.length > 0 && (
-                  <PodcastStrip podcasts={filteredPodcasts} />
+                {(filteredPodcastSeries.length > 0 || filteredPodcasts.length > 0) && (
+                  <PodcastStrip series={filteredPodcastSeries} podcasts={filteredPodcasts.filter((p) => !p.series_id)} />
                 )}
-                {filteredCourses.length === 0 && filteredPodcasts.length === 0 && (
+                {filteredCourses.length === 0 && filteredPodcasts.length === 0 && filteredPodcastSeries.length === 0 && (
                   <EmptyState />
                 )}
               </TabsContent>
@@ -342,9 +345,10 @@ function AcademyPage() {
               </TabsContent>
 
               <TabsContent value="podcasts">
-                {filteredPodcasts.length === 0 ? <EmptyState /> : (
+                {filteredPodcastSeries.length === 0 && filteredPodcasts.length === 0 ? <EmptyState /> : (
                   <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {filteredPodcasts.map((p) => <PodcastCard key={p.id} podcast={p} />)}
+                    {filteredPodcastSeries.map((s) => <PodcastSeriesCard key={s.id} series={s} count={podcasts.filter((p) => p.series_id === s.id).length} />)}
+                    {filteredPodcasts.filter((p) => !p.series_id).map((p) => <PodcastCard key={p.id} podcast={p} />)}
                   </div>
                 )}
                 <div className="mt-4 flex justify-center">
