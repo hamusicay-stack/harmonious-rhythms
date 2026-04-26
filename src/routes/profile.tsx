@@ -20,6 +20,7 @@ import { labelOf, SPECIALTIES } from "@/lib/prosData";
 import { NotificationsList } from "@/components/NotificationsList";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
+import { UserBadges } from "@/components/UserBadges";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -83,8 +84,9 @@ function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-display text-3xl font-bold md:text-4xl">
-                {profile?.display_name || "הפרופיל שלי"}
+              <h1 className="font-display text-3xl font-bold md:text-4xl flex items-center gap-2 flex-wrap">
+                <span>{profile?.display_name || "הפרופיל שלי"}</span>
+                <UserBadges userId={user.id} size="sm" />
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
             </div>

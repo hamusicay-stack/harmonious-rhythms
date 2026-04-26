@@ -18,6 +18,7 @@ import { NotificationsBell } from "@/components/NotificationsBell";
 import { toast } from "sonner";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
+import { UserBadges } from "@/components/UserBadges";
 
 const navItems = [
   { to: "/shorts", label: "שורטס" },
@@ -123,7 +124,10 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 glass-z3 border-white/40">
                   <DropdownMenuLabel className="text-right">
-                    <div className="font-semibold">{profile?.display_name ?? "משתמש"}</div>
+                    <div className="font-semibold flex items-center gap-1.5 flex-wrap">
+                      <span>{profile?.display_name ?? "משתמש"}</span>
+                      <UserBadges userId={user.id} />
+                    </div>
                     <div className="text-xs font-normal text-muted-foreground">{user.email}</div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
