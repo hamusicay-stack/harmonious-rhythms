@@ -329,19 +329,45 @@ function ShortsPage() {
     }
   }, [creatorIndex]);
 
-  // Track video & autoplay next + view increment
+  // Track video & autoplay next + view increment.
+  // CRITICAL: explicit cleanup of <video> between transitions to prevent
+  // memory leaks and "black screen" symptoms after several swipes.
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !current) return;
     void supabase.rpc("increment_short_views", { _video_id: current.id });
 
+    setProgress(0);
+    // Force the browser to pick up the new src cleanly
+    try { v.load(); } catch { /* ignore */ }
+    const playPromise = v.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => { /* autoplay rejected — user can tap */ });
+    }
+
     const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
     const onEnd = () => { goNext(); };
+    const onError = () => {
+      // Skip a broken video instead of leaving a black screen forever
+      console.warn("Shorts video error, skipping:", current.id);
+      setTimeout(() => goNext(), 400);
+    };
+    const onStalled = () => { try { v.load(); } catch { /* ignore */ } };
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("ended", onEnd);
+    v.addEventListener("error", onError);
+    v.addEventListener("stalled", onStalled);
     return () => {
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
+      v.removeEventListener("error", onError);
+      v.removeEventListener("stalled", onStalled);
+      // Release the previous video resource so the browser frees the decoder
+      try {
+        v.pause();
+        v.removeAttribute("src");
+        v.load();
+      } catch { /* ignore */ }
     };
   }, [current?.id, goNext]);
 
