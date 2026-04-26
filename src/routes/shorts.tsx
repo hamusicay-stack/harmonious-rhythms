@@ -362,7 +362,10 @@ function ShortsPage() {
       v = videoRef.current;
       if (!v) return;
 
-      try { v.load(); } catch { /* ignore */ }
+      // NOTE: Do NOT call v.load() here. The <video> uses key={short.id},
+      // which means React already mounted a fresh element with the new src.
+      // Calling load() forces another full network fetch + decoder reset,
+      // which is what caused the visible "stutter" between videos.
       const playPromise = v.play();
       if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(() => { /* autoplay rejected — user can tap */ });
@@ -377,7 +380,7 @@ function ShortsPage() {
         console.warn("Shorts video error, skipping:", current.id);
         setTimeout(() => goNextRef.current(), 400);
       };
-      onStalled = () => { try { v?.load(); } catch { /* ignore */ } };
+      onStalled = () => { /* avoid load() — let the browser recover natively */ };
       v.addEventListener("timeupdate", onTime);
       v.addEventListener("ended", onEnd);
       v.addEventListener("error", onError);
