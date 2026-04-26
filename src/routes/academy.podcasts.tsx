@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer, type AudioTrack } from "@/contexts/AudioPlayerContext";
 import { ChaptersList } from "@/components/academy/ChaptersList";
 import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
+import { trackAcademyEvent } from "@/lib/academyAnalytics";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/academy/podcasts")({
