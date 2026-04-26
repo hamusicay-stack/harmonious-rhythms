@@ -21,9 +21,9 @@ type Episode = {
   publishedAt: string;
 };
 
-async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
-  const pageEpisodes = await fetchPlaylistPage(playlistId).catch(() => [] as Episode[]);
-  if (pageEpisodes.length > 0) return pageEpisodes;
+async function fetchPlaylist(playlistId: string): Promise<{ episodes: Episode[]; meta: PlaylistMeta }> {
+  const page = await fetchPlaylistPage(playlistId).catch(() => ({ episodes: [], meta: {} as PlaylistMeta }));
+  if (page.episodes.length > 0) return page;
 
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
   const res = await fetch(feedUrl);
@@ -50,7 +50,9 @@ async function fetchPlaylist(playlistId: string): Promise<Episode[]> {
       });
     }
   }
-  return episodes;
+  const feedTitle = xml.match(/<title>([^<]+)<\/title>/)?.[1];
+  const author = xml.match(/<author>[\s\S]*?<name>([^<]+)<\/name>/)?.[1];
+  return { episodes, meta: { title: feedTitle ? decodeXml(feedTitle) : undefined, channelName: author ? decodeXml(author) : undefined } };
 }
 
 type PlaylistMeta = { title?: string; channelName?: string; thumbnail?: string; description?: string };
