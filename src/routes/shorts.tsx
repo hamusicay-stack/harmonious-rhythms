@@ -330,44 +330,63 @@ function ShortsPage() {
   }, [creatorIndex]);
 
   // Track video & autoplay next + view increment.
-  // CRITICAL: explicit cleanup of <video> between transitions to prevent
-  // memory leaks and "black screen" symptoms after several swipes.
+  // CRITICAL: <video> uses key={short.id} so React fully remounts on each
+  // change. The ref is reattached AFTER this effect runs synchronously, so we
+  // wait one microtask before kicking off play(). Cleanup only detaches
+  // listeners — it must NOT touch src or call load(), because by then `v`
+  // points at the OLD element that React has already removed; calling
+  // removeAttribute("src") + load() on a stale node was the root cause of the
+  // "black screen" after a few swipes.
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v || !current) return;
+    if (!current) return;
     void supabase.rpc("increment_short_views", { _video_id: current.id });
-
     setProgress(0);
-    // Force the browser to pick up the new src cleanly
-    try { v.load(); } catch { /* ignore */ }
-    const playPromise = v.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => { /* autoplay rejected — user can tap */ });
-    }
 
-    const onTime = () => setProgress((v.currentTime / (v.duration || 1)) * 100);
-    const onEnd = () => { goNext(); };
-    const onError = () => {
-      // Skip a broken video instead of leaving a black screen forever
-      console.warn("Shorts video error, skipping:", current.id);
-      setTimeout(() => goNext(), 400);
-    };
-    const onStalled = () => { try { v.load(); } catch { /* ignore */ } };
-    v.addEventListener("timeupdate", onTime);
-    v.addEventListener("ended", onEnd);
-    v.addEventListener("error", onError);
-    v.addEventListener("stalled", onStalled);
+    let cancelled = false;
+    let v: HTMLVideoElement | null = null;
+    let onTime: (() => void) | null = null;
+    let onEnd: (() => void) | null = null;
+    let onError: (() => void) | null = null;
+    let onStalled: (() => void) | null = null;
+
+    // Wait for React to attach the ref to the new <video>
+    const raf = requestAnimationFrame(() => {
+      if (cancelled) return;
+      v = videoRef.current;
+      if (!v) return;
+
+      try { v.load(); } catch { /* ignore */ }
+      const playPromise = v.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => { /* autoplay rejected — user can tap */ });
+      }
+
+      onTime = () => {
+        if (!v) return;
+        setProgress((v.currentTime / (v.duration || 1)) * 100);
+      };
+      onEnd = () => { goNext(); };
+      onError = () => {
+        console.warn("Shorts video error, skipping:", current.id);
+        setTimeout(() => goNext(), 400);
+      };
+      onStalled = () => { try { v?.load(); } catch { /* ignore */ } };
+      v.addEventListener("timeupdate", onTime);
+      v.addEventListener("ended", onEnd);
+      v.addEventListener("error", onError);
+      v.addEventListener("stalled", onStalled);
+    });
+
     return () => {
-      v.removeEventListener("timeupdate", onTime);
-      v.removeEventListener("ended", onEnd);
-      v.removeEventListener("error", onError);
-      v.removeEventListener("stalled", onStalled);
-      // Release the previous video resource so the browser frees the decoder
-      try {
-        v.pause();
-        v.removeAttribute("src");
-        v.load();
-      } catch { /* ignore */ }
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      if (v) {
+        if (onTime) v.removeEventListener("timeupdate", onTime);
+        if (onEnd) v.removeEventListener("ended", onEnd);
+        if (onError) v.removeEventListener("error", onError);
+        if (onStalled) v.removeEventListener("stalled", onStalled);
+        try { v.pause(); } catch { /* ignore */ }
+      }
     };
   }, [current?.id, goNext]);
 
