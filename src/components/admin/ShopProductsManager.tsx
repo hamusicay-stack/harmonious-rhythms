@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2, Package } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2, Package, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { formatILS, slugify, PRODUCT_TYPE_LABEL, FULFILLMENT_LABEL, PRODUCT_STATUS_LABEL, STATUS_TAG_OPTIONS } from "@/lib/shopUtils";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -84,6 +84,35 @@ export function ShopProductsManager() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+
+  const enhanceDescription = async () => {
+    if (!editing) return;
+    setEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("enhance-product-description", {
+        body: {
+          product_name: editing.title,
+          brand: editing.brand,
+          model: editing.model,
+          short_description: editing.short_description,
+          description: editing.description,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.description) {
+        setEditing({ ...editing, description: data.description });
+        toast.success("שודרג בעזרת AI ✨");
+      } else {
+        toast.error("לא חזר תוכן");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "שדרוג נכשל");
+    } finally {
+      setEnhancing(false);
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -260,7 +289,13 @@ export function ShopProductsManager() {
                 <Input value={editing.short_description ?? ""} onChange={(e) => setEditing({ ...editing, short_description: e.target.value })} />
               </div>
               <div className="md:col-span-2">
-                <Label>תיאור מלא</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label>תיאור מלא</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={enhanceDescription} disabled={enhancing || !editing.title}>
+                    {enhancing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Sparkles className="ml-1 h-4 w-4" />}
+                    שדרג עם AI
+                  </Button>
+                </div>
                 <RichTextEditor
                   value={editing.description ?? ""}
                   onChange={(html) => setEditing({ ...editing, description: html })}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame, Pencil, Eye } from "lucide-react";
+import { Upload, X, ArrowRight, ArrowLeft, Loader2, User, Building2, Zap, Check, MessageCircle, Music, Flame, Pencil, Eye, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,6 +98,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [phoneHasWhatsapp, setPhoneHasWhatsapp] = useState(
     isEdit ? (!initialWa && !!initialPhone) || initialWa === initialPhone : true
   );
+  const [enhancing, setEnhancing] = useState(false);
   const specs = (initial?.specs ?? {}) as { year?: string | null; has_rhythms?: boolean; has_samples?: boolean };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [form, setForm] = useState<any>({
@@ -147,6 +148,42 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const isKeyboard = form.category === "keyboards" || form.category === "pianos";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const update = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
+
+  const enhanceWithAI = async () => {
+    if (!form.title && !form.brand && !form.category) {
+      toast.error("מלא קודם כותרת/יצרן/קטגוריה כדי שנדע מה לכתוב");
+      return;
+    }
+    setEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("enhance-listing-description", {
+        body: {
+          title: form.title,
+          brand: form.brand === "אחר" ? form.customBrand : form.brand,
+          model: form.model,
+          category: form.category === "אחר" ? form.customCategory : form.category,
+          condition: form.item_condition,
+          year: form.year,
+          price: form.price,
+          city: form.city === "אחר" ? form.customCity : form.city,
+          current_description: form.description,
+          is_urgent: isUrgent,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.description) {
+        update("description", data.description);
+        toast.success("המודעה שודרגה — תוכל לערוך עוד ✨");
+      } else {
+        toast.error("לא חזר תוכן");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "שדרוג נכשל");
+    } finally {
+      setEnhancing(false);
+    }
+  };
 
   const registerBusiness = async () => {
     if (!user) return;
@@ -536,8 +573,14 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
               </div>
             )}
             <div className="space-y-2">
-              <Label>תיאור מפורט</Label>
-              <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} rows={4} placeholder="תאר את הכלי, מצבו, מה כלול..." />
+              <div className="flex items-center justify-between">
+                <Label>תיאור מפורט</Label>
+                <Button type="button" size="sm" variant="outline" onClick={enhanceWithAI} disabled={enhancing}>
+                  {enhancing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Sparkles className="ml-1 h-4 w-4" />}
+                  כתוב לי עם AI
+                </Button>
+              </div>
+              <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} rows={6} placeholder="תאר את הכלי, מצבו, מה כלול... או לחץ על 'כתוב לי עם AI' ותן לעוזר לעשות את זה בשבילך." />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
