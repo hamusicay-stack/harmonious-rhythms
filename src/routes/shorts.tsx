@@ -1292,8 +1292,8 @@ function UploadDialog({
   };
 
   const submit = async () => {
-    if (!user) { toast.error("יש להתחבר"); return; }
-    if (!title.trim()) { toast.error("כותרת חובה"); return; }
+    if (!user) { toast.error("רגע — צריך להיכנס לאולפן"); return; }
+    if (!title.trim()) { toast.error("כותרת חובה — תנו לסרטון שם שיתפוס"); return; }
     if (files.length === 0) { toast.error("יש לבחור סרטון"); return; }
 
     const allowed = await checkQuota();
