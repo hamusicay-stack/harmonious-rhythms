@@ -98,6 +98,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   const [phoneHasWhatsapp, setPhoneHasWhatsapp] = useState(
     isEdit ? (!initialWa && !!initialPhone) || initialWa === initialPhone : true
   );
+  const [enhancing, setEnhancing] = useState(false);
   const specs = (initial?.specs ?? {}) as { year?: string | null; has_rhythms?: boolean; has_samples?: boolean };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [form, setForm] = useState<any>({
