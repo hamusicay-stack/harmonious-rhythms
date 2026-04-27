@@ -174,7 +174,7 @@ function ForumPage() {
                     onClick={(e) => {
                       if (!user) {
                         e.preventDefault();
-                        toast.info("יש להתחבר כדי לפתוח דיון");
+                        toast.info("רק רגע — נכנסים לאולפן ופותחים דיון");
                         navigate({ to: "/auth" });
                       }
                     }}
