@@ -36,7 +36,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   usePredictivePrefetch(100);
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div dir="rtl" className="relative flex min-h-screen flex-col text-right">
       <BackgroundMesh />
       <CustomCursor />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
