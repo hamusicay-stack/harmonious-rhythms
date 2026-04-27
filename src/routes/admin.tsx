@@ -41,7 +41,8 @@ import { AffiliatesManager } from "@/components/admin/AffiliatesManager";
 import { AffiliatePayoutsManager } from "@/components/admin/AffiliatePayoutsManager";
 import { AcademyManager } from "@/components/admin/AcademyManager";
 import { RolesPermissionsManager } from "@/components/admin/RolesPermissionsManager";
-import { Music2, ShoppingBag, Play, Sparkles, GraduationCap, KeyRound } from "lucide-react";
+import { AiPromptsManager } from "@/components/admin/AiPromptsManager";
+import { Music2, ShoppingBag, Play, Sparkles, GraduationCap, KeyRound, Bot } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
