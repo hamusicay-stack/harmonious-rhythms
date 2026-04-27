@@ -517,7 +517,7 @@ function ShortsPage() {
 
 
   const toggleLike = async (id: string) => {
-    if (!user) { toast.error("יש להתחבר כדי לסמן לייק"); return; }
+    if (!user) { toast.error("רגע — צריך להיכנס לאולפן כדי לסמן לייק"); return; }
     const liked = likedSet.has(id);
     if (!liked) setHeartPulse((n) => n + 1);
     setShorts((prev) => prev.map((s) => s.id === id ? { ...s, likes: Math.max(0, s.likes + (liked ? -1 : 1)) } : s));
@@ -597,16 +597,16 @@ function ShortsPage() {
         <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-20 text-center">
           <Music2 className="h-12 w-12 text-primary" />
           <h1 className="font-display text-2xl font-bold">המוזיקאי <span className="text-gradient-gold">שורטס</span></h1>
-          <p className="text-muted-foreground">עוד אין סרטונים. היה הראשון להעלות!</p>
+          <p className="text-muted-foreground">הבמה ריקה — מי עולה ראשון?</p>
           {user && (
             <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} onUploaded={loadShorts}>
               <Button className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-                <Upload className="ml-1 h-4 w-4" />העלה סרטון ראשון
+                <Upload className="ml-1 h-4 w-4" />פתחו את הבמה
               </Button>
             </UploadDialog>
           )}
           {!user && (
-            <Link to="/auth"><Button>התחבר כדי להעלות</Button></Link>
+            <Link to="/auth"><Button>כניסה כדי להעלות</Button></Link>
           )}
         </div>
       </div>
@@ -627,7 +627,7 @@ function ShortsPage() {
               <h1 className="font-display text-lg font-bold leading-tight">
                 המוזיקאי <span className="text-gradient-gold">שורטס</span>
               </h1>
-              <p className="text-xs text-muted-foreground">סרטונים קצרים מהמוזיקאים הכי חמים</p>
+              <p className="text-xs text-muted-foreground">הביטים, הסשנים והרגעים מהאולפנים של הקהילה</p>
             </div>
           </div>
           {user ? (
@@ -640,7 +640,7 @@ function ShortsPage() {
             </UploadDialog>
           ) : (
             <Link to="/auth">
-              <Button size="sm" variant="outline">התחבר להעלאה</Button>
+              <Button size="sm" variant="outline">כניסה כדי להעלות</Button>
             </Link>
           )}
         </div>
@@ -657,8 +657,8 @@ function ShortsPage() {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {user
-                    ? "הפיד מותאם אישית לפי לייקים ועוקבים שלך"
-                    : "התחבר כדי לקבל פיד מותאם אישית"}
+                    ? "הפיד מכוון אישית — לפי האמנים שאתם עוקבים והסאונד שאתם אוהבים"
+                    : "כנסו לאולפן וקבלו פיד שמכוון אליכם"}
                 </p>
               </div>
             </aside>
@@ -1292,8 +1292,8 @@ function UploadDialog({
   };
 
   const submit = async () => {
-    if (!user) { toast.error("יש להתחבר"); return; }
-    if (!title.trim()) { toast.error("כותרת חובה"); return; }
+    if (!user) { toast.error("רגע — צריך להיכנס לאולפן"); return; }
+    if (!title.trim()) { toast.error("כותרת חובה — תנו לסרטון שם שיתפוס"); return; }
     if (files.length === 0) { toast.error("יש לבחור סרטון"); return; }
 
     const allowed = await checkQuota();
