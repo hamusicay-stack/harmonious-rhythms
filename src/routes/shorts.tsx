@@ -640,7 +640,7 @@ function ShortsPage() {
             </UploadDialog>
           ) : (
             <Link to="/auth">
-              <Button size="sm" variant="outline">התחבר להעלאה</Button>
+              <Button size="sm" variant="outline">כניסה כדי להעלות</Button>
             </Link>
           )}
         </div>
