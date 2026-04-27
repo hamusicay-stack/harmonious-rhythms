@@ -82,10 +82,10 @@ function AuthPage() {
               <Music2 className="h-6 w-6 text-primary-foreground" />
             </div>
             <h1 className="font-display text-2xl font-bold">
-              {mode === "login" ? "ברוכים השבים" : "הצטרפו לקהילה"}
+              {mode === "login" ? "ברוכים השבים לאולפן" : "ברוכים הבאים לקהילה"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {mode === "login" ? "התחברו לחשבון שלכם" : "פתחו חשבון חינם"}
+              {mode === "login" ? "המשיכו בדיוק מאיפה שעצרתם" : "כמה פרטים קטנים — והבמה שלכם"}
             </p>
           </div>
 
