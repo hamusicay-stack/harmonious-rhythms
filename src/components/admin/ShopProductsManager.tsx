@@ -84,6 +84,35 @@ export function ShopProductsManager() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+
+  const enhanceDescription = async () => {
+    if (!editing) return;
+    setEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("enhance-product-description", {
+        body: {
+          product_name: editing.title,
+          brand: editing.brand,
+          model: editing.model,
+          short_description: editing.short_description,
+          description: editing.description,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.description) {
+        setEditing({ ...editing, description: data.description });
+        toast.success("שודרג בעזרת AI ✨");
+      } else {
+        toast.error("לא חזר תוכן");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "שדרוג נכשל");
+    } finally {
+      setEnhancing(false);
+    }
+  };
 
   const load = async () => {
     setLoading(true);
