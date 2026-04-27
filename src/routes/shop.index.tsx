@@ -104,8 +104,8 @@ function ShopHomePage() {
               <ShoppingBag className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">החנות</h1>
-              <p className="text-sm text-muted-foreground">מקצבים, פלאגינים וציוד מוזיקלי</p>
+              <h1 className="text-3xl font-bold">חנות הציוד</h1>
+              <p className="text-sm text-muted-foreground">פלאגינים, סאמפלים וציוד שמוזיקאים בוחרים למוזיקאים</p>
             </div>
           </div>
         </div>
