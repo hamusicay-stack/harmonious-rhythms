@@ -627,7 +627,7 @@ function ShortsPage() {
               <h1 className="font-display text-lg font-bold leading-tight">
                 המוזיקאי <span className="text-gradient-gold">שורטס</span>
               </h1>
-              <p className="text-xs text-muted-foreground">סרטונים קצרים מהמוזיקאים הכי חמים</p>
+              <p className="text-xs text-muted-foreground">הביטים, הסשנים והרגעים מהאולפנים של הקהילה</p>
             </div>
           </div>
           {user ? (
