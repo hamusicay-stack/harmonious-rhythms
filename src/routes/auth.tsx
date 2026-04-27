@@ -133,7 +133,7 @@ function AuthPage() {
               className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold"
             >
               {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-              {mode === "login" ? "התחברות" : "הרשמה"}
+              {mode === "login" ? "כניסה לאולפן" : "פתחו לי במה"}
             </Button>
           </form>
 
