@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2, Package } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, EyeOff, Upload, Loader2, Package, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { formatILS, slugify, PRODUCT_TYPE_LABEL, FULFILLMENT_LABEL, PRODUCT_STATUS_LABEL, STATUS_TAG_OPTIONS } from "@/lib/shopUtils";
 import { RichTextEditor } from "@/components/RichTextEditor";
