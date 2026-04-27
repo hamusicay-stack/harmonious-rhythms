@@ -573,8 +573,14 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
               </div>
             )}
             <div className="space-y-2">
-              <Label>תיאור מפורט</Label>
-              <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} rows={4} placeholder="תאר את הכלי, מצבו, מה כלול..." />
+              <div className="flex items-center justify-between">
+                <Label>תיאור מפורט</Label>
+                <Button type="button" size="sm" variant="outline" onClick={enhanceWithAI} disabled={enhancing}>
+                  {enhancing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Sparkles className="ml-1 h-4 w-4" />}
+                  כתוב לי עם AI
+                </Button>
+              </div>
+              <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} rows={6} placeholder="תאר את הכלי, מצבו, מה כלול... או לחץ על 'כתוב לי עם AI' ותן לעוזר לעשות את זה בשבילך." />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
