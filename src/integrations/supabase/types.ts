@@ -1348,6 +1348,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_prompts: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          key: string
+          model: string
+          prompt: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          model?: string
+          prompt: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          model?: string
+          prompt?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       automation_rules: {
         Row: {
           action_config: Json
