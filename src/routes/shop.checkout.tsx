@@ -95,9 +95,9 @@ function CheckoutPage() {
 
   const showErrors = (errs: string[]) => {
     if (errs.length === 0) return;
-    toast.error("יש להשלים שדות חובה", {
-      description: errs.map((e) => `• ${e}`).join("\n"),
-    });
+      toast.error("רגע, חסר תו אחד או שניים", {
+        description: errs.map((e) => `• ${e}`).join("\n"),
+      });
   };
 
   const goNext = () => {
@@ -119,7 +119,7 @@ function CheckoutPage() {
   const submit = async () => {
     const errs = [...validateStep1(), ...validateStep2()];
     if (errs.length) return showErrors(errs);
-    if (items.length === 0) return toast.error("העגלה ריקה");
+    if (items.length === 0) return toast.error("ארגז הציוד ריק — נסו להוסיף משהו קודם");
 
     setSubmitting(true);
     try {
@@ -176,10 +176,10 @@ function CheckoutPage() {
       }
 
       clear();
-      toast.success("ההזמנה נקלטה!");
+      toast.success("הזמנתכם נקלטה — נחתם במאסטר ✓");
       navigate({ to: "/shop/order/$orderId", params: { orderId: order.id } });
     } catch (e: any) {
-      toast.error(e.message ?? "שגיאה ביצירת הזמנה");
+      toast.error(e.message ?? "נראה שיש זיוף קטן בהזמנה — בואו ננסה שוב");
     } finally {
       setSubmitting(false);
     }
@@ -190,9 +190,9 @@ function CheckoutPage() {
       <SiteLayout>
         <div className="container mx-auto px-4 py-16 text-center" dir="rtl">
           <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h1 className="text-2xl font-bold">העגלה ריקה</h1>
-          <p className="mt-2 text-muted-foreground">הוסף מוצרים לפני המעבר לתשלום</p>
-          <Link to="/shop"><Button className="mt-4">לחנות</Button></Link>
+          <h1 className="text-2xl font-bold">ארגז הציוד עוד ריק</h1>
+          <p className="mt-2 text-muted-foreground">בחרו את הציוד הבא שלכם — ואנחנו ננגן את שאר השלבים</p>
+          <Link to="/shop"><Button className="mt-4">לחנות הציוד</Button></Link>
         </div>
       </SiteLayout>
     );
@@ -204,7 +204,7 @@ function CheckoutPage() {
         <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowRight className="h-4 w-4" /> המשך קניות
         </Link>
-        <h1 className="mb-4 text-2xl font-bold md:text-3xl">תשלום</h1>
+        <h1 className="mb-4 text-2xl font-bold md:text-3xl">סיום הסשן — קופה</h1>
 
         {/* Stepper */}
         <div className="mb-6 flex items-center justify-between gap-2">
@@ -346,7 +346,7 @@ function CheckoutPage() {
                   />
                 </div>
                 <div className="mt-5 rounded-lg bg-muted/50 p-4 text-xs text-muted-foreground">
-                  💳 שלב התשלום יחובר בקרוב. סיום ההזמנה ייצור הזמנה במצב "ממתין לתשלום" וצוות החנות ייצור איתך קשר.
+                  💳 התשלום הדיגיטלי בדרך לבמה. בינתיים, ההזמנה נשמרת במצב "ממתין לתשלום" וצוות החנות יוצר איתכם קשר אישית לסגירה.
                 </div>
               </>
             )}
@@ -368,7 +368,7 @@ function CheckoutPage() {
               ) : (
                 <Button onClick={submit} disabled={submitting} size="lg" className="gap-1">
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  סיום הזמנה
+                  אשרו וסגרו את הסשן
                 </Button>
               )}
             </div>

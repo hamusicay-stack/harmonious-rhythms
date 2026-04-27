@@ -80,14 +80,14 @@ export function AffiliateDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            תוכנית השותפים
+            מועדון השגרירים
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-xl border bg-gradient-to-br from-primary/10 via-background to-primary-glow/5 p-5">
-            <h3 className="font-display text-lg font-bold mb-1">הרווח עמלות מהפניות</h3>
+            <h3 className="font-display text-lg font-bold mb-1">המליצו, השפיעו, הרוויחו</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              קבל לינקים ייחודיים לכל מוצר באתר. רכישה דרך הלינק שלך = עמלה של עד {defaultPct}% בכיס שלך.
+              קבלו קישורים אישיים לכל פינה באתר. כל קולגה שמצטרף או רוכש דרככם = עד {defaultPct}% עמלה ישר אליכם.
             </p>
             {pendingApp?.status === "pending" ? (
               <Badge className="bg-amber-500/15 text-amber-600 border border-amber-500/30">
@@ -95,15 +95,15 @@ export function AffiliateDashboard() {
               </Badge>
             ) : pendingApp?.status === "rejected" ? (
               <div className="space-y-2">
-                <Badge variant="destructive"><XCircle className="ml-1 h-3 w-3" />נדחתה</Badge>
+                <Badge variant="destructive"><XCircle className="ml-1 h-3 w-3" />הבקשה לא אושרה הפעם</Badge>
                 <AffiliateApplyDialog onApplied={load}>
-                  <Button size="sm" variant="outline">הגש בקשה חדשה</Button>
+                  <Button size="sm" variant="outline">הגישו בקשה מעודכנת</Button>
                 </AffiliateApplyDialog>
               </div>
             ) : (
               <AffiliateApplyDialog onApplied={load}>
                 <Button className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                  <Sparkles className="ml-1 h-4 w-4" />הגש בקשה להצטרפות
+                  <Sparkles className="ml-1 h-4 w-4" />אני רוצה להיות שגריר
                 </Button>
               </AffiliateApplyDialog>
             )}
@@ -119,8 +119,8 @@ export function AffiliateDashboard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between flex-wrap gap-2">
-          <span className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />הלוח שלי כשותף</span>
-          <Badge className="bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">פעיל · עמלה {pct}%</Badge>
+          <span className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />הקונסולה של השגריר</span>
+          <Badge className="bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">על הבמה · עמלה {pct}%</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -166,7 +166,7 @@ export function AffiliateDashboard() {
             );
           })}
           <p className="text-[11px] text-muted-foreground">
-            💡 הוסף את הקוד שלך לכל קישור באתר כך: <code dir="ltr">?ref={aff.ref_code}</code>. העוגייה תקפה ל-30 יום.
+            💡 טיפ של מאסטרו: צרפו את הקוד לכל קישור — <code dir="ltr">?ref={aff.ref_code}</code>. העוגייה זוכרת אתכם 30 יום אחורה.
           </p>
         </div>
 
@@ -174,7 +174,7 @@ export function AffiliateDashboard() {
         <div className="space-y-2">
           <h4 className="text-sm font-semibold">המרות אחרונות</h4>
           {convs.length === 0 ? (
-            <p className="text-xs text-muted-foreground py-4 text-center border rounded-lg">אין עדיין המרות. שתף את הקישור שלך!</p>
+            <p className="text-xs text-muted-foreground py-4 text-center border rounded-lg">עדיין שקט באולפן — שתפו את הקישור והבמה תתחיל להתמלא 🎤</p>
           ) : (
             <div className="space-y-1">
               {convs.map((c) => (

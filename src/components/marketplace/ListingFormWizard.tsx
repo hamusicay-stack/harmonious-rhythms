@@ -396,8 +396,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       <div className="rounded-2xl border border-border/60 bg-card p-6 space-y-5">
         {!isEdit && step === 0 && (
           <>
-            <h2 className="text-lg font-semibold">סוג המפרסם</h2>
-            <p className="text-sm text-muted-foreground">בחר את סוג החשבון שמתאים לך:</p>
+            <h2 className="text-lg font-semibold">איך תרצו להעלות לבמה?</h2>
+            <p className="text-sm text-muted-foreground">בחרו את סוג החשבון שמתאים לכם — תמיד אפשר לשדרג מאוחר יותר:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button type="button" onClick={() => setSellerType("private")}
                 className={`relative rounded-xl border-2 p-5 text-right transition ${sellerType === "private" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
@@ -819,7 +819,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             </div>
 
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-700 dark:text-emerald-400">
-              ✓ אישור סופי לפני פרסום. בלחיצה על "פרסם", המודעה תועלה לאישור.
+              ✓ הסאונד מוכן. בלחיצה על "העלה לבמה", המודעה נשלחת לבדיקה אחרונה ואז עולה לאוויר.
             </div>
           </>
         )}
@@ -830,13 +830,13 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
           ) : <Link to="/marketplace"><Button variant="ghost">ביטול</Button></Link>}
           {step < 5 ? (
             <Button onClick={goNext} disabled={!isEdit && step === 0 && !canProceedFromStep0}>
-              {step === 4 ? "סקירה אחרונה" : "הבא"}<ArrowLeft className="h-4 w-4" />
+              {step === 4 ? "סאונד-צ'ק אחרון" : "הבא"}<ArrowLeft className="h-4 w-4" />
             </Button>
           ) : (
             <Button onClick={submit} disabled={submitting} className="gap-2">
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               <Check className="h-4 w-4" />
-              {isEdit ? "שמור שינויים" : "אשר ופרסם"}
+              {isEdit ? "נחתם במאסטר" : "העלה לבמה"}
             </Button>
           )}
         </div>
