@@ -289,7 +289,13 @@ export function ShopProductsManager() {
                 <Input value={editing.short_description ?? ""} onChange={(e) => setEditing({ ...editing, short_description: e.target.value })} />
               </div>
               <div className="md:col-span-2">
-                <Label>תיאור מלא</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label>תיאור מלא</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={enhanceDescription} disabled={enhancing || !editing.title}>
+                    {enhancing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Sparkles className="ml-1 h-4 w-4" />}
+                    שדרג עם AI
+                  </Button>
+                </div>
                 <RichTextEditor
                   value={editing.description ?? ""}
                   onChange={(html) => setEditing({ ...editing, description: html })}
