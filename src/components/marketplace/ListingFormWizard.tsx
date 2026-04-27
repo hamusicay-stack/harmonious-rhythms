@@ -149,6 +149,42 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const update = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
 
+  const enhanceWithAI = async () => {
+    if (!form.title && !form.brand && !form.category) {
+      toast.error("מלא קודם כותרת/יצרן/קטגוריה כדי שנדע מה לכתוב");
+      return;
+    }
+    setEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("enhance-listing-description", {
+        body: {
+          title: form.title,
+          brand: form.brand === "אחר" ? form.customBrand : form.brand,
+          model: form.model,
+          category: form.category === "אחר" ? form.customCategory : form.category,
+          condition: form.item_condition,
+          year: form.year,
+          price: form.price,
+          city: form.city === "אחר" ? form.customCity : form.city,
+          current_description: form.description,
+          is_urgent: isUrgent,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.description) {
+        update("description", data.description);
+        toast.success("המודעה שודרגה — תוכל לערוך עוד ✨");
+      } else {
+        toast.error("לא חזר תוכן");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "שדרוג נכשל");
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
   const registerBusiness = async () => {
     if (!user) return;
     if (!businessForm.business_name.trim()) { toast.error("שם העסק חובה"); return; }
