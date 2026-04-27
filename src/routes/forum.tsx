@@ -161,9 +161,9 @@ function ForumPage() {
             <div className="mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-gold">
               <MessageSquare className="h-8 w-8" />
             </div>
-            <h1 className="font-display text-4xl font-bold md:text-5xl">פורום הקהילה</h1>
+            <h1 className="font-display text-4xl font-bold md:text-5xl">השיחה <span className="text-gradient-gold">של הקהילה</span></h1>
             <p className="mt-4 text-muted-foreground md:text-lg">
-              שאלו, שתפו, התייעצו והכירו מוזיקאים נוספים מכל הארץ.
+              כאן שואלים בלי בושה, משתפים בלי פילטר ומתייעצים עם מוזיקאים שמדברים את השפה שלכם.
             </p>
             <div className="mt-8 flex justify-center">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
