@@ -447,6 +447,9 @@ function AdminPage() {
               <TabsContent value="automations" className="mt-6">
                 <AutomationsManager />
               </TabsContent>
+              <TabsContent value="ai" className="mt-6">
+                <AiPromptsManager />
+              </TabsContent>
               <TabsContent value="banners" className="mt-6">
                 <BannersManager />
               </TabsContent>
