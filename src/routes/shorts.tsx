@@ -597,16 +597,16 @@ function ShortsPage() {
         <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 py-20 text-center">
           <Music2 className="h-12 w-12 text-primary" />
           <h1 className="font-display text-2xl font-bold">המוזיקאי <span className="text-gradient-gold">שורטס</span></h1>
-          <p className="text-muted-foreground">עוד אין סרטונים. היה הראשון להעלות!</p>
+          <p className="text-muted-foreground">הבמה ריקה — מי עולה ראשון?</p>
           {user && (
             <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} onUploaded={loadShorts}>
               <Button className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-                <Upload className="ml-1 h-4 w-4" />העלה סרטון ראשון
+                <Upload className="ml-1 h-4 w-4" />פתחו את הבמה
               </Button>
             </UploadDialog>
           )}
           {!user && (
-            <Link to="/auth"><Button>התחבר כדי להעלות</Button></Link>
+            <Link to="/auth"><Button>כניסה כדי להעלות</Button></Link>
           )}
         </div>
       </div>
