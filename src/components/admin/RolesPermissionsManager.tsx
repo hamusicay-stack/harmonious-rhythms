@@ -13,8 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Plus, Trash2, ShieldCheck, Crown, Star, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 
-type AppRole = "user" | "member" | "premium" | "vip" | "admin";
-const ROLES: AppRole[] = ["user", "member", "premium", "vip", "admin"];
+type AppRole = "user" | "member" | "premium" | "vip" | "admin" | "chat_oversight";
+const ROLES: AppRole[] = ["user", "member", "premium", "vip", "admin", "chat_oversight"];
 
 const ROLE_LABELS: Record<AppRole, string> = {
   user: "חינמי (Explorer)",
@@ -22,6 +22,7 @@ const ROLE_LABELS: Record<AppRole, string> = {
   premium: "פרימיום",
   vip: "VIP",
   admin: "אדמין",
+  chat_oversight: "פיקוח שיחות",
 };
 
 const ROLE_ICONS: Record<AppRole, ReactNode> = {
@@ -30,6 +31,7 @@ const ROLE_ICONS: Record<AppRole, ReactNode> = {
   premium: <Star className="h-3.5 w-3.5 text-amber-400" />,
   vip: <Crown className="h-3.5 w-3.5 text-purple-400" />,
   admin: <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />,
+  chat_oversight: <ShieldCheck className="h-3.5 w-3.5 text-sky-400" />,
 };
 
 const DEFAULT_PERMISSIONS = [
