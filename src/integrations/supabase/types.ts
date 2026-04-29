@@ -4357,6 +4357,7 @@ export type Database = {
         | "member"
         | "premium"
         | "vip"
+        | "chat_oversight"
       automation_action: "send_email" | "open_whatsapp" | "create_task"
       automation_trigger:
         | "lead_status_changed"
@@ -4557,6 +4558,7 @@ export const Constants = {
         "member",
         "premium",
         "vip",
+        "chat_oversight",
       ],
       automation_action: ["send_email", "open_whatsapp", "create_task"],
       automation_trigger: [
