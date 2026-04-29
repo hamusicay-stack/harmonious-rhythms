@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
@@ -59,6 +60,11 @@ const ShortsRoute = ShortsRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProsRoute = ProsRouteImport.update({
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
   '/academy/$slug': typeof AcademySlugRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/pros'
+    | '/reset-password'
     | '/shop'
     | '/shorts'
     | '/store'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/forum'
     | '/profile'
+    | '/reset-password'
     | '/shorts'
     | '/store'
     | '/academy/$slug'
@@ -431,6 +442,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/profile'
     | '/pros'
+    | '/reset-password'
     | '/shop'
     | '/shorts'
     | '/store'
@@ -470,6 +482,7 @@ export interface RootRouteChildren {
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ShopRoute: typeof ShopRouteWithChildren
   ShortsRoute: typeof ShortsRoute
   StoreRoute: typeof StoreRoute
@@ -502,6 +515,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pros': {
@@ -845,6 +865,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   ShopRoute: ShopRouteWithChildren,
   ShortsRoute: ShortsRoute,
   StoreRoute: StoreRoute,

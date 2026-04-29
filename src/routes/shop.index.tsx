@@ -163,7 +163,7 @@ function ShopHomePage() {
 
         {/* Products grid */}
         {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <Skeleton key={i} className="aspect-[3/4] w-full rounded-2xl" />
             ))}
@@ -175,7 +175,7 @@ function ShopHomePage() {
             <p className="text-sm text-muted-foreground">נסה לשנות את הסינון או חזור מאוחר יותר</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         )}

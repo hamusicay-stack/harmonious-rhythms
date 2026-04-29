@@ -2731,6 +2731,36 @@ export type Database = {
           },
         ]
       }
+      password_reset_otps: {
+        Row: {
+          attempts: number
+          code_hash: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          used_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          used_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       points_ledger: {
         Row: {
           created_at: string
@@ -2793,6 +2823,82 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      pro_chat_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pro_chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "pro_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pro_chat_threads: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          pro_id: string
+          pro_unread: number
+          pro_user_id: string
+          sender_id: string
+          sender_unread: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          pro_id: string
+          pro_unread?: number
+          pro_user_id: string
+          sender_id: string
+          sender_unread?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          pro_id?: string
+          pro_unread?: number
+          pro_user_id?: string
+          sender_id?: string
+          sender_unread?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pro_chat_threads_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -4357,6 +4463,7 @@ export type Database = {
         | "member"
         | "premium"
         | "vip"
+        | "chat_oversight"
       automation_action: "send_email" | "open_whatsapp" | "create_task"
       automation_trigger:
         | "lead_status_changed"
@@ -4557,6 +4664,7 @@ export const Constants = {
         "member",
         "premium",
         "vip",
+        "chat_oversight",
       ],
       automation_action: ["send_email", "open_whatsapp", "create_task"],
       automation_trigger: [
