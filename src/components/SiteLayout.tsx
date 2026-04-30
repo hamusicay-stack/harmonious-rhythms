@@ -1,5 +1,7 @@
 import { ReactNode, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { LANG_DIR, type Lang } from "@/i18n";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { BannerSlot } from "./BannerSlot";
@@ -35,8 +37,13 @@ export function SiteLayout({ children }: { children: ReactNode }) {
 
   usePredictivePrefetch(100);
 
+  const { i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage || i18n.language || "he") as Lang;
+  const dir = LANG_DIR[lang] ?? "rtl";
+  const align = dir === "rtl" ? "text-right" : "text-left";
+
   return (
-    <div dir="rtl" className="relative flex min-h-screen flex-col text-right">
+    <div dir={dir} className={`relative flex min-h-screen flex-col ${align}`}>
       <BackgroundMesh />
       <CustomCursor />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />

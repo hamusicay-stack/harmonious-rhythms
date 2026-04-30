@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { NotificationsBell } from "@/components/NotificationsBell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
@@ -109,6 +110,7 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
             </Button>
             <CartDrawer />
             <NotificationsBell />
+            <LanguageSwitcher />
 
             {user ? (
               <DropdownMenu>
@@ -165,6 +167,7 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
           <div className="flex items-center gap-1 md:hidden">
             <NotificationsBell />
             <CartDrawer />
+            <LanguageSwitcher />
             <Button
               variant="ghost"
               size="icon"
