@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useState, MouseEvent } from "react";
-import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageCircle, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { QuickViewDialog } from "./QuickViewDialog";
+import { ChatThreadDialog } from "./ChatThreadDialog";
 import { useListingLike } from "@/hooks/useListingLike";
 
 export type CardListing = {
@@ -220,6 +221,18 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               <button type="button" onClick={openWa} className="h-8 w-8 rounded-full bg-emerald-500 text-white shadow-lg flex items-center justify-center hover:scale-110 transition" title="וואטסאפ">
                 <MessageCircle className="h-4 w-4" />
               </button>
+              <div onClick={stop}>
+                <ChatThreadDialog
+                  listingId={listing.id}
+                  sellerId={listing.seller_id}
+                  listingTitle={listing.title}
+                  trigger={
+                    <button type="button" className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition" title="צ'אט עם המוכר">
+                      <MessageSquare className="h-4 w-4" />
+                    </button>
+                  }
+                />
+              </div>
               <button type="button" onClick={toggleLike} className={`h-8 w-8 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition ${liked ? "bg-rose-500 text-white" : "bg-background/90 backdrop-blur"}`} title="מועדפים">
                 <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
               </button>
