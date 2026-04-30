@@ -28,6 +28,7 @@ type Pro = {
   genres: string[]; gear_list: string[]; whatsapp: string | null; phone: string | null;
   instagram: string | null; youtube: string | null; website: string | null;
   is_verified: boolean; is_featured: boolean; subscription_tier: string; status: string;
+  show_phone_public?: boolean; show_whatsapp_public?: boolean;
 };
 
 type Media = { id: string; type: string; url: string; title: string | null; is_featured: boolean };
@@ -381,7 +382,7 @@ function ProDetailPage() {
                   <MessageCircle className="ml-2 h-4 w-4" /> שלח בקשת הצעת מחיר
                 </Button>
 
-                {pro.whatsapp && (
+                {pro.whatsapp && (isOwner || (isVip && pro.show_whatsapp_public)) ? (
                   <a
                     href={`https://wa.me/${pro.whatsapp.replace(/\D/g, "").replace(/^0/, "972")}?text=${encodeURIComponent(`היי ${pro.display_name}, ראיתי את הפרופיל שלך באתר המוזיקאי`)}`}
                     target="_blank" rel="noreferrer"
@@ -389,15 +390,25 @@ function ProDetailPage() {
                   >
                     <MessageCircle className="h-4 w-4" /> וואטסאפ
                   </a>
-                )}
+                ) : pro.whatsapp ? (
+                  <div className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-border/60 bg-muted/40 px-4 py-2 text-xs text-muted-foreground">
+                    <Crown className="h-3.5 w-3.5 text-amber-500" /> וואטסאפ זמין דרך פרימיום — שלח בקשה והמוזיקאי יחזור אליך
+                  </div>
+                ) : null}
 
                 {(pro.phone || pro.instagram || pro.youtube || pro.website) && (
                   <div className="mt-4 space-y-2 border-t border-border/40 pt-4">
-                    {pro.phone && (
+                    {pro.phone && (isOwner || (isVip && pro.show_phone_public)) ? (
                       <a href={`tel:${pro.phone}`} dir="ltr" className="flex items-center gap-2 text-sm hover:text-primary">
                         <Phone className="h-4 w-4" /> {pro.phone}
                       </a>
-                    )}
+                    ) : pro.phone ? (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground" title="פרימיום בלבד">
+                        <Phone className="h-4 w-4" />
+                        <span dir="ltr" className="tracking-widest">••• ••• ••••</span>
+                        <Badge variant="outline" className="text-[10px]">פרימיום בלבד</Badge>
+                      </div>
+                    ) : null}
                     {pro.instagram && (
                       <a href={pro.instagram} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm hover:text-primary">
                         <Instagram className="h-4 w-4" /> Instagram

@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ProChatDialog } from "@/components/pros/ProChatDialog";
 
 export const Route = createFileRoute("/pros/my-inquiries")({
   head: () => ({
@@ -278,6 +279,14 @@ function ReceivedCard({
             <a href={`mailto:${inquiry.contact_email}`} dir="ltr" className="flex items-center gap-1.5 text-muted-foreground hover:text-primary">
               <Mail className="h-4 w-4" /> {inquiry.contact_email}
             </a>
+          )}
+          {inquiry.sender_id && (
+            <ProChatDialog
+              proId={inquiry.pro_id}
+              senderId={inquiry.sender_id}
+              senderName={inquiry.sender_name}
+              role="pro"
+            />
           )}
         </div>
 

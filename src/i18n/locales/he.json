@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "home": "בית",
+    "forum": "פורום",
+    "store": "חנות",
+    "academy": "אקדמיה",
+    "marketplace": "יד 2",
+    "pros": "מוזיקאים",
+    "shorts": "שורטס",
+    "about": "אודות",
+    "contact": "צור קשר",
+    "admin": "ניהול"
+  },
+  "common": {
+    "loading": "טוען...",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "edit": "עריכה",
+    "delete": "מחיקה",
+    "send": "שליחה",
+    "search": "חיפוש",
+    "back": "חזרה",
+    "next": "הבא",
+    "previous": "הקודם",
+    "close": "סגור",
+    "yes": "כן",
+    "no": "לא",
+    "more": "עוד",
+    "all": "הכל",
+    "language": "שפה",
+    "hebrew": "עברית",
+    "english": "English"
+  },
+  "auth": {
+    "login": "התחברות",
+    "logout": "התנתק",
+    "signup": "הרשמה",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "forgot": "שכחתי סיסמה",
+    "profile": "פרופיל"
+  },
+  "pros": {
+    "requestQuote": "שלח בקשת הצעת מחיר",
+    "openChat": "פתח צ'אט",
+    "premiumOnly": "פרימיום בלבד",
+    "phoneHidden": "טלפון מוסתר",
+    "whatsappHidden": "וואטסאפ מוסתר",
+    "showPhonePublic": "הצג טלפון בפרופיל הציבורי",
+    "showWhatsappPublic": "הצג וואטסאפ בפרופיל הציבורי",
+    "premiumOnlyHint": "זמין רק למוזיקאים בחבילת VIP"
+  },
+  "marketplace": {
+    "chatWithSeller": "צ'אט עם המוכר",
+    "callSeller": "התקשר",
+    "whatsapp": "וואטסאפ"
+  }
+}

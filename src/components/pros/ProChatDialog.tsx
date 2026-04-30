@@ -18,12 +18,25 @@ type Message = {
 
 interface Props {
   proId: string;
-  proUserId: string;
-  proName: string;
+  /** Required when role="sender" */
+  proUserId?: string;
+  proName?: string;
+  /** Required when role="pro" — the customer that sent the inquiry */
+  senderId?: string;
+  senderName?: string;
+  role?: "sender" | "pro";
   trigger?: React.ReactNode;
 }
 
-export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
+export function ProChatDialog({
+  proId,
+  proUserId,
+  proName,
+  senderId,
+  senderName,
+  role = "sender",
+  trigger,
+}: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -34,10 +47,16 @@ export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const isOwner = user?.id === proUserId;
+  const isProRole = role === "pro";
+  const peerName = isProRole ? (senderName || "פונה") : (proName || "מוזיקאי");
+  const otherSenderId = isProRole ? senderId! : user?.id;
+  const otherProUserId = isProRole ? user?.id : proUserId!;
+  const isOwnerOfPro = !isProRole && user?.id === proUserId;
 
   useEffect(() => {
-    if (!open || !user || isOwner) return;
+    if (!open || !user) return;
+    if (!isProRole && isOwnerOfPro) return;
+    if (isProRole && !senderId) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -45,13 +64,13 @@ export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
         .from("pro_chat_threads")
         .select("id")
         .eq("pro_id", proId)
-        .eq("sender_id", user.id)
+        .eq("sender_id", otherSenderId!)
         .maybeSingle();
 
       if (!thread) {
         const { data: created, error } = await supabase
           .from("pro_chat_threads")
-          .insert({ pro_id: proId, pro_user_id: proUserId, sender_id: user.id })
+          .insert({ pro_id: proId, pro_user_id: otherProUserId!, sender_id: otherSenderId! })
           .select("id")
           .single();
         if (error) {
@@ -69,13 +88,12 @@ export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
         .eq("thread_id", thread.id)
         .order("created_at", { ascending: true });
       setMessages((msgs as Message[]) ?? []);
-      // Mark as read for current side
-      const patch = user.id === proUserId ? { pro_unread: 0 } : { sender_unread: 0 };
+      const patch = isProRole ? { pro_unread: 0 } : { sender_unread: 0 };
       await supabase.from("pro_chat_threads").update(patch).eq("id", thread.id);
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [open, user, proId, proUserId, isOwner]);
+  }, [open, user, proId, otherSenderId, otherProUserId, isProRole, isOwnerOfPro, senderId]);
 
   useEffect(() => {
     if (!threadId) return;
@@ -116,7 +134,7 @@ export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
 
   const triggerBtn = trigger ?? (
     <Button variant="outline" size="sm" className="gap-1.5">
-      <MessageCircle className="h-4 w-4" /> שלח הודעה
+      <MessageCircle className="h-4 w-4" /> {isProRole ? "פתח צ'אט עם הפונה" : "שלח הודעה"}
     </Button>
   );
 
@@ -127,7 +145,7 @@ export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
       </span>
     );
   }
-  if (isOwner) return null;
+  if (!isProRole && isOwnerOfPro) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -136,7 +154,7 @@ export function ProChatDialog({ proId, proUserId, proName, trigger }: Props) {
       </DialogTrigger>
       <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]" dir="rtl">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
-          <DialogTitle className="text-right text-base line-clamp-1">צ'אט עם {proName}</DialogTitle>
+          <DialogTitle className="text-right text-base line-clamp-1">צ'אט עם {peerName}</DialogTitle>
         </DialogHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-muted/30">

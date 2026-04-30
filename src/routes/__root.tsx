@@ -1,5 +1,8 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import "@/i18n";
+import { applyDocumentDir } from "@/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
@@ -70,7 +73,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const { i18n } = useTranslation();
   useEffect(() => { void captureAffiliateRef(); }, []);
+  useEffect(() => {
+    applyDocumentDir(i18n.resolvedLanguage || i18n.language || "he");
+  }, [i18n.resolvedLanguage, i18n.language]);
   return (
     <AuthProvider>
       <NotificationsProvider>

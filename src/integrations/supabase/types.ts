@@ -2534,6 +2534,8 @@ export type Database = {
           phone: string | null
           profile_image: string | null
           region: string | null
+          show_phone_public: boolean
+          show_whatsapp_public: boolean
           specialties: string[]
           status: string
           subscription_tier: string
@@ -2564,6 +2566,8 @@ export type Database = {
           phone?: string | null
           profile_image?: string | null
           region?: string | null
+          show_phone_public?: boolean
+          show_whatsapp_public?: boolean
           specialties?: string[]
           status?: string
           subscription_tier?: string
@@ -2594,6 +2598,8 @@ export type Database = {
           phone?: string | null
           profile_image?: string | null
           region?: string | null
+          show_phone_public?: boolean
+          show_whatsapp_public?: boolean
           specialties?: string[]
           status?: string
           subscription_tier?: string

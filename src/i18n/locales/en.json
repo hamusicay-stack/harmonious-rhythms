@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "home": "Home",
+    "forum": "Forum",
+    "store": "Shop",
+    "academy": "Academy",
+    "marketplace": "Marketplace",
+    "pros": "Musicians",
+    "shorts": "Shorts",
+    "about": "About",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "send": "Send",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "more": "More",
+    "all": "All",
+    "language": "Language",
+    "hebrew": "עברית",
+    "english": "English"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "signup": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "forgot": "Forgot password",
+    "profile": "Profile"
+  },
+  "pros": {
+    "requestQuote": "Request a quote",
+    "openChat": "Open chat",
+    "premiumOnly": "Premium only",
+    "phoneHidden": "Phone hidden",
+    "whatsappHidden": "WhatsApp hidden",
+    "showPhonePublic": "Show phone on public profile",
+    "showWhatsappPublic": "Show WhatsApp on public profile",
+    "premiumOnlyHint": "Available only for VIP musicians"
+  },
+  "marketplace": {
+    "chatWithSeller": "Chat with seller",
+    "callSeller": "Call",
+    "whatsapp": "WhatsApp"
+  }
+}

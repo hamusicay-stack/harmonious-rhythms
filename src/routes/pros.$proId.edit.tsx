@@ -94,6 +94,8 @@ function EditProPage() {
         instagram: pro.instagram,
         youtube: pro.youtube,
         website: pro.website,
+        show_phone_public: pro.subscription_tier === "vip" ? !!pro.show_phone_public : false,
+        show_whatsapp_public: pro.subscription_tier === "vip" ? !!pro.show_whatsapp_public : false,
       }).eq("id", proId);
       if (updErr) throw updErr;
 
@@ -154,6 +156,9 @@ function EditProPage() {
     instagram: pro.instagram ?? "",
     youtube: pro.youtube ?? "",
     website: pro.website ?? "",
+    show_phone_public: !!pro.show_phone_public,
+    show_whatsapp_public: !!pro.show_whatsapp_public,
+    subscription_tier: pro.subscription_tier ?? "free",
   };
 
   return (

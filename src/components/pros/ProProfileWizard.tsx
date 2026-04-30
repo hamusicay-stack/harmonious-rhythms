@@ -28,6 +28,9 @@ export type ProFormState = {
   instagram: string;
   youtube: string;
   website: string;
+  show_phone_public?: boolean;
+  show_whatsapp_public?: boolean;
+  subscription_tier?: string;
 };
 
 type StepDef = { id: string; title: string; icon: typeof User2; description: string };
@@ -211,12 +214,48 @@ export function ProProfileWizard({
           )}
 
           {step === 4 && (
-            <div className="grid gap-3 md:grid-cols-2">
-              <div><Label>וואטסאפ</Label><Input dir="ltr" value={value.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="+9725..." /></div>
-              <div><Label>טלפון</Label><Input dir="ltr" value={value.phone} onChange={(e) => update("phone", e.target.value)} /></div>
-              <div><Label>Instagram</Label><Input dir="ltr" value={value.instagram} onChange={(e) => update("instagram", e.target.value)} /></div>
-              <div><Label>YouTube</Label><Input dir="ltr" value={value.youtube} onChange={(e) => update("youtube", e.target.value)} /></div>
-              <div className="md:col-span-2"><Label>אתר</Label><Input dir="ltr" value={value.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" /></div>
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div><Label>וואטסאפ</Label><Input dir="ltr" value={value.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="+9725..." /></div>
+                <div><Label>טלפון</Label><Input dir="ltr" value={value.phone} onChange={(e) => update("phone", e.target.value)} /></div>
+                <div><Label>Instagram</Label><Input dir="ltr" value={value.instagram} onChange={(e) => update("instagram", e.target.value)} /></div>
+                <div><Label>YouTube</Label><Input dir="ltr" value={value.youtube} onChange={(e) => update("youtube", e.target.value)} /></div>
+                <div className="md:col-span-2"><Label>אתר</Label><Input dir="ltr" value={value.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" /></div>
+              </div>
+
+              <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm">
+                    <div className="font-semibold">פרסום מספר טלפון בפרופיל הציבורי</div>
+                    <div className="text-xs text-muted-foreground">זמין רק למוזיקאים VIP. אחרת המספר מוסתר ולקוחות יוכלו לפנות בצ'אט בלבד.</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 accent-primary disabled:opacity-50"
+                    checked={!!value.show_phone_public}
+                    disabled={value.subscription_tier !== "vip"}
+                    onChange={(e) => update("show_phone_public" as keyof ProFormState, e.target.checked as never)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm">
+                    <div className="font-semibold">פרסום וואטסאפ בפרופיל הציבורי</div>
+                    <div className="text-xs text-muted-foreground">זמין רק למוזיקאים VIP.</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 accent-primary disabled:opacity-50"
+                    checked={!!value.show_whatsapp_public}
+                    disabled={value.subscription_tier !== "vip"}
+                    onChange={(e) => update("show_whatsapp_public" as keyof ProFormState, e.target.checked as never)}
+                  />
+                </div>
+                {value.subscription_tier !== "vip" && (
+                  <div className="text-[11px] text-amber-700 dark:text-amber-300">
+                    שדרג ל-VIP כדי לאפשר פרסום אנשי קשר ישירות בפרופיל. כברירת מחדל, פניות יגיעו דרך טופס בקשת הצעת מחיר וצ'אט.
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
