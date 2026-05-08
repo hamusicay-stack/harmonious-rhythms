@@ -44,6 +44,8 @@ import { RolesPermissionsManager } from "@/components/admin/RolesPermissionsMana
 import { AiPromptsManager } from "@/components/admin/AiPromptsManager";
 import { Music2, ShoppingBag, Play, Sparkles, GraduationCap, KeyRound, Bot, Piano } from "lucide-react";
 import { RhythmSetsManager } from "@/components/admin/RhythmSetsManager";
+import { NewsletterManager } from "@/components/admin/NewsletterManager";
+import { Mail } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -410,7 +412,7 @@ function AdminPage() {
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
               <div className="w-full overflow-x-auto scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x" dir="rtl">
-                <TabsList className="inline-flex w-max h-auto gap-1 md:grid md:w-full md:grid-cols-9">
+                <TabsList className="inline-flex w-max h-auto gap-1 md:grid md:w-full md:grid-cols-10">
                   <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
                   <TabsTrigger value="rhythm_sets" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />Rhythm Sets</TabsTrigger>
                   <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
@@ -418,6 +420,7 @@ function AdminPage() {
                   <TabsTrigger value="music_pros" className="shrink-0 md:flex-1"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
                   <TabsTrigger value="academy" className="shrink-0 md:flex-1"><GraduationCap className="ml-1 h-4 w-4" />אקדמיה</TabsTrigger>
                   <TabsTrigger value="affiliates" className="shrink-0 md:flex-1"><Sparkles className="ml-1 h-4 w-4" />שותפים</TabsTrigger>
+                  <TabsTrigger value="newsletter" className="shrink-0 md:flex-1"><Mail className="ml-1 h-4 w-4" />ניוזלטר</TabsTrigger>
                   <TabsTrigger value="automations" className="shrink-0 md:flex-1"><Zap className="ml-1 h-4 w-4" />אוטומציות</TabsTrigger>
                   <TabsTrigger value="ai" className="shrink-0 md:flex-1"><Bot className="ml-1 h-4 w-4" />עוזרי AI</TabsTrigger>
                   <TabsTrigger value="banners" className="shrink-0 md:flex-1"><Megaphone className="ml-1 h-4 w-4" />פרסומות</TabsTrigger>
@@ -452,6 +455,9 @@ function AdminPage() {
               <TabsContent value="affiliates" className="mt-6 space-y-6">
                 <AffiliatePayoutsManager />
                 <AffiliatesManager />
+              </TabsContent>
+              <TabsContent value="newsletter" className="mt-6">
+                <NewsletterManager />
               </TabsContent>
               <TabsContent value="automations" className="mt-6">
                 <AutomationsManager />
