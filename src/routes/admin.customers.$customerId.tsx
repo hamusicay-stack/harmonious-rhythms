@@ -214,6 +214,18 @@ function CustomerProfilePage() {
   const displayName = profile.display_name || profile.full_name || profile.email || "ללא שם";
   const initials = displayName.slice(0, 2).toUpperCase();
 
+  const ltv = (shopOrders ?? [])
+    .filter((o: any) => o.payment_status === "paid")
+    .reduce((s: number, o: any) => s + Number(o.total_amount || 0), 0)
+    + (orders ?? [])
+    .filter((o) => o.payment_status === "paid")
+    .reduce((s, o) => s + Number(o.amount || 0), 0);
+  const totalOrdersCount = (shopOrders?.length ?? 0) + orders.length;
+  const abandonedCart = cartItems.filter((c: any) => {
+    const ageH = (Date.now() - new Date(c.added_at).getTime()) / 3600000;
+    return ageH >= 2;
+  });
+
   return (
     <SiteLayout>
       <section className="border-b border-border/40 bg-hero">
