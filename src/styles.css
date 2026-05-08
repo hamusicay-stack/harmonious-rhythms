@@ -4,6 +4,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "./styles/smart-rhythms.css";
+@import "./styles/yamaha-organ.css";
 
 @custom-variant dark (&:is(.dark *));
 
