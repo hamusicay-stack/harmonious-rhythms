@@ -3025,6 +3025,75 @@ export type Database = {
         }
         Relationships: []
       }
+      rhythm_orders: {
+        Row: {
+          admin_notes: string | null
+          completed_at: string | null
+          cpi_file_path: string | null
+          cpi_file_url: string | null
+          created_at: string
+          customer_email: string | null
+          id: string
+          info_file_path: string | null
+          info_file_url: string | null
+          keyboard_model_id: string | null
+          price: number
+          rhythm_set_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          completed_at?: string | null
+          cpi_file_path?: string | null
+          cpi_file_url?: string | null
+          created_at?: string
+          customer_email?: string | null
+          id?: string
+          info_file_path?: string | null
+          info_file_url?: string | null
+          keyboard_model_id?: string | null
+          price?: number
+          rhythm_set_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          completed_at?: string | null
+          cpi_file_path?: string | null
+          cpi_file_url?: string | null
+          created_at?: string
+          customer_email?: string | null
+          id?: string
+          info_file_path?: string | null
+          info_file_url?: string | null
+          keyboard_model_id?: string | null
+          price?: number
+          rhythm_set_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rhythm_orders_keyboard_model_id_fkey"
+            columns: ["keyboard_model_id"]
+            isOneToOne: false
+            referencedRelation: "keyboard_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rhythm_orders_rhythm_set_id_fkey"
+            columns: ["rhythm_set_id"]
+            isOneToOne: false
+            referencedRelation: "rhythm_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rhythm_sets: {
         Row: {
           brand_id: string
