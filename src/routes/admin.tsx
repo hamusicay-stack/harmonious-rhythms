@@ -227,15 +227,17 @@ function AdminPage() {
 
           <TabsContent value="crm" className="mt-6">
             <Tabs defaultValue="customers" dir="rtl">
-              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto justify-start md:grid md:grid-cols-7 scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x">
-                <TabsTrigger value="customers" className="shrink-0 md:flex-1"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
-                <TabsTrigger value="leads" className="shrink-0 md:flex-1"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
-                <TabsTrigger value="tasks" className="shrink-0 md:flex-1"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
-                <TabsTrigger value="suppliers" className="shrink-0 md:flex-1"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
-                <TabsTrigger value="purchase_orders" className="shrink-0 md:flex-1"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
-                <TabsTrigger value="roles" className="shrink-0 md:flex-1"><KeyRound className="ml-1 h-4 w-4" />הרשאות</TabsTrigger>
-                <TabsTrigger value="admins" className="shrink-0 md:flex-1"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
-              </TabsList>
+              <div className="w-full overflow-x-auto scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x" dir="rtl">
+                <TabsList className="inline-flex w-max h-auto gap-1 md:grid md:w-full md:grid-cols-7">
+                  <TabsTrigger value="customers" className="shrink-0 md:flex-1"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
+                  <TabsTrigger value="leads" className="shrink-0 md:flex-1"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
+                  <TabsTrigger value="tasks" className="shrink-0 md:flex-1"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
+                  <TabsTrigger value="suppliers" className="shrink-0 md:flex-1"><Building2 className="ml-1 h-4 w-4" />ספקים</TabsTrigger>
+                  <TabsTrigger value="purchase_orders" className="shrink-0 md:flex-1"><Package className="ml-1 h-4 w-4" />רכש</TabsTrigger>
+                  <TabsTrigger value="roles" className="shrink-0 md:flex-1"><KeyRound className="ml-1 h-4 w-4" />הרשאות</TabsTrigger>
+                  <TabsTrigger value="admins" className="shrink-0 md:flex-1"><ShieldCheck className="ml-1 h-4 w-4" />מנהלים</TabsTrigger>
+                </TabsList>
+              </div>
 
               <TabsContent value="customers" className="mt-6">
                 <Card>
