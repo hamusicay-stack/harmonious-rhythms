@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil, FolderTree } from "lucide-react";
 import { toast } from "sonner";
 
 type Brand = { id: string; name: string; logo_url: string | null; created_at: string };
@@ -19,8 +19,11 @@ type KeyboardModel = { id: string; brand_id: string; model_name: string; ui_imag
 type RhythmSet = {
   id: string; brand_id: string; creator_name: string; set_name: string; description: string | null;
   price: number; requires_info_file: boolean; info_file_extension: string | null; is_automated: boolean; created_at: string;
+  youtube_video_id?: string | null;
 };
-type AudioSample = { id: string; set_id: string; button_type: string; audio_url: string; created_at: string };
+type AudioSample = { id: string; set_id: string; rhythm_item_id: string | null; button_type: string; audio_url: string; created_at: string };
+type RhythmFolder = { id: string; set_id: string; name: string; sort_order: number };
+type RhythmItem = { id: string; folder_id: string; name: string; description: string | null; sort_order: number };
 
 export function RhythmSetsManager() {
   return (
@@ -30,12 +33,14 @@ export function RhythmSetsManager() {
           <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
           <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
           <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
+          <TabsTrigger value="folders" className="shrink-0"><FolderTree className="ml-1 h-4 w-4" />תיקיות ופריטים</TabsTrigger>
           <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
         </TabsList>
       </div>
       <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
       <TabsContent value="models" className="mt-6"><ModelsSection /></TabsContent>
       <TabsContent value="sets" className="mt-6"><SetsSection /></TabsContent>
+      <TabsContent value="folders" className="mt-6"><FoldersItemsSection /></TabsContent>
       <TabsContent value="samples" className="mt-6"><SamplesSection /></TabsContent>
     </Tabs>
   );
@@ -206,6 +211,7 @@ function SetsSection() {
   const emptyForm = {
     brand_id: "", creator_name: "", set_name: "", description: "", price: "0",
     requires_info_file: false, info_file_extension: "", is_automated: false,
+    youtube_video_id: "",
   };
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -239,6 +245,7 @@ function SetsSection() {
       requires_info_file: !!s.requires_info_file,
       info_file_extension: s.info_file_extension ?? "",
       is_automated: !!s.is_automated,
+      youtube_video_id: s.youtube_video_id ?? "",
     });
     setOpen(true);
   };
@@ -255,6 +262,7 @@ function SetsSection() {
       requires_info_file: form.requires_info_file,
       info_file_extension: form.requires_info_file ? (form.info_file_extension.trim() || null) : null,
       is_automated: form.is_automated,
+      youtube_video_id: form.youtube_video_id.trim() || null,
     };
     const { error } = editingId
       ? await supabase.from("rhythm_sets" as any).update(payload as any).eq("id", editingId)
@@ -294,6 +302,7 @@ function SetsSection() {
               <div><Label>שם הסט</Label><Input value={form.set_name} onChange={(e) => setForm({ ...form, set_name: e.target.value })} /></div>
               <div><Label>תיאור</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
               <div><Label>מחיר (₪)</Label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
+              <div><Label>YouTube (URL או מזהה)</Label><Input value={form.youtube_video_id} onChange={(e) => setForm({ ...form, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" /></div>
               <div className="flex items-center justify-between">
                 <Label>נדרש קובץ זיהוי?</Label>
                 <Switch checked={form.requires_info_file} onCheckedChange={(v) => setForm({ ...form, requires_info_file: v })} />
@@ -342,35 +351,59 @@ function SetsSection() {
 }
 
 /* -------------------- Audio Samples -------------------- */
+const BUTTON_OPTIONS = [
+  "Intro_1", "Intro_2", "Intro_3",
+  "Main_A", "Main_B", "Main_C", "Main_D",
+  "Fill_AA", "Fill_BB", "Fill_CC", "Fill_DD",
+  "Ending_1", "Ending_2", "Ending_3",
+];
+
 function SamplesSection() {
-  const [rows, setRows] = useState<(AudioSample & { set?: RhythmSet })[]>([]);
+  const [rows, setRows] = useState<any[]>([]);
   const [sets, setSets] = useState<RhythmSet[]>([]);
+  const [folders, setFolders] = useState<RhythmFolder[]>([]);
+  const [items, setItems] = useState<RhythmItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [setId, setSetId] = useState("");
+  const [folderId, setFolderId] = useState("");
+  const [itemId, setItemId] = useState("");
   const [buttonType, setButtonType] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const [{ data: a, error: e1 }, { data: s, error: e2 }] = await Promise.all([
-      supabase.from("set_audio_samples" as any).select("*, set:rhythm_sets(*)").order("created_at", { ascending: false }),
+    const [{ data: a }, { data: s }, { data: f }, { data: i }] = await Promise.all([
+      supabase.from("set_audio_samples" as any).select("*, set:rhythm_sets(*), item:rhythm_items(name, folder:rhythm_folders(name, set_id))").order("created_at", { ascending: false }),
       supabase.from("rhythm_sets" as any).select("*").order("set_name"),
+      supabase.from("rhythm_folders" as any).select("*").order("sort_order"),
+      supabase.from("rhythm_items" as any).select("*").order("sort_order"),
     ]);
-    if (e1) toast.error(e1.message); else setRows((a ?? []) as any);
-    if (e2) toast.error(e2.message); else setSets((s ?? []) as unknown as RhythmSet[]);
+    setRows((a ?? []) as any);
+    setSets((s ?? []) as unknown as RhythmSet[]);
+    setFolders((f ?? []) as unknown as RhythmFolder[]);
+    setItems((i ?? []) as unknown as RhythmItem[]);
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
 
+  const filteredFolders = folders.filter((f) => f.set_id === setId);
+  const filteredItems = items.filter((it) => it.folder_id === folderId);
+
   const create = async () => {
-    if (!setId || !buttonType.trim() || !audioUrl.trim()) return toast.error("כל השדות חובה");
+    if (!setId || !itemId || !buttonType || !audioUrl.trim()) return toast.error("כל השדות חובה");
     setSaving(true);
-    const { error } = await supabase.from("set_audio_samples" as any).insert({ set_id: setId, button_type: buttonType.trim(), audio_url: audioUrl.trim() } as any);
+    const { error } = await supabase.from("set_audio_samples" as any).insert({
+      set_id: setId,
+      rhythm_item_id: itemId,
+      button_type: buttonType,
+      audio_url: audioUrl.trim(),
+    } as any);
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("נוסף"); setSetId(""); setButtonType(""); setAudioUrl(""); setOpen(false); void load();
+    toast.success("נוסף");
+    setSetId(""); setFolderId(""); setItemId(""); setButtonType(""); setAudioUrl(""); setOpen(false); void load();
   };
 
   const del = async (id: string) => {
@@ -379,8 +412,6 @@ function SamplesSection() {
     if (error) return toast.error(error.message);
     toast.success("נמחק"); void load();
   };
-
-  const buttonOptions = ["Intro_1", "Intro_2", "Intro_3", "Main_A", "Main_B", "Main_C", "Main_D", "Fill_AB", "Fill_BA", "Ending_1", "Ending_2", "Ending_3"];
 
   return (
     <Card>
@@ -393,16 +424,30 @@ function SamplesSection() {
             <div className="space-y-3">
               <div>
                 <Label>סט</Label>
-                <Select value={setId} onValueChange={setSetId}>
+                <Select value={setId} onValueChange={(v) => { setSetId(v); setFolderId(""); setItemId(""); }}>
                   <SelectTrigger><SelectValue placeholder="בחר סט" /></SelectTrigger>
                   <SelectContent>{sets.map((s) => <SelectItem key={s.id} value={s.id}>{s.set_name} — {s.creator_name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>תיקייה</Label>
+                <Select value={folderId} onValueChange={(v) => { setFolderId(v); setItemId(""); }}>
+                  <SelectTrigger><SelectValue placeholder="בחר תיקייה" /></SelectTrigger>
+                  <SelectContent>{filteredFolders.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>פריט מקצב</Label>
+                <Select value={itemId} onValueChange={setItemId}>
+                  <SelectTrigger><SelectValue placeholder="בחר פריט" /></SelectTrigger>
+                  <SelectContent>{filteredItems.map((it) => <SelectItem key={it.id} value={it.id}>{it.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>סוג כפתור</Label>
                 <Select value={buttonType} onValueChange={setButtonType}>
                   <SelectTrigger><SelectValue placeholder="בחר כפתור" /></SelectTrigger>
-                  <SelectContent>{buttonOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
+                  <SelectContent>{BUTTON_OPTIONS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div><Label>Audio URL</Label><Input value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://..." /></div>
@@ -414,19 +459,156 @@ function SamplesSection() {
       <CardContent>
         {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
           <Table>
-            <TableHeader><TableRow><TableHead>סט</TableHead><TableHead>כפתור</TableHead><TableHead>אודיו</TableHead><TableHead /></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>סט</TableHead><TableHead>תיקייה</TableHead><TableHead>פריט</TableHead><TableHead>כפתור</TableHead><TableHead>אודיו</TableHead><TableHead /></TableRow></TableHeader>
             <TableBody>
               {rows.map((a) => (
                 <TableRow key={a.id}>
                   <TableCell className="font-medium">{a.set?.set_name ?? "—"}</TableCell>
+                  <TableCell>{a.item?.folder?.name ?? "—"}</TableCell>
+                  <TableCell>{a.item?.name ?? "—"}</TableCell>
                   <TableCell><Badge variant="outline">{a.button_type}</Badge></TableCell>
                   <TableCell><audio src={a.audio_url} controls className="h-8 max-w-[200px]" /></TableCell>
                   <TableCell><Button variant="ghost" size="icon" onClick={() => del(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
                 </TableRow>
               ))}
-              {rows.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">אין דגימות עדיין</TableCell></TableRow>}
+              {rows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">אין דגימות עדיין</TableCell></TableRow>}
             </TableBody>
           </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* -------------------- Folders & Items -------------------- */
+function FoldersItemsSection() {
+  const [sets, setSets] = useState<RhythmSet[]>([]);
+  const [setId, setSetId] = useState<string>("");
+  const [folders, setFolders] = useState<RhythmFolder[]>([]);
+  const [items, setItems] = useState<RhythmItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [newFolder, setNewFolder] = useState("");
+  const [newItem, setNewItem] = useState<{ folder_id: string; name: string }>({ folder_id: "", name: "" });
+
+  useEffect(() => {
+    supabase.from("rhythm_sets" as any).select("*").order("set_name").then(({ data }) => setSets((data ?? []) as any));
+  }, []);
+
+  const loadSet = async (id: string) => {
+    setSetId(id);
+    if (!id) { setFolders([]); setItems([]); return; }
+    setLoading(true);
+    const { data: f } = await supabase.from("rhythm_folders" as any).select("*").eq("set_id", id).order("sort_order");
+    setFolders((f ?? []) as any);
+    const folderIds = (f ?? []).map((x: any) => x.id);
+    if (folderIds.length) {
+      const { data: i } = await supabase.from("rhythm_items" as any).select("*").in("folder_id", folderIds).order("sort_order");
+      setItems((i ?? []) as any);
+    } else setItems([]);
+    setLoading(false);
+  };
+
+  const addFolder = async () => {
+    if (!setId || !newFolder.trim()) return;
+    const { error } = await supabase.from("rhythm_folders" as any).insert({ set_id: setId, name: newFolder.trim(), sort_order: folders.length } as any);
+    if (error) return toast.error(error.message);
+    setNewFolder(""); loadSet(setId);
+  };
+
+  const delFolder = async (id: string) => {
+    if (!confirm("למחוק תיקייה? כל הפריטים שלה יימחקו.")) return;
+    const { error } = await supabase.from("rhythm_folders" as any).delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    loadSet(setId);
+  };
+
+  const addItem = async () => {
+    if (!newItem.folder_id || !newItem.name.trim()) return toast.error("בחר תיקייה ומלא שם");
+    const folderItems = items.filter((i) => i.folder_id === newItem.folder_id);
+    const { error } = await supabase.from("rhythm_items" as any).insert({
+      folder_id: newItem.folder_id, name: newItem.name.trim(), sort_order: folderItems.length,
+    } as any);
+    if (error) return toast.error(error.message);
+    setNewItem({ folder_id: newItem.folder_id, name: "" });
+    loadSet(setId);
+  };
+
+  const delItem = async (id: string) => {
+    if (!confirm("למחוק פריט מקצב?")) return;
+    const { error } = await supabase.from("rhythm_items" as any).delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    loadSet(setId);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>תיקיות ופריטי מקצב</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <Label>בחר סט</Label>
+          <Select value={setId} onValueChange={loadSet}>
+            <SelectTrigger><SelectValue placeholder="בחר סט" /></SelectTrigger>
+            <SelectContent>{sets.map((s) => <SelectItem key={s.id} value={s.id}>{s.set_name} — {s.creator_name}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+
+        {setId && (
+          <>
+            <div className="rounded-lg border p-4">
+              <h3 className="mb-3 font-semibold">תיקיות</h3>
+              <div className="mb-3 flex gap-2">
+                <Input value={newFolder} onChange={(e) => setNewFolder(e.target.value)} placeholder="שם תיקייה (Freilach, Dance...)" />
+                <Button onClick={addFolder} size="sm"><Plus className="h-4 w-4" /></Button>
+              </div>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                <div className="flex flex-wrap gap-2">
+                  {folders.map((f) => (
+                    <Badge key={f.id} variant="outline" className="gap-1 pr-1">
+                      {f.name}
+                      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => delFolder(f.id)}>
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </Badge>
+                  ))}
+                  {folders.length === 0 && <span className="text-sm text-muted-foreground">אין תיקיות עדיין.</span>}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-lg border p-4">
+              <h3 className="mb-3 font-semibold">פריטי מקצב</h3>
+              <div className="mb-3 grid gap-2 md:grid-cols-[1fr_2fr_auto]">
+                <Select value={newItem.folder_id} onValueChange={(v) => setNewItem({ ...newItem, folder_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="תיקייה" /></SelectTrigger>
+                  <SelectContent>{folders.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}</SelectContent>
+                </Select>
+                <Input value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} placeholder="שם המקצב" />
+                <Button onClick={addItem} size="sm"><Plus className="h-4 w-4" /></Button>
+              </div>
+
+              {folders.map((f) => {
+                const its = items.filter((i) => i.folder_id === f.id);
+                return (
+                  <div key={f.id} className="mb-3">
+                    <div className="mb-1 text-xs font-semibold text-muted-foreground">{f.name}</div>
+                    <div className="flex flex-wrap gap-1">
+                      {its.map((it) => (
+                        <Badge key={it.id} variant="secondary" className="gap-1 pr-1">
+                          {it.name}
+                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => delItem(it.id)}>
+                            <Trash2 className="h-3 w-3 text-destructive" />
+                          </Button>
+                        </Badge>
+                      ))}
+                      {its.length === 0 && <span className="text-xs text-muted-foreground">— ריק —</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
