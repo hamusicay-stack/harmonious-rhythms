@@ -3183,6 +3183,102 @@ export type Database = {
         }
         Relationships: []
       }
+      rhythm_folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          set_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          set_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          set_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rhythm_folders_set_id_fkey"
+            columns: ["set_id"]
+            isOneToOne: false
+            referencedRelation: "rhythm_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rhythm_item_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          rhythm_item_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rhythm_item_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rhythm_item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rhythm_item_favorites_rhythm_item_id_fkey"
+            columns: ["rhythm_item_id"]
+            isOneToOne: false
+            referencedRelation: "rhythm_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rhythm_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          folder_id: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          folder_id: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          folder_id?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rhythm_items_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "rhythm_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rhythm_orders: {
         Row: {
           admin_notes: string | null
@@ -3255,6 +3351,7 @@ export type Database = {
       rhythm_sets: {
         Row: {
           brand_id: string
+          cover_image_url: string | null
           created_at: string
           creator_name: string
           description: string | null
@@ -3264,9 +3361,11 @@ export type Database = {
           price: number
           requires_info_file: boolean
           set_name: string
+          youtube_video_id: string | null
         }
         Insert: {
           brand_id: string
+          cover_image_url?: string | null
           created_at?: string
           creator_name: string
           description?: string | null
@@ -3276,9 +3375,11 @@ export type Database = {
           price?: number
           requires_info_file?: boolean
           set_name: string
+          youtube_video_id?: string | null
         }
         Update: {
           brand_id?: string
+          cover_image_url?: string | null
           created_at?: string
           creator_name?: string
           description?: string | null
@@ -3288,6 +3389,7 @@ export type Database = {
           price?: number
           requires_info_file?: boolean
           set_name?: string
+          youtube_video_id?: string | null
         }
         Relationships: [
           {
@@ -3332,6 +3434,7 @@ export type Database = {
           button_type: string
           created_at: string
           id: string
+          rhythm_item_id: string | null
           set_id: string
         }
         Insert: {
@@ -3339,6 +3442,7 @@ export type Database = {
           button_type: string
           created_at?: string
           id?: string
+          rhythm_item_id?: string | null
           set_id: string
         }
         Update: {
@@ -3346,9 +3450,17 @@ export type Database = {
           button_type?: string
           created_at?: string
           id?: string
+          rhythm_item_id?: string | null
           set_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "set_audio_samples_rhythm_item_id_fkey"
+            columns: ["rhythm_item_id"]
+            isOneToOne: false
+            referencedRelation: "rhythm_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "set_audio_samples_set_id_fkey"
             columns: ["set_id"]
