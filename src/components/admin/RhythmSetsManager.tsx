@@ -211,6 +211,7 @@ function SetsSection() {
   const emptyForm = {
     brand_id: "", creator_name: "", set_name: "", description: "", price: "0",
     requires_info_file: false, info_file_extension: "", is_automated: false,
+    youtube_video_id: "",
   };
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
