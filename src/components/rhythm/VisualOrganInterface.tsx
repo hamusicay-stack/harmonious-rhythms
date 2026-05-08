@@ -448,7 +448,10 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                   <span className="yo-tyros-pbtn" data-muted="true">P2</span>
                 </div>
                 <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP">
-                  UP <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+                  <span className="yo-tyros-up-label">UP</span>
+                  <svg className="yo-tyros-up-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 18 Q4 8 14 8 L20 8 M14 4 L20 8 L14 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
               </div>
             </div>
