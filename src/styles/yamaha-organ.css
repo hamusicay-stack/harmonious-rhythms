@@ -315,3 +315,237 @@
 @media (prefers-reduced-motion: reduce) {
   .yo-btn[data-lit="true"] .yo-btn-led { animation: none; }
 }
+
+/* ==========================================================================
+   TYROS variant — light gray LCD with white cards
+   Activated by data-hw="tyros" on .yo-bezel
+   ========================================================================== */
+.yo-bezel[data-hw="tyros"] {
+  padding: 18px 14px 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #0d0e12 0%, #050608 100%);
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -2px 8px rgba(0,0,0,0.85),
+    0 22px 50px -22px rgba(0,0,0,0.8);
+}
+/* Yamaha STYLE header above the LCD */
+.yo-tyros-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0 0 10px;
+  color: #fff;
+}
+.yo-tyros-brand .yo-tyros-yamaha {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 700 1rem/1 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.18em;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+}
+.yo-tyros-brand .yo-tyros-fork {
+  display: inline-block; width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  position: relative;
+}
+.yo-tyros-brand .yo-tyros-fork::before,
+.yo-tyros-brand .yo-tyros-fork::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 1.5px; height: 8px; background: #fff;
+  transform-origin: bottom center;
+}
+.yo-tyros-brand .yo-tyros-fork::before { transform: translate(-50%, -100%) rotate(-30deg); }
+.yo-tyros-brand .yo-tyros-fork::after  { transform: translate(-50%, -100%) rotate(30deg); }
+.yo-tyros-brand .yo-tyros-style {
+  font: 700 0.9rem/1 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.2em;
+}
+
+.yo-lcd[data-hw="tyros"] {
+  background: linear-gradient(180deg, #b9bcc2 0%, #a4a7ad 60%, #93969c 100%);
+  color: #1a1c22;
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.5),
+    inset 0 -1px 0 rgba(255,255,255,0.25);
+}
+.yo-lcd[data-hw="tyros"]::after { display: none; }
+
+/* Tyros header strip (dark gradient with tabs at right) */
+.yo-tyros-tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 0;
+  padding: 6px 12px 0;
+  background: linear-gradient(180deg, #4a4d54 0%, #2c2e34 100%);
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.6);
+}
+.yo-tyros-tab {
+  position: relative;
+  padding: 5px 16px 7px;
+  margin-left: -8px;
+  font: 700 0.7rem/1 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: linear-gradient(180deg, #6a6d75 0%, #3a3d44 100%);
+  border: 1px solid #000;
+  border-bottom: none;
+  border-radius: 4px 14px 0 0 / 4px 18px 0 0;
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+  cursor: pointer;
+}
+.yo-tyros-tab[data-active="true"] {
+  background: linear-gradient(180deg, #cfd2d8 0%, #a4a7ad 100%);
+  color: #1a1c22;
+  z-index: 2;
+}
+
+/* Tyros white card (touch row) */
+.yo-tyros-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.25);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 1px 2px rgba(0,0,0,0.25);
+  color: #1a1c22;
+  cursor: pointer;
+  min-height: 56px;
+  transition: transform 0.12s ease, box-shadow 0.18s ease;
+}
+.yo-tyros-card:hover { box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3); }
+.yo-tyros-card:active { transform: translateY(1px); }
+.yo-tyros-card[data-active="true"] {
+  box-shadow:
+    0 0 0 2px var(--yo-orange),
+    0 2px 6px rgba(0,0,0,0.35);
+}
+.yo-tyros-thumb {
+  width: 56px; height: 42px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.4);
+  background-size: cover; background-position: center;
+  flex-shrink: 0;
+}
+.yo-tyros-name {
+  flex: 1; min-width: 0;
+  font: 700 0.95rem/1.1 'Times New Roman', Georgia, serif;
+  text-align: end;
+  padding-inline-end: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.yo-tyros-actions {
+  display: inline-flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+}
+.yo-tyros-iconbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  background: transparent;
+  border: 0; cursor: pointer;
+  color: #000;
+}
+.yo-tyros-iconbtn:hover { color: #c14a00; }
+
+/* Tyros folder card uses yellow folder icon */
+.yo-tyros-folder-icon { color: #f0c14b; filter: drop-shadow(0 1px 0 rgba(0,0,0,0.3)); }
+
+/* Tyros bottom bar (P1/P2 + UP) */
+.yo-tyros-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #93969c 0%, #7d8086 100%);
+  border-top: 1px solid rgba(0,0,0,0.45);
+}
+.yo-tyros-pbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 56px; padding: 8px 14px;
+  font: 700 0.95rem/1 'Times New Roman', Georgia, serif;
+  color: var(--yo-orange);
+  background: linear-gradient(180deg, #4a4d54 0%, #2c2e34 100%);
+  border: 1px solid #000;
+  border-radius: 5px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 -1px 0 rgba(0,0,0,0.6),
+    0 2px 0 rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+.yo-tyros-pbtn[data-muted="true"] { color: #e6e8ec; }
+.yo-tyros-pbtn:active { transform: translateY(1px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.6); }
+
+.yo-tyros-up {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px;
+  font: 700 0.95rem/1 'Times New Roman', Georgia, serif;
+  color: #1a1c22;
+  background: linear-gradient(180deg, #b8c0cc 0%, #8a94a3 100%);
+  border: 1px solid rgba(0,0,0,0.55);
+  border-radius: 5px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 2px 0 rgba(0,0,0,0.45);
+  cursor: pointer;
+}
+.yo-tyros-up:disabled { opacity: 0.5; cursor: not-allowed; }
+.yo-tyros-up:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+
+/* Tyros file toolbar (NAME/CUT/COPY/PASTE/DELETE/SAVE/FOLDER/MENU 2) */
+.yo-tyros-toolbar {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px;
+  background: linear-gradient(180deg, #2a2c33 0%, #15171c 100%);
+  border-radius: 0 0 16px 16px;
+  border-top: 1px solid #000;
+}
+.yo-tyros-tool {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  background: linear-gradient(180deg, #6a6d75 0%, #3a3d44 100%);
+  border: 1px solid #000;
+  border-radius: 4px;
+  font: 700 0.62rem/1 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.06em;
+  color: #fff;
+  text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 -1px 0 rgba(0,0,0,0.5),
+    0 1px 0 rgba(0,0,0,0.55);
+  cursor: default;
+  user-select: none;
+}
+.yo-tyros-tool svg { width: 18px; height: 18px; }
+.yo-tyros-tool[data-menu="true"] {
+  background: linear-gradient(180deg, #5a5d63 0%, #2a2d33 100%);
+  position: relative;
+}
+.yo-tyros-tool[data-menu="true"] .yo-tyros-tool-pill {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--yo-orange);
+  color: #1a1c22;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .yo-tyros-toolbar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
