@@ -1467,6 +1467,27 @@ export type Database = {
           },
         ]
       }
+      brands: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       customer_interactions: {
         Row: {
           created_at: string
@@ -1777,6 +1798,38 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "forum_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keyboard_models: {
+        Row: {
+          brand_id: string
+          created_at: string
+          id: string
+          model_name: string
+          ui_image_url: string | null
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          id?: string
+          model_name: string
+          ui_image_url?: string | null
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          id?: string
+          model_name?: string
+          ui_image_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyboard_models_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
             referencedColumns: ["id"]
           },
         ]
@@ -2972,6 +3025,53 @@ export type Database = {
         }
         Relationships: []
       }
+      rhythm_sets: {
+        Row: {
+          brand_id: string
+          created_at: string
+          creator_name: string
+          description: string | null
+          id: string
+          info_file_extension: string | null
+          is_automated: boolean
+          price: number
+          requires_info_file: boolean
+          set_name: string
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          creator_name: string
+          description?: string | null
+          id?: string
+          info_file_extension?: string | null
+          is_automated?: boolean
+          price?: number
+          requires_info_file?: boolean
+          set_name: string
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          creator_name?: string
+          description?: string | null
+          id?: string
+          info_file_extension?: string | null
+          is_automated?: boolean
+          price?: number
+          requires_info_file?: boolean
+          set_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rhythm_sets_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string
@@ -2998,6 +3098,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      set_audio_samples: {
+        Row: {
+          audio_url: string
+          button_type: string
+          created_at: string
+          id: string
+          set_id: string
+        }
+        Insert: {
+          audio_url: string
+          button_type: string
+          created_at?: string
+          id?: string
+          set_id: string
+        }
+        Update: {
+          audio_url?: string
+          button_type?: string
+          created_at?: string
+          id?: string
+          set_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "set_audio_samples_set_id_fkey"
+            columns: ["set_id"]
+            isOneToOne: false
+            referencedRelation: "rhythm_sets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shop_bundle_items: {
         Row: {
