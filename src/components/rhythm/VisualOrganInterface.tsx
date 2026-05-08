@@ -602,7 +602,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
 
         {/* HARDWARE CONTROL PANEL */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-          <div className="yo-hw-panel">
+          <div className="yo-hw-panel" data-hw={hwTheme.variant}>
             <div className="flex items-center gap-2 mb-4">
               <span className="yo-screw" /> <span className="yo-screw" />
               <div className="flex-1 text-center">
