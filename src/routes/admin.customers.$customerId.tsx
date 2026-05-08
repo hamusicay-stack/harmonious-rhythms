@@ -416,6 +416,73 @@ function CustomerProfilePage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="courses" className="mt-6">
+            <Card>
+              <CardHeader><CardTitle>קורסים</CardTitle></CardHeader>
+              <CardContent>
+                {enrollments.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">לא נרשם לקורסים.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {enrollments.map((e: any) => (
+                      <div key={e.id} className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+                        <div>
+                          <div className="font-medium">{e.academy_courses?.title ?? "קורס"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            סטטוס: {e.status} · התקדמות: {Math.round(e.progress_percent ?? 0)}%
+                            {e.last_accessed_at && ` · נצפה לאחרונה: ${new Date(e.last_accessed_at).toLocaleDateString("he-IL")}`}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="marketplace" className="mt-6">
+            <Card>
+              <CardHeader><CardTitle>פעילות יד שנייה</CardTitle></CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {listingsCount === 0 ? "אין מודעות פעילות." : `${listingsCount} מודעות פעילות.`}
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="cart" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">עגלת קניות {abandonedCart.length > 0 && <Badge variant="outline">נטשה</Badge>}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {cartItems.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">העגלה ריקה.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {cartItems.map((c: any) => {
+                      const ageH = Math.round((Date.now() - new Date(c.added_at).getTime()) / 3600000);
+                      return (
+                        <div key={c.id} className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+                          <div className="flex items-center gap-3">
+                            {c.image && <img src={c.image} alt="" className="h-12 w-12 rounded object-cover" />}
+                            <div>
+                              <div className="font-medium">{c.title}</div>
+                              <div className="text-xs text-muted-foreground">כמות: {c.qty} · נוסף לפני {ageH} שעות</div>
+                            </div>
+                          </div>
+                          <div className="font-bold">₪{Number(c.price).toLocaleString()}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </section>
     </SiteLayout>
