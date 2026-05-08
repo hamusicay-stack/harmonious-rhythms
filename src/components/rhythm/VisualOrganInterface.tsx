@@ -191,6 +191,16 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     setActiveBtn(null);
   };
 
+  const goUp = () => {
+    if (navLevel === "items") { setActiveFolderId(null); setActiveItemId(null); stop(); }
+    else if (navLevel === "folders") { setActiveSetId(null); setActiveItemId(null); stop(); }
+  };
+  const lcdTitle = !activeSetId
+    ? "STYLE — SELECT SET"
+    : activeFolderId
+    ? `${(sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase()} / ${(folders.find((f) => f.id === activeFolderId)?.name ?? "").toUpperCase()}`
+    : (sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase();
+
   const playSample = (btn: ButtonDef) => {
     if (!activeSet) {
       toast.info("בחר ערכת קצב");
