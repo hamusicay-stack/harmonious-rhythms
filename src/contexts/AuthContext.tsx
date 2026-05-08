@@ -68,11 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (newSession?.user) {
         activeUserIdRef.current = newSession.user.id;
         setLoading(true);
+        const userId = newSession.user.id;
         setTimeout(async () => {
           try {
-            await loadProfile(newSession.user.id);
+            await loadProfile(userId);
+            // Track last login (fire-and-forget)
+            supabase.from("profiles").update({ last_login_at: new Date().toISOString() }).eq("id", userId).then(() => {});
           } finally {
-            if (active && activeUserIdRef.current === newSession.user.id) {
+            if (active && activeUserIdRef.current === userId) {
               setLoading(false);
             }
           }
