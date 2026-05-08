@@ -15,6 +15,7 @@ import {
   type LedColor,
 } from "./SmartRhythmsTheme";
 import { cn } from "@/lib/utils";
+import tyros5Image from "@/assets/tyros5-hardware.jpg";
 
 type RhythmSet = {
   id: string;
@@ -310,7 +311,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
 
         {/* LCD SCREEN — Yamaha skeuomorphic */}
         {hwTheme.variant === "tyros" ? (
-          <div className="yo-bezel" data-hw="tyros">
+          <div className="space-y-4">
+            {/* Tyros 5 hardware photo */}
+            <div className="flex justify-center">
+              <img
+                src={tyros5Image}
+                alt="Yamaha Tyros 5"
+                className="max-w-full w-full sm:max-w-2xl rounded-lg shadow-2xl ring-1 ring-black/60"
+                loading="lazy"
+              />
+            </div>
+            <div className="yo-bezel" data-hw="tyros">
             {/* YAMAHA · STYLE brand header */}
             <div className="yo-tyros-brand">
               <span className="yo-tyros-yamaha">
@@ -451,6 +462,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               <div className="yo-tyros-tool"><Save /><span>SAVE</span></div>
               <div className="yo-tyros-tool"><FolderOpen /><span>FOLDER</span></div>
               <div className="yo-tyros-tool" data-menu="true"><MenuSquare /><span className="yo-tyros-tool-pill">MENU 2</span></div>
+            </div>
             </div>
           </div>
         ) : (
