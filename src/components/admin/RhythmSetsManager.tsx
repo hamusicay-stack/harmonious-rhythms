@@ -51,7 +51,7 @@ function BrandsSection() {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("brands" as any).select("*").order("name");
-    if (error) toast.error(error.message); else setRows((data ?? []) as Brand[]);
+    if (error) toast.error(error.message); else setRows((data ?? []) as unknown as Brand[]);
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
