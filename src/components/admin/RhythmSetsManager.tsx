@@ -245,6 +245,7 @@ function SetsSection() {
       requires_info_file: !!s.requires_info_file,
       info_file_extension: s.info_file_extension ?? "",
       is_automated: !!s.is_automated,
+      youtube_video_id: s.youtube_video_id ?? "",
     });
     setOpen(true);
   };
@@ -261,6 +262,7 @@ function SetsSection() {
       requires_info_file: form.requires_info_file,
       info_file_extension: form.requires_info_file ? (form.info_file_extension.trim() || null) : null,
       is_automated: form.is_automated,
+      youtube_video_id: form.youtube_video_id.trim() || null,
     };
     const { error } = editingId
       ? await supabase.from("rhythm_sets" as any).update(payload as any).eq("id", editingId)
