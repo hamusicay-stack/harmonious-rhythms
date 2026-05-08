@@ -3025,6 +3025,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rhythm_automation_settings: {
+        Row: {
+          enabled: boolean
+          id: number
+          updated_at: string
+          webhook_secret: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          id?: number
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          id?: number
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       rhythm_orders: {
         Row: {
           admin_notes: string | null
