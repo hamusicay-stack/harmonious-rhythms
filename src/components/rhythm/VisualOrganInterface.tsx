@@ -255,35 +255,36 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     toast.success(`${activeSet.set_name} נוסף לסל`);
   };
 
-  const renderRow = (defs: ButtonDef[], group: string) => (
-    <div className="flex flex-col gap-2">
-      <SrLabel>{group}</SrLabel>
-      <div className={cn("grid gap-2", defs.length === 4 ? "grid-cols-4" : "grid-cols-3")}>
-        {defs.map((b) => {
-          const has = sampleMap.has(b.code);
-          const lit = activeBtn === b.code;
-          return (
-            <SrKey
-              key={b.code}
-              led={b.led}
-              lit={lit}
-              pulse={lit}
-              ledDot
-              disabled={!activeSet}
-              onClick={() => playSample(b)}
-              className="text-[0.7rem] sm:text-xs px-2 py-3"
-              style={{ opacity: !activeSet ? 0.4 : has ? 1 : 0.55 }}
-            >
-              {b.label}
-            </SrKey>
-          );
-        })}
+  const renderHwBtn = (b: ButtonDef) => {
+    const has = sampleMap.has(b.code);
+    const lit = activeBtn === b.code;
+    return (
+      <button
+        key={b.code}
+        type="button"
+        onClick={() => playSample(b)}
+        disabled={!activeSet}
+        data-lit={lit ? "true" : undefined}
+        className={cn("yo-btn", `yo-led-${b.led}`)}
+        style={{ opacity: !activeSet ? 0.4 : has ? 1 : 0.6 }}
+      >
+        <span className="yo-btn-led" aria-hidden />
+        {b.label}
+      </button>
+    );
+  };
+
+  const renderHwGroup = (label: string, defs: ButtonDef[], cols: number) => (
+    <div className="yo-group">
+      <div className="yo-group-row" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+        {defs.map(renderHwBtn)}
       </div>
+      <div className="yo-group-label">{label}</div>
     </div>
   );
 
   return (
-    <SmartRhythmsTheme dir="rtl" className="min-h-screen p-4 sm:p-8">
+    <SmartRhythmsTheme dir="rtl" className="yo-root min-h-screen p-4 sm:p-8">
       <div className="mx-auto max-w-6xl space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between gap-3">
@@ -307,69 +308,28 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
           </SrChip>
         </div>
 
-        {/* LCD SCREEN — Yamaha-style */}
-        <div
-          className="rounded-2xl p-3 sm:p-4"
-          style={{
-            background: hwTheme.panelBg,
-            border: `1px solid ${hwTheme.panelBorder}`,
-            boxShadow:
-              "inset 0 1px 0 oklch(1 0 0 / 0.15), inset 0 -2px 6px oklch(0 0 0 / 0.35), 0 18px 40px -16px oklch(0 0 0 / 0.5)",
-          }}
-        >
-          <div
-            className="overflow-hidden rounded-lg"
-            style={{
-              background: hwTheme.lcdBg,
-              border: "1px solid oklch(0 0 0 / 0.6)",
-              boxShadow:
-                "inset 0 2px 10px oklch(0 0 0 / 0.55), inset 0 -1px 0 oklch(1 0 0 / 0.05)",
-              color: hwTheme.lcdText,
-            }}
-          >
-            {/* Header bar — STYLE title + source tabs (Yamaha-style) */}
-            <div
-              className="px-3 sm:px-4 pt-2 pb-0"
-              style={{
-                background: hwTheme.headerBg,
-                color: hwTheme.headerText,
-                borderBottom: "1px solid oklch(0 0 0 / 0.5)",
-                boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.18)",
-              }}
-            >
+        {/* LCD SCREEN — Yamaha skeuomorphic */}
+        <div className="yo-bezel">
+          <div className="yo-lcd">
+            {/* Header bar */}
+            <div className="yo-lcd-header px-3 sm:px-4 pt-2 pb-0 relative z-10">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <FolderIcon className="h-4 w-4 shrink-0" />
                   <span className="font-semibold tracking-wide text-sm truncate">{lcdTitle || "STYLE"}</span>
                 </div>
-                {hwTheme.variant === "genos" && (
-                  <div className="flex items-center gap-3 shrink-0 text-[0.65rem] font-bold tracking-wider opacity-90">
-                    <span>SEARCH</span><span>QQ</span><span>BEST</span><span>×</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-3 shrink-0 text-[0.62rem] font-bold tracking-widest opacity-95">
+                  <span>SEARCH</span><span>QQ</span><span>BEST</span><span>×</span>
+                </div>
               </div>
-              {/* Source tabs */}
-              <div className="mt-1.5 flex items-end gap-1 text-[0.62rem] font-bold tracking-widest">
+              <div className="mt-1.5 flex items-end gap-1">
                 {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
                   const active =
                     (navLevel === "sets" && tab === "PRESET") ||
                     (navLevel === "folders" && tab === "HD1") ||
                     (navLevel === "items" && tab === "USB1");
                   return (
-                    <span
-                      key={tab}
-                      className="rounded-t-md px-3 py-1"
-                      style={{
-                        background: active
-                          ? (hwTheme.variant === "tyros" ? "oklch(0.80 0.010 260)" : "oklch(0.18 0.012 260)")
-                          : "oklch(0 0 0 / 0.25)",
-                        color: active ? hwTheme.lcdText : hwTheme.headerText,
-                        border: "1px solid oklch(0 0 0 / 0.45)",
-                        borderBottom: "none",
-                        boxShadow: active ? "inset 0 1px 0 oklch(1 0 0 / 0.25)" : undefined,
-                        opacity: active ? 1 : 0.75,
-                      }}
-                    >
+                    <span key={tab} className="yo-lcd-tab" data-active={active ? "true" : undefined}>
                       {tab}
                     </span>
                   );
@@ -378,7 +338,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
             </div>
 
             {/* LCD body */}
-            <div className="p-3 sm:p-5 min-h-[300px]">
+            <div className="p-3 sm:p-5 min-h-[300px] relative z-10">
               {loading ? (
                 <div className="flex items-center justify-center h-44 gap-2 opacity-70">
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -396,14 +356,9 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                         key={s.id}
                         type="button"
                         onClick={() => { setActiveSetId(s.id); setActiveFolderId(null); setActiveItemId(null); stop(); }}
-                        className="flex items-center gap-3 rounded-md p-2.5 text-start transition hover:-translate-y-px"
-                        style={{
-                          background: hwTheme.variant === "tyros" ? "oklch(1 0 0 / 0.85)" : "oklch(1 0 0 / 0.06)",
-                          border: `1px solid ${hwTheme.variant === "tyros" ? "oklch(0 0 0 / 0.15)" : "oklch(1 0 0 / 0.12)"}`,
-                          color: hwTheme.lcdText,
-                        }}
+                        className="yo-touch"
                       >
-                        <FolderIcon className="h-7 w-7 shrink-0" style={{ color: hwTheme.variant === "tyros" ? "oklch(0.65 0.10 75)" : "oklch(0.78 0.13 75)" }} strokeWidth={1.5} />
+                        <FolderIcon className="h-7 w-7 shrink-0" style={{ color: "var(--yo-orange)" }} strokeWidth={1.5} />
                         <span className="font-semibold text-sm truncate flex-1">{s.set_name}</span>
                         <span className="sr-mono text-[0.7rem] opacity-70">${Number(s.price).toFixed(0)}</span>
                       </button>
@@ -420,14 +375,9 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                         key={f.id}
                         type="button"
                         onClick={() => { setActiveFolderId(f.id); setActiveItemId(null); }}
-                        className="flex items-center gap-3 rounded-md p-2.5 text-start transition hover:-translate-y-px"
-                        style={{
-                          background: hwTheme.variant === "tyros" ? "oklch(1 0 0 / 0.85)" : "oklch(1 0 0 / 0.06)",
-                          border: `1px solid ${hwTheme.variant === "tyros" ? "oklch(0 0 0 / 0.15)" : "oklch(1 0 0 / 0.12)"}`,
-                          color: hwTheme.lcdText,
-                        }}
+                        className="yo-touch"
                       >
-                        <FolderIcon className="h-7 w-7 shrink-0" style={{ color: hwTheme.variant === "tyros" ? "oklch(0.65 0.10 75)" : "oklch(0.78 0.13 75)" }} strokeWidth={1.5} />
+                        <FolderIcon className="h-7 w-7 shrink-0" style={{ color: "var(--yo-orange)" }} strokeWidth={1.5} />
                         <span className="font-semibold text-sm truncate">{f.name}</span>
                       </button>
                     ))}
@@ -442,21 +392,13 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                       const isActive = activeItemId === it.id;
                       const fav = favorites.has(it.id);
                       return (
-                        <div
-                          key={it.id}
-                          className="flex items-center justify-between gap-2 rounded-md p-2.5"
-                          style={{
-                            background: hwTheme.variant === "tyros" ? "oklch(1 0 0 / 0.92)" : "oklch(1 0 0 / 0.06)",
-                            border: `1px solid ${isActive ? "oklch(0.72 0.16 55 / 0.7)" : (hwTheme.variant === "tyros" ? "oklch(0 0 0 / 0.15)" : "oklch(1 0 0 / 0.12)")}`,
-                            color: hwTheme.lcdText,
-                          }}
-                        >
+                        <div key={it.id} className="yo-touch" data-active={isActive ? "true" : undefined}>
                           <button type="button" onClick={() => setActiveItemId(it.id)} className="flex flex-1 items-center gap-2 text-start min-w-0">
-                            <Music2 className="h-4 w-4 shrink-0" style={{ color: "oklch(0.62 0.20 25)" }} />
+                            <Music2 className="h-4 w-4 shrink-0" style={{ color: "var(--yo-led-amber)" }} />
                             <span className="font-semibold text-sm truncate">{it.name}</span>
                           </button>
                           <button type="button" onClick={() => toggleFavorite(it.id)} aria-label="מועדף" className="rounded p-1 transition hover:scale-110">
-                            <Heart className={cn("h-4 w-4 transition", fav ? "fill-red-500 text-red-500" : "")} style={!fav ? { color: hwTheme.lcdText, opacity: 0.55 } : undefined} />
+                            <Heart className={cn("h-4 w-4 transition", fav ? "fill-red-500 text-red-500" : "")} style={!fav ? { color: "rgba(255,255,255,0.55)" } : undefined} />
                           </button>
                         </div>
                       );
@@ -468,89 +410,74 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
 
             {/* Bottom bar with UP button */}
             <div
-              className="flex items-center justify-between gap-2 px-3 py-2"
+              className="flex items-center justify-between gap-2 px-3 py-2 relative z-10"
               style={{
-                borderTop: "1px solid oklch(0 0 0 / 0.5)",
-                background: hwTheme.variant === "tyros"
-                  ? "linear-gradient(180deg, oklch(0.62 0.010 260), oklch(0.46 0.010 260))"
-                  : "linear-gradient(180deg, oklch(0.18 0.012 260), oklch(0.10 0.012 260))",
-                color: hwTheme.headerText,
+                borderTop: "1px solid rgba(0,0,0,0.7)",
+                background: "linear-gradient(180deg, #161927 0%, #0a0c14 100%)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
               }}
             >
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="rounded-md px-3 py-1 text-xs font-bold sr-mono"
-                  style={{
-                    color: "oklch(0.78 0.13 75)",
-                    background: "oklch(0 0 0 / 0.35)",
-                    border: "1px solid oklch(0 0 0 / 0.5)",
-                    boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.08)",
-                  }}
-                >
-                  P1
-                </span>
-              </div>
+              <span
+                className="rounded-md px-3 py-1 text-xs font-bold sr-mono"
+                style={{
+                  color: "var(--yo-orange)",
+                  background: "rgba(0,0,0,0.4)",
+                  border: "1px solid rgba(0,0,0,0.6)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                }}
+              >
+                P1
+              </span>
               <button
                 type="button"
                 onClick={goUp}
                 disabled={navLevel === "sets"}
-                className="inline-flex items-center gap-1.5 rounded-md px-4 py-1.5 text-xs font-bold tracking-widest transition hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{
-                  background: "linear-gradient(180deg, oklch(0.78 0.04 240) 0%, oklch(0.55 0.04 240) 100%)",
-                  color: "oklch(0.15 0.020 260)",
-                  border: "1px solid oklch(0 0 0 / 0.5)",
-                  boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.6), 0 2px 0 oklch(0 0 0 / 0.4)",
-                }}
+                className="yo-up-btn"
                 aria-label="UP"
               >
-                UP <ArrowUp className="h-3.5 w-3.5" />
+                <ArrowUp className="h-3.5 w-3.5" /> UP
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* HARDWARE CONTROL PANEL */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+          <div className="yo-hw-panel">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="yo-screw" /> <span className="yo-screw" />
+              <div className="flex-1 text-center">
+                <span className="yo-group-label" style={{ margin: 0 }}>STYLE CONTROL</span>
+              </div>
+              <span className="yo-screw" /> <span className="yo-screw" />
+            </div>
+
+            <div className="flex flex-wrap items-stretch justify-center gap-3 sm:gap-4">
+              {renderHwGroup("INTRO", INTROS, 3)}
+              <div className="yo-divider hidden sm:block" />
+              {renderHwGroup("MAIN VARIATION", MAINS, 4)}
+              <div className="yo-divider hidden sm:block" />
+              {renderHwGroup("FILL IN", FILLS, 4)}
+              <div className="yo-divider hidden sm:block" />
+              {renderHwGroup("ENDING", ENDINGS, 3)}
+            </div>
+
+            <div className="flex justify-center pt-5">
+              <button
+                type="button"
+                onClick={stop}
+                disabled={!activeBtn}
+                data-lit={activeBtn ? "true" : undefined}
+                className="yo-btn yo-led-red"
+                style={{ minWidth: 140 }}
+              >
+                <span className="yo-btn-led" aria-hidden />
+                <span className="inline-flex items-center gap-2"><Square className="h-3.5 w-3.5" /> STOP</span>
               </button>
             </div>
           </div>
 
-          {/* File-tools strip — Tyros style toolbar below the LCD */}
-          {hwTheme.variant === "tyros" && (
-            <div className="mt-2 grid grid-cols-8 gap-1.5">
-              {["NAME", "CUT", "COPY", "PASTE", "DELETE", "SAVE", "FOLDER", "MENU 2"].map((label) => (
-                <div
-                  key={label}
-                  className="flex flex-col items-center justify-center rounded-sm px-1 py-1.5 text-[0.55rem] font-bold tracking-wider sr-mono"
-                  style={{
-                    background: "linear-gradient(180deg, oklch(0.86 0.008 260) 0%, oklch(0.70 0.010 260) 100%)",
-                    color: "oklch(0.20 0.015 260)",
-                    border: "1px solid oklch(0 0 0 / 0.45)",
-                    boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.55), 0 1px 0 oklch(0 0 0 / 0.3)",
-                  }}
-                >
-                  {label}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* HARDWARE CONTROL PANEL + CART */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-          <SrPanel className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="sr-screw" /> <span className="sr-screw" />
-              <SrLabel className="!text-[0.7rem]">STYLE CONTROL</SrLabel>
-              <div className="flex-1" />
-              <span className="sr-screw" /> <span className="sr-screw" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {renderRow(INTROS, "Intro")}
-              {renderRow(ENDINGS, "Ending")}
-              {renderRow(MAINS, "Main Variation")}
-              {renderRow(FILLS, "Fill In")}
-            </div>
-            <div className="flex justify-center pt-2">
-              <SrKey led="red" onClick={stop} disabled={!activeBtn} className="!min-h-[2.6rem] !px-6">
-                <Square className="h-4 w-4" /> STOP
-              </SrKey>
-            </div>
-          </SrPanel>
-
+          {/* Cart panel */}
           <SrPanel className="flex flex-col gap-4">
             <SrLabel>Now Selected</SrLabel>
             <div
