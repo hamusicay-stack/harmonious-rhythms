@@ -128,7 +128,7 @@ function ModelsSection() {
       supabase.from("brands" as any).select("*").order("name"),
     ]);
     if (e1) toast.error(e1.message); else setRows((m ?? []) as any);
-    if (e2) toast.error(e2.message); else setBrands((b ?? []) as Brand[]);
+    if (e2) toast.error(e2.message); else setBrands((b ?? []) as unknown as Brand[]);
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
@@ -213,7 +213,7 @@ function SetsSection() {
       supabase.from("brands" as any).select("*").order("name"),
     ]);
     if (e1) toast.error(e1.message); else setRows((s ?? []) as any);
-    if (e2) toast.error(e2.message); else setBrands((b ?? []) as Brand[]);
+    if (e2) toast.error(e2.message); else setBrands((b ?? []) as unknown as Brand[]);
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
@@ -327,7 +327,7 @@ function SamplesSection() {
       supabase.from("rhythm_sets" as any).select("*").order("set_name"),
     ]);
     if (e1) toast.error(e1.message); else setRows((a ?? []) as any);
-    if (e2) toast.error(e2.message); else setSets((s ?? []) as RhythmSet[]);
+    if (e2) toast.error(e2.message); else setSets((s ?? []) as unknown as RhythmSet[]);
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
