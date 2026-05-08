@@ -327,27 +327,53 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               color: hwTheme.lcdText,
             }}
           >
-            {/* Header bar */}
+            {/* Header bar — STYLE title + source tabs (Yamaha-style) */}
             <div
-              className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2"
+              className="px-3 sm:px-4 pt-2 pb-0"
               style={{
                 background: hwTheme.headerBg,
                 color: hwTheme.headerText,
                 borderBottom: "1px solid oklch(0 0 0 / 0.5)",
-                boxShadow: "inset 0 -1px 0 oklch(0 0 0 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.18)",
+                boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.18)",
               }}
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <FolderIcon className="h-4 w-4 shrink-0" />
-                <span className="font-semibold tracking-wide text-sm truncate">{lcdTitle}</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FolderIcon className="h-4 w-4 shrink-0" />
+                  <span className="font-semibold tracking-wide text-sm truncate">{lcdTitle || "STYLE"}</span>
+                </div>
+                {hwTheme.variant === "genos" && (
+                  <div className="flex items-center gap-3 shrink-0 text-[0.65rem] font-bold tracking-wider opacity-90">
+                    <span>SEARCH</span><span>QQ</span><span>BEST</span><span>×</span>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span
-                  className="rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-widest uppercase"
-                  style={{ background: "oklch(1 0 0 / 0.2)", color: hwTheme.headerText, border: "1px solid oklch(0 0 0 / 0.3)" }}
-                >
-                  {navLevel === "sets" ? "PRESET" : navLevel === "folders" ? "HD1" : "USB1"}
-                </span>
+              {/* Source tabs */}
+              <div className="mt-1.5 flex items-end gap-1 text-[0.62rem] font-bold tracking-widest">
+                {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
+                  const active =
+                    (navLevel === "sets" && tab === "PRESET") ||
+                    (navLevel === "folders" && tab === "HD1") ||
+                    (navLevel === "items" && tab === "USB1");
+                  return (
+                    <span
+                      key={tab}
+                      className="rounded-t-md px-3 py-1"
+                      style={{
+                        background: active
+                          ? (hwTheme.variant === "tyros" ? "oklch(0.80 0.010 260)" : "oklch(0.18 0.012 260)")
+                          : "oklch(0 0 0 / 0.25)",
+                        color: active ? hwTheme.lcdText : hwTheme.headerText,
+                        border: "1px solid oklch(0 0 0 / 0.45)",
+                        borderBottom: "none",
+                        boxShadow: active ? "inset 0 1px 0 oklch(1 0 0 / 0.25)" : undefined,
+                        opacity: active ? 1 : 0.75,
+                      }}
+                    >
+                      {tab}
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
@@ -481,6 +507,26 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               </button>
             </div>
           </div>
+
+          {/* File-tools strip — Tyros style toolbar below the LCD */}
+          {hwTheme.variant === "tyros" && (
+            <div className="mt-2 grid grid-cols-8 gap-1.5">
+              {["NAME", "CUT", "COPY", "PASTE", "DELETE", "SAVE", "FOLDER", "MENU 2"].map((label) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center justify-center rounded-sm px-1 py-1.5 text-[0.55rem] font-bold tracking-wider sr-mono"
+                  style={{
+                    background: "linear-gradient(180deg, oklch(0.86 0.008 260) 0%, oklch(0.70 0.010 260) 100%)",
+                    color: "oklch(0.20 0.015 260)",
+                    border: "1px solid oklch(0 0 0 / 0.45)",
+                    boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.55), 0 1px 0 oklch(0 0 0 / 0.3)",
+                  }}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* HARDWARE CONTROL PANEL + CART */}
