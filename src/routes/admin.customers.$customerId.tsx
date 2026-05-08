@@ -15,7 +15,8 @@ import {
 import {
   ArrowRight, Loader2, ShieldAlert, Mail, Phone, MapPin, Music, Crown,
   Plus, Tag as TagIcon, X, Calendar, ShoppingCart, BookOpen, MessageSquare,
-  PhoneCall, Users as UsersIcon, FileText,
+  PhoneCall, Users as UsersIcon, FileText, DollarSign, Store, ShoppingBag,
+  CheckCircle2, XCircle, Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -213,6 +214,18 @@ function CustomerProfilePage() {
   const displayName = profile.display_name || profile.full_name || profile.email || "ללא שם";
   const initials = displayName.slice(0, 2).toUpperCase();
 
+  const ltv = (shopOrders ?? [])
+    .filter((o: any) => o.payment_status === "paid")
+    .reduce((s: number, o: any) => s + Number(o.total_amount || 0), 0)
+    + (orders ?? [])
+    .filter((o) => o.payment_status === "paid")
+    .reduce((s, o) => s + Number(o.amount || 0), 0);
+  const totalOrdersCount = (shopOrders?.length ?? 0) + orders.length;
+  const abandonedCart = cartItems.filter((c: any) => {
+    const ageH = (Date.now() - new Date(c.added_at).getTime()) / 3600000;
+    return ageH >= 2;
+  });
+
   return (
     <SiteLayout>
       <section className="border-b border-border/40 bg-hero">
@@ -275,13 +288,44 @@ function CustomerProfilePage() {
         </div>
       </section>
 
+      <section className="container mx-auto px-4 pt-8 md:px-8">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          <StatCard icon={DollarSign} label="LTV (סה״כ הוצאה)" value={`₪${ltv.toLocaleString()}`} />
+          <StatCard icon={ShoppingCart} label="הזמנות" value={String(totalOrdersCount)} />
+          <StatCard icon={BookOpen} label="קורסים" value={String(enrollments.length)} />
+          <StatCard icon={Store} label="מודעות יד שנייה" value={String(listingsCount)} />
+          <StatCard
+            icon={profile.email_opt_in ? CheckCircle2 : XCircle}
+            label="דיוור"
+            value={profile.email_opt_in ? "מאושר" : "לא מאושר"}
+            tone={profile.email_opt_in ? "success" : "muted"}
+          />
+        </div>
+        {abandonedCart.length > 0 && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+            <ShoppingBag className="h-4 w-4 text-amber-600" />
+            <strong>עגלה נטושה:</strong> {abandonedCart.length} פריטים בעגלה מעל שעתיים.
+          </div>
+        )}
+        {profile.last_login_at && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3" /> כניסה אחרונה: {new Date(profile.last_login_at).toLocaleString("he-IL")}
+          </div>
+        )}
+      </section>
+
       <section className="container mx-auto px-4 py-8 md:px-8">
         <Tabs defaultValue="timeline" dir="rtl">
-          <TabsList>
-            <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
-            <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים אישיים</TabsTrigger>
-            <TabsTrigger value="orders"><ShoppingCart className="ml-2 h-4 w-4" />הזמנות ({orders.length})</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto" dir="rtl">
+            <TabsList>
+              <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
+              <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים</TabsTrigger>
+              <TabsTrigger value="orders"><ShoppingCart className="ml-2 h-4 w-4" />הזמנות ({totalOrdersCount})</TabsTrigger>
+              <TabsTrigger value="courses"><BookOpen className="ml-2 h-4 w-4" />קורסים ({enrollments.length})</TabsTrigger>
+              <TabsTrigger value="marketplace"><Store className="ml-2 h-4 w-4" />יד שנייה ({listingsCount})</TabsTrigger>
+              <TabsTrigger value="cart"><ShoppingBag className="ml-2 h-4 w-4" />עגלה ({cartItems.length})</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="timeline" className="mt-6 space-y-4">
             <AddInteractionCard customerId={customerId} userId={user.id} onAdded={load} />
@@ -372,9 +416,88 @@ function CustomerProfilePage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="courses" className="mt-6">
+            <Card>
+              <CardHeader><CardTitle>קורסים</CardTitle></CardHeader>
+              <CardContent>
+                {enrollments.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">לא נרשם לקורסים.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {enrollments.map((e: any) => (
+                      <div key={e.id} className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+                        <div>
+                          <div className="font-medium">{e.academy_courses?.title ?? "קורס"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            סטטוס: {e.status} · התקדמות: {Math.round(e.progress_percent ?? 0)}%
+                            {e.last_accessed_at && ` · נצפה לאחרונה: ${new Date(e.last_accessed_at).toLocaleDateString("he-IL")}`}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="marketplace" className="mt-6">
+            <Card>
+              <CardHeader><CardTitle>פעילות יד שנייה</CardTitle></CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {listingsCount === 0 ? "אין מודעות פעילות." : `${listingsCount} מודעות פעילות.`}
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="cart" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">עגלת קניות {abandonedCart.length > 0 && <Badge variant="outline">נטשה</Badge>}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {cartItems.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">העגלה ריקה.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {cartItems.map((c: any) => {
+                      const ageH = Math.round((Date.now() - new Date(c.added_at).getTime()) / 3600000);
+                      return (
+                        <div key={c.id} className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+                          <div className="flex items-center gap-3">
+                            {c.image && <img src={c.image} alt="" className="h-12 w-12 rounded object-cover" />}
+                            <div>
+                              <div className="font-medium">{c.title}</div>
+                              <div className="text-xs text-muted-foreground">כמות: {c.qty} · נוסף לפני {ageH} שעות</div>
+                            </div>
+                          </div>
+                          <div className="font-bold">₪{Number(c.price).toLocaleString()}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </section>
     </SiteLayout>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, tone }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; tone?: "success" | "muted" }) {
+  const toneClass = tone === "success" ? "text-emerald-600" : tone === "muted" ? "text-muted-foreground" : "text-primary";
+  return (
+    <div className="rounded-lg border border-border/60 bg-card p-3">
+      <div className={`flex items-center gap-1 text-xs ${toneClass}`}>
+        <Icon className="h-3.5 w-3.5" /> {label}
+      </div>
+      <div className="mt-1 text-lg font-bold">{value}</div>
+    </div>
   );
 }
 
