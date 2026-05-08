@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil, FolderTree } from "lucide-react";
 import { toast } from "sonner";
 
 type Brand = { id: string; name: string; logo_url: string | null; created_at: string };
@@ -19,8 +19,11 @@ type KeyboardModel = { id: string; brand_id: string; model_name: string; ui_imag
 type RhythmSet = {
   id: string; brand_id: string; creator_name: string; set_name: string; description: string | null;
   price: number; requires_info_file: boolean; info_file_extension: string | null; is_automated: boolean; created_at: string;
+  youtube_video_id?: string | null;
 };
-type AudioSample = { id: string; set_id: string; button_type: string; audio_url: string; created_at: string };
+type AudioSample = { id: string; set_id: string; rhythm_item_id: string | null; button_type: string; audio_url: string; created_at: string };
+type RhythmFolder = { id: string; set_id: string; name: string; sort_order: number };
+type RhythmItem = { id: string; folder_id: string; name: string; description: string | null; sort_order: number };
 
 export function RhythmSetsManager() {
   return (
@@ -30,12 +33,14 @@ export function RhythmSetsManager() {
           <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
           <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
           <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
+          <TabsTrigger value="folders" className="shrink-0"><FolderTree className="ml-1 h-4 w-4" />תיקיות ופריטים</TabsTrigger>
           <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
         </TabsList>
       </div>
       <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
       <TabsContent value="models" className="mt-6"><ModelsSection /></TabsContent>
       <TabsContent value="sets" className="mt-6"><SetsSection /></TabsContent>
+      <TabsContent value="folders" className="mt-6"><FoldersItemsSection /></TabsContent>
       <TabsContent value="samples" className="mt-6"><SamplesSection /></TabsContent>
     </Tabs>
   );
