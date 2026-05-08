@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ChevronLeft, Folder as FolderIcon, Heart, Loader2, Music2, ShoppingCart, Square } from "lucide-react";
+import { ArrowRight, ArrowUp, ChevronLeft, Folder as FolderIcon, Heart, Loader2, Music2, ShoppingCart, Square } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
@@ -155,6 +155,34 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     return m;
   }, [samples, activeItemId, activeSetId]);
 
+  // Hardware theme variant per keyboard model
+  const hwTheme = useMemo(() => {
+    const name = `${selectedModel?.brand?.name ?? ""} ${selectedModel?.model_name ?? ""}`.toLowerCase();
+    if (/tyros/.test(name)) {
+      return {
+        variant: "tyros" as const,
+        panelBg: "linear-gradient(180deg, oklch(0.94 0.005 260) 0%, oklch(0.84 0.008 260) 55%, oklch(0.74 0.010 260) 100%)",
+        panelBorder: "oklch(0.55 0.010 260 / 0.55)",
+        headerBg: "linear-gradient(180deg, oklch(0.55 0.012 260) 0%, oklch(0.30 0.010 260) 100%)",
+        headerText: "oklch(0.98 0.005 260)",
+        lcdBg: "linear-gradient(180deg, oklch(0.80 0.010 260) 0%, oklch(0.68 0.012 260) 100%)",
+        lcdText: "oklch(0.18 0.025 260)",
+      };
+    }
+    return {
+      variant: "genos" as const,
+      panelBg: "linear-gradient(180deg, oklch(0.28 0.008 260) 0%, oklch(0.18 0.010 260) 55%, oklch(0.10 0.012 260) 100%)",
+      panelBorder: "oklch(0 0 0 / 0.7)",
+      headerBg: "linear-gradient(180deg, oklch(0.72 0.16 55) 0%, oklch(0.58 0.17 45) 100%)",
+      headerText: "oklch(1 0 0)",
+      lcdBg: "linear-gradient(180deg, oklch(0.18 0.012 260) 0%, oklch(0.10 0.012 260) 100%)",
+      lcdText: "oklch(0.95 0.005 260)",
+    };
+  }, [selectedModel]);
+
+  const navLevel: "sets" | "folders" | "items" =
+    !activeSetId ? "sets" : !activeFolderId ? "folders" : "items";
+
   const stop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -162,6 +190,16 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     }
     setActiveBtn(null);
   };
+
+  const goUp = () => {
+    if (navLevel === "items") { setActiveFolderId(null); setActiveItemId(null); stop(); }
+    else if (navLevel === "folders") { setActiveSetId(null); setActiveItemId(null); stop(); }
+  };
+  const lcdTitle = !activeSetId
+    ? "STYLE — SELECT SET"
+    : activeFolderId
+    ? `${(sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase()} / ${(folders.find((f) => f.id === activeFolderId)?.name ?? "").toUpperCase()}`
+    : (sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase();
 
   const playSample = (btn: ButtonDef) => {
     if (!activeSet) {
@@ -269,121 +307,109 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
           </SrChip>
         </div>
 
-        {/* LCD SCREEN */}
-        <SrPanel className="!p-3 sm:!p-4">
+        {/* LCD SCREEN — Yamaha-style */}
+        <div
+          className="rounded-2xl p-3 sm:p-4"
+          style={{
+            background: hwTheme.panelBg,
+            border: `1px solid ${hwTheme.panelBorder}`,
+            boxShadow:
+              "inset 0 1px 0 oklch(1 0 0 / 0.15), inset 0 -2px 6px oklch(0 0 0 / 0.35), 0 18px 40px -16px oklch(0 0 0 / 0.5)",
+          }}
+        >
           <div
-            className="rounded-lg p-4 sm:p-6 min-h-[320px]"
+            className="overflow-hidden rounded-lg"
             style={{
-              background:
-                "linear-gradient(180deg, oklch(0.22 0.07 230) 0%, oklch(0.14 0.06 235) 100%)",
+              background: hwTheme.lcdBg,
+              border: "1px solid oklch(0 0 0 / 0.6)",
               boxShadow:
-                "inset 0 2px 12px oklch(0 0 0 / 0.7), inset 0 -1px 0 oklch(1 0 0 / 0.05), 0 0 0 1px oklch(0 0 0 / 0.6)",
-              border: "1px solid oklch(0 0 0 / 0.7)",
+                "inset 0 2px 10px oklch(0 0 0 / 0.55), inset 0 -1px 0 oklch(1 0 0 / 0.05)",
+              color: hwTheme.lcdText,
             }}
           >
-            <div className="flex items-center justify-between mb-3 gap-2">
-              <SrReadout className="!py-1 !px-3 text-xs truncate">
-                {activeSet
-                  ? activeFolderId
-                    ? `${activeSet.set_name.toUpperCase()} / ${(setFolders_.find((f) => f.id === activeFolderId)?.name ?? "").toUpperCase()}`
-                    : activeSet.set_name.toUpperCase()
-                  : "SELECT RHYTHM SET"}
-              </SrReadout>
-              <div className="text-xs sr-mono shrink-0" style={{ color: "var(--sr-led-blue)", textShadow: "0 0 8px var(--sr-led-blue)" }}>
-                {(activeSet ? setFolders_.length : sets.length).toString().padStart(3, "0")} {activeSet ? "FOLDERS" : "SETS"}
+            {/* Header bar */}
+            <div
+              className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2"
+              style={{
+                background: hwTheme.headerBg,
+                color: hwTheme.headerText,
+                borderBottom: "1px solid oklch(0 0 0 / 0.5)",
+                boxShadow: "inset 0 -1px 0 oklch(0 0 0 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.18)",
+              }}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <FolderIcon className="h-4 w-4 shrink-0" />
+                <span className="font-semibold tracking-wide text-sm truncate">{lcdTitle}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className="rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-widest uppercase"
+                  style={{ background: "oklch(1 0 0 / 0.2)", color: hwTheme.headerText, border: "1px solid oklch(0 0 0 / 0.3)" }}
+                >
+                  {navLevel === "sets" ? "PRESET" : navLevel === "folders" ? "HD1" : "USB1"}
+                </span>
               </div>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center h-44 gap-2" style={{ color: "var(--sr-led-blue)" }}>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="sr-mono text-sm">LOADING…</span>
-              </div>
-            ) : !activeSet ? (
-              sets.length === 0 ? (
-                <div className="flex items-center justify-center h-44 sr-mono text-sm" style={{ color: "var(--sr-led-blue)" }}>
-                  NO SETS AVAILABLE FOR THIS MODEL
+            {/* LCD body */}
+            <div className="p-3 sm:p-5 min-h-[300px]">
+              {loading ? (
+                <div className="flex items-center justify-center h-44 gap-2 opacity-70">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="sr-mono text-sm">LOADING…</span>
                 </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {sets.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveSetId(s.id);
-                        setActiveFolderId(null);
-                        setActiveItemId(null);
-                        stop();
-                      }}
-                      className="group rounded-md p-3 flex flex-col items-center gap-2 transition-all hover:-translate-y-0.5"
-                      style={{
-                        background: "oklch(0.10 0.04 235)",
-                        border: "1px solid oklch(0 0 0 / 0.55)",
-                        color: "var(--sr-led-blue)",
-                        textShadow: "0 0 8px color-mix(in oklab, var(--sr-led-blue) 55%, transparent)",
-                        boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.04)",
-                      }}
-                      aria-label={s.set_name}
-                    >
-                      <FolderIcon className="h-9 w-9 group-hover:scale-105 transition-transform" strokeWidth={1.4} />
-                      <span className="sr-mono text-[0.7rem] font-semibold text-center leading-tight line-clamp-2">
-                        {s.set_name}
-                      </span>
-                      <span className="sr-mono text-[0.6rem] opacity-70">${Number(s.price).toFixed(2)}</span>
-                    </button>
-                  ))}
-                </div>
-              )
-            ) : !activeFolderId ? (
-              <div>
-                <button
-                  type="button"
-                  onClick={() => { setActiveSetId(null); setActiveItemId(null); stop(); }}
-                  className="text-xs sr-mono mb-3 inline-flex items-center gap-1 hover:underline"
-                  style={{ color: "var(--sr-led-amber)" }}
-                >
-                  <ChevronLeft className="h-3 w-3" /> חזרה לערכות
-                </button>
-                {setFolders_.length === 0 ? (
-                  <div className="flex h-32 items-center justify-center sr-mono text-sm" style={{ color: "var(--sr-led-blue)" }}>
-                    NO FOLDERS YET
+              ) : navLevel === "sets" ? (
+                sets.length === 0 ? (
+                  <div className="flex items-center justify-center h-44 sr-mono text-sm opacity-70">
+                    NO SETS AVAILABLE FOR THIS MODEL
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                    {sets.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => { setActiveSetId(s.id); setActiveFolderId(null); setActiveItemId(null); stop(); }}
+                        className="flex items-center gap-3 rounded-md p-2.5 text-start transition hover:-translate-y-px"
+                        style={{
+                          background: hwTheme.variant === "tyros" ? "oklch(1 0 0 / 0.85)" : "oklch(1 0 0 / 0.06)",
+                          border: `1px solid ${hwTheme.variant === "tyros" ? "oklch(0 0 0 / 0.15)" : "oklch(1 0 0 / 0.12)"}`,
+                          color: hwTheme.lcdText,
+                        }}
+                      >
+                        <FolderIcon className="h-7 w-7 shrink-0" style={{ color: hwTheme.variant === "tyros" ? "oklch(0.65 0.10 75)" : "oklch(0.78 0.13 75)" }} strokeWidth={1.5} />
+                        <span className="font-semibold text-sm truncate flex-1">{s.set_name}</span>
+                        <span className="sr-mono text-[0.7rem] opacity-70">${Number(s.price).toFixed(0)}</span>
+                      </button>
+                    ))}
+                  </div>
+                )
+              ) : navLevel === "folders" ? (
+                setFolders_.length === 0 ? (
+                  <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">NO FOLDERS YET</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     {setFolders_.map((f) => (
                       <button
                         key={f.id}
                         type="button"
                         onClick={() => { setActiveFolderId(f.id); setActiveItemId(null); }}
-                        className="flex items-center gap-2 rounded-md border p-3 transition-all hover:scale-[1.02]"
+                        className="flex items-center gap-3 rounded-md p-2.5 text-start transition hover:-translate-y-px"
                         style={{
-                          background: "oklch(0.10 0.04 235)",
-                          color: "var(--sr-led-amber)",
-                          borderColor: "color-mix(in oklab, var(--sr-led-amber) 30%, transparent)",
+                          background: hwTheme.variant === "tyros" ? "oklch(1 0 0 / 0.85)" : "oklch(1 0 0 / 0.06)",
+                          border: `1px solid ${hwTheme.variant === "tyros" ? "oklch(0 0 0 / 0.15)" : "oklch(1 0 0 / 0.12)"}`,
+                          color: hwTheme.lcdText,
                         }}
                       >
-                        <FolderIcon className="h-4 w-4" />
-                        <span className="sr-mono text-xs">{f.name}</span>
+                        <FolderIcon className="h-7 w-7 shrink-0" style={{ color: hwTheme.variant === "tyros" ? "oklch(0.65 0.10 75)" : "oklch(0.78 0.13 75)" }} strokeWidth={1.5} />
+                        <span className="font-semibold text-sm truncate">{f.name}</span>
                       </button>
                     ))}
                   </div>
-                )}
-              </div>
-            ) : (
-              <div>
-                <button
-                  type="button"
-                  onClick={() => { setActiveFolderId(null); setActiveItemId(null); stop(); }}
-                  className="text-xs sr-mono mb-3 inline-flex items-center gap-1 hover:underline"
-                  style={{ color: "var(--sr-led-amber)" }}
-                >
-                  <ChevronLeft className="h-3 w-3" /> חזרה לתיקיות
-                </button>
-                {folderItems.length === 0 ? (
-                  <div className="flex h-32 items-center justify-center sr-mono text-sm" style={{ color: "var(--sr-led-blue)" }}>
-                    EMPTY FOLDER
-                  </div>
+                )
+              ) : (
+                folderItems.length === 0 ? (
+                  <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">EMPTY FOLDER</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {folderItems.map((it) => {
@@ -392,43 +418,70 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                       return (
                         <div
                           key={it.id}
-                          className="flex items-center justify-between gap-2 rounded-md border p-3"
+                          className="flex items-center justify-between gap-2 rounded-md p-2.5"
                           style={{
-                            background: isActive ? "oklch(0.18 0.10 230)" : "oklch(0.10 0.04 235)",
-                            borderColor: isActive
-                              ? "color-mix(in oklab, var(--sr-led-blue) 60%, transparent)"
-                              : "color-mix(in oklab, var(--sr-led-blue) 25%, transparent)",
+                            background: hwTheme.variant === "tyros" ? "oklch(1 0 0 / 0.92)" : "oklch(1 0 0 / 0.06)",
+                            border: `1px solid ${isActive ? "oklch(0.72 0.16 55 / 0.7)" : (hwTheme.variant === "tyros" ? "oklch(0 0 0 / 0.15)" : "oklch(1 0 0 / 0.12)")}`,
+                            color: hwTheme.lcdText,
                           }}
                         >
-                          <button
-                            type="button"
-                            onClick={() => setActiveItemId(it.id)}
-                            className="flex flex-1 items-center gap-2 text-start"
-                            style={{
-                              color: "var(--sr-led-blue)",
-                              textShadow: isActive ? "0 0 10px var(--sr-led-blue)" : "0 0 6px color-mix(in oklab, var(--sr-led-blue) 50%, transparent)",
-                            }}
-                          >
-                            <Music2 className="h-3.5 w-3.5" />
-                            <span className="sr-mono text-xs">{it.name}</span>
+                          <button type="button" onClick={() => setActiveItemId(it.id)} className="flex flex-1 items-center gap-2 text-start min-w-0">
+                            <Music2 className="h-4 w-4 shrink-0" style={{ color: "oklch(0.62 0.20 25)" }} />
+                            <span className="font-semibold text-sm truncate">{it.name}</span>
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleFavorite(it.id)}
-                            aria-label="מועדף"
-                            className="rounded p-1 transition"
-                          >
-                            <Heart className={cn("h-4 w-4 transition", fav ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+                          <button type="button" onClick={() => toggleFavorite(it.id)} aria-label="מועדף" className="rounded p-1 transition hover:scale-110">
+                            <Heart className={cn("h-4 w-4 transition", fav ? "fill-red-500 text-red-500" : "")} style={!fav ? { color: hwTheme.lcdText, opacity: 0.55 } : undefined} />
                           </button>
                         </div>
                       );
                     })}
                   </div>
-                )}
+                )
+              )}
+            </div>
+
+            {/* Bottom bar with UP button */}
+            <div
+              className="flex items-center justify-between gap-2 px-3 py-2"
+              style={{
+                borderTop: "1px solid oklch(0 0 0 / 0.5)",
+                background: hwTheme.variant === "tyros"
+                  ? "linear-gradient(180deg, oklch(0.62 0.010 260), oklch(0.46 0.010 260))"
+                  : "linear-gradient(180deg, oklch(0.18 0.012 260), oklch(0.10 0.012 260))",
+                color: hwTheme.headerText,
+              }}
+            >
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="rounded-md px-3 py-1 text-xs font-bold sr-mono"
+                  style={{
+                    color: "oklch(0.78 0.13 75)",
+                    background: "oklch(0 0 0 / 0.35)",
+                    border: "1px solid oklch(0 0 0 / 0.5)",
+                    boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.08)",
+                  }}
+                >
+                  P1
+                </span>
               </div>
-            )}
+              <button
+                type="button"
+                onClick={goUp}
+                disabled={navLevel === "sets"}
+                className="inline-flex items-center gap-1.5 rounded-md px-4 py-1.5 text-xs font-bold tracking-widest transition hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{
+                  background: "linear-gradient(180deg, oklch(0.78 0.04 240) 0%, oklch(0.55 0.04 240) 100%)",
+                  color: "oklch(0.15 0.020 260)",
+                  border: "1px solid oklch(0 0 0 / 0.5)",
+                  boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.6), 0 2px 0 oklch(0 0 0 / 0.4)",
+                }}
+                aria-label="UP"
+              >
+                UP <ArrowUp className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
-        </SrPanel>
+        </div>
 
         {/* HARDWARE CONTROL PANEL + CART */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
