@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 type Brand = { id: string; name: string; logo_url: string | null; created_at: string };
@@ -25,12 +25,14 @@ type AudioSample = { id: string; set_id: string; button_type: string; audio_url:
 export function RhythmSetsManager() {
   return (
     <Tabs defaultValue="brands" className="w-full">
-      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-4">
-        <TabsTrigger value="brands" className="shrink-0 md:flex-1"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
-        <TabsTrigger value="models" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
-        <TabsTrigger value="sets" className="shrink-0 md:flex-1"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
-        <TabsTrigger value="samples" className="shrink-0 md:flex-1"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto touch-pan-x -mx-2 px-2" dir="rtl">
+        <TabsList className="inline-flex w-max h-auto gap-1">
+          <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
+          <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
+          <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
+          <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
+        </TabsList>
+      </div>
       <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
       <TabsContent value="models" className="mt-6"><ModelsSection /></TabsContent>
       <TabsContent value="sets" className="mt-6"><SetsSection /></TabsContent>
@@ -200,10 +202,12 @@ function SetsSection() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const emptyForm = {
     brand_id: "", creator_name: "", set_name: "", description: "", price: "0",
     requires_info_file: false, info_file_extension: "", is_automated: false,
-  });
+  };
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -218,10 +222,31 @@ function SetsSection() {
   };
   useEffect(() => { void load(); }, []);
 
-  const create = async () => {
+  const openNew = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setOpen(true);
+  };
+
+  const openEdit = (s: RhythmSet) => {
+    setEditingId(s.id);
+    setForm({
+      brand_id: s.brand_id,
+      creator_name: s.creator_name,
+      set_name: s.set_name,
+      description: s.description ?? "",
+      price: String(s.price ?? 0),
+      requires_info_file: !!s.requires_info_file,
+      info_file_extension: s.info_file_extension ?? "",
+      is_automated: !!s.is_automated,
+    });
+    setOpen(true);
+  };
+
+  const save = async () => {
     if (!form.brand_id || !form.creator_name.trim() || !form.set_name.trim()) return toast.error("חסרים שדות חובה");
     setSaving(true);
-    const { error } = await supabase.from("rhythm_sets" as any).insert({
+    const payload = {
       brand_id: form.brand_id,
       creator_name: form.creator_name.trim(),
       set_name: form.set_name.trim(),
@@ -230,11 +255,15 @@ function SetsSection() {
       requires_info_file: form.requires_info_file,
       info_file_extension: form.requires_info_file ? (form.info_file_extension.trim() || null) : null,
       is_automated: form.is_automated,
-    } as any);
+    };
+    const { error } = editingId
+      ? await supabase.from("rhythm_sets" as any).update(payload as any).eq("id", editingId)
+      : await supabase.from("rhythm_sets" as any).insert(payload as any);
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("נוסף");
-    setForm({ brand_id: "", creator_name: "", set_name: "", description: "", price: "0", requires_info_file: false, info_file_extension: "", is_automated: false });
+    toast.success(editingId ? "עודכן" : "נוסף");
+    setForm(emptyForm);
+    setEditingId(null);
     setOpen(false); void load();
   };
 
@@ -249,10 +278,10 @@ function SetsSection() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Rhythm Sets</CardTitle>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button size="sm"><Plus className="ml-1 h-4 w-4" />סט חדש</Button></DialogTrigger>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
+          <DialogTrigger asChild><Button size="sm" onClick={openNew}><Plus className="ml-1 h-4 w-4" />סט חדש</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>הוספת Rhythm Set</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingId ? "עריכת" : "הוספת"} Rhythm Set</DialogTitle></DialogHeader>
             <div className="space-y-3 max-h-[70vh] overflow-y-auto">
               <div>
                 <Label>מותג</Label>
@@ -277,7 +306,7 @@ function SetsSection() {
                 <Switch checked={form.is_automated} onCheckedChange={(v) => setForm({ ...form, is_automated: v })} />
               </div>
             </div>
-            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
+            <DialogFooter><Button onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -297,7 +326,10 @@ function SetsSection() {
                   <TableCell>₪{Number(s.price).toFixed(2)}</TableCell>
                   <TableCell>{s.requires_info_file ? <Badge>{s.info_file_extension || "כן"}</Badge> : <span className="text-muted-foreground text-xs">לא</span>}</TableCell>
                   <TableCell>{s.is_automated ? <Badge variant="secondary">RPA</Badge> : <span className="text-muted-foreground text-xs">—</span>}</TableCell>
-                  <TableCell><Button variant="ghost" size="icon" onClick={() => del(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
+                  <TableCell className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => del(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  </TableCell>
                 </TableRow>
               ))}
               {rows.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">אין סטים עדיין</TableCell></TableRow>}
