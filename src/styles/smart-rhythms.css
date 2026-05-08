@@ -1,0 +1,368 @@
+/* ==========================================================================
+   Smart Rhythms — Pro Studio Hardware Theme
+   Scoped under .smart-rhythms — does NOT leak into the rest of the app.
+   RTL-safe (uses logical properties / symmetric shadows).
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.smart-rhythms {
+  /* ---- Palette: deep charcoal + brushed metal ---- */
+  --sr-bg:           oklch(0.16 0.012 250);   /* deep charcoal */
+  --sr-bg-2:         oklch(0.20 0.012 250);
+  --sr-panel:        oklch(0.24 0.010 250);   /* metallic gray panel */
+  --sr-panel-2:      oklch(0.28 0.010 250);
+  --sr-panel-hi:     oklch(0.34 0.008 250);   /* bevel highlight */
+  --sr-panel-lo:     oklch(0.10 0.010 250);   /* bevel shadow */
+  --sr-edge:         oklch(0.40 0.006 250 / 0.45);
+  --sr-text:         oklch(0.95 0.008 250);
+  --sr-text-dim:     oklch(0.70 0.012 250);
+  --sr-text-mute:    oklch(0.52 0.012 250);
+
+  /* ---- LED accents ---- */
+  --sr-led-blue:     oklch(0.78 0.18 230);    /* neon studio blue */
+  --sr-led-amber:    oklch(0.82 0.17 75);     /* bright amber */
+  --sr-led-green:    oklch(0.84 0.22 145);    /* Yamaha-style LED green */
+  --sr-led-red:      oklch(0.70 0.23 25);
+  --sr-led-magenta:  oklch(0.70 0.24 340);
+
+  /* ---- Surfaces / gradients ---- */
+  --sr-grad-panel: linear-gradient(180deg,
+                     oklch(0.30 0.010 250) 0%,
+                     oklch(0.22 0.010 250) 55%,
+                     oklch(0.18 0.010 250) 100%);
+  --sr-grad-key: linear-gradient(180deg,
+                   oklch(0.34 0.008 250) 0%,
+                   oklch(0.26 0.010 250) 50%,
+                   oklch(0.20 0.012 250) 100%);
+  --sr-grad-key-active: linear-gradient(180deg,
+                          oklch(0.20 0.012 250) 0%,
+                          oklch(0.16 0.012 250) 100%);
+  --sr-brushed: repeating-linear-gradient(
+                  90deg,
+                  oklch(1 0 0 / 0.018) 0 1px,
+                  transparent 1px 3px);
+
+  /* ---- Bevels & shadows (RTL-symmetric: 0 axis only) ---- */
+  --sr-bevel-key:
+    inset 0 1px 0 oklch(1 0 0 / 0.10),
+    inset 0 -1px 0 oklch(0 0 0 / 0.55),
+    0 1px 0 oklch(1 0 0 / 0.04),
+    0 4px 10px -2px oklch(0 0 0 / 0.55),
+    0 8px 22px -8px oklch(0 0 0 / 0.6);
+  --sr-bevel-key-pressed:
+    inset 0 2px 6px oklch(0 0 0 / 0.7),
+    inset 0 -1px 0 oklch(1 0 0 / 0.05),
+    0 1px 0 oklch(0 0 0 / 0.4);
+  --sr-bevel-panel:
+    inset 0 1px 0 oklch(1 0 0 / 0.06),
+    inset 0 -1px 0 oklch(0 0 0 / 0.45),
+    0 18px 50px -18px oklch(0 0 0 / 0.7),
+    0 2px 0 oklch(0 0 0 / 0.4);
+
+  --sr-radius-key: 0.625rem;
+  --sr-radius-panel: 1rem;
+  --sr-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  font-family: 'Inter', 'Assistant', system-ui, sans-serif;
+  color: var(--sr-text);
+  background: radial-gradient(1200px 600px at 50% -10%,
+                  oklch(0.26 0.014 250) 0%,
+                  var(--sr-bg) 60%);
+  letter-spacing: 0.005em;
+}
+
+/* Mono for readouts */
+.smart-rhythms .sr-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0; }
+
+/* ---------- Panel ---------- */
+.smart-rhythms .sr-panel {
+  position: relative;
+  background: var(--sr-grad-panel);
+  background-image: var(--sr-grad-panel), var(--sr-brushed);
+  background-blend-mode: normal, overlay;
+  border: 1px solid var(--sr-edge);
+  border-radius: var(--sr-radius-panel);
+  box-shadow: var(--sr-bevel-panel);
+  isolation: isolate;
+}
+.smart-rhythms .sr-panel::before {
+  content: "";
+  position: absolute; inset-inline: 8%; top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.18), transparent);
+  pointer-events: none;
+}
+
+/* Screw / mounting dot */
+.smart-rhythms .sr-screw {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+                oklch(0.55 0.008 250),
+                oklch(0.18 0.010 250) 75%);
+  box-shadow:
+    inset 0 -1px 0 oklch(1 0 0 / 0.15),
+    inset 0 1px 1px oklch(0 0 0 / 0.6),
+    0 1px 0 oklch(1 0 0 / 0.04);
+}
+
+/* ---------- Hardware Key (button) ---------- */
+.smart-rhythms .sr-key {
+  --sr-led: var(--sr-led-blue);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  min-height: 2.6rem;
+  font: 600 0.78rem/1 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sr-text);
+  background: var(--sr-grad-key);
+  border: 1px solid oklch(0 0 0 / 0.55);
+  border-radius: var(--sr-radius-key);
+  box-shadow: var(--sr-bevel-key);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 0.12s var(--sr-ease),
+    box-shadow 0.18s var(--sr-ease),
+    background 0.18s var(--sr-ease),
+    color 0.18s var(--sr-ease);
+}
+.smart-rhythms .sr-key::before {
+  content: "";
+  position: absolute;
+  inset-inline: 10%;
+  top: 1px;
+  height: 38%;
+  border-radius: calc(var(--sr-radius-key) - 2px);
+  background: linear-gradient(180deg,
+                oklch(1 0 0 / 0.10),
+                oklch(1 0 0 / 0));
+  pointer-events: none;
+}
+.smart-rhythms .sr-key:hover {
+  background: linear-gradient(180deg,
+                oklch(0.36 0.008 250) 0%,
+                oklch(0.28 0.010 250) 50%,
+                oklch(0.22 0.012 250) 100%);
+  transform: translateY(-1px);
+}
+.smart-rhythms .sr-key:active,
+.smart-rhythms .sr-key[data-pressed="true"] {
+  background: var(--sr-grad-key-active);
+  box-shadow: var(--sr-bevel-key-pressed);
+  transform: translateY(1px);
+}
+.smart-rhythms .sr-key:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--sr-bevel-key),
+    0 0 0 2px oklch(0 0 0 / 0.6),
+    0 0 0 4px var(--sr-led);
+}
+.smart-rhythms .sr-key[disabled],
+.smart-rhythms .sr-key[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}
+
+/* LED dot inside key */
+.smart-rhythms .sr-key .sr-led-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: oklch(0.18 0.010 250);
+  box-shadow: inset 0 1px 1px oklch(0 0 0 / 0.7);
+  transition: background 0.2s var(--sr-ease), box-shadow 0.2s var(--sr-ease);
+}
+
+/* Lit / active state */
+.smart-rhythms .sr-key[data-lit="true"] {
+  color: var(--sr-led);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--sr-led) 65%, transparent);
+  border-color: color-mix(in oklab, var(--sr-led) 35%, oklch(0 0 0 / 0.6));
+  background:
+    radial-gradient(120% 80% at 50% 120%,
+      color-mix(in oklab, var(--sr-led) 22%, transparent) 0%,
+      transparent 60%),
+    var(--sr-grad-key);
+  box-shadow:
+    var(--sr-bevel-key),
+    0 0 0 1px color-mix(in oklab, var(--sr-led) 25%, transparent),
+    0 0 18px -2px color-mix(in oklab, var(--sr-led) 55%, transparent),
+    0 0 38px -8px color-mix(in oklab, var(--sr-led) 45%, transparent);
+}
+.smart-rhythms .sr-key[data-lit="true"] .sr-led-dot {
+  background: var(--sr-led);
+  box-shadow:
+    0 0 6px var(--sr-led),
+    0 0 14px color-mix(in oklab, var(--sr-led) 70%, transparent),
+    inset 0 0 2px oklch(1 0 0 / 0.7);
+}
+
+/* LED color variants */
+.smart-rhythms .sr-led-blue   { --sr-led: var(--sr-led-blue); }
+.smart-rhythms .sr-led-amber  { --sr-led: var(--sr-led-amber); }
+.smart-rhythms .sr-led-green  { --sr-led: var(--sr-led-green); }
+.smart-rhythms .sr-led-red    { --sr-led: var(--sr-led-red); }
+.smart-rhythms .sr-led-magenta{ --sr-led: var(--sr-led-magenta); }
+
+/* Square pad variant (for drum/section pads) */
+.smart-rhythms .sr-pad {
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+  padding: 0;
+  font-size: 0.72rem;
+  border-radius: 0.75rem;
+}
+
+/* ---------- LED strip / readout ---------- */
+.smart-rhythms .sr-readout {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  background:
+    linear-gradient(180deg, oklch(0.10 0.020 240), oklch(0.06 0.020 240)),
+    var(--sr-brushed);
+  color: var(--sr-led-amber);
+  text-shadow: 0 0 6px color-mix(in oklab, var(--sr-led-amber) 65%, transparent);
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid oklch(0 0 0 / 0.7);
+  box-shadow:
+    inset 0 2px 6px oklch(0 0 0 / 0.7),
+    inset 0 -1px 0 oklch(1 0 0 / 0.05);
+  letter-spacing: 0.12em;
+}
+
+/* ---------- Knob ---------- */
+.smart-rhythms .sr-knob {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 35%,
+      oklch(0.42 0.008 250) 0%,
+      oklch(0.28 0.010 250) 55%,
+      oklch(0.18 0.012 250) 100%);
+  border: 1px solid oklch(0 0 0 / 0.6);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.12),
+    inset 0 -2px 6px oklch(0 0 0 / 0.6),
+    0 6px 14px -4px oklch(0 0 0 / 0.7);
+  position: relative;
+}
+.smart-rhythms .sr-knob::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg,
+      oklch(1 0 0 / 0.04) 0deg 6deg,
+      transparent 6deg 12deg);
+  mask: radial-gradient(circle, transparent 55%, #000 56%);
+}
+.smart-rhythms .sr-knob .sr-knob-tick {
+  position: absolute;
+  top: 6px; left: 50%;
+  width: 2px; height: 10px;
+  background: var(--sr-led, var(--sr-led-blue));
+  border-radius: 2px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px var(--sr-led, var(--sr-led-blue));
+}
+
+/* ---------- Inputs ---------- */
+.smart-rhythms .sr-input {
+  background: oklch(0.12 0.010 250);
+  color: var(--sr-text);
+  border: 1px solid oklch(0 0 0 / 0.7);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  box-shadow:
+    inset 0 2px 4px oklch(0 0 0 / 0.6),
+    inset 0 -1px 0 oklch(1 0 0 / 0.04);
+  transition: box-shadow 0.18s var(--sr-ease), border-color 0.18s var(--sr-ease);
+  width: 100%;
+}
+.smart-rhythms .sr-input:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--sr-led-blue) 50%, oklch(0 0 0 / 0.7));
+  box-shadow:
+    inset 0 2px 4px oklch(0 0 0 / 0.6),
+    0 0 0 3px color-mix(in oklab, var(--sr-led-blue) 35%, transparent),
+    0 0 18px -4px var(--sr-led-blue);
+}
+
+/* ---------- Labels / chips ---------- */
+.smart-rhythms .sr-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sr-text-mute);
+}
+.smart-rhythms .sr-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  font: 600 0.7rem/1 'Inter', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sr-text-dim);
+  background: oklch(0.14 0.010 250);
+  border: 1px solid var(--sr-edge);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.04);
+}
+
+/* ---------- LED bar (level meter) ---------- */
+.smart-rhythms .sr-meter {
+  display: flex; gap: 2px;
+  padding: 4px;
+  background: oklch(0.08 0.012 250);
+  border-radius: 4px;
+  border: 1px solid oklch(0 0 0 / 0.6);
+  box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.7);
+}
+.smart-rhythms .sr-meter > i {
+  flex: 1;
+  height: 10px;
+  background: oklch(0.20 0.010 250);
+  border-radius: 1px;
+  transition: background 0.15s var(--sr-ease), box-shadow 0.15s var(--sr-ease);
+}
+.smart-rhythms .sr-meter > i[data-on="true"] {
+  background: var(--sr-led-green);
+  box-shadow: 0 0 6px var(--sr-led-green);
+}
+.smart-rhythms .sr-meter > i[data-on="true"][data-warn="true"] {
+  background: var(--sr-led-amber);
+  box-shadow: 0 0 6px var(--sr-led-amber);
+}
+.smart-rhythms .sr-meter > i[data-on="true"][data-peak="true"] {
+  background: var(--sr-led-red);
+  box-shadow: 0 0 8px var(--sr-led-red);
+}
+
+/* ---------- Animations ---------- */
+@keyframes sr-led-pulse {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.4); }
+}
+.smart-rhythms .sr-pulse[data-lit="true"] {
+  animation: sr-led-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes sr-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.25; }
+}
+.smart-rhythms .sr-blink { animation: sr-blink 1s steps(1) infinite; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .smart-rhythms .sr-pulse[data-lit="true"],
+  .smart-rhythms .sr-blink { animation: none; }
+  .smart-rhythms .sr-key { transition: none; }
+}
