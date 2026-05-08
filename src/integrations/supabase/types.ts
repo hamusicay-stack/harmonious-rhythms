@@ -1488,6 +1488,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_items: {
+        Row: {
+          added_at: string
+          id: string
+          image: string | null
+          price: number
+          product_id: string
+          product_slug: string | null
+          product_type: string
+          qty: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          image?: string | null
+          price?: number
+          product_id: string
+          product_slug?: string | null
+          product_type?: string
+          qty?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          image?: string | null
+          price?: number
+          product_id?: string
+          product_slug?: string | null
+          product_type?: string
+          qty?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       customer_interactions: {
         Row: {
           created_at: string
@@ -2665,6 +2707,92 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_campaigns: {
+        Row: {
+          body_html: string
+          created_at: string
+          created_by: string | null
+          failed_count: number
+          id: string
+          recipients_count: number
+          segment_filters: Json
+          segment_id: string | null
+          sent_at: string | null
+          sent_count: number
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body_html: string
+          created_at?: string
+          created_by?: string | null
+          failed_count?: number
+          id?: string
+          recipients_count?: number
+          segment_filters?: Json
+          segment_id?: string | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          created_by?: string | null
+          failed_count?: number
+          id?: string
+          recipients_count?: number
+          segment_filters?: Json
+          segment_id?: string | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_campaigns_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_segments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          filters: Json
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filters?: Json
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filters?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           followed_activity_prompt_seen: boolean
@@ -2967,9 +3095,11 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
+          email_opt_in: boolean
           full_name: string | null
           id: string
           instagram: string | null
+          last_login_at: string | null
           location: string | null
           organ_model: string | null
           phone: string | null
@@ -2988,9 +3118,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          email_opt_in?: boolean
           full_name?: string | null
           id: string
           instagram?: string | null
+          last_login_at?: string | null
           location?: string | null
           organ_model?: string | null
           phone?: string | null
@@ -3009,9 +3141,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          email_opt_in?: boolean
           full_name?: string | null
           id?: string
           instagram?: string | null
+          last_login_at?: string | null
           location?: string | null
           organ_model?: string | null
           phone?: string | null

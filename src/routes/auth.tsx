@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Music2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ function AuthPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailOptIn, setEmailOptIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: { display_name: displayName },
+            data: { display_name: displayName, email_opt_in: emailOptIn },
           },
         });
         if (error) throw error;
@@ -127,6 +129,18 @@ function AuthPage() {
                 dir="ltr"
               />
             </div>
+            {mode === "signup" && (
+              <label className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Checkbox
+                  checked={emailOptIn}
+                  onCheckedChange={(v) => setEmailOptIn(v === true)}
+                  className="mt-0.5"
+                />
+                <span>
+                  אני מאשר/ת קבלת דיוור, עדכונים ומבצעים במייל. ניתן להסיר את ההסכמה בכל עת.
+                </span>
+              </label>
+            )}
             <Button
               type="submit"
               disabled={loading}

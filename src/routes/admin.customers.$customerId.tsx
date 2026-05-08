@@ -48,6 +48,8 @@ type Profile = {
   instagram: string | null;
   youtube: string | null;
   created_at: string;
+  email_opt_in?: boolean;
+  last_login_at?: string | null;
 };
 
 type CustomerTag = { id: string; tag: string; color: string | null };
@@ -114,6 +116,10 @@ function CustomerProfilePage() {
   const [tags, setTags] = useState<CustomerTag[]>([]);
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [shopOrders, setShopOrders] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [listingsCount, setListingsCount] = useState(0);
+  const [cartItems, setCartItems] = useState<any[]>([]);
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("default");
 
@@ -123,16 +129,24 @@ function CustomerProfilePage() {
 
   const load = async () => {
     setLoading(true);
-    const [p, t, i, o] = await Promise.all([
+    const [p, t, i, o, so, en, ml, ci] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", customerId).maybeSingle(),
       supabase.from("customer_tags").select("*").eq("customer_id", customerId).order("created_at"),
       supabase.from("customer_interactions").select("*").eq("customer_id", customerId).order("occurred_at", { ascending: false }),
       supabase.from("orders").select("*").eq("customer_id", customerId).order("created_at", { ascending: false }),
+      supabase.from("shop_orders").select("id, order_number, total_amount, status, payment_status, created_at").eq("customer_id", customerId).order("created_at", { ascending: false }),
+      supabase.from("academy_enrollments").select("id, course_id, progress_percent, status, last_accessed_at, academy_courses(title)").eq("user_id", customerId),
+      supabase.from("marketplace_listings").select("id", { count: "exact", head: true }).eq("seller_id", customerId).eq("status", "approved"),
+      supabase.from("cart_items").select("*").eq("user_id", customerId).order("added_at", { ascending: false }),
     ]);
     setProfile(p.data as Profile | null);
     setTags((t.data as CustomerTag[]) ?? []);
     setInteractions((i.data as Interaction[]) ?? []);
     setOrders((o.data as Order[]) ?? []);
+    setShopOrders(so.data ?? []);
+    setEnrollments(en.data ?? []);
+    setListingsCount(ml.count ?? 0);
+    setCartItems(ci.data ?? []);
     setLoading(false);
   };
 
