@@ -227,7 +227,7 @@ function AdminPage() {
 
           <TabsContent value="crm" className="mt-6">
             <Tabs defaultValue="customers" dir="rtl">
-              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-7 scrollbar-thin">
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto justify-start md:grid md:grid-cols-7 scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x">
                 <TabsTrigger value="customers" className="shrink-0 md:flex-1"><Users className="ml-1 h-4 w-4" />לקוחות</TabsTrigger>
                 <TabsTrigger value="leads" className="shrink-0 md:flex-1"><ClipboardList className="ml-1 h-4 w-4" />לידים</TabsTrigger>
                 <TabsTrigger value="tasks" className="shrink-0 md:flex-1"><CheckCircle2 className="ml-1 h-4 w-4" />משימות</TabsTrigger>
@@ -407,7 +407,7 @@ function AdminPage() {
 
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
-              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-9 scrollbar-thin">
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto justify-start md:grid md:grid-cols-9 scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x">
                 <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
                 <TabsTrigger value="rhythm_sets" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />Rhythm Sets</TabsTrigger>
                 <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
