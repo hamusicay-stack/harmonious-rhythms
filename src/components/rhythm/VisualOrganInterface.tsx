@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ArrowUp, Folder as FolderIcon, Heart, Loader2, Music2, ShoppingCart, Square } from "lucide-react";
+import { ArrowRight, ArrowUp, Copy, FileText, Folder as FolderIcon, FolderOpen, Heart, Loader2, MenuSquare, Music2, Play, Save, Scissors, ShoppingCart, Square, Trash2, ClipboardPaste } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
