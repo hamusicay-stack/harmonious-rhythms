@@ -489,6 +489,18 @@ function CustomerProfilePage() {
   );
 }
 
+function StatCard({ icon: Icon, label, value, tone }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; tone?: "success" | "muted" }) {
+  const toneClass = tone === "success" ? "text-emerald-600" : tone === "muted" ? "text-muted-foreground" : "text-primary";
+  return (
+    <div className="rounded-lg border border-border/60 bg-card p-3">
+      <div className={`flex items-center gap-1 text-xs ${toneClass}`}>
+        <Icon className="h-3.5 w-3.5" /> {label}
+      </div>
+      <div className="mt-1 text-lg font-bold">{value}</div>
+    </div>
+  );
+}
+
 function DetailField({ label, value, dir, multiline }: { label: string; value: string | null; dir?: string; multiline?: boolean }) {
   return (
     <div>
