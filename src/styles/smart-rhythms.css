@@ -103,12 +103,12 @@
 .smart-rhythms .sr-screw {
   width: 8px; height: 8px; border-radius: 50%;
   background: radial-gradient(circle at 35% 30%,
-                oklch(0.55 0.008 250),
-                oklch(0.18 0.010 250) 75%);
+                oklch(0.85 0.006 260),
+                oklch(0.60 0.010 260) 75%);
   box-shadow:
-    inset 0 -1px 0 oklch(1 0 0 / 0.15),
-    inset 0 1px 1px oklch(0 0 0 / 0.6),
-    0 1px 0 oklch(1 0 0 / 0.04);
+    inset 0 -1px 0 oklch(1 0 0 / 0.6),
+    inset 0 1px 1px oklch(0.20 0.025 260 / 0.30),
+    0 1px 0 oklch(1 0 0 / 0.5);
 }
 
 /* ---------- Hardware Key (button) ---------- */
@@ -126,7 +126,7 @@
   text-transform: uppercase;
   color: var(--sr-text);
   background: var(--sr-grad-key);
-  border: 1px solid oklch(0 0 0 / 0.55);
+  border: 1px solid oklch(0.20 0.025 260 / 0.12);
   border-radius: var(--sr-radius-key);
   box-shadow: var(--sr-bevel-key);
   cursor: pointer;
@@ -145,15 +145,15 @@
   height: 38%;
   border-radius: calc(var(--sr-radius-key) - 2px);
   background: linear-gradient(180deg,
-                oklch(1 0 0 / 0.10),
+                oklch(1 0 0 / 0.85),
                 oklch(1 0 0 / 0));
   pointer-events: none;
 }
 .smart-rhythms .sr-key:hover {
   background: linear-gradient(180deg,
-                oklch(0.36 0.008 250) 0%,
-                oklch(0.28 0.010 250) 50%,
-                oklch(0.22 0.012 250) 100%);
+                oklch(1 0 0) 0%,
+                oklch(0.98 0.006 260) 50%,
+                oklch(0.94 0.008 260) 100%);
   transform: translateY(-1px);
 }
 .smart-rhythms .sr-key:active,
@@ -166,7 +166,7 @@
   outline: none;
   box-shadow:
     var(--sr-bevel-key),
-    0 0 0 2px oklch(0 0 0 / 0.6),
+    0 0 0 2px oklch(1 0 0 / 0.9),
     0 0 0 4px var(--sr-led);
 }
 .smart-rhythms .sr-key[disabled],
@@ -179,26 +179,26 @@
 /* LED dot inside key */
 .smart-rhythms .sr-key .sr-led-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: oklch(0.18 0.010 250);
-  box-shadow: inset 0 1px 1px oklch(0 0 0 / 0.7);
+  background: oklch(0.85 0.008 260);
+  box-shadow: inset 0 1px 1px oklch(0.20 0.025 260 / 0.25);
   transition: background 0.2s var(--sr-ease), box-shadow 0.2s var(--sr-ease);
 }
 
 /* Lit / active state */
 .smart-rhythms .sr-key[data-lit="true"] {
-  color: var(--sr-led);
-  text-shadow: 0 0 8px color-mix(in oklab, var(--sr-led) 65%, transparent);
-  border-color: color-mix(in oklab, var(--sr-led) 35%, oklch(0 0 0 / 0.6));
+  color: color-mix(in oklab, var(--sr-led) 70%, oklch(0.20 0.025 260));
+  text-shadow: 0 0 8px color-mix(in oklab, var(--sr-led) 55%, transparent);
+  border-color: color-mix(in oklab, var(--sr-led) 50%, oklch(1 0 0 / 0.4));
   background:
     radial-gradient(120% 80% at 50% 120%,
-      color-mix(in oklab, var(--sr-led) 22%, transparent) 0%,
+      color-mix(in oklab, var(--sr-led) 28%, transparent) 0%,
       transparent 60%),
     var(--sr-grad-key);
   box-shadow:
     var(--sr-bevel-key),
-    0 0 0 1px color-mix(in oklab, var(--sr-led) 25%, transparent),
-    0 0 18px -2px color-mix(in oklab, var(--sr-led) 55%, transparent),
-    0 0 38px -8px color-mix(in oklab, var(--sr-led) 45%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--sr-led) 35%, transparent),
+    0 0 18px -2px color-mix(in oklab, var(--sr-led) 60%, transparent),
+    0 0 38px -8px color-mix(in oklab, var(--sr-led) 50%, transparent);
 }
 .smart-rhythms .sr-key[data-lit="true"] .sr-led-dot {
   background: var(--sr-led);
