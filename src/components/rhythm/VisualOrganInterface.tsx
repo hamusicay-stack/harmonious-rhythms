@@ -155,6 +155,34 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     return m;
   }, [samples, activeItemId, activeSetId]);
 
+  // Hardware theme variant per keyboard model
+  const hwTheme = useMemo(() => {
+    const name = `${selectedModel?.brand?.name ?? ""} ${selectedModel?.model_name ?? ""}`.toLowerCase();
+    if (/tyros/.test(name)) {
+      return {
+        variant: "tyros" as const,
+        panelBg: "linear-gradient(180deg, oklch(0.94 0.005 260) 0%, oklch(0.84 0.008 260) 55%, oklch(0.74 0.010 260) 100%)",
+        panelBorder: "oklch(0.55 0.010 260 / 0.55)",
+        headerBg: "linear-gradient(180deg, oklch(0.55 0.012 260) 0%, oklch(0.30 0.010 260) 100%)",
+        headerText: "oklch(0.98 0.005 260)",
+        lcdBg: "linear-gradient(180deg, oklch(0.80 0.010 260) 0%, oklch(0.68 0.012 260) 100%)",
+        lcdText: "oklch(0.18 0.025 260)",
+      };
+    }
+    return {
+      variant: "genos" as const,
+      panelBg: "linear-gradient(180deg, oklch(0.28 0.008 260) 0%, oklch(0.18 0.010 260) 55%, oklch(0.10 0.012 260) 100%)",
+      panelBorder: "oklch(0 0 0 / 0.7)",
+      headerBg: "linear-gradient(180deg, oklch(0.72 0.16 55) 0%, oklch(0.58 0.17 45) 100%)",
+      headerText: "oklch(1 0 0)",
+      lcdBg: "linear-gradient(180deg, oklch(0.18 0.012 260) 0%, oklch(0.10 0.012 260) 100%)",
+      lcdText: "oklch(0.95 0.005 260)",
+    };
+  }, [selectedModel]);
+
+  const navLevel: "sets" | "folders" | "items" =
+    !activeSetId ? "sets" : !activeFolderId ? "folders" : "items";
+
   const stop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
