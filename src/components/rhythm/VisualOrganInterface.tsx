@@ -15,6 +15,7 @@ import {
   type LedColor,
 } from "./SmartRhythmsTheme";
 import { cn } from "@/lib/utils";
+import tyros5Image from "@/assets/tyros5-hardware.jpg";
 
 type RhythmSet = {
   id: string;
