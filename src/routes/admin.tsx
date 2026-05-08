@@ -406,8 +406,9 @@ function AdminPage() {
 
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
-              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-8 scrollbar-thin">
+              <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-9 scrollbar-thin">
                 <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
+                <TabsTrigger value="rhythm_sets" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />Rhythm Sets</TabsTrigger>
                 <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
                 <TabsTrigger value="shorts" className="shrink-0 md:flex-1"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
                 <TabsTrigger value="music_pros" className="shrink-0 md:flex-1"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
@@ -420,6 +421,9 @@ function AdminPage() {
 
               <TabsContent value="shop" className="mt-6">
                 <ShopManager />
+              </TabsContent>
+              <TabsContent value="rhythm_sets" className="mt-6">
+                <RhythmSetsManager />
               </TabsContent>
               <TabsContent value="marketplace" className="mt-6 space-y-6">
                 <MarketplaceSettings />
