@@ -1,0 +1,317 @@
+/* ==========================================================================
+   Yamaha Genos / Tyros Skeuomorphic Hardware Theme
+   Scoped under .yo-root
+   ========================================================================== */
+
+.yo-root {
+  --yo-casing-1: #1a1c22;
+  --yo-casing-2: #0c0d11;
+  --yo-casing-edge: #000;
+  --yo-bezel-1: #2a2c33;
+  --yo-bezel-2: #0a0b0f;
+  --yo-lcd-bg: #0f111a;
+  --yo-lcd-bg-2: #161927;
+  --yo-lcd-text: #e6ecff;
+  --yo-orange: #ff7a18;
+  --yo-orange-2: #c14a00;
+  --yo-led-red: #ff2a2a;
+  --yo-led-green: #4ef58c;
+  --yo-led-amber: #ffb13a;
+  --yo-led-blue: #4ab5ff;
+  --yo-btn-top: #4a4d57;
+  --yo-btn-bot: #1a1c22;
+  --yo-btn-edge: #07080b;
+}
+
+/* ---------- Bezel around the LCD ---------- */
+.yo-bezel {
+  position: relative;
+  padding: 14px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #2a2c33 0%, #14161c 55%, #0a0b0f 100%);
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -2px 6px rgba(0,0,0,0.6),
+    0 22px 50px -22px rgba(0,0,0,0.7);
+}
+.yo-bezel::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  border-radius: 18px 18px 0 0;
+  pointer-events: none;
+}
+
+/* ---------- LCD ---------- */
+.yo-lcd {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #1a1f33 0%, #0f111a 60%, #080a12 100%);
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 3px 14px rgba(0,0,0,0.85),
+    inset 0 -1px 0 rgba(255,255,255,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+  color: var(--yo-lcd-text);
+}
+.yo-lcd::after {
+  /* subtle scanlines */
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg,
+    rgba(255,255,255,0.025) 0 1px,
+    transparent 1px 3px);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.yo-lcd-header {
+  background: linear-gradient(180deg, var(--yo-orange) 0%, var(--yo-orange-2) 100%);
+  color: #fff;
+  border-bottom: 1px solid #000;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(0,0,0,0.5);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+}
+.yo-lcd-tab {
+  border: 1px solid rgba(0,0,0,0.55);
+  border-bottom: none;
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  opacity: 0.8;
+  border-radius: 6px 6px 0 0;
+  padding: 4px 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 0.62rem;
+}
+.yo-lcd-tab[data-active="true"] {
+  background: linear-gradient(180deg, #1a1f33 0%, #0f111a 100%);
+  color: var(--yo-lcd-text);
+  opacity: 1;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.yo-touch {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.25) 100%);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--yo-lcd-text);
+  text-align: start;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.45);
+}
+.yo-touch:hover {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 60%, rgba(0,0,0,0.20) 100%);
+  border-color: rgba(255,180,80,0.45);
+}
+.yo-touch:active { transform: translateY(1px); }
+.yo-touch[data-active="true"] {
+  border-color: rgba(255,140,40,0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 0 0 1px rgba(255,140,40,0.5),
+    0 0 18px -2px rgba(255,140,40,0.55);
+}
+
+.yo-up-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  font: 700 0.7rem/1 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.18em;
+  color: #fff;
+  background: linear-gradient(180deg, #3a3d47 0%, #1a1c22 100%);
+  border: 1px solid #000;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 -1px 0 rgba(0,0,0,0.6),
+    0 2px 0 rgba(0,0,0,0.6);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.yo-up-btn:hover { background: linear-gradient(180deg, #44474f 0%, #1f2229 100%); }
+.yo-up-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,0.7),
+    inset 0 -1px 0 rgba(255,255,255,0.06);
+}
+.yo-up-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---------- Hardware Panel (casing) ---------- */
+.yo-hw-panel {
+  position: relative;
+  padding: 22px 18px 26px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, #23252b 0%, #15171c 50%, #0a0b0f 100%);
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,0.018) 0 1px,
+      transparent 1px 3px),
+    linear-gradient(180deg, #23252b 0%, #15171c 50%, #0a0b0f 100%);
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -2px 8px rgba(0,0,0,0.7),
+    inset 0 0 60px rgba(0,0,0,0.6),
+    0 24px 40px -20px rgba(0,0,0,0.7);
+}
+.yo-hw-panel::before {
+  /* Specular highlight */
+  content: "";
+  position: absolute; inset: 1px 1px auto 1px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  pointer-events: none;
+}
+
+.yo-group-label {
+  font: 700 0.6rem/1 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.yo-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.yo-group-row {
+  display: grid;
+  gap: 10px;
+}
+
+.yo-divider {
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7) 20%, rgba(0,0,0,0.7) 80%, transparent);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.04);
+  margin: 0 8px;
+}
+
+/* ---------- Skeuomorphic hardware button ---------- */
+.yo-btn {
+  --yo-led: var(--yo-led-blue);
+  position: relative;
+  min-width: 64px;
+  min-height: 56px;
+  padding: 18px 10px 8px;
+  border-radius: 8px;
+  font: 700 0.68rem/1.1 'Inter', system-uo, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f0f2f7;
+  background:
+    linear-gradient(180deg,
+      #5a5d68 0%,
+      #3a3d47 45%,
+      #1f2229 100%);
+  border: 1px solid #000;
+  cursor: pointer;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -2px 0 rgba(0,0,0,0.7),
+    inset 0 -6px 12px rgba(0,0,0,0.45),
+    0 2px 0 rgba(0,0,0,0.6),
+    0 5px 10px -2px rgba(0,0,0,0.7);
+  transition: transform 0.1s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.yo-btn:hover:not(:disabled) {
+  background:
+    linear-gradient(180deg, #65687a 0%, #41444f 45%, #232631 100%);
+}
+.yo-btn:active:not(:disabled),
+.yo-btn[data-pressed="true"] {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.7),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px #000;
+}
+.yo-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: saturate(0.5); }
+
+/* LED indicator on top of every button */
+.yo-btn-led {
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  width: 22px; height: 4px;
+  border-radius: 2px;
+  background: #1a1c22;
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 1px 1px rgba(0,0,0,0.8),
+    inset 0 -1px 0 rgba(255,255,255,0.04);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Lit / playing state */
+.yo-btn[data-lit="true"] {
+  background:
+    radial-gradient(120% 60% at 50% 110%,
+      color-mix(in oklab, var(--yo-led) 30%, transparent) 0%,
+      transparent 65%),
+    linear-gradient(180deg, #4a4d57 0%, #2a2d36 50%, #15171c 100%);
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.7),
+    inset 0 -1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px color-mix(in oklab, var(--yo-led) 40%, #000),
+    0 0 20px -2px color-mix(in oklab, var(--yo-led) 60%, transparent);
+  color: #fff;
+}
+.yo-btn[data-lit="true"] .yo-btn-led {
+  background: var(--yo-led);
+  box-shadow:
+    0 0 6px var(--yo-led),
+    0 0 14px color-mix(in oklab, var(--yo-led) 70%, transparent),
+    0 0 28px color-mix(in oklab, var(--yo-led) 55%, transparent),
+    inset 0 0 2px rgba(255,255,255,0.85);
+  animation: yo-led-pulse 1.4s ease-in-out infinite;
+}
+@keyframes yo-led-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.45); }
+}
+
+/* LED color variants */
+.yo-led-blue   { --yo-led: var(--yo-led-blue); }
+.yo-led-green  { --yo-led: var(--yo-led-green); }
+.yo-led-amber  { --yo-led: var(--yo-led-amber); }
+.yo-led-red    { --yo-led: var(--yo-led-red); }
+
+/* Group casing screws */
+.yo-screw {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #6a6d77 0%, #2a2d36 70%, #0a0b0f 100%);
+  box-shadow:
+    inset 0 -1px 0 rgba(255,255,255,0.15),
+    inset 0 1px 1px rgba(0,0,0,0.6),
+    0 1px 0 rgba(255,255,255,0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yo-btn[data-lit="true"] .yo-btn-led { animation: none; }
+}
