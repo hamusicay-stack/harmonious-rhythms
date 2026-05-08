@@ -133,46 +133,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     };
   }, [selectedModel, user]);
 
-  // Hardware theme variant per keyboard model
-  const hwTheme = useMemo(() => {
-    const name = `${selectedModel?.brand?.name ?? ""} ${selectedModel?.model_name ?? ""}`.toLowerCase();
-    if (/tyros/.test(name)) {
-      return {
-        variant: "tyros" as const,
-        panelBg: "linear-gradient(180deg, oklch(0.92 0.005 260) 0%, oklch(0.82 0.008 260) 55%, oklch(0.72 0.010 260) 100%)",
-        panelBorder: "oklch(0.55 0.010 260 / 0.5)",
-        headerBg: "linear-gradient(180deg, oklch(0.55 0.012 260) 0%, oklch(0.32 0.010 260) 100%)",
-        headerText: "oklch(0.98 0.005 260)",
-        lcdBg: "linear-gradient(180deg, oklch(0.78 0.010 260) 0%, oklch(0.68 0.012 260) 100%)",
-        lcdText: "oklch(0.18 0.025 260)",
-      };
-    }
-    // Default: Genos / SX charcoal + orange header
-    return {
-      variant: "genos" as const,
-      panelBg: "linear-gradient(180deg, oklch(0.28 0.008 260) 0%, oklch(0.18 0.010 260) 55%, oklch(0.12 0.012 260) 100%)",
-      panelBorder: "oklch(0 0 0 / 0.7)",
-      headerBg: "linear-gradient(180deg, oklch(0.72 0.16 55) 0%, oklch(0.58 0.17 45) 100%)",
-      headerText: "oklch(1 0 0)",
-      lcdBg: "linear-gradient(180deg, oklch(0.18 0.012 260) 0%, oklch(0.10 0.012 260) 100%)",
-      lcdText: "oklch(0.95 0.005 260)",
-    };
-  }, [selectedModel]);
-
-  // LCD navigation level: sets → folders → items
-  const navLevel: "sets" | "folders" | "items" =
-    !activeSetId ? "sets" : !activeFolderId ? "folders" : "items";
-  const goUp = () => {
-    if (navLevel === "items") { setActiveFolderId(null); setActiveItemId(null); stop(); }
-    else if (navLevel === "folders") { setActiveSetId(null); setActiveItemId(null); stop(); }
-  };
-  const lcdTitle = !activeSet
-    ? "STYLE — SELECT SET"
-    : activeFolderId
-    ? `${activeSet.set_name.toUpperCase()} / ${(setFolders_.find((f) => f.id === activeFolderId)?.name ?? "").toUpperCase()}`
-    : activeSet.set_name.toUpperCase();
-
-  const activeSet_ = useMemo(() => sets.find((s) => s.id === activeSetId) ?? null, [sets, activeSetId]);
+  const activeSet = useMemo(() => sets.find((s) => s.id === activeSetId) ?? null, [sets, activeSetId]);
   const setFolders_ = useMemo(
     () => folders.filter((f) => f.set_id === activeSetId),
     [folders, activeSetId]
