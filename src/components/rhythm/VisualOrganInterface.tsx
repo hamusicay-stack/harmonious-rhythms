@@ -463,6 +463,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               <div className="yo-tyros-tool"><FolderOpen /><span>FOLDER</span></div>
               <div className="yo-tyros-tool" data-menu="true"><MenuSquare /><span className="yo-tyros-tool-pill">MENU 2</span></div>
             </div>
+            </div>
           </div>
         ) : (
           <div className="yo-bezel">
