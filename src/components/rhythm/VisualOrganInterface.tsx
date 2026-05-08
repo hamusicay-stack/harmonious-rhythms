@@ -266,6 +266,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
         onClick={() => playSample(b)}
         disabled={!activeSet}
         data-lit={lit ? "true" : undefined}
+        data-hw={hwTheme.variant}
         className={cn("yo-btn", `yo-led-${b.led}`)}
         style={{ opacity: !activeSet ? 0.4 : has ? 1 : 0.6 }}
       >
