@@ -288,13 +288,44 @@ function CustomerProfilePage() {
         </div>
       </section>
 
+      <section className="container mx-auto px-4 pt-8 md:px-8">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          <StatCard icon={DollarSign} label="LTV (סה״כ הוצאה)" value={`₪${ltv.toLocaleString()}`} />
+          <StatCard icon={ShoppingCart} label="הזמנות" value={String(totalOrdersCount)} />
+          <StatCard icon={BookOpen} label="קורסים" value={String(enrollments.length)} />
+          <StatCard icon={Store} label="מודעות יד שנייה" value={String(listingsCount)} />
+          <StatCard
+            icon={profile.email_opt_in ? CheckCircle2 : XCircle}
+            label="דיוור"
+            value={profile.email_opt_in ? "מאושר" : "לא מאושר"}
+            tone={profile.email_opt_in ? "success" : "muted"}
+          />
+        </div>
+        {abandonedCart.length > 0 && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+            <ShoppingBag className="h-4 w-4 text-amber-600" />
+            <strong>עגלה נטושה:</strong> {abandonedCart.length} פריטים בעגלה מעל שעתיים.
+          </div>
+        )}
+        {profile.last_login_at && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3" /> כניסה אחרונה: {new Date(profile.last_login_at).toLocaleString("he-IL")}
+          </div>
+        )}
+      </section>
+
       <section className="container mx-auto px-4 py-8 md:px-8">
         <Tabs defaultValue="timeline" dir="rtl">
-          <TabsList>
-            <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
-            <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים אישיים</TabsTrigger>
-            <TabsTrigger value="orders"><ShoppingCart className="ml-2 h-4 w-4" />הזמנות ({orders.length})</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto" dir="rtl">
+            <TabsList>
+              <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
+              <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים</TabsTrigger>
+              <TabsTrigger value="orders"><ShoppingCart className="ml-2 h-4 w-4" />הזמנות ({totalOrdersCount})</TabsTrigger>
+              <TabsTrigger value="courses"><BookOpen className="ml-2 h-4 w-4" />קורסים ({enrollments.length})</TabsTrigger>
+              <TabsTrigger value="marketplace"><Store className="ml-2 h-4 w-4" />יד שנייה ({listingsCount})</TabsTrigger>
+              <TabsTrigger value="cart"><ShoppingBag className="ml-2 h-4 w-4" />עגלה ({cartItems.length})</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="timeline" className="mt-6 space-y-4">
             <AddInteractionCard customerId={customerId} userId={user.id} onAdded={load} />
