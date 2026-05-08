@@ -342,12 +342,12 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                 <span className="font-semibold tracking-wide text-sm truncate">{lcdTitle}</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <SrChip
-                  className="!py-0.5 !px-2 !text-[0.6rem]"
-                  style={{ background: "oklch(1 0 0 / 0.18)", color: hwTheme.headerText, borderColor: "oklch(0 0 0 / 0.3)" }}
+                <span
+                  className="rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-widest uppercase"
+                  style={{ background: "oklch(1 0 0 / 0.2)", color: hwTheme.headerText, border: "1px solid oklch(0 0 0 / 0.3)" }}
                 >
                   {navLevel === "sets" ? "PRESET" : navLevel === "folders" ? "HD1" : "USB1"}
-                </SrChip>
+                </span>
               </div>
             </div>
 
