@@ -266,6 +266,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
         onClick={() => playSample(b)}
         disabled={!activeSet}
         data-lit={lit ? "true" : undefined}
+        data-hw={hwTheme.variant}
         className={cn("yo-btn", `yo-led-${b.led}`)}
         style={{ opacity: !activeSet ? 0.4 : has ? 1 : 0.6 }}
       >
@@ -447,7 +448,10 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                   <span className="yo-tyros-pbtn" data-muted="true">P2</span>
                 </div>
                 <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP">
-                  UP <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+                  <span className="yo-tyros-up-label">UP</span>
+                  <svg className="yo-tyros-up-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 18 Q4 8 14 8 L20 8 M14 4 L20 8 L14 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -601,7 +605,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
 
         {/* HARDWARE CONTROL PANEL */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-          <div className="yo-hw-panel">
+          <div className="yo-hw-panel" data-hw={hwTheme.variant}>
             <div className="flex items-center gap-2 mb-4">
               <span className="yo-screw" /> <span className="yo-screw" />
               <div className="flex-1 text-center">
@@ -626,6 +630,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                 onClick={stop}
                 disabled={!activeBtn}
                 data-lit={activeBtn ? "true" : undefined}
+                data-hw={hwTheme.variant}
                 className="yo-btn yo-led-red"
                 style={{ minWidth: 140 }}
               >
