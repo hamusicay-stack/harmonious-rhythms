@@ -507,6 +507,26 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               </button>
             </div>
           </div>
+
+          {/* File-tools strip — Tyros style toolbar below the LCD */}
+          {hwTheme.variant === "tyros" && (
+            <div className="mt-2 grid grid-cols-8 gap-1.5">
+              {["NAME", "CUT", "COPY", "PASTE", "DELETE", "SAVE", "FOLDER", "MENU 2"].map((label) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center justify-center rounded-sm px-1 py-1.5 text-[0.55rem] font-bold tracking-wider sr-mono"
+                  style={{
+                    background: "linear-gradient(180deg, oklch(0.86 0.008 260) 0%, oklch(0.70 0.010 260) 100%)",
+                    color: "oklch(0.20 0.015 260)",
+                    border: "1px solid oklch(0 0 0 / 0.45)",
+                    boxShadow: "inset 0 1px 0 oklch(1 0 0 / 0.55), 0 1px 0 oklch(0 0 0 / 0.3)",
+                  }}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* HARDWARE CONTROL PANEL + CART */}
