@@ -627,6 +627,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                 onClick={stop}
                 disabled={!activeBtn}
                 data-lit={activeBtn ? "true" : undefined}
+                data-hw={hwTheme.variant}
                 className="yo-btn yo-led-red"
                 style={{ minWidth: 140 }}
               >
