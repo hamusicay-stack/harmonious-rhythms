@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 type Brand = { id: string; name: string; logo_url: string | null; created_at: string };
