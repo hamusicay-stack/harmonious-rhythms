@@ -311,7 +311,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
 
         {/* LCD SCREEN — Yamaha skeuomorphic */}
         {hwTheme.variant === "tyros" ? (
-          <div className="yo-bezel" data-hw="tyros">
+          <div className="space-y-4">
+            {/* Tyros 5 hardware photo */}
+            <div className="flex justify-center">
+              <img
+                src={tyros5Image}
+                alt="Yamaha Tyros 5"
+                className="max-w-full w-full sm:max-w-2xl rounded-lg shadow-2xl ring-1 ring-black/60"
+                loading="lazy"
+              />
+            </div>
+            <div className="yo-bezel" data-hw="tyros">
             {/* YAMAHA · STYLE brand header */}
             <div className="yo-tyros-brand">
               <span className="yo-tyros-yamaha">
