@@ -25,12 +25,14 @@ type AudioSample = { id: string; set_id: string; button_type: string; audio_url:
 export function RhythmSetsManager() {
   return (
     <Tabs defaultValue="brands" className="w-full">
-      <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-4">
-        <TabsTrigger value="brands" className="shrink-0 md:flex-1"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
-        <TabsTrigger value="models" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
-        <TabsTrigger value="sets" className="shrink-0 md:flex-1"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
-        <TabsTrigger value="samples" className="shrink-0 md:flex-1"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto touch-pan-x -mx-2 px-2" dir="rtl">
+        <TabsList className="inline-flex w-max h-auto gap-1">
+          <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
+          <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
+          <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
+          <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
+        </TabsList>
+      </div>
       <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
       <TabsContent value="models" className="mt-6"><ModelsSection /></TabsContent>
       <TabsContent value="sets" className="mt-6"><SetsSection /></TabsContent>
