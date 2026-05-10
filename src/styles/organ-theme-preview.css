@@ -1,0 +1,181 @@
+/* Organ Theme Preview — themed via CSS vars (--ot-*) on .ot-preview */
+.ot-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.ot-bezel {
+  border-radius: 18px;
+  background: linear-gradient(180deg, #0d0e12 0%, #050608 100%);
+  border: 1px solid #000;
+  padding: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 32px -16px rgba(0,0,0,0.7);
+}
+.ot-screen {
+  border-radius: 8px;
+  border: 1px solid #000;
+  overflow: hidden;
+}
+.ot-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 14px;
+  background: var(--ot-top-bg);
+  color: var(--ot-top-text);
+  border-bottom: 1px solid #000;
+}
+.ot-yamaha { display: inline-flex; align-items: center; gap: 6px; font: 700 0.78rem/1 'Times New Roman', Georgia, serif; letter-spacing: 0.18em; }
+.ot-screen-label { font: 700 0.95rem/1 'Times New Roman', Georgia, serif; letter-spacing: 0.18em; }
+
+.ot-tabs {
+  display: flex; align-items: flex-end; justify-content: flex-end; gap: 0;
+  padding: 0 8px;
+  min-height: 30px;
+  background: var(--ot-tabs-bg);
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), inset 0 -1px 0 rgba(0,0,0,0.55);
+}
+.ot-tab {
+  padding: 6px 18px 8px;
+  margin-left: -10px;
+  font: 700 0.72rem/1 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.06em;
+  color: var(--ot-tabs-text);
+  background: var(--ot-tabs-bg);
+  border: 1px solid #000;
+  border-bottom: none;
+  clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
+}
+.ot-tab[data-active="true"] {
+  background: var(--ot-tabs-active-bg);
+  color: var(--ot-tabs-active-text);
+  z-index: 2;
+}
+
+.ot-lcd-body {
+  background: var(--ot-lcd-bg);
+  color: var(--ot-lcd-text);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 140px;
+}
+.ot-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px;
+  background: var(--ot-card-bg);
+  color: var(--ot-card-text);
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.4);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(0,0,0,0.25);
+  min-height: 44px;
+}
+.ot-thumb { width: 36px; height: 28px; background: rgba(0,0,0,0.08); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+.ot-name { font: 700 0.85rem/1 'Times New Roman', Georgia, serif; flex: 1; }
+
+.ot-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--ot-bot-bg);
+  color: var(--ot-bot-text);
+  border-top: 1px solid rgba(0,0,0,0.45);
+}
+.ot-pbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 50px; padding: 6px 12px;
+  font: 700 0.85rem/1 'Times New Roman', Georgia, serif;
+  background: var(--ot-pbtn-bg);
+  color: #e6e8ec;
+  border: 1px solid #000; border-radius: 5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.6);
+}
+.ot-pbtn[data-active="true"] { color: var(--ot-pbtn-active); }
+.ot-up {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px;
+  font: 700 0.85rem/1 'Times New Roman', Georgia, serif;
+  color: var(--ot-up-text);
+  background: var(--ot-up-bg);
+  border: 1px solid rgba(0,0,0,0.55);
+  border-radius: 5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 0 rgba(0,0,0,0.45);
+  cursor: pointer;
+}
+
+.ot-toolbar {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px;
+  margin-top: 8px;
+  background: var(--ot-tool-bg);
+  border-radius: 12px;
+  border: 1px solid #000;
+}
+.ot-tool {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 4px;
+  background: var(--ot-tool-item-bg);
+  color: var(--ot-tool-text);
+  border: 1px solid #000;
+  border-radius: 4px;
+  font: 700 0.6rem/1 'Times New Roman', Georgia, serif;
+  letter-spacing: 0.06em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.5);
+}
+
+/* Hardware panel */
+.ot-hw {
+  position: relative;
+  padding: 16px;
+  background: var(--ot-chassis-bg);
+  border-radius: var(--ot-chassis-radius);
+  border: 1px solid rgba(0,0,0,0.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 8px rgba(0,0,0,0.3);
+}
+.ot-screws { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.ot-screws span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f0f3f7 0%, #8a92a0 60%, #3a3f48 100%);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.6), inset 0 1px 1px rgba(0,0,0,0.5);
+}
+.ot-hw-rows {
+  display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+}
+.ot-hw-group { display: flex; flex-direction: column; gap: 6px; }
+.ot-hw-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ot-hw-label { text-align: center; font: 700 0.6rem/1 'Inter', system-ui; letter-spacing: 0.28em; color: rgba(0,0,0,0.6); text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
+
+.ot-hwbtn {
+  position: relative;
+  min-width: 60px; min-height: 50px;
+  padding: 16px 8px 6px;
+  border-radius: 6px;
+  font: 700 0.62rem/1.1 'Inter', system-ui;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ot-btn-text);
+  background: var(--ot-btn-bg);
+  border: 1px solid #000;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    inset 0 -3px 0 rgba(0,0,0,0.85),
+    0 2px 0 rgba(0,0,0,0.6),
+    0 5px 8px -2px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+.ot-led {
+  position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+  width: 22px; height: 4px; border-radius: 2px;
+  background: #08090c;
+  border: 1px solid #000;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.9);
+}
+.ot-hwbtn[data-led="blue"] .ot-led { background: var(--ot-led-blue); box-shadow: 0 0 8px var(--ot-led-blue), 0 0 14px var(--ot-led-blue); }
+.ot-hwbtn[data-led="green"] .ot-led { background: var(--ot-led-green); box-shadow: 0 0 8px var(--ot-led-green), 0 0 14px var(--ot-led-green); }
+.ot-hwbtn[data-led="amber"] .ot-led { background: var(--ot-led-amber); box-shadow: 0 0 8px var(--ot-led-amber), 0 0 14px var(--ot-led-amber); }
+.ot-hwbtn[data-led="red"] .ot-led { background: var(--ot-led-red); box-shadow: 0 0 8px var(--ot-led-red), 0 0 14px var(--ot-led-red); }
