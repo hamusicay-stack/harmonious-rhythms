@@ -323,29 +323,23 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               />
             </div>
             <div className="yo-bezel" data-hw="tyros">
-            {/* YAMAHA · STYLE brand header */}
-            <div className="yo-tyros-brand">
-              <span className="yo-tyros-yamaha">
-                <span className="yo-tyros-fork" aria-hidden />
-                YAMAHA
-              </span>
-              <span className="yo-tyros-style">STYLE</span>
-            </div>
-
             <div className="yo-lcd" data-hw="tyros">
-              {/* Tab strip */}
+              {/* Top banner: dark bar with STYLE centered + tabs on right (matches Tyros 5 reference) */}
               <div className="yo-tyros-tabs">
-                {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
-                  const active =
-                    (navLevel === "sets" && tab === "PRESET") ||
-                    (navLevel === "folders" && tab === "HD1") ||
-                    (navLevel === "items" && tab === "HD1");
-                  return (
-                    <span key={tab} className="yo-tyros-tab" data-active={active ? "true" : undefined}>
-                      {tab}
-                    </span>
-                  );
-                })}
+                <span className="yo-tyros-style-title">STYLE</span>
+                <div className="yo-tyros-tabs-row">
+                  {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
+                    const active =
+                      (navLevel === "sets" && tab === "PRESET") ||
+                      (navLevel === "folders" && tab === "HD1") ||
+                      (navLevel === "items" && tab === "HD1");
+                    return (
+                      <span key={tab} className="yo-tyros-tab" data-active={active ? "true" : undefined}>
+                        {tab}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Body */}
