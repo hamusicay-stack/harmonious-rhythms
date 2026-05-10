@@ -44,8 +44,9 @@ import { RolesPermissionsManager } from "@/components/admin/RolesPermissionsMana
 import { AiPromptsManager } from "@/components/admin/AiPromptsManager";
 import { Music2, ShoppingBag, Play, Sparkles, GraduationCap, KeyRound, Bot, Piano } from "lucide-react";
 import { RhythmSetsManager } from "@/components/admin/RhythmSetsManager";
+import { OrganUIThemeEditor } from "@/components/admin/OrganUIThemeEditor";
 import { NewsletterManager } from "@/components/admin/NewsletterManager";
-import { Mail } from "lucide-react";
+import { Mail, Palette } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -412,9 +413,10 @@ function AdminPage() {
           <TabsContent value="commerce" className="mt-6">
             <Tabs defaultValue="shop" dir="rtl">
               <div className="w-full overflow-x-auto scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x" dir="rtl">
-                <TabsList className="inline-flex w-max h-auto gap-1 md:grid md:w-full md:grid-cols-10">
+                <TabsList className="inline-flex w-max h-auto gap-1 md:grid md:w-full md:grid-cols-11">
                   <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
                   <TabsTrigger value="rhythm_sets" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />Rhythm Sets</TabsTrigger>
+                  <TabsTrigger value="organ_ui" className="shrink-0 md:flex-1"><Palette className="ml-1 h-4 w-4" />עיצוב אורגן</TabsTrigger>
                   <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
                   <TabsTrigger value="shorts" className="shrink-0 md:flex-1"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
                   <TabsTrigger value="music_pros" className="shrink-0 md:flex-1"><Music2 className="ml-1 h-4 w-4" />מוזיקאים</TabsTrigger>
@@ -432,6 +434,9 @@ function AdminPage() {
               </TabsContent>
               <TabsContent value="rhythm_sets" className="mt-6">
                 <RhythmSetsManager />
+              </TabsContent>
+              <TabsContent value="organ_ui" className="mt-6">
+                <OrganUIThemeEditor />
               </TabsContent>
               <TabsContent value="marketplace" className="mt-6 space-y-6">
                 <MarketplaceSettings />
