@@ -441,18 +441,34 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                 )}
               </div>
 
-              {/* Bottom bar */}
+              {/* Bottom bar — UP at LEFT, P1/P2 at RIGHT (matches Tyros 5 reference) */}
               <div className="yo-tyros-bottom">
+                <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP — back to parent folder">
+                  <svg className="yo-tyros-up-arrow" viewBox="0 0 28 24" aria-hidden="true">
+                    {/* Curved arrow going up then bending left, exactly like Tyros UP icon */}
+                    <path
+                      d="M22 20 L22 14 Q22 7 15 7 L7 7"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M11 3 L6 7 L11 11"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span className="yo-tyros-up-label">UP</span>
+                </button>
                 <div className="flex items-center gap-2">
                   <span className="yo-tyros-pbtn">P1</span>
                   <span className="yo-tyros-pbtn" data-muted="true">P2</span>
                 </div>
-                <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP">
-                  <span className="yo-tyros-up-label">UP</span>
-                  <svg className="yo-tyros-up-arrow" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 18 Q4 8 14 8 L20 8 M14 4 L20 8 L14 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
               </div>
             </div>
 
