@@ -324,9 +324,19 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
             </div>
             <div className="yo-bezel" data-hw="tyros">
             <div className="yo-lcd" data-hw="tyros">
-              {/* Top banner: dark bar with STYLE centered + tabs on right (matches Tyros 5 reference) */}
-              <div className="yo-tyros-tabs">
+              {/* YAMAHA · STYLE brand row */}
+              <div className="yo-tyros-brandbar">
+                <span className="yo-tyros-yamaha-logo">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="yo-tyros-fork-svg">
+                    <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" strokeWidth="1.4" />
+                    <path d="M8 7 L12 13 L16 7 M12 13 L12 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="yo-tyros-yamaha-word">YAMAHA</span>
+                </span>
                 <span className="yo-tyros-style-title">STYLE</span>
+              </div>
+              {/* Tab strip with PRESET/USER/HD1/USB1 on right */}
+              <div className="yo-tyros-tabs">
                 <div className="yo-tyros-tabs-row">
                   {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
                     const active =
