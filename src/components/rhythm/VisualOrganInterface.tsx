@@ -159,7 +159,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   // Hardware theme variant per keyboard model
   const hwTheme = useMemo(() => {
     const name = `${selectedModel?.brand?.name ?? ""} ${selectedModel?.model_name ?? ""}`.toLowerCase();
-    if (/tyros/.test(name)) {
+    if (/tyros|טיירוס|טירוס/.test(name)) {
       return {
         variant: "tyros" as const,
         panelBg: "linear-gradient(180deg, oklch(0.94 0.005 260) 0%, oklch(0.84 0.008 260) 55%, oklch(0.74 0.010 260) 100%)",
