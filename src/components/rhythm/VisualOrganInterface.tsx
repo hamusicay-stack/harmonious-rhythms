@@ -323,29 +323,23 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               />
             </div>
             <div className="yo-bezel" data-hw="tyros">
-            {/* YAMAHA · STYLE brand header */}
-            <div className="yo-tyros-brand">
-              <span className="yo-tyros-yamaha">
-                <span className="yo-tyros-fork" aria-hidden />
-                YAMAHA
-              </span>
-              <span className="yo-tyros-style">STYLE</span>
-            </div>
-
             <div className="yo-lcd" data-hw="tyros">
-              {/* Tab strip */}
+              {/* Top banner: dark bar with STYLE centered + tabs on right (matches Tyros 5 reference) */}
               <div className="yo-tyros-tabs">
-                {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
-                  const active =
-                    (navLevel === "sets" && tab === "PRESET") ||
-                    (navLevel === "folders" && tab === "HD1") ||
-                    (navLevel === "items" && tab === "HD1");
-                  return (
-                    <span key={tab} className="yo-tyros-tab" data-active={active ? "true" : undefined}>
-                      {tab}
-                    </span>
-                  );
-                })}
+                <span className="yo-tyros-style-title">STYLE</span>
+                <div className="yo-tyros-tabs-row">
+                  {(["PRESET", "USER", "HD1", "USB1"] as const).map((tab) => {
+                    const active =
+                      (navLevel === "sets" && tab === "PRESET") ||
+                      (navLevel === "folders" && tab === "HD1") ||
+                      (navLevel === "items" && tab === "HD1");
+                    return (
+                      <span key={tab} className="yo-tyros-tab" data-active={active ? "true" : undefined}>
+                        {tab}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Body */}
@@ -441,34 +435,19 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                 )}
               </div>
 
-              {/* Bottom bar — UP at LEFT, P1/P2 at RIGHT (matches Tyros 5 reference) */}
+              {/* Bottom bar — P1/P2 at LEFT, UP at RIGHT (matches Tyros 5 reference) */}
               <div className="yo-tyros-bottom">
-                <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP — back to parent folder">
-                  <span className="yo-tyros-up-label">UP</span>
-                  <svg className="yo-tyros-up-arrow" viewBox="0 0 28 24" aria-hidden="true">
-                    {/* Hook arrow: goes up, curves right at top (↱) — matches Tyros UP icon */}
-                    <path
-                      d="M7 21 L7 10 Q7 5 12 5 L20 5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M16 1 L21 5 L16 9"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
                 <div className="flex items-center gap-2">
                   <span className="yo-tyros-pbtn">P1</span>
                   <span className="yo-tyros-pbtn" data-muted="true">P2</span>
                 </div>
+                <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP — back to parent folder">
+                  <span className="yo-tyros-up-label">UP</span>
+                  <svg className="yo-tyros-up-arrow" viewBox="0 0 28 24" aria-hidden="true">
+                    <path d="M7 21 L7 10 Q7 5 12 5 L20 5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M16 1 L21 5 L16 9" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
               </div>
             </div>
 
