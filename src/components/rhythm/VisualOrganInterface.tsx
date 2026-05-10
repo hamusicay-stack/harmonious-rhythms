@@ -444,10 +444,11 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               {/* Bottom bar — UP at LEFT, P1/P2 at RIGHT (matches Tyros 5 reference) */}
               <div className="yo-tyros-bottom">
                 <button type="button" onClick={goUp} disabled={navLevel === "sets"} className="yo-tyros-up" aria-label="UP — back to parent folder">
+                  <span className="yo-tyros-up-label">UP</span>
                   <svg className="yo-tyros-up-arrow" viewBox="0 0 28 24" aria-hidden="true">
-                    {/* Curved arrow going up then bending left, exactly like Tyros UP icon */}
+                    {/* Hook arrow: goes up, curves right at top (↱) — matches Tyros UP icon */}
                     <path
-                      d="M22 20 L22 14 Q22 7 15 7 L7 7"
+                      d="M7 21 L7 10 Q7 5 12 5 L20 5"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.6"
@@ -455,7 +456,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                       strokeLinejoin="round"
                     />
                     <path
-                      d="M11 3 L6 7 L11 11"
+                      d="M16 1 L21 5 L16 9"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.6"
@@ -463,7 +464,6 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <span className="yo-tyros-up-label">UP</span>
                 </button>
                 <div className="flex items-center gap-2">
                   <span className="yo-tyros-pbtn">P1</span>
