@@ -365,6 +365,7 @@
 }
 
 .yo-lcd[data-hw="tyros"] {
+  direction: ltr;
   background: linear-gradient(180deg, #b9bcc2 0%, #a4a7ad 60%, #93969c 100%);
   color: #1a1c22;
   border: 1px solid #000;
@@ -373,6 +374,9 @@
     inset 0 -1px 0 rgba(255,255,255,0.25);
 }
 .yo-lcd[data-hw="tyros"]::after { display: none; }
+.yo-bezel[data-hw="tyros"] .yo-tyros-toolbar { direction: ltr; }
+/* Card content remains RTL for Hebrew item names */
+.yo-lcd[data-hw="tyros"] .yo-tyros-card { direction: rtl; }
 
 /* Tyros brand bar — black strip with YAMAHA + STYLE */
 .yo-tyros-brandbar {
