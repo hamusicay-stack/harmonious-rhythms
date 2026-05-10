@@ -2918,6 +2918,38 @@ export type Database = {
           },
         ]
       }
+      organ_ui_themes: {
+        Row: {
+          created_at: string
+          id: string
+          model_id: string
+          theme: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          model_id: string
+          theme?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model_id?: string
+          theme?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organ_ui_themes_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: true
+            referencedRelation: "keyboard_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       password_reset_otps: {
         Row: {
           attempts: number
