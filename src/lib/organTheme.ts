@@ -18,6 +18,7 @@ export type OrganTheme = {
     textColor: string;
     height: number;
     showLogo: boolean;
+    bgImage?: string | null;
   };
   tabsBar: {
     bg: string;
@@ -31,12 +32,14 @@ export type OrganTheme = {
     cardBg: string;
     cardTextColor: string;
     accentColor: string;
+    bgImage?: string | null;
   };
   bottomBanner: {
     bg: string;
     textColor: string;
     pButton: { bg: string; activeColor: string };
     upButton: { bg: string; textColor: string; show: boolean };
+    bgImage?: string | null;
   };
   toolbar: {
     bg: string;
@@ -49,6 +52,7 @@ export type OrganTheme = {
     bg: string;
     borderRadius: number;
     showScrews: boolean;
+    bgImage?: string | null;
   };
   buttons: {
     bg: string;
@@ -75,6 +79,7 @@ export const DEFAULT_TYROS_THEME: OrganTheme = {
     textColor: "#ffffff",
     height: 38,
     showLogo: true,
+    bgImage: null,
   },
   tabsBar: {
     bg: "linear-gradient(180deg, #6a6d75 0%, #4a4d54 60%, #3a3d44 100%)",
@@ -88,6 +93,7 @@ export const DEFAULT_TYROS_THEME: OrganTheme = {
     cardBg: "linear-gradient(180deg, #ffffff 0%, #e7ecf2 60%, #cdd4dd 100%)",
     cardTextColor: "#0e1420",
     accentColor: "#ff7a18",
+    bgImage: null,
   },
   bottomBanner: {
     bg: "linear-gradient(180deg, #93969c 0%, #7d8086 100%)",
@@ -98,6 +104,7 @@ export const DEFAULT_TYROS_THEME: OrganTheme = {
       textColor: "#0e1420",
       show: true,
     },
+    bgImage: null,
   },
   toolbar: {
     bg: "linear-gradient(180deg, #2a2c33 0%, #15171c 100%)",
@@ -119,6 +126,7 @@ export const DEFAULT_TYROS_THEME: OrganTheme = {
     bg: "linear-gradient(180deg, #d8dde4 0%, #b6bcc6 50%, #8d949f 100%)",
     borderRadius: 14,
     showScrews: true,
+    bgImage: null,
   },
   buttons: {
     bg: "linear-gradient(180deg, #3e434d 0%, #2a2e36 35%, #15181e 75%, #0a0c10 100%)",
@@ -155,6 +163,7 @@ export const DEFAULT_GENOS_THEME: OrganTheme = {
     textColor: "#ffffff",
     height: 36,
     showLogo: true,
+    bgImage: null,
   },
   lcd: {
     bg: "linear-gradient(180deg, #18223a 0%, #0a0c14 100%)",
@@ -162,11 +171,13 @@ export const DEFAULT_GENOS_THEME: OrganTheme = {
     cardBg: "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(0,0,0,0.25) 100%)",
     cardTextColor: "#e6ecff",
     accentColor: "#ff7a18",
+    bgImage: null,
   },
   chassis: {
     bg: "linear-gradient(180deg, #23252b 0%, #15171c 50%, #0a0b0f 100%)",
     borderRadius: 14,
     showScrews: true,
+    bgImage: null,
   },
 };
 
