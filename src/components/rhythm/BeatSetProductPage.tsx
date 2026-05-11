@@ -129,16 +129,20 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
             </div>
           </div>
 
-          {ytId && (
+          {video && (
             <div className="mx-auto mt-8 max-w-3xl overflow-hidden rounded-xl border border-border/60 bg-black shadow-2xl">
               <div className="aspect-video">
-                <iframe
-                  src={`https://www.youtube.com/embed/${ytId}?rel=0`}
-                  title={`${set.set_name} — Promo`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="h-full w-full"
-                />
+                {video.kind === "iframe" ? (
+                  <iframe
+                    src={video.src}
+                    title={`${set.set_name} — Promo`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-full w-full"
+                  />
+                ) : (
+                  <video src={video.src} controls className="h-full w-full" preload="metadata" />
+                )}
               </div>
             </div>
           )}
