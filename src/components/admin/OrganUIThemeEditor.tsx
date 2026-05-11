@@ -12,6 +12,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { OrganScreenPreview } from "./organ-editor/OrganScreenPreview";
+import { ThemeImageField } from "./organ-editor/ThemeImageField";
 import {
   DEFAULT_TYROS_THEME, mergeTheme, type OrganButton, type OrganTheme,
 } from "@/lib/organTheme";
@@ -74,9 +75,9 @@ function SwitchField({ label, value, onChange }: { label: string; value: boolean
 }
 
 /* ---------- main editor ---------- */
-export function OrganUIThemeEditor() {
+export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string } = {}) {
   const [models, setModels] = useState<Model[]>([]);
-  const [modelId, setModelId] = useState<string | null>(null);
+  const [modelId, setModelId] = useState<string | null>(initialModelId ?? null);
   const [theme, setTheme] = useState<OrganTheme>(DEFAULT_TYROS_THEME);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
