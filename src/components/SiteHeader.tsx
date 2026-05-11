@@ -25,7 +25,7 @@ const navItems = [
   { to: "/shorts", label: "שורטס" },
   { to: "/forum", label: "פורום" },
   { to: "/shop", label: "חנות" },
-  { to: "/rhythms", label: "BEAT" },
+  { to: "/beat", label: "BEAT" },
   { to: "/academy", label: "אקדמיה" },
   { to: "/marketplace", label: "יד שנייה" },
   { to: "/pros", label: "מוזיקאים" },
