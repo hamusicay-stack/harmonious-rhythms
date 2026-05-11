@@ -27,6 +27,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as BeatIndexRouteImport } from './routes/beat.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
@@ -37,6 +38,7 @@ import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
+import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
@@ -139,6 +141,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   path: '/',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const BeatIndexRoute = BeatIndexRouteImport.update({
+  id: '/beat/',
+  path: '/beat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/verify/$code',
   path: '/verify/$code',
@@ -188,6 +195,11 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   id: '/$listingId',
   path: '/$listingId',
   getParentRoute: () => MarketplaceRoute,
+} as any)
+const BeatSetIdRoute = BeatSetIdRouteImport.update({
+  id: '/beat/$setId',
+  path: '/beat/$setId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   id: '/podcasts',
@@ -269,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/store': typeof StoreRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -279,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/beat/': typeof BeatIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -307,6 +321,7 @@ export interface FileRoutesByTo {
   '/store': typeof StoreRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -317,6 +332,7 @@ export interface FileRoutesByTo {
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/beat': typeof BeatIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
@@ -349,6 +365,7 @@ export interface FileRoutesById {
   '/store': typeof StoreRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -359,6 +376,7 @@ export interface FileRoutesById {
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/beat/': typeof BeatIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -392,6 +410,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/beat/$setId'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -402,6 +421,7 @@ export interface FileRouteTypes {
     | '/shop/$slug'
     | '/shop/checkout'
     | '/verify/$code'
+    | '/beat/'
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
@@ -430,6 +450,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/beat/$setId'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -440,6 +461,7 @@ export interface FileRouteTypes {
     | '/shop/$slug'
     | '/shop/checkout'
     | '/verify/$code'
+    | '/beat'
     | '/marketplace'
     | '/pros'
     | '/shop'
@@ -471,6 +493,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/beat/$setId'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -481,6 +504,7 @@ export interface FileRouteTypes {
     | '/shop/$slug'
     | '/shop/checkout'
     | '/verify/$code'
+    | '/beat/'
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
@@ -511,8 +535,10 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRouteWithChildren
   ShortsRoute: typeof ShortsRoute
   StoreRoute: typeof StoreRoute
+  BeatSetIdRoute: typeof BeatSetIdRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
+  BeatIndexRoute: typeof BeatIndexRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -647,6 +673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof MarketplaceRoute
     }
+    '/beat/': {
+      id: '/beat/'
+      path: '/beat'
+      fullPath: '/beat/'
+      preLoaderRoute: typeof BeatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$code': {
       id: '/verify/$code'
       path: '/verify/$code'
@@ -716,6 +749,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/$listingId'
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof MarketplaceRoute
+    }
+    '/beat/$setId': {
+      id: '/beat/$setId'
+      path: '/beat/$setId'
+      fullPath: '/beat/$setId'
+      preLoaderRoute: typeof BeatSetIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/academy/podcasts': {
       id: '/academy/podcasts'
@@ -920,8 +960,10 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRouteWithChildren,
   ShortsRoute: ShortsRoute,
   StoreRoute: StoreRoute,
+  BeatSetIdRoute: BeatSetIdRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
   VerifyCodeRoute: VerifyCodeRoute,
+  BeatIndexRoute: BeatIndexRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:
