@@ -203,6 +203,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
               <TabsContent value="top" className="space-y-3 pt-3">
                 <TextField label="טקסט מותג (YAMAHA…)" value={theme.brandText} onChange={(v) => setTheme((t) => ({ ...t, brandText: v }))} />
                 <TextField label="תווית מסך (STYLE/VOICE…)" value={theme.screenLabel} onChange={(v) => setTheme((t) => ({ ...t, screenLabel: v }))} />
+                <ThemeImageField label="תמונת באנר עליון (אופציונלי)" value={theme.topBanner.bgImage ?? null} onChange={(v) => update("topBanner", { bgImage: v })} folder="top-banners" />
                 <ColorField label="רקע באנר עליון" value={theme.topBanner.bg} onChange={(v) => update("topBanner", { bg: v })} />
                 <ColorField label="צבע טקסט" value={theme.topBanner.textColor} onChange={(v) => update("topBanner", { textColor: v })} />
                 <NumberField label="גובה (px)" value={theme.topBanner.height} onChange={(v) => update("topBanner", { height: v })} min={20} max={80} />
@@ -233,6 +234,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
 
               {/* LCD */}
               <TabsContent value="lcd" className="space-y-3 pt-3">
+                <ThemeImageField label="תמונת רקע למסך LCD (אופציונלי)" value={theme.lcd.bgImage ?? null} onChange={(v) => update("lcd", { bgImage: v })} folder="lcd" />
                 <ColorField label="רקע מסך LCD" value={theme.lcd.bg} onChange={(v) => update("lcd", { bg: v })} />
                 <ColorField label="צבע טקסט" value={theme.lcd.textColor} onChange={(v) => update("lcd", { textColor: v })} />
                 <ColorField label="רקע כרטיס פריט" value={theme.lcd.cardBg} onChange={(v) => update("lcd", { cardBg: v })} />
@@ -242,6 +244,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
 
               {/* BOTTOM */}
               <TabsContent value="bottom" className="space-y-3 pt-3">
+                <ThemeImageField label="תמונת באנר תחתון (אופציונלי)" value={theme.bottomBanner.bgImage ?? null} onChange={(v) => update("bottomBanner", { bgImage: v })} folder="bottom-banners" />
                 <ColorField label="רקע באנר תחתון" value={theme.bottomBanner.bg} onChange={(v) => update("bottomBanner", { bg: v })} />
                 <ColorField label="צבע טקסט" value={theme.bottomBanner.textColor} onChange={(v) => update("bottomBanner", { textColor: v })} />
                 <ColorField label="רקע P1/P2" value={theme.bottomBanner.pButton.bg} onChange={(v) => update("bottomBanner", { pButton: { ...theme.bottomBanner.pButton, bg: v } })} />
