@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { normalizeAudioUrl } from "@/lib/audioUrl";
+import { resolveVideoEmbed } from "@/lib/videoSource";
 
 type RhythmSet = {
   id: string;
@@ -16,18 +17,12 @@ type RhythmSet = {
   brand_id: string;
   youtube_video_id: string | null;
   cover_image_url: string | null;
+  video_source_type: string | null;
+  video_url: string | null;
 };
 type Folder = { id: string; set_id: string; name: string; sort_order: number };
 type Item = { id: string; folder_id: string; name: string; description: string | null; sort_order: number };
 type Sample = { id: string; rhythm_item_id: string | null; button_type: string; audio_url: string };
-
-function extractYouTubeId(input: string | null): string | null {
-  if (!input) return null;
-  const v = input.trim();
-  if (/^[a-zA-Z0-9_-]{11}$/.test(v)) return v;
-  const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
 
 export function BeatSetProductPage({ setId }: { setId: string }) {
   const [set, setSet] = useState<RhythmSet | null>(null);
