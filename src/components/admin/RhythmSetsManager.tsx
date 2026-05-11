@@ -239,9 +239,16 @@ function SetsSection() {
     brand_id: "", creator_name: "", set_name: "", description: "", price: "0",
     requires_info_file: false, info_file_extension: "", is_automated: false,
     youtube_video_id: "",
+    video_source_type: "youtube" as "youtube" | "google_drive" | "direct",
+    video_url: "",
+    cover_image_url: "",
   };
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const videoFileRef = useRef<HTMLInputElement>(null);
+  const coverFileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     setLoading(true);
@@ -273,8 +280,35 @@ function SetsSection() {
       info_file_extension: s.info_file_extension ?? "",
       is_automated: !!s.is_automated,
       youtube_video_id: s.youtube_video_id ?? "",
+      video_source_type: ((s.video_source_type as any) || "youtube") as "youtube" | "google_drive" | "direct",
+      video_url: s.video_url ?? "",
+      cover_image_url: s.cover_image_url ?? "",
     });
     setOpen(true);
+  };
+
+  const handleVideoUpload = async (file: File) => {
+    setUploadingVideo(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp4";
+    const path = `videos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("beat-video").upload(path, file, { cacheControl: "3600", upsert: false });
+    setUploadingVideo(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("beat-video").getPublicUrl(path);
+    setForm((f) => ({ ...f, video_url: data.publicUrl, video_source_type: "direct" }));
+    toast.success("הווידאו הועלה");
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    setUploadingCover(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("beat-video").upload(path, file, { cacheControl: "3600", upsert: false });
+    setUploadingCover(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("beat-video").getPublicUrl(path);
+    setForm((f) => ({ ...f, cover_image_url: data.publicUrl }));
+    toast.success("תמונת השער הועלתה");
   };
 
   const save = async () => {
@@ -290,6 +324,9 @@ function SetsSection() {
       info_file_extension: form.requires_info_file ? (form.info_file_extension.trim() || null) : null,
       is_automated: form.is_automated,
       youtube_video_id: form.youtube_video_id.trim() || null,
+      video_source_type: form.video_source_type,
+      video_url: form.video_url.trim() || null,
+      cover_image_url: form.cover_image_url.trim() || null,
     };
     const { error } = editingId
       ? await supabase.from("rhythm_sets" as any).update(payload as any).eq("id", editingId)
