@@ -23,6 +23,8 @@ type RhythmSet = {
   price: number; requires_info_file: boolean; info_file_extension: string | null; is_automated: boolean; created_at: string;
   youtube_video_id?: string | null;
   cover_image_url?: string | null;
+  video_source_type?: string | null;
+  video_url?: string | null;
 };
 type AudioSample = { id: string; set_id: string; rhythm_item_id: string | null; button_type: string; audio_url: string; created_at: string };
 type RhythmFolder = { id: string; set_id: string; name: string; sort_order: number };
@@ -237,9 +239,16 @@ function SetsSection() {
     brand_id: "", creator_name: "", set_name: "", description: "", price: "0",
     requires_info_file: false, info_file_extension: "", is_automated: false,
     youtube_video_id: "",
+    video_source_type: "youtube" as "youtube" | "google_drive" | "direct",
+    video_url: "",
+    cover_image_url: "",
   };
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const videoFileRef = useRef<HTMLInputElement>(null);
+  const coverFileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     setLoading(true);
@@ -271,8 +280,35 @@ function SetsSection() {
       info_file_extension: s.info_file_extension ?? "",
       is_automated: !!s.is_automated,
       youtube_video_id: s.youtube_video_id ?? "",
+      video_source_type: ((s.video_source_type as any) || "youtube") as "youtube" | "google_drive" | "direct",
+      video_url: s.video_url ?? "",
+      cover_image_url: s.cover_image_url ?? "",
     });
     setOpen(true);
+  };
+
+  const handleVideoUpload = async (file: File) => {
+    setUploadingVideo(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp4";
+    const path = `videos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("beat-video").upload(path, file, { cacheControl: "3600", upsert: false });
+    setUploadingVideo(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("beat-video").getPublicUrl(path);
+    setForm((f) => ({ ...f, video_url: data.publicUrl, video_source_type: "direct" }));
+    toast.success("הווידאו הועלה");
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    setUploadingCover(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("beat-video").upload(path, file, { cacheControl: "3600", upsert: false });
+    setUploadingCover(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("beat-video").getPublicUrl(path);
+    setForm((f) => ({ ...f, cover_image_url: data.publicUrl }));
+    toast.success("תמונת השער הועלתה");
   };
 
   const save = async () => {
@@ -288,6 +324,9 @@ function SetsSection() {
       info_file_extension: form.requires_info_file ? (form.info_file_extension.trim() || null) : null,
       is_automated: form.is_automated,
       youtube_video_id: form.youtube_video_id.trim() || null,
+      video_source_type: form.video_source_type,
+      video_url: form.video_url.trim() || null,
+      cover_image_url: form.cover_image_url.trim() || null,
     };
     const { error } = editingId
       ? await supabase.from("rhythm_sets" as any).update(payload as any).eq("id", editingId)
@@ -327,7 +366,45 @@ function SetsSection() {
               <div><Label>שם הסט</Label><Input value={form.set_name} onChange={(e) => setForm({ ...form, set_name: e.target.value })} /></div>
               <div><Label>תיאור</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
               <div><Label>מחיר (₪)</Label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
-              <div><Label>YouTube (URL או מזהה)</Label><Input value={form.youtube_video_id} onChange={(e) => setForm({ ...form, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" /></div>
+              {/* Cover image */}
+              <div>
+                <Label>תמונת שער</Label>
+                <div className="flex gap-2 items-start">
+                  {form.cover_image_url && <img src={form.cover_image_url} alt="cover" className="h-16 w-16 rounded object-cover border" />}
+                  <div className="flex-1 space-y-1">
+                    <input ref={coverFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); e.target.value = ""; }} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => coverFileRef.current?.click()} disabled={uploadingCover}>
+                      {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת תמונה
+                    </Button>
+                    <Input dir="ltr" value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} placeholder="או הזן URL" />
+                  </div>
+                </div>
+              </div>
+              {/* Video source — 3 tabs */}
+              <div>
+                <Label>מקור וידאו לדף המוצר</Label>
+                <Tabs value={form.video_source_type} onValueChange={(v) => setForm({ ...form, video_source_type: v as any })} className="mt-1">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="youtube">YouTube</TabsTrigger>
+                    <TabsTrigger value="google_drive">Google Drive</TabsTrigger>
+                    <TabsTrigger value="direct">העלאה ישירה</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="youtube" className="mt-2">
+                    <Input dir="ltr" value={form.video_url || form.youtube_video_id} onChange={(e) => setForm({ ...form, video_url: e.target.value, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" />
+                  </TabsContent>
+                  <TabsContent value="google_drive" className="mt-2">
+                    <Input dir="ltr" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://drive.google.com/file/d/.../view" />
+                    <p className="mt-1 text-xs text-muted-foreground">הדבק קישור שיתוף — המערכת תמיר אוטומטית לתצוגת וידאו.</p>
+                  </TabsContent>
+                  <TabsContent value="direct" className="mt-2 space-y-2">
+                    <input ref={videoFileRef} type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleVideoUpload(f); e.target.value = ""; }} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => videoFileRef.current?.click()} disabled={uploadingVideo}>
+                      {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת MP4
+                    </Button>
+                    <Input dir="ltr" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="URL ישיר לקובץ" />
+                  </TabsContent>
+                </Tabs>
+              </div>
               <div className="flex items-center justify-between">
                 <Label>נדרש קובץ זיהוי?</Label>
                 <Switch checked={form.requires_info_file} onCheckedChange={(v) => setForm({ ...form, requires_info_file: v })} />

@@ -3282,6 +3282,7 @@ export type Database = {
           description: string | null
           folder_id: string
           id: string
+          likes_count: number
           name: string
           sort_order: number
         }
@@ -3290,6 +3291,7 @@ export type Database = {
           description?: string | null
           folder_id: string
           id?: string
+          likes_count?: number
           name: string
           sort_order?: number
         }
@@ -3298,6 +3300,7 @@ export type Database = {
           description?: string | null
           folder_id?: string
           id?: string
+          likes_count?: number
           name?: string
           sort_order?: number
         }
@@ -3393,6 +3396,8 @@ export type Database = {
           price: number
           requires_info_file: boolean
           set_name: string
+          video_source_type: string
+          video_url: string | null
           youtube_video_id: string | null
         }
         Insert: {
@@ -3407,6 +3412,8 @@ export type Database = {
           price?: number
           requires_info_file?: boolean
           set_name: string
+          video_source_type?: string
+          video_url?: string | null
           youtube_video_id?: string | null
         }
         Update: {
@@ -3421,6 +3428,8 @@ export type Database = {
           price?: number
           requires_info_file?: boolean
           set_name?: string
+          video_source_type?: string
+          video_url?: string | null
           youtube_video_id?: string | null
         }
         Relationships: [
