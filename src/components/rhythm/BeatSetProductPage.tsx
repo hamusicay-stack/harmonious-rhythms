@@ -56,7 +56,10 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
     })();
   }, [setId]);
 
-  const ytId = useMemo(() => extractYouTubeId(set?.youtube_video_id ?? null), [set]);
+  const video = useMemo(
+    () => set ? resolveVideoEmbed(set.video_source_type, set.video_url, set.youtube_video_id) : null,
+    [set],
+  );
 
   const samplesByItem = useMemo(() => {
     const m = new Map<string, Sample[]>();
