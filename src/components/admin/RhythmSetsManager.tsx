@@ -310,11 +310,11 @@ function SetsSection() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Rhythm Sets</CardTitle>
+        <CardTitle>סטי BEAT</CardTitle>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild><Button size="sm" onClick={openNew}><Plus className="ml-1 h-4 w-4" />סט חדש</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{editingId ? "עריכת" : "הוספת"} Rhythm Set</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingId ? "עריכת" : "הוספת"} סט BEAT</DialogTitle></DialogHeader>
             <div className="space-y-3 max-h-[70vh] overflow-y-auto">
               <div>
                 <Label>מותג</Label>
