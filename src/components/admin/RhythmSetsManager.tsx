@@ -396,6 +396,20 @@ function SamplesSection() {
   const [buttonType, setButtonType] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp3";
+    const path = `samples/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("beat-audio").upload(path, file, { cacheControl: "3600", upsert: false });
+    setUploading(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("beat-audio").getPublicUrl(path);
+    setAudioUrl(data.publicUrl);
+    toast.success("קובץ הועלה");
+  };
 
   const load = async () => {
     setLoading(true);
@@ -419,11 +433,12 @@ function SamplesSection() {
   const create = async () => {
     if (!setId || !itemId || !buttonType || !audioUrl.trim()) return toast.error("כל השדות חובה");
     setSaving(true);
+    const normalized = normalizeAudioUrl(audioUrl.trim());
     const { error } = await supabase.from("set_audio_samples" as any).insert({
       set_id: setId,
       rhythm_item_id: itemId,
       button_type: buttonType,
-      audio_url: audioUrl.trim(),
+      audio_url: normalized,
     } as any);
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -475,7 +490,17 @@ function SamplesSection() {
                   <SelectContent>{BUTTON_OPTIONS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div><Label>Audio URL</Label><Input value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://..." /></div>
+              <div>
+                <Label>אודיו</Label>
+                <div className="flex gap-2 mb-1">
+                  <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }} />
+                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                    {uploading ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}
+                    העלאת קובץ
+                  </Button>
+                </div>
+                <Input dir="ltr" value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://... או קישור Google Drive (יומר אוטומטית)" />
+              </div>
             </div>
             <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>

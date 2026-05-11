@@ -415,7 +415,7 @@ function AdminPage() {
               <div className="w-full overflow-x-auto scrollbar-thin [-webkit-overflow-scrolling:touch] touch-pan-x" dir="rtl">
                 <TabsList className="inline-flex w-max h-auto gap-1 md:grid md:w-full md:grid-cols-11">
                   <TabsTrigger value="shop" className="shrink-0 md:flex-1"><ShoppingBag className="ml-1 h-4 w-4" />חנות</TabsTrigger>
-                  <TabsTrigger value="rhythm_sets" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />Rhythm Sets</TabsTrigger>
+                  <TabsTrigger value="rhythm_sets" className="shrink-0 md:flex-1"><Piano className="ml-1 h-4 w-4" />BEAT</TabsTrigger>
                   <TabsTrigger value="organ_ui" className="shrink-0 md:flex-1"><Palette className="ml-1 h-4 w-4" />עיצוב אורגן</TabsTrigger>
                   <TabsTrigger value="marketplace" className="shrink-0 md:flex-1"><Tags className="ml-1 h-4 w-4" />יד 2</TabsTrigger>
                   <TabsTrigger value="shorts" className="shrink-0 md:flex-1"><Play className="ml-1 h-4 w-4" />שורטס</TabsTrigger>
