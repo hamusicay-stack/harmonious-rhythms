@@ -23,6 +23,8 @@ type RhythmSet = {
   price: number; requires_info_file: boolean; info_file_extension: string | null; is_automated: boolean; created_at: string;
   youtube_video_id?: string | null;
   cover_image_url?: string | null;
+  video_source_type?: string | null;
+  video_url?: string | null;
 };
 type AudioSample = { id: string; set_id: string; rhythm_item_id: string | null; button_type: string; audio_url: string; created_at: string };
 type RhythmFolder = { id: string; set_id: string; name: string; sort_order: number };
