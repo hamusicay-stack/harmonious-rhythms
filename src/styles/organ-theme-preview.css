@@ -22,6 +22,9 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: 6px 14px;
   background: var(--ot-top-bg);
+  background-image: var(--ot-top-img, none);
+  background-size: cover;
+  background-position: center;
   color: var(--ot-top-text);
   border-bottom: 1px solid #000;
 }
@@ -56,6 +59,9 @@
 
 .ot-lcd-body {
   background: var(--ot-lcd-bg);
+  background-image: var(--ot-lcd-img, none);
+  background-size: cover;
+  background-position: center;
   color: var(--ot-lcd-text);
   padding: 12px;
   display: grid;
@@ -80,6 +86,9 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: 8px 12px;
   background: var(--ot-bot-bg);
+  background-image: var(--ot-bot-img, none);
+  background-size: cover;
+  background-position: center;
   color: var(--ot-bot-text);
   border-top: 1px solid rgba(0,0,0,0.45);
 }
