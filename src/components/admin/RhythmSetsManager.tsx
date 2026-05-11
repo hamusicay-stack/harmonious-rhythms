@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil, FolderTree } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Music, Piano, Package, AudioLines, Pencil, FolderTree, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
+import { normalizeAudioUrl } from "@/lib/audioUrl";
+import { OrganUIThemeEditor } from "@/components/admin/OrganUIThemeEditor";
 
 type Brand = { id: string; name: string; logo_url: string | null; created_at: string };
 type KeyboardModel = { id: string; brand_id: string; model_name: string; ui_image_url: string | null; created_at: string };
@@ -20,29 +22,52 @@ type RhythmSet = {
   id: string; brand_id: string; creator_name: string; set_name: string; description: string | null;
   price: number; requires_info_file: boolean; info_file_extension: string | null; is_automated: boolean; created_at: string;
   youtube_video_id?: string | null;
+  cover_image_url?: string | null;
 };
 type AudioSample = { id: string; set_id: string; rhythm_item_id: string | null; button_type: string; audio_url: string; created_at: string };
 type RhythmFolder = { id: string; set_id: string; name: string; sort_order: number };
 type RhythmItem = { id: string; folder_id: string; name: string; description: string | null; sort_order: number };
 
 export function RhythmSetsManager() {
+  const [designOpen, setDesignOpen] = useState(false);
   return (
-    <Tabs defaultValue="brands" className="w-full">
-      <div className="overflow-x-auto touch-pan-x -mx-2 px-2" dir="rtl">
-        <TabsList className="inline-flex w-max h-auto gap-1">
-          <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
-          <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
-          <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטים (Rhythm Sets)</TabsTrigger>
-          <TabsTrigger value="folders" className="shrink-0"><FolderTree className="ml-1 h-4 w-4" />תיקיות ופריטים</TabsTrigger>
-          <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
-        </TabsList>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-bold">BEAT — ניהול סטים</h2>
+          <p className="text-xs text-muted-foreground">מותגים, דגמים, סטים, תיקיות פריטים ודגימות אודיו.</p>
+        </div>
+        <Dialog open={designOpen} onOpenChange={setDesignOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="outline" className="gap-1">
+              <Palette className="h-4 w-4" />
+              עיצוב מסך אורגן
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-[1100px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>עיצוב מסכי אורגן</DialogTitle></DialogHeader>
+            <OrganUIThemeEditor />
+          </DialogContent>
+        </Dialog>
       </div>
-      <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
-      <TabsContent value="models" className="mt-6"><ModelsSection /></TabsContent>
-      <TabsContent value="sets" className="mt-6"><SetsSection /></TabsContent>
-      <TabsContent value="folders" className="mt-6"><FoldersItemsSection /></TabsContent>
-      <TabsContent value="samples" className="mt-6"><SamplesSection /></TabsContent>
-    </Tabs>
+
+      <Tabs defaultValue="sets" className="w-full">
+        <div className="overflow-x-auto touch-pan-x -mx-2 px-2" dir="rtl">
+          <TabsList className="inline-flex w-max h-auto gap-1">
+            <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
+            <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
+            <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטי BEAT</TabsTrigger>
+            <TabsTrigger value="folders" className="shrink-0"><FolderTree className="ml-1 h-4 w-4" />תיקיות ופריטים</TabsTrigger>
+            <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
+        <TabsContent value="models" className="mt-6"><ModelsSection /></TabsContent>
+        <TabsContent value="sets" className="mt-6"><SetsSection /></TabsContent>
+        <TabsContent value="folders" className="mt-6"><FoldersItemsSection /></TabsContent>
+        <TabsContent value="samples" className="mt-6"><SamplesSection /></TabsContent>
+      </Tabs>
+    </div>
   );
 }
 
@@ -285,11 +310,11 @@ function SetsSection() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Rhythm Sets</CardTitle>
+        <CardTitle>סטי BEAT</CardTitle>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild><Button size="sm" onClick={openNew}><Plus className="ml-1 h-4 w-4" />סט חדש</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{editingId ? "עריכת" : "הוספת"} Rhythm Set</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingId ? "עריכת" : "הוספת"} סט BEAT</DialogTitle></DialogHeader>
             <div className="space-y-3 max-h-[70vh] overflow-y-auto">
               <div>
                 <Label>מותג</Label>
@@ -371,6 +396,20 @@ function SamplesSection() {
   const [buttonType, setButtonType] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp3";
+    const path = `samples/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("beat-audio").upload(path, file, { cacheControl: "3600", upsert: false });
+    setUploading(false);
+    if (error) { toast.error(error.message); return; }
+    const { data } = supabase.storage.from("beat-audio").getPublicUrl(path);
+    setAudioUrl(data.publicUrl);
+    toast.success("קובץ הועלה");
+  };
 
   const load = async () => {
     setLoading(true);
@@ -394,11 +433,12 @@ function SamplesSection() {
   const create = async () => {
     if (!setId || !itemId || !buttonType || !audioUrl.trim()) return toast.error("כל השדות חובה");
     setSaving(true);
+    const normalized = normalizeAudioUrl(audioUrl.trim());
     const { error } = await supabase.from("set_audio_samples" as any).insert({
       set_id: setId,
       rhythm_item_id: itemId,
       button_type: buttonType,
-      audio_url: audioUrl.trim(),
+      audio_url: normalized,
     } as any);
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -450,7 +490,17 @@ function SamplesSection() {
                   <SelectContent>{BUTTON_OPTIONS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div><Label>Audio URL</Label><Input value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://..." /></div>
+              <div>
+                <Label>אודיו</Label>
+                <div className="flex gap-2 mb-1">
+                  <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }} />
+                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                    {uploading ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}
+                    העלאת קובץ
+                  </Button>
+                </div>
+                <Input dir="ltr" value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://... או קישור Google Drive (יומר אוטומטית)" />
+              </div>
             </div>
             <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>
