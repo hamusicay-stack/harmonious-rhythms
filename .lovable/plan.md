@@ -1,60 +1,45 @@
-- &nbsp;
-  מערכת ניהול עיצוב אורגנים מותאם אישית
+## הסקופ
 
-### מה נבנה
+מערך גדול של שינויים. אבצע ב-5 חבילות בתוך אותו ריצה.
 
-פאנל ניהול בלוח האדמין שמאפשר לערוך לכל דגם אורגן (טיירוס 5, PSR וכו') את כל המסך הוויזואלי — באנר עליון, באנר תחתון, כפתורים, צבעים, טקסטים, לוגו ולוחות LED — בנפרד לכל דגם.
+### 1. מיתוג מחדש "rhythms" → "BEAT"
 
-### שינויים במסד הנתונים
+- **טקסטים בממשק**: כל "מקצבים"/"Rhythms"/"Smart Rhythms" → "BEAT" (כותרות, תפריטים, טאבים בניהול, breadcrumbs).
+- **URLs**: יצירת `/beat` ו-`/beat/$setId` כראוטים חדשים. הראוטים הישנים `/rhythms` ו-`/rhythms/$setId` יישארו עם redirect ל-`/beat` כדי לא לשבור קישורים קיימים.
+- **שמות תיקיות בקוד**: `src/components/rhythm/` → אשאיר כפי שהוא (פנימי בלבד) כדי למנוע שבירת imports נרחבת.
+- **שמות טבלאות במסד**: אבצע `ALTER TABLE ... RENAME` עבור הטבלאות העיקריות (`rhythm_sets`, `rhythm_items`, `rhythm_orders`, `rhythm_automation_settings`) → `beat_sets` וכו'. כל הקוד שצורך מהן יעודכן, וטיפוסי Supabase יתחדשו אוטומטית.
 
-טבלה חדשה `organ_ui_themes` (אחת-לאחת עם `keyboard_models`):
+### 2. עורך עיצוב אורגן — הרחבה
 
-- `model_id` (FK → keyboard_models)
-- `top_banner` jsonb — לוגו, טקסט מותג, תווית מסך (STYLE/VOICE), טאבים (label, active), צבע רקע, גרדיאנט, צל
-- `bottom_banner` jsonb — כפתורי כלים (NAME/CUT/COPY/PASTE…), צבעי רקע, צבע טקסט
-- `screen` jsonb — צבע רקע LCD, צבע גריד, גודל גופן, צבע טקסט פריט
-- `buttons` jsonb — מערך כפתורים פיזיים: `{label, x, y, w, h, color, ledColor, shape}` 
-- `chassis` jsonb — צבע גוף, מרקם, רדיוס, צל
-- `up_button` jsonb — מיקום, צורה, צבע
-RLS: קריאה לכולם, כתיבה רק לאדמין.
+- **העלאות תמונה**: הוספת שדות `bgImage` ל-`topBanner`, `bottomBanner`, ו-`lcd` ב-OrganTheme. רכיב `MediaUploader` קיים — אשתמש בו עם bucket `music-pros` בתיקייה `organ-themes/`.
+- **העלאות אודיו לדגימות**: ב-`RhythmSetsManager` (Beat Sets Manager), הוספת אפשרות העלאת קובץ אודיו ישירה (mp3/wav/m4a/ogg) לבאקט `rhythm-files` (קיים) במקביל לשדה ה-URL הקיים. תמיכה ב-Google Drive: זיהוי URL-ים מסוג `drive.google.com/file/d/{id}/view` והמרה אוטומטית ל-`uc?export=download&id={id}` שעובד כמקור אודיו.
+- **כפתור עיצוב אורגן**: אעביר אותו מטאב נפרד ל-toolbar בתוך `RhythmSetsManager` (תחת "BEAT") כ-Button "עיצוב אורגן" שפותח את העורך כ-Dialog.
 
-### עורך ויזואלי בפאנל אדמין
+### 3. דף מוצר ציבורי לכל סט
 
-מסך חדש `OrganUIThemeEditor` עם 3 חלקים:
+- **ראוט חדש**: `/beat/$setId` יציג דף מוצר כמו marketplace listing — banner/cover, תיאור, מחיר, רשימת רצועות (mp3) עם נגן רצועה אחר רצועה, כפתור הוספה לעגלה. הסנכרון עם נתוני הסט אוטומטי כי כולם קוראים מאותה טבלה (`rhythm_sets` → `beat_sets`).
+- **רכיב חדש**: `BeatSetProductPage.tsx` עם רשימת רצועות שלמות (לא דמו של אורגן). שימוש בנגן `<audio>` עם פלייליסט.
+- **מהאורגן**: כפתור חדש "צפה כדף מוצר" יוביל ל-`/beat/$setId`.
 
-1. **בורר דגם** (ימין) — רשימת דגמי אורגנים, בחר אחד לעריכה.
-2. **תצוגה מקדימה חיה** (מרכז) — אותו רכיב `VisualOrganInterface` שמרונדר עם ה-theme הנוכחי. כל שינוי מתעדכן מיידית.
-3. **לוח עריכה בכרטיסיות** (שמאל) — Tabs:
-  - **באנר עליון**: שדות לטקסט מותג, תווית מסך, מספר טאבים + label + state (active), color picker לרקע/גרדיאנט/טקסט, slider לעובי/גובה.
-  - **מסך LCD**: צבע רקע, צבע טקסט, צבע גריד, גודל פונט.
-  - **כפתורים פיזיים**: רשימה ניתנת לעריכה — Add/Remove, label, מיקום (x/y), גודל, צבע גוף, צבע LED, צורה (עגול/מלבני). drag-to-position על התצוגה המקדימה.
-  - **באנר תחתון**: רשימת כלים (label) + צבעים.
-  - **גוף האורגן**: צבע casing, רדיוס פינות, צל, מרקם (חלק/מוברש).
-  - **כפתור UP**: צורה, מיקום, צבע.
+### 4. ניהול
 
-כלים מקצועיים:
+- טאב הניהול הקיים "מקצבים" יקרא "BEAT".
+- כפתור "עיצוב אורגן" יישאר בטאב נפרד כגיבוי, אבל גם יהיה זמין מתוך BEAT manager.
 
-- Color picker (HEX + presets)
-- Sliders למספרים (גודל, מיקום, רדיוס, blur)
-- Reset לברירת מחדל
-- Duplicate theme מדגם אחר
-- שמירה/ביטול
-- Live preview בזמן אמת
+### 5. סנכרון
 
-### שינוי ב-VisualOrganInterface
+כל הצגות הסט (אורגן + דף מוצר + admin) יקראו מאותן טבלאות → סנכרון אוטומטי.
 
-הרכיב יקרא את ה-theme מ-DB לפי model_id ויחיל אותו דרך CSS variables ותוכן דינמי במקום ערכים קשיחים. ברירת מחדל = הנוכחית (טיירוס) אם אין רשומה.
+### קבצים עיקריים שיתעדכנו
 
-### קבצים
-
-- migration חדש — טבלת `organ_ui_themes` + RLS + ברירת מחדל לטיירוס.
-- חדש: `src/components/admin/OrganUIThemeEditor.tsx` (כולל live preview)
-- חדש: `src/components/admin/organ-editor/` — TopBannerEditor, ButtonsEditor, ScreenEditor, BottomBannerEditor, ChassisEditor + ColorField, NumberSlider משותפים.
-- חדש: `src/hooks/useOrganTheme.ts` — fetch + cache theme לפי model_id.
-- עריכת `src/components/rhythm/VisualOrganInterface.tsx` — שימוש ב-theme במקום hardcoded.
-- עריכת `src/styles/yamaha-organ.css` — שימוש ב-CSS vars (`--yo-top-bg`, `--yo-btn-color` וכו').
-- עריכת `src/routes/admin.tsx` — טאב חדש "עיצוב אורגנים".
+- מיגרציה: שינוי שמות טבלאות + הוספת שדה `cover_image_url` אם חסר.
+- `src/lib/organTheme.ts` + `OrganUIThemeEditor.tsx` + `OrganScreenPreview.tsx` — תמיכה בתמונות רקע.
+- `src/components/admin/RhythmSetsManager.tsx` — העלאת אודיו, כפתור עורך עיצוב, תווית BEAT.
+- `src/routes/beat.tsx` + `src/routes/beat.$setId.tsx` — ראוטים חדשים.
+- `src/routes/rhythms.tsx` + `src/routes/rhythms.$setId.tsx` — redirect.
+- `src/components/rhythm/BeatSetProductPage.tsx` — חדש.
+- `src/components/SiteHeader.tsx` ועוד — תיוג מחדש.
 
 ### היקף
 
-משימה גדולה. ברגע שתאשר אבנה הכל בשלב אחד.
+עבודה גדולה. אבצע בריצה אחת לאחר אישור.
