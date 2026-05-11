@@ -366,7 +366,45 @@ function SetsSection() {
               <div><Label>שם הסט</Label><Input value={form.set_name} onChange={(e) => setForm({ ...form, set_name: e.target.value })} /></div>
               <div><Label>תיאור</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
               <div><Label>מחיר (₪)</Label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
-              <div><Label>YouTube (URL או מזהה)</Label><Input value={form.youtube_video_id} onChange={(e) => setForm({ ...form, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" /></div>
+              {/* Cover image */}
+              <div>
+                <Label>תמונת שער</Label>
+                <div className="flex gap-2 items-start">
+                  {form.cover_image_url && <img src={form.cover_image_url} alt="cover" className="h-16 w-16 rounded object-cover border" />}
+                  <div className="flex-1 space-y-1">
+                    <input ref={coverFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); e.target.value = ""; }} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => coverFileRef.current?.click()} disabled={uploadingCover}>
+                      {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת תמונה
+                    </Button>
+                    <Input dir="ltr" value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} placeholder="או הזן URL" />
+                  </div>
+                </div>
+              </div>
+              {/* Video source — 3 tabs */}
+              <div>
+                <Label>מקור וידאו לדף המוצר</Label>
+                <Tabs value={form.video_source_type} onValueChange={(v) => setForm({ ...form, video_source_type: v as any })} className="mt-1">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="youtube">YouTube</TabsTrigger>
+                    <TabsTrigger value="google_drive">Google Drive</TabsTrigger>
+                    <TabsTrigger value="direct">העלאה ישירה</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="youtube" className="mt-2">
+                    <Input dir="ltr" value={form.video_url || form.youtube_video_id} onChange={(e) => setForm({ ...form, video_url: e.target.value, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" />
+                  </TabsContent>
+                  <TabsContent value="google_drive" className="mt-2">
+                    <Input dir="ltr" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://drive.google.com/file/d/.../view" />
+                    <p className="mt-1 text-xs text-muted-foreground">הדבק קישור שיתוף — המערכת תמיר אוטומטית לתצוגת וידאו.</p>
+                  </TabsContent>
+                  <TabsContent value="direct" className="mt-2 space-y-2">
+                    <input ref={videoFileRef} type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleVideoUpload(f); e.target.value = ""; }} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => videoFileRef.current?.click()} disabled={uploadingVideo}>
+                      {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת MP4
+                    </Button>
+                    <Input dir="ltr" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="URL ישיר לקובץ" />
+                  </TabsContent>
+                </Tabs>
+              </div>
               <div className="flex items-center justify-between">
                 <Label>נדרש קובץ זיהוי?</Label>
                 <Switch checked={form.requires_info_file} onCheckedChange={(v) => setForm({ ...form, requires_info_file: v })} />
