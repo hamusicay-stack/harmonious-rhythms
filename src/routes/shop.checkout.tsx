@@ -152,12 +152,29 @@ function CheckoutPage() {
   }, [allowedExtensions]);
 
   const submit = async () => {
-    const errs = [...validateStep1(), ...validateStep2()];
+    const errs = [...validateDetails(), ...validateInfoFile(), ...validateShipping()];
     if (errs.length) return showErrors(errs);
     if (items.length === 0) return toast.error("ארגז הציוד ריק — נסו להוסיף משהו קודם");
 
     setSubmitting(true);
     try {
+      // Upload the optional info file first so its URL persists with the order
+      let infoFileUrl: string | null = null;
+      let infoFileName: string | null = null;
+      if (needsInfoFile && infoFile) {
+        setUploadingFile(true);
+        const safeName = infoFile.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${user?.id ?? "anon"}/${Date.now()}-${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from("rhythm-files")
+          .upload(path, infoFile, { upsert: false, contentType: infoFile.type || "application/octet-stream" });
+        setUploadingFile(false);
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from("rhythm-files").getPublicUrl(path);
+        infoFileUrl = pub.publicUrl;
+        infoFileName = infoFile.name;
+      }
+
       const order_number = `ORD-${Date.now().toString(36).toUpperCase()}`;
       const { data: order, error: orderErr } = await supabase
         .from("shop_orders")
@@ -178,7 +195,9 @@ function CheckoutPage() {
           notes: form.notes || null,
           status: "pending",
           payment_status: "pending",
-        })
+          info_file_url: infoFileUrl,
+          info_file_name: infoFileName,
+        } as any)
         .select("id, order_number")
         .single();
       if (orderErr || !order) throw orderErr ?? new Error("Order failed");
