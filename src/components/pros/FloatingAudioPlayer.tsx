@@ -58,7 +58,7 @@ export function FloatingAudioPlayer() {
         preload="metadata"
         onPlay={() => {}}
         onPause={() => {}}
-        onEnded={() => (hasNext ? next() : stop())}
+        onEnded={() => { if (current?.loop) return; hasNext ? next() : stop(); }}
         className="hidden"
       />
     </div>
