@@ -62,6 +62,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const { selectedModel } = useSmartRhythms();
   const { user } = useAuth();
   const { add } = useCart();
+  const { play: playGlobal, stop: stopGlobal, current: playingTrack } = useAudioPlayer();
   const [loading, setLoading] = useState(true);
   const [sets, setSets] = useState<RhythmSet[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -72,8 +73,6 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
-  const [activeBtn, setActiveBtn] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!selectedModel) return;
