@@ -218,18 +218,7 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
         </div>
       </section>
 
-      {/* Sticky cart bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-3 md:px-8">
-          <div>
-            <div className="text-xs text-muted-foreground">{set.creator_name} · {set.set_name}</div>
-            <div className="text-2xl font-bold">₪{Number(set.price).toLocaleString()}</div>
-          </div>
-          <Button size="lg" onClick={handleAdd} className="gap-2">
-            <ShoppingCart className="h-5 w-5" /> הוסף לעגלה
-          </Button>
-        </div>
-      </div>
+      {/* Global StickyCart (mounted in __root) handles the persistent CTA */}
     </div>
   );
 }
