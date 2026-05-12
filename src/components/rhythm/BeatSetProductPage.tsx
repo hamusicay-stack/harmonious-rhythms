@@ -36,6 +36,7 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
   const [loading, setLoading] = useState(true);
   const { add } = useCart();
   const { selectedModel } = useKeyboardSelection();
+  const { play: playGlobal, current: playingTrack, isPlaying, toggle: toggleGlobal, stop: stopGlobal } = useAudioPlayer();
 
   useEffect(() => {
     (async () => {
