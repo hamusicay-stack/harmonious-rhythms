@@ -262,12 +262,13 @@ function CheckoutPage() {
 
         {/* Stepper */}
         <div className="mb-6 flex items-center justify-between gap-2">
-          {steps.map((s, i) => {
-            const Icon = s.icon;
-            const isActive = step === s.n;
-            const isDone = (step === 3 && s.n !== 3) || (step === 2 && s.n === 1);
+          {stepFlow.map((sk, i) => {
+            const meta = stepMeta[sk];
+            const Icon = meta.icon;
+            const isActive = step === sk;
+            const isDone = i < idx;
             return (
-              <div key={s.n} className="flex flex-1 items-center gap-2">
+              <div key={sk} className="flex flex-1 items-center gap-2">
                 <div className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all",
                   isActive && "border-primary bg-primary text-primary-foreground shadow-gold",
@@ -277,9 +278,9 @@ function CheckoutPage() {
                   {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                 </div>
                 <div className={cn("text-xs font-semibold whitespace-nowrap", !isActive && "text-muted-foreground")}>
-                  {s.label}
+                  {meta.label}
                 </div>
-                {i < steps.length - 1 && (
+                {i < stepFlow.length - 1 && (
                   <div className={cn("h-[2px] flex-1 rounded-full", isDone ? "bg-primary/60" : "bg-border")} />
                 )}
               </div>
