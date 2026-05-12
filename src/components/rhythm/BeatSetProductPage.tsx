@@ -20,6 +20,8 @@ type RhythmSet = {
   cover_image_url: string | null;
   video_source_type: string | null;
   video_url: string | null;
+  requires_info_file: boolean | null;
+  info_file_extension: string | null;
 };
 type Folder = { id: string; set_id: string; name: string; sort_order: number };
 type Item = { id: string; folder_id: string; name: string; description: string | null; sort_order: number };
