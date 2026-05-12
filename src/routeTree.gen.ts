@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as ShopRouteImport } from './routes/shop'
-import { Route as RhythmsRouteImport } from './routes/rhythms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -32,7 +31,6 @@ import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
-import { Route as RhythmsSetIdRouteImport } from './routes/rhythms.$setId'
 import { Route as ProsNewRouteImport } from './routes/pros.new'
 import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
@@ -64,11 +62,6 @@ const ShortsRoute = ShortsRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RhythmsRoute = RhythmsRouteImport.update({
-  id: '/rhythms',
-  path: '/rhythms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -165,11 +158,6 @@ const SellerSellerIdRoute = SellerSellerIdRouteImport.update({
   id: '/seller/$sellerId',
   path: '/seller/$sellerId',
   getParentRoute: () => rootRouteImport,
-} as any)
-const RhythmsSetIdRoute = RhythmsSetIdRouteImport.update({
-  id: '/$setId',
-  path: '/$setId',
-  getParentRoute: () => RhythmsRoute,
 } as any)
 const ProsNewRoute = ProsNewRouteImport.update({
   id: '/new',
@@ -275,7 +263,6 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
-  '/rhythms': typeof RhythmsRouteWithChildren
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
@@ -287,7 +274,6 @@ export interface FileRoutesByFullPath {
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
-  '/rhythms/$setId': typeof RhythmsSetIdRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
@@ -316,7 +302,6 @@ export interface FileRoutesByTo {
   '/forum': typeof ForumRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/rhythms': typeof RhythmsRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
   '/academy/$slug': typeof AcademySlugRoute
@@ -327,7 +312,6 @@ export interface FileRoutesByTo {
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
-  '/rhythms/$setId': typeof RhythmsSetIdRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
@@ -359,7 +343,6 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
-  '/rhythms': typeof RhythmsRouteWithChildren
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
@@ -371,7 +354,6 @@ export interface FileRoutesById {
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
-  '/rhythms/$setId': typeof RhythmsSetIdRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
@@ -404,7 +386,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pros'
     | '/reset-password'
-    | '/rhythms'
     | '/shop'
     | '/shorts'
     | '/store'
@@ -416,7 +397,6 @@ export interface FileRouteTypes {
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
-    | '/rhythms/$setId'
     | '/seller/$sellerId'
     | '/shop/$slug'
     | '/shop/checkout'
@@ -445,7 +425,6 @@ export interface FileRouteTypes {
     | '/forum'
     | '/profile'
     | '/reset-password'
-    | '/rhythms'
     | '/shorts'
     | '/store'
     | '/academy/$slug'
@@ -456,7 +435,6 @@ export interface FileRouteTypes {
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
-    | '/rhythms/$setId'
     | '/seller/$sellerId'
     | '/shop/$slug'
     | '/shop/checkout'
@@ -487,7 +465,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pros'
     | '/reset-password'
-    | '/rhythms'
     | '/shop'
     | '/shorts'
     | '/store'
@@ -499,7 +476,6 @@ export interface FileRouteTypes {
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
-    | '/rhythms/$setId'
     | '/seller/$sellerId'
     | '/shop/$slug'
     | '/shop/checkout'
@@ -531,7 +507,6 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
-  RhythmsRoute: typeof RhythmsRouteWithChildren
   ShopRoute: typeof ShopRouteWithChildren
   ShortsRoute: typeof ShortsRoute
   StoreRoute: typeof StoreRoute
@@ -566,13 +541,6 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rhythms': {
-      id: '/rhythms'
-      path: '/rhythms'
-      fullPath: '/rhythms'
-      preLoaderRoute: typeof RhythmsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -707,13 +675,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/seller/$sellerId'
       preLoaderRoute: typeof SellerSellerIdRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/rhythms/$setId': {
-      id: '/rhythms/$setId'
-      path: '/$setId'
-      fullPath: '/rhythms/$setId'
-      preLoaderRoute: typeof RhythmsSetIdRouteImport
-      parentRoute: typeof RhythmsRoute
     }
     '/pros/new': {
       id: '/pros/new'
@@ -917,17 +878,6 @@ const ProsRouteChildren: ProsRouteChildren = {
 
 const ProsRouteWithChildren = ProsRoute._addFileChildren(ProsRouteChildren)
 
-interface RhythmsRouteChildren {
-  RhythmsSetIdRoute: typeof RhythmsSetIdRoute
-}
-
-const RhythmsRouteChildren: RhythmsRouteChildren = {
-  RhythmsSetIdRoute: RhythmsSetIdRoute,
-}
-
-const RhythmsRouteWithChildren =
-  RhythmsRoute._addFileChildren(RhythmsRouteChildren)
-
 interface ShopRouteChildren {
   ShopSlugRoute: typeof ShopSlugRoute
   ShopCheckoutRoute: typeof ShopCheckoutRoute
@@ -956,7 +906,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
-  RhythmsRoute: RhythmsRouteWithChildren,
   ShopRoute: ShopRouteWithChildren,
   ShortsRoute: ShortsRoute,
   StoreRoute: StoreRoute,
@@ -973,3 +922,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
