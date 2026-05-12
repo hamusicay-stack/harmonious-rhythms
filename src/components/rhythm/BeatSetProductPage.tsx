@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, ShoppingCart, Music2, Folder as FolderIcon, ChevronLeft } from "lucide-react";
+import { Loader2, ShoppingCart, Music2, Folder as FolderIcon, ChevronLeft, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { normalizeAudioUrl } from "@/lib/audioUrl";
 import { resolveVideoEmbed } from "@/lib/videoSource";
 import { useKeyboardSelection } from "@/contexts/KeyboardSelectionContext";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 
 type RhythmSet = {
   id: string;
@@ -35,6 +36,7 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
   const [loading, setLoading] = useState(true);
   const { add } = useCart();
   const { selectedModel } = useKeyboardSelection();
+  const { play: playGlobal, current: playingTrack, isPlaying, toggle: toggleGlobal, stop: stopGlobal } = useAudioPlayer();
 
   useEffect(() => {
     (async () => {
@@ -195,17 +197,35 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
                         </div>
                         {itemSamples.length > 0 && (
                           <div className="grid gap-2 sm:grid-cols-2">
-                            {itemSamples.map((smp) => (
-                              <div key={smp.id} className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1">
-                                <span className="min-w-[70px] text-xs font-mono text-muted-foreground">{smp.button_type}</span>
-                                <audio
-                                  controls
-                                  preload="none"
-                                  src={normalizeAudioUrl(smp.audio_url)}
-                                  className="h-8 flex-1"
-                                />
-                              </div>
-                            ))}
+                            {itemSamples.map((smp) => {
+                              const trackId = `beat-sample:${smp.id}`;
+                              const isCurrent = playingTrack?.id === trackId;
+                              const isCurrentPlaying = isCurrent && isPlaying;
+                              return (
+                                <button
+                                  key={smp.id}
+                                  type="button"
+                                  onClick={() => {
+                                    if (isCurrent) {
+                                      toggleGlobal();
+                                    } else {
+                                      playGlobal({
+                                        id: trackId,
+                                        url: normalizeAudioUrl(smp.audio_url),
+                                        title: `${it.name} · ${smp.button_type}`,
+                                        artist: set.set_name,
+                                      });
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1 hover:bg-muted/70 transition-colors text-start"
+                                >
+                                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                                    {isCurrentPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                                  </span>
+                                  <span className="min-w-[70px] text-xs font-mono text-muted-foreground">{smp.button_type}</span>
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>

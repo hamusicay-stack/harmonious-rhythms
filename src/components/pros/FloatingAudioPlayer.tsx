@@ -8,6 +8,7 @@ export function FloatingAudioPlayer() {
   useEffect(() => {
     if (audioRef.current && current) {
       audioRef.current.src = current.url;
+      audioRef.current.loop = !!current.loop;
       audioRef.current.play().catch(() => {});
     }
   }, [current, audioRef]);
@@ -57,7 +58,7 @@ export function FloatingAudioPlayer() {
         preload="metadata"
         onPlay={() => {}}
         onPause={() => {}}
-        onEnded={() => (hasNext ? next() : stop())}
+        onEnded={() => { if (current?.loop) return; hasNext ? next() : stop(); }}
         className="hidden"
       />
     </div>

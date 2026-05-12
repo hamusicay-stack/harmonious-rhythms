@@ -6,6 +6,7 @@ export type AudioTrack = {
   title: string;
   artist: string;
   proId?: string;
+  loop?: boolean;
 };
 
 type AudioPlayerContextValue = {

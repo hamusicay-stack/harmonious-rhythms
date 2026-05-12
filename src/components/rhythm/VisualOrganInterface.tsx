@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, ArrowUp, Copy, FileText, Folder as FolderIcon, FolderOpen, Heart, Loader2, MenuSquare, Music2, Play, Save, Scissors, ShoppingCart, Square, Trash2, ClipboardPaste } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
+import { normalizeAudioUrl } from "@/lib/audioUrl";
 import { useSmartRhythms } from "./SmartRhythmsContext";
 import {
   SmartRhythmsTheme,
@@ -60,6 +62,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const { selectedModel } = useSmartRhythms();
   const { user } = useAuth();
   const { add } = useCart();
+  const { play: playGlobal, stop: stopGlobal, current: playingTrack } = useAudioPlayer();
   const [loading, setLoading] = useState(true);
   const [sets, setSets] = useState<RhythmSet[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -70,8 +73,6 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
-  const [activeBtn, setActiveBtn] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!selectedModel) return;
@@ -184,12 +185,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const navLevel: "sets" | "folders" | "items" =
     !activeSetId ? "sets" : !activeFolderId ? "folders" : "items";
 
+  // Derive the currently-lit hardware button code from the global player.
+  // Track id pattern: "beat-hw:<setId>:<buttonCode>"
+  const activeBtn = useMemo(() => {
+    const id = playingTrack?.id ?? "";
+    if (!activeSetId) return null;
+    const prefix = `beat-hw:${activeSetId}:`;
+    return id.startsWith(prefix) ? id.slice(prefix.length) : null;
+  }, [playingTrack, activeSetId]);
+
   const stop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    setActiveBtn(null);
+    stopGlobal();
   };
 
   const goUp = () => {
@@ -216,15 +222,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
       toast.info(`אין דגימה ל-${btn.label}`);
       return;
     }
-    if (!audioRef.current) audioRef.current = new Audio();
-    audioRef.current.src = url;
-    audioRef.current.loop = true;
-    audioRef.current.play().catch(() => toast.error("שגיאה בהשמעה"));
-    setActiveBtn(btn.code);
+    playGlobal({
+      id: `beat-hw:${activeSet.id}:${btn.code}`,
+      url: normalizeAudioUrl(url),
+      title: `${activeSet.set_name} · ${btn.label}`,
+      artist: activeSet.creator_name,
+      loop: true,
+    });
   };
 
-  useEffect(() => () => stop(), []);
-  useEffect(() => { stop(); }, [activeItemId, activeSetId]);
+  useEffect(() => () => { stopGlobal(); }, [stopGlobal]);
+  useEffect(() => { stopGlobal(); }, [activeItemId, activeSetId, stopGlobal]);
 
   const toggleFavorite = async (itemId: string) => {
     if (!user) { toast.info("יש להתחבר כדי לסמן מועדפים"); return; }
