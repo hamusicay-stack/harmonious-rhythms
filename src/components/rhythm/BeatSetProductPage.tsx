@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { normalizeAudioUrl } from "@/lib/audioUrl";
 import { resolveVideoEmbed } from "@/lib/videoSource";
+import { useKeyboardSelection } from "@/contexts/KeyboardSelectionContext";
 
 type RhythmSet = {
   id: string;
@@ -31,6 +32,7 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const { add } = useCart();
+  const { selectedModel } = useKeyboardSelection();
 
   useEffect(() => {
     (async () => {
@@ -115,6 +117,11 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
             </div>
             <div>
               <p className="text-sm uppercase tracking-widest text-muted-foreground">BEAT · {set.creator_name}</p>
+              {selectedModel && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  עבור: {selectedModel.brand?.name} · {selectedModel.model_name}
+                </p>
+              )}
               <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">{set.set_name}</h1>
               {set.description && <p className="mt-4 text-muted-foreground">{set.description}</p>}
               <div className="mt-6 flex items-center gap-4">
