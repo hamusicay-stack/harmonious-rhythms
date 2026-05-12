@@ -9,6 +9,7 @@ import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { KeyboardSelectionProvider } from "@/contexts/KeyboardSelectionContext";
 import { FloatingAudioPlayer } from "@/components/pros/FloatingAudioPlayer";
+import { StickyCart } from "@/components/cart/StickyCart";
 import { NotificationsProvider } from "@/hooks/useNotifications";
 import { captureAffiliateRef } from "@/lib/affiliate";
 import { useDeviceGuard } from "@/hooks/useDeviceGuard";
@@ -88,6 +89,7 @@ function RootComponent() {
               <DeviceGuardInner />
               <Outlet />
               <FloatingAudioPlayer />
+              <StickyCart />
               <Toaster richColors position="top-center" />
             </KeyboardSelectionProvider>
           </AudioPlayerProvider>
