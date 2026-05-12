@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Loader2, ArrowRight, ArrowLeft, Check, User, MapPin, Receipt } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ShoppingBag, Loader2, ArrowRight, ArrowLeft, Check, User, MapPin, Receipt, FileUp, FileCheck2, AlertTriangle, Trash2 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatILS } from "@/lib/shopUtils";
@@ -59,22 +60,42 @@ function CheckoutPage() {
     }
   }, [user, profile]);
 
-  const hasPhysical = useMemo(() => items.some((i) => i.product_type !== "digital"), [items]);
+  const hasPhysical = useMemo(
+    () => items.some((i) => i.product_type !== "digital" && i.product_type !== "rhythm_set"),
+    [items],
+  );
+  const needsInfoFile = useMemo(() => items.some((i) => i.requires_info_file), [items]);
+  const allowedExtensions = useMemo(() => {
+    const exts = new Set<string>();
+    items.forEach((i) => {
+      if (i.requires_info_file) exts.add((i.info_file_extension || ".n27").toLowerCase());
+    });
+    if (exts.size === 0) exts.add(".n27");
+    return Array.from(exts);
+  }, [items]);
+
   const shipping = hasPhysical && subtotal < 500 && subtotal > 0 ? 35 : 0;
   const total = subtotal + shipping;
 
-  // Stepper: 1 = details, 2 = shipping (skipped if digital-only), 3 = review
-  const steps = hasPhysical
-    ? [
-        { n: 1, label: "פרטים", icon: User },
-        { n: 2, label: "משלוח", icon: MapPin },
-        { n: 3, label: "סיכום", icon: Receipt },
-      ]
-    : [
-        { n: 1, label: "פרטים", icon: User },
-        { n: 3, label: "סיכום", icon: Receipt },
-      ];
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  // Stepper: 1 = details, 1.5 = info file (if any item requires it), 2 = shipping (if physical), 3 = review
+  type StepKey = "details" | "info_file" | "shipping" | "review";
+  const stepFlow: StepKey[] = useMemo(() => {
+    const flow: StepKey[] = ["details"];
+    if (needsInfoFile) flow.push("info_file");
+    if (hasPhysical) flow.push("shipping");
+    flow.push("review");
+    return flow;
+  }, [needsInfoFile, hasPhysical]);
+
+  const stepMeta: Record<StepKey, { label: string; icon: typeof User }> = {
+    details: { label: "פרטים", icon: User },
+    info_file: { label: "קובץ זיהוי", icon: FileUp },
+    shipping: { label: "משלוח", icon: MapPin },
+    review: { label: "סיכום", icon: Receipt },
+  };
+  const [step, setStep] = useState<StepKey>("details");
+  const [infoFile, setInfoFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   const validateStep1 = (): string[] => {
     const errs: string[] = [];
