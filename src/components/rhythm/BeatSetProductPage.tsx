@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, ShoppingCart, Music2, Folder as FolderIcon, ChevronLeft } from "lucide-react";
+import { Loader2, ShoppingCart, Music2, Folder as FolderIcon, ChevronLeft, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { normalizeAudioUrl } from "@/lib/audioUrl";
 import { resolveVideoEmbed } from "@/lib/videoSource";
 import { useKeyboardSelection } from "@/contexts/KeyboardSelectionContext";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 
 type RhythmSet = {
   id: string;
