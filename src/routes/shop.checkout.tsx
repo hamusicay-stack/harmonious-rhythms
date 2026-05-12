@@ -290,7 +290,7 @@ function CheckoutPage() {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <Card className="p-4 md:p-5">
-            {step === 1 && (
+            {step === "details" && (
               <>
                 <h2 className="mb-4 text-lg font-bold">פרטי לקוח</h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -334,7 +334,67 @@ function CheckoutPage() {
               </>
             )}
 
-            {step === 2 && hasPhysical && (
+            {step === "info_file" && needsInfoFile && (
+              <>
+                <h2 className="mb-2 text-lg font-bold">קובץ זיהוי כלי הנגינה</h2>
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <div>
+                    <div className="font-medium text-amber-900 dark:text-amber-200">
+                      נדרש קובץ {allowedExtensions.join(" / ")} מתוך הקליד שלך
+                    </div>
+                    <div className="text-amber-800/80 dark:text-amber-200/80">
+                      קבצים אחרים יידחו אוטומטית. הקובץ מאובטח ומשמש להתאמת המקצבים שרכשת.
+                    </div>
+                  </div>
+                </div>
+
+                {!infoFile ? (
+                  <label
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const f = e.dataTransfer.files?.[0];
+                      if (f) handleFile(f);
+                    }}
+                    className="block cursor-pointer rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/60 hover:bg-muted/30"
+                  >
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept={allowedExtensions.join(",")}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+                    />
+                    <FileUp className="mx-auto mb-2 h-10 w-10 text-muted-foreground" />
+                    <div className="font-medium">גרור/י קובץ לכאן או לחץ/י לבחירה</div>
+                    <div className="mt-1 text-xs text-muted-foreground">סיומות מותרות: {allowedExtensions.join(", ")}</div>
+                  </label>
+                ) : (
+                  <div className="flex items-center justify-between rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-4">
+                    <div className="flex items-center gap-3">
+                      <FileCheck2 className="h-6 w-6 text-emerald-500" />
+                      <div>
+                        <div className="font-medium">{infoFile.name}</div>
+                        <div className="text-xs text-muted-foreground">{(infoFile.size / 1024).toFixed(1)} KB · אומת</div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => setInfoFile(null)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                )}
+                {uploadingFile && (
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" /> מעלה קובץ מאובטח...
+                    </div>
+                    <Progress value={66} />
+                  </div>
+                )}
+              </>
+            )}
+
+            {step === "shipping" && hasPhysical && (
               <>
                 <h2 className="mb-4 text-lg font-bold">כתובת למשלוח</h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -374,7 +434,7 @@ function CheckoutPage() {
               </>
             )}
 
-            {step === 3 && (
+            {step === "review" && (
               <>
                 <h2 className="mb-4 text-lg font-bold">סיכום ואישור</h2>
                 <div className="space-y-3 rounded-lg border bg-muted/30 p-4 text-sm">
@@ -408,14 +468,14 @@ function CheckoutPage() {
 
             {/* Step navigation */}
             <div className="mt-6 flex items-center justify-between gap-3">
-              {step > 1 ? (
+              {idx > 0 ? (
                 <Button type="button" variant="outline" onClick={goBack} className="gap-1">
                   <ArrowRight className="h-4 w-4" />
                   חזור
                 </Button>
               ) : <span />}
 
-              {step < 3 ? (
+              {step !== "review" ? (
                 <Button type="button" onClick={goNext} size="lg" className="gap-1">
                   המשך
                   <ArrowLeft className="h-4 w-4" />
