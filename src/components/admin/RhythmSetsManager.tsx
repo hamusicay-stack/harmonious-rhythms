@@ -509,8 +509,23 @@ function SamplesSection() {
 
   const create = async () => {
     if (!setId || !itemId || !buttonType || !audioUrl.trim()) return toast.error("כל השדות חובה");
+    // Check for existing sample on same rhythm + button (organ has only one slot per button)
+    const { data: existing } = await supabase
+      .from("set_audio_samples" as any)
+      .select("id")
+      .eq("rhythm_item_id", itemId)
+      .eq("button_type", buttonType);
+    const existingIds = ((existing ?? []) as any[]).map((r) => r.id);
+    if (existingIds.length > 0) {
+      const ok = confirm(`כבר קיימת דגימה ל-${buttonType} על מקצב זה. הדגימה הקודמת תימחק ותוחלף בחדשה. להמשיך?`);
+      if (!ok) return;
+    }
     setSaving(true);
     const normalized = normalizeAudioUrl(audioUrl.trim());
+    if (existingIds.length > 0) {
+      const { error: delErr } = await supabase.from("set_audio_samples" as any).delete().in("id", existingIds);
+      if (delErr) { setSaving(false); return toast.error(delErr.message); }
+    }
     const { error } = await supabase.from("set_audio_samples" as any).insert({
       set_id: setId,
       rhythm_item_id: itemId,
@@ -519,7 +534,7 @@ function SamplesSection() {
     } as any);
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("נוסף");
+    toast.success(existingIds.length > 0 ? "הוחלף" : "נוסף");
     setSetId(""); setFolderId(""); setItemId(""); setButtonType(""); setAudioUrl(""); setOpen(false); void load();
   };
 
