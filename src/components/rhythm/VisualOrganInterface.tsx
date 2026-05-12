@@ -185,12 +185,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const navLevel: "sets" | "folders" | "items" =
     !activeSetId ? "sets" : !activeFolderId ? "folders" : "items";
 
+  // Derive the currently-lit hardware button code from the global player.
+  // Track id pattern: "beat-hw:<setId>:<buttonCode>"
+  const activeBtn = useMemo(() => {
+    const id = playingTrack?.id ?? "";
+    if (!activeSetId) return null;
+    const prefix = `beat-hw:${activeSetId}:`;
+    return id.startsWith(prefix) ? id.slice(prefix.length) : null;
+  }, [playingTrack, activeSetId]);
+
   const stop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    setActiveBtn(null);
+    stopGlobal();
   };
 
   const goUp = () => {
@@ -217,15 +222,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
       toast.info(`אין דגימה ל-${btn.label}`);
       return;
     }
-    if (!audioRef.current) audioRef.current = new Audio();
-    audioRef.current.src = url;
-    audioRef.current.loop = true;
-    audioRef.current.play().catch(() => toast.error("שגיאה בהשמעה"));
-    setActiveBtn(btn.code);
+    playGlobal({
+      id: `beat-hw:${activeSet.id}:${btn.code}`,
+      url: normalizeAudioUrl(url),
+      title: `${activeSet.set_name} · ${btn.label}`,
+      artist: activeSet.creator_name,
+      loop: true,
+    });
   };
 
-  useEffect(() => () => stop(), []);
-  useEffect(() => { stop(); }, [activeItemId, activeSetId]);
+  useEffect(() => () => { stopGlobal(); }, [stopGlobal]);
+  useEffect(() => { stopGlobal(); }, [activeItemId, activeSetId, stopGlobal]);
 
   const toggleFavorite = async (itemId: string) => {
     if (!user) { toast.info("יש להתחבר כדי לסמן מועדפים"); return; }
