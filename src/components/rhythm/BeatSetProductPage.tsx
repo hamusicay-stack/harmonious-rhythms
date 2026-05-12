@@ -197,17 +197,35 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
                         </div>
                         {itemSamples.length > 0 && (
                           <div className="grid gap-2 sm:grid-cols-2">
-                            {itemSamples.map((smp) => (
-                              <div key={smp.id} className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1">
-                                <span className="min-w-[70px] text-xs font-mono text-muted-foreground">{smp.button_type}</span>
-                                <audio
-                                  controls
-                                  preload="none"
-                                  src={normalizeAudioUrl(smp.audio_url)}
-                                  className="h-8 flex-1"
-                                />
-                              </div>
-                            ))}
+                            {itemSamples.map((smp) => {
+                              const trackId = `beat-sample:${smp.id}`;
+                              const isCurrent = playingTrack?.id === trackId;
+                              const isCurrentPlaying = isCurrent && isPlaying;
+                              return (
+                                <button
+                                  key={smp.id}
+                                  type="button"
+                                  onClick={() => {
+                                    if (isCurrent) {
+                                      toggleGlobal();
+                                    } else {
+                                      playGlobal({
+                                        id: trackId,
+                                        url: normalizeAudioUrl(smp.audio_url),
+                                        title: `${it.name} · ${smp.button_type}`,
+                                        artist: set.set_name,
+                                      });
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1 hover:bg-muted/70 transition-colors text-start"
+                                >
+                                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                                    {isCurrentPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                                  </span>
+                                  <span className="min-w-[70px] text-xs font-mono text-muted-foreground">{smp.button_type}</span>
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
