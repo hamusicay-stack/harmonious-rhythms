@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { KeyboardSelectionProvider } from "@/contexts/KeyboardSelectionContext";
 import { FloatingAudioPlayer } from "@/components/pros/FloatingAudioPlayer";
 import { NotificationsProvider } from "@/hooks/useNotifications";
 import { captureAffiliateRef } from "@/lib/affiliate";
@@ -83,10 +84,12 @@ function RootComponent() {
       <NotificationsProvider>
         <CartProvider>
           <AudioPlayerProvider>
-            <DeviceGuardInner />
-            <Outlet />
-            <FloatingAudioPlayer />
-            <Toaster richColors position="top-center" />
+            <KeyboardSelectionProvider>
+              <DeviceGuardInner />
+              <Outlet />
+              <FloatingAudioPlayer />
+              <Toaster richColors position="top-center" />
+            </KeyboardSelectionProvider>
           </AudioPlayerProvider>
         </CartProvider>
       </NotificationsProvider>
