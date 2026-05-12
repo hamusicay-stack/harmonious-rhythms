@@ -9,6 +9,8 @@ export type CartItem = {
   image: string | null;
   qty: number;
   product_type: string;
+  requires_info_file?: boolean;
+  info_file_extension?: string | null;
 };
 
 type CartContextValue = {
@@ -65,7 +67,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               price: it.price,
               image: it.image,
               qty: it.qty,
-            }, { onConflict: "user_id,product_id,product_type" })
+              requires_info_file: !!it.requires_info_file,
+              info_file_extension: it.info_file_extension ?? null,
+            } as any, { onConflict: "user_id,product_id,product_type" })
           ));
           localStorage.removeItem(STORAGE_KEY);
         }
@@ -79,6 +83,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           image: r.image,
           qty: r.qty,
           product_type: r.product_type,
+          requires_info_file: !!r.requires_info_file,
+          info_file_extension: r.info_file_extension ?? null,
         }));
         setItems(mapped);
       } else {
@@ -116,7 +122,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         price: item.price,
         image: item.image,
         qty: newQty,
-      }, { onConflict: "user_id,product_id,product_type" });
+        requires_info_file: !!item.requires_info_file,
+        info_file_extension: item.info_file_extension ?? null,
+      } as any, { onConflict: "user_id,product_id,product_type" });
       setItems((prev) => {
         const idx = prev.findIndex((i) => i.id === item.id);
         if (idx >= 0) {

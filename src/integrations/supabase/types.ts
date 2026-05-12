@@ -1493,11 +1493,13 @@ export type Database = {
           added_at: string
           id: string
           image: string | null
+          info_file_extension: string | null
           price: number
           product_id: string
           product_slug: string | null
           product_type: string
           qty: number
+          requires_info_file: boolean
           title: string
           updated_at: string
           user_id: string
@@ -1506,11 +1508,13 @@ export type Database = {
           added_at?: string
           id?: string
           image?: string | null
+          info_file_extension?: string | null
           price?: number
           product_id: string
           product_slug?: string | null
           product_type?: string
           qty?: number
+          requires_info_file?: boolean
           title: string
           updated_at?: string
           user_id: string
@@ -1519,11 +1523,13 @@ export type Database = {
           added_at?: string
           id?: string
           image?: string | null
+          info_file_extension?: string | null
           price?: number
           product_id?: string
           product_slug?: string | null
           product_type?: string
           qty?: number
+          requires_info_file?: boolean
           title?: string
           updated_at?: string
           user_id?: string
@@ -3850,6 +3856,8 @@ export type Database = {
           discount_amount: number
           external_payment_id: string | null
           id: string
+          info_file_name: string | null
+          info_file_url: string | null
           notes: string | null
           order_number: string
           payment_method: string | null
@@ -3876,6 +3884,8 @@ export type Database = {
           discount_amount?: number
           external_payment_id?: string | null
           id?: string
+          info_file_name?: string | null
+          info_file_url?: string | null
           notes?: string | null
           order_number: string
           payment_method?: string | null
@@ -3902,6 +3912,8 @@ export type Database = {
           discount_amount?: number
           external_payment_id?: string | null
           id?: string
+          info_file_name?: string | null
+          info_file_url?: string | null
           notes?: string | null
           order_number?: string
           payment_method?: string | null

@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Loader2, ArrowRight, ArrowLeft, Check, User, MapPin, Receipt } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ShoppingBag, Loader2, ArrowRight, ArrowLeft, Check, User, MapPin, Receipt, FileUp, FileCheck2, AlertTriangle, Trash2 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatILS } from "@/lib/shopUtils";
@@ -59,24 +60,44 @@ function CheckoutPage() {
     }
   }, [user, profile]);
 
-  const hasPhysical = useMemo(() => items.some((i) => i.product_type !== "digital"), [items]);
+  const hasPhysical = useMemo(
+    () => items.some((i) => i.product_type !== "digital" && i.product_type !== "rhythm_set"),
+    [items],
+  );
+  const needsInfoFile = useMemo(() => items.some((i) => i.requires_info_file), [items]);
+  const allowedExtensions = useMemo(() => {
+    const exts = new Set<string>();
+    items.forEach((i) => {
+      if (i.requires_info_file) exts.add((i.info_file_extension || ".n27").toLowerCase());
+    });
+    if (exts.size === 0) exts.add(".n27");
+    return Array.from(exts);
+  }, [items]);
+
   const shipping = hasPhysical && subtotal < 500 && subtotal > 0 ? 35 : 0;
   const total = subtotal + shipping;
 
-  // Stepper: 1 = details, 2 = shipping (skipped if digital-only), 3 = review
-  const steps = hasPhysical
-    ? [
-        { n: 1, label: "פרטים", icon: User },
-        { n: 2, label: "משלוח", icon: MapPin },
-        { n: 3, label: "סיכום", icon: Receipt },
-      ]
-    : [
-        { n: 1, label: "פרטים", icon: User },
-        { n: 3, label: "סיכום", icon: Receipt },
-      ];
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  // Stepper: 1 = details, 1.5 = info file (if any item requires it), 2 = shipping (if physical), 3 = review
+  type StepKey = "details" | "info_file" | "shipping" | "review";
+  const stepFlow: StepKey[] = useMemo(() => {
+    const flow: StepKey[] = ["details"];
+    if (needsInfoFile) flow.push("info_file");
+    if (hasPhysical) flow.push("shipping");
+    flow.push("review");
+    return flow;
+  }, [needsInfoFile, hasPhysical]);
 
-  const validateStep1 = (): string[] => {
+  const stepMeta: Record<StepKey, { label: string; icon: typeof User }> = {
+    details: { label: "פרטים", icon: User },
+    info_file: { label: "קובץ זיהוי", icon: FileUp },
+    shipping: { label: "משלוח", icon: MapPin },
+    review: { label: "סיכום", icon: Receipt },
+  };
+  const [step, setStep] = useState<StepKey>("details");
+  const [infoFile, setInfoFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+
+  const validateDetails = (): string[] => {
     const errs: string[] = [];
     if (!form.customer_name.trim()) errs.push("שם מלא");
     if (!form.customer_email.trim()) errs.push("אימייל");
@@ -84,7 +105,12 @@ function CheckoutPage() {
     if (!form.customer_phone.trim()) errs.push("טלפון");
     return errs;
   };
-  const validateStep2 = (): string[] => {
+  const validateInfoFile = (): string[] => {
+    if (!needsInfoFile) return [];
+    if (!infoFile) return [`קובץ זיהוי (${allowedExtensions.join("/")})`];
+    return [];
+  };
+  const validateShipping = (): string[] => {
     const errs: string[] = [];
     if (hasPhysical) {
       if (!form.address_line.trim()) errs.push("כתובת");
@@ -95,34 +121,60 @@ function CheckoutPage() {
 
   const showErrors = (errs: string[]) => {
     if (errs.length === 0) return;
-      toast.error("רגע, חסר תו אחד או שניים", {
-        description: errs.map((e) => `• ${e}`).join("\n"),
-      });
+    toast.error("רגע, חסר תו אחד או שניים", {
+      description: errs.map((e) => `• ${e}`).join("\n"),
+    });
   };
 
+  const idx = stepFlow.indexOf(step);
   const goNext = () => {
-    if (step === 1) {
-      const errs = validateStep1();
-      if (errs.length) return showErrors(errs);
-      setStep(hasPhysical ? 2 : 3);
-    } else if (step === 2) {
-      const errs = validateStep2();
-      if (errs.length) return showErrors(errs);
-      setStep(3);
-    }
+    const errs =
+      step === "details" ? validateDetails() :
+      step === "info_file" ? validateInfoFile() :
+      step === "shipping" ? validateShipping() :
+      [];
+    if (errs.length) return showErrors(errs);
+    if (idx < stepFlow.length - 1) setStep(stepFlow[idx + 1]);
   };
   const goBack = () => {
-    if (step === 3) setStep(hasPhysical ? 2 : 1);
-    else if (step === 2) setStep(1);
+    if (idx > 0) setStep(stepFlow[idx - 1]);
   };
 
+  const handleFile = useCallback((f: File) => {
+    const lower = f.name.toLowerCase();
+    const ok = allowedExtensions.some((ext) => lower.endsWith(ext));
+    if (!ok) {
+      toast.error(`קובץ לא נתמך. רק ${allowedExtensions.join(", ")} מותרים.`);
+      return;
+    }
+    setInfoFile(f);
+    toast.success("הקובץ אומת בהצלחה");
+  }, [allowedExtensions]);
+
   const submit = async () => {
-    const errs = [...validateStep1(), ...validateStep2()];
+    const errs = [...validateDetails(), ...validateInfoFile(), ...validateShipping()];
     if (errs.length) return showErrors(errs);
     if (items.length === 0) return toast.error("ארגז הציוד ריק — נסו להוסיף משהו קודם");
 
     setSubmitting(true);
     try {
+      // Upload the optional info file first so its URL persists with the order
+      let infoFileUrl: string | null = null;
+      let infoFileName: string | null = null;
+      if (needsInfoFile && infoFile) {
+        setUploadingFile(true);
+        const safeName = infoFile.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${user?.id ?? "anon"}/${Date.now()}-${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from("rhythm-files")
+          .upload(path, infoFile, { upsert: false, contentType: infoFile.type || "application/octet-stream" });
+        setUploadingFile(false);
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from("rhythm-files").getPublicUrl(path);
+        infoFileUrl = pub.publicUrl;
+        infoFileName = infoFile.name;
+      }
+
       const order_number = `ORD-${Date.now().toString(36).toUpperCase()}`;
       const { data: order, error: orderErr } = await supabase
         .from("shop_orders")
@@ -143,7 +195,9 @@ function CheckoutPage() {
           notes: form.notes || null,
           status: "pending",
           payment_status: "pending",
-        })
+          info_file_url: infoFileUrl,
+          info_file_name: infoFileName,
+        } as any)
         .select("id, order_number")
         .single();
       if (orderErr || !order) throw orderErr ?? new Error("Order failed");
@@ -208,12 +262,13 @@ function CheckoutPage() {
 
         {/* Stepper */}
         <div className="mb-6 flex items-center justify-between gap-2">
-          {steps.map((s, i) => {
-            const Icon = s.icon;
-            const isActive = step === s.n;
-            const isDone = (step === 3 && s.n !== 3) || (step === 2 && s.n === 1);
+          {stepFlow.map((sk, i) => {
+            const meta = stepMeta[sk];
+            const Icon = meta.icon;
+            const isActive = step === sk;
+            const isDone = i < idx;
             return (
-              <div key={s.n} className="flex flex-1 items-center gap-2">
+              <div key={sk} className="flex flex-1 items-center gap-2">
                 <div className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all",
                   isActive && "border-primary bg-primary text-primary-foreground shadow-gold",
@@ -223,9 +278,9 @@ function CheckoutPage() {
                   {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                 </div>
                 <div className={cn("text-xs font-semibold whitespace-nowrap", !isActive && "text-muted-foreground")}>
-                  {s.label}
+                  {meta.label}
                 </div>
-                {i < steps.length - 1 && (
+                {i < stepFlow.length - 1 && (
                   <div className={cn("h-[2px] flex-1 rounded-full", isDone ? "bg-primary/60" : "bg-border")} />
                 )}
               </div>
@@ -235,7 +290,7 @@ function CheckoutPage() {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <Card className="p-4 md:p-5">
-            {step === 1 && (
+            {step === "details" && (
               <>
                 <h2 className="mb-4 text-lg font-bold">פרטי לקוח</h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -279,7 +334,67 @@ function CheckoutPage() {
               </>
             )}
 
-            {step === 2 && hasPhysical && (
+            {step === "info_file" && needsInfoFile && (
+              <>
+                <h2 className="mb-2 text-lg font-bold">קובץ זיהוי כלי הנגינה</h2>
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <div>
+                    <div className="font-medium text-amber-900 dark:text-amber-200">
+                      נדרש קובץ {allowedExtensions.join(" / ")} מתוך הקליד שלך
+                    </div>
+                    <div className="text-amber-800/80 dark:text-amber-200/80">
+                      קבצים אחרים יידחו אוטומטית. הקובץ מאובטח ומשמש להתאמת המקצבים שרכשת.
+                    </div>
+                  </div>
+                </div>
+
+                {!infoFile ? (
+                  <label
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const f = e.dataTransfer.files?.[0];
+                      if (f) handleFile(f);
+                    }}
+                    className="block cursor-pointer rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/60 hover:bg-muted/30"
+                  >
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept={allowedExtensions.join(",")}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+                    />
+                    <FileUp className="mx-auto mb-2 h-10 w-10 text-muted-foreground" />
+                    <div className="font-medium">גרור/י קובץ לכאן או לחץ/י לבחירה</div>
+                    <div className="mt-1 text-xs text-muted-foreground">סיומות מותרות: {allowedExtensions.join(", ")}</div>
+                  </label>
+                ) : (
+                  <div className="flex items-center justify-between rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-4">
+                    <div className="flex items-center gap-3">
+                      <FileCheck2 className="h-6 w-6 text-emerald-500" />
+                      <div>
+                        <div className="font-medium">{infoFile.name}</div>
+                        <div className="text-xs text-muted-foreground">{(infoFile.size / 1024).toFixed(1)} KB · אומת</div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => setInfoFile(null)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                )}
+                {uploadingFile && (
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" /> מעלה קובץ מאובטח...
+                    </div>
+                    <Progress value={66} />
+                  </div>
+                )}
+              </>
+            )}
+
+            {step === "shipping" && hasPhysical && (
               <>
                 <h2 className="mb-4 text-lg font-bold">כתובת למשלוח</h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -319,7 +434,7 @@ function CheckoutPage() {
               </>
             )}
 
-            {step === 3 && (
+            {step === "review" && (
               <>
                 <h2 className="mb-4 text-lg font-bold">סיכום ואישור</h2>
                 <div className="space-y-3 rounded-lg border bg-muted/30 p-4 text-sm">
@@ -353,14 +468,14 @@ function CheckoutPage() {
 
             {/* Step navigation */}
             <div className="mt-6 flex items-center justify-between gap-3">
-              {step > 1 ? (
+              {idx > 0 ? (
                 <Button type="button" variant="outline" onClick={goBack} className="gap-1">
                   <ArrowRight className="h-4 w-4" />
                   חזור
                 </Button>
               ) : <span />}
 
-              {step < 3 ? (
+              {step !== "review" ? (
                 <Button type="button" onClick={goNext} size="lg" className="gap-1">
                   המשך
                   <ArrowLeft className="h-4 w-4" />
