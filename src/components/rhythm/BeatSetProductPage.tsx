@@ -95,6 +95,8 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
       price: Number(set.price) || 0,
       image: set.cover_image_url,
       product_type: "rhythm_set",
+      requires_info_file: !!set.requires_info_file,
+      info_file_extension: set.info_file_extension ?? null,
     });
     toast.success(`${set.set_name} נוסף לעגלה`);
   };
