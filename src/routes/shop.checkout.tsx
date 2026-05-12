@@ -97,7 +97,7 @@ function CheckoutPage() {
   const [infoFile, setInfoFile] = useState<File | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
 
-  const validateStep1 = (): string[] => {
+  const validateDetails = (): string[] => {
     const errs: string[] = [];
     if (!form.customer_name.trim()) errs.push("שם מלא");
     if (!form.customer_email.trim()) errs.push("אימייל");
@@ -105,7 +105,12 @@ function CheckoutPage() {
     if (!form.customer_phone.trim()) errs.push("טלפון");
     return errs;
   };
-  const validateStep2 = (): string[] => {
+  const validateInfoFile = (): string[] => {
+    if (!needsInfoFile) return [];
+    if (!infoFile) return [`קובץ זיהוי (${allowedExtensions.join("/")})`];
+    return [];
+  };
+  const validateShipping = (): string[] => {
     const errs: string[] = [];
     if (hasPhysical) {
       if (!form.address_line.trim()) errs.push("כתובת");
@@ -116,26 +121,35 @@ function CheckoutPage() {
 
   const showErrors = (errs: string[]) => {
     if (errs.length === 0) return;
-      toast.error("רגע, חסר תו אחד או שניים", {
-        description: errs.map((e) => `• ${e}`).join("\n"),
-      });
+    toast.error("רגע, חסר תו אחד או שניים", {
+      description: errs.map((e) => `• ${e}`).join("\n"),
+    });
   };
 
+  const idx = stepFlow.indexOf(step);
   const goNext = () => {
-    if (step === 1) {
-      const errs = validateStep1();
-      if (errs.length) return showErrors(errs);
-      setStep(hasPhysical ? 2 : 3);
-    } else if (step === 2) {
-      const errs = validateStep2();
-      if (errs.length) return showErrors(errs);
-      setStep(3);
-    }
+    const errs =
+      step === "details" ? validateDetails() :
+      step === "info_file" ? validateInfoFile() :
+      step === "shipping" ? validateShipping() :
+      [];
+    if (errs.length) return showErrors(errs);
+    if (idx < stepFlow.length - 1) setStep(stepFlow[idx + 1]);
   };
   const goBack = () => {
-    if (step === 3) setStep(hasPhysical ? 2 : 1);
-    else if (step === 2) setStep(1);
+    if (idx > 0) setStep(stepFlow[idx - 1]);
   };
+
+  const handleFile = useCallback((f: File) => {
+    const lower = f.name.toLowerCase();
+    const ok = allowedExtensions.some((ext) => lower.endsWith(ext));
+    if (!ok) {
+      toast.error(`קובץ לא נתמך. רק ${allowedExtensions.join(", ")} מותרים.`);
+      return;
+    }
+    setInfoFile(f);
+    toast.success("הקובץ אומת בהצלחה");
+  }, [allowedExtensions]);
 
   const submit = async () => {
     const errs = [...validateStep1(), ...validateStep2()];
