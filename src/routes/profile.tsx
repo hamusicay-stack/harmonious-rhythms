@@ -172,6 +172,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     display_name: "", username: "", bio: "", location: "", website: "", instagram: "", youtube: "",
+    phone: "", has_whatsapp: false,
   });
 
   useEffect(() => {
@@ -184,6 +185,8 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
         website: profile.website ?? "",
         instagram: profile.instagram ?? "",
         youtube: profile.youtube ?? "",
+        phone: (profile as { phone?: string | null }).phone ?? "",
+        has_whatsapp: !!(profile as { has_whatsapp?: boolean | null }).has_whatsapp,
       });
     }
   }, [profile]);
@@ -201,6 +204,8 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
         website: form.website || null,
         instagram: form.instagram || null,
         youtube: form.youtube || null,
+        phone: form.phone || null,
+        has_whatsapp: !!form.phone && form.has_whatsapp,
       }).eq("id", user.id);
       if (error) throw error;
       await refreshProfile();
