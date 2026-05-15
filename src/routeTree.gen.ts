@@ -68,6 +68,7 @@ import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messag
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as AdminCrmTasksRouteImport } from './routes/admin.crm.tasks'
+import { Route as AdminCrmSuppliersRouteImport } from './routes/admin.crm.suppliers'
 import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
@@ -373,6 +374,11 @@ const AdminCrmTasksRoute = AdminCrmTasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => AdminCrmRoute,
 } as any)
+const AdminCrmSuppliersRoute = AdminCrmSuppliersRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const AdminCrmLeadsRoute = AdminCrmLeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
+  '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
@@ -526,6 +533,7 @@ export interface FileRoutesByTo {
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
+  '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
@@ -595,6 +603,7 @@ export interface FileRoutesById {
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
+  '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
@@ -665,6 +674,7 @@ export interface FileRouteTypes {
     | '/admin/crm/customers'
     | '/admin/crm/deals'
     | '/admin/crm/leads'
+    | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
@@ -726,6 +736,7 @@ export interface FileRouteTypes {
     | '/admin/crm/customers'
     | '/admin/crm/deals'
     | '/admin/crm/leads'
+    | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
@@ -794,6 +805,7 @@ export interface FileRouteTypes {
     | '/admin/crm/customers'
     | '/admin/crm/deals'
     | '/admin/crm/leads'
+    | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
@@ -1254,6 +1266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmTasksRouteImport
       parentRoute: typeof AdminCrmRoute
     }
+    '/admin/crm/suppliers': {
+      id: '/admin/crm/suppliers'
+      path: '/suppliers'
+      fullPath: '/admin/crm/suppliers'
+      preLoaderRoute: typeof AdminCrmSuppliersRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/admin/crm/leads': {
       id: '/admin/crm/leads'
       path: '/leads'
@@ -1323,6 +1342,7 @@ interface AdminCrmRouteChildren {
   AdminCrmCustomersRoute: typeof AdminCrmCustomersRoute
   AdminCrmDealsRoute: typeof AdminCrmDealsRoute
   AdminCrmLeadsRoute: typeof AdminCrmLeadsRoute
+  AdminCrmSuppliersRoute: typeof AdminCrmSuppliersRoute
   AdminCrmTasksRoute: typeof AdminCrmTasksRoute
   AdminCrmIndexRoute: typeof AdminCrmIndexRoute
 }
@@ -1331,6 +1351,7 @@ const AdminCrmRouteChildren: AdminCrmRouteChildren = {
   AdminCrmCustomersRoute: AdminCrmCustomersRoute,
   AdminCrmDealsRoute: AdminCrmDealsRoute,
   AdminCrmLeadsRoute: AdminCrmLeadsRoute,
+  AdminCrmSuppliersRoute: AdminCrmSuppliersRoute,
   AdminCrmTasksRoute: AdminCrmTasksRoute,
   AdminCrmIndexRoute: AdminCrmIndexRoute,
 }
