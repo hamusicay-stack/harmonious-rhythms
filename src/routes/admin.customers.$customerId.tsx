@@ -17,7 +17,7 @@ import {
   ArrowRight, Loader2, ShieldAlert, Mail, Phone, MapPin, Music, Crown,
   Plus, Tag as TagIcon, X, Calendar, ShoppingCart, BookOpen, MessageSquare,
   PhoneCall, Users as UsersIcon, FileText, DollarSign, Store, ShoppingBag,
-  CheckCircle2, XCircle, Clock,
+  CheckCircle2, XCircle, Clock, Piano, Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
