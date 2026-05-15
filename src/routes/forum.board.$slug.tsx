@@ -68,7 +68,7 @@ function BoardPage() {
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 ml-1" />אשכול חדש</Button>
             </DialogTrigger>
-            <DialogContent dir="rtl">
+            <DialogContent dir="rtl" className="max-w-2xl">
               <DialogHeader><DialogTitle>פתיחת אשכול חדש</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
