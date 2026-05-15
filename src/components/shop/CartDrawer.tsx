@@ -19,6 +19,30 @@ export function CartDrawer() {
     navigate({ to: "/shop/checkout" });
   };
 
+  const handleShare = async () => {
+    const shareable = items.filter(isShareableItem);
+    const skipped = items.length - shareable.length;
+    if (!shareable.length) {
+      toast.error("אין בעגלה מוצרים מלאים שניתן לשתף");
+      return;
+    }
+    const token = encodeSharedCart(shareable);
+    const url = `${window.location.origin}/shop?shared_cart=${encodeURIComponent(token)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "עגלת קניות משותפת", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("הקישור הועתק ללוח");
+      }
+      if (skipped > 0) {
+        toast.message(`${skipped} פריטים חלקיים לא נכללו בשיתוף`);
+      }
+    } catch {
+      // user cancelled share — ignore
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
