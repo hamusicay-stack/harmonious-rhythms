@@ -2271,6 +2271,7 @@ export type Database = {
           last_post_user_id: string | null
           reply_count: number
           slug: string
+          solved_post_id: string | null
           title: string
           updated_at: string
           view_count: number
@@ -2287,6 +2288,7 @@ export type Database = {
           last_post_user_id?: string | null
           reply_count?: number
           slug: string
+          solved_post_id?: string | null
           title: string
           updated_at?: string
           view_count?: number
@@ -2303,6 +2305,7 @@ export type Database = {
           last_post_user_id?: string | null
           reply_count?: number
           slug?: string
+          solved_post_id?: string | null
           title?: string
           updated_at?: string
           view_count?: number
@@ -2313,6 +2316,13 @@ export type Database = {
             columns: ["board_id"]
             isOneToOne: false
             referencedRelation: "forum_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_topics_solved_post_id_fkey"
+            columns: ["solved_post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
             referencedColumns: ["id"]
           },
         ]

@@ -1,7 +1,34 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { slugify, withRandomSuffix } from "./utils";
+
+/** Public (no-auth) topic meta for SEO head() in route loaders. */
+export const getTopicMeta = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ slug: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data }) => {
+    const { data: t } = await supabaseAdmin
+      .from("forum_topics")
+      .select("id, title, slug, board_id, created_at, is_deleted")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!t || t.is_deleted) return { title: null, excerpt: null, board: null };
+    const { data: op } = await supabaseAdmin
+      .from("forum_posts")
+      .select("body_md")
+      .eq("topic_id", t.id)
+      .eq("is_op", true)
+      .maybeSingle();
+    const { data: board } = await supabaseAdmin
+      .from("forum_boards").select("name, slug").eq("id", t.board_id).maybeSingle();
+    const text = (op?.body_md ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return {
+      title: t.title,
+      excerpt: text.slice(0, 160),
+      board,
+    };
+  });
 
 export const listTopics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -57,7 +84,7 @@ export const getTopicBySlug = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data: topic, error } = await supabase
       .from("forum_topics")
-      .select("id, board_id, title, slug, is_locked, is_pinned, is_deleted, view_count, reply_count, author_id, created_at, last_post_at")
+      .select("id, board_id, title, slug, is_locked, is_pinned, is_deleted, view_count, reply_count, author_id, created_at, last_post_at, solved_post_id")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -73,12 +100,11 @@ export const getTopicBySlug = createServerFn({ method: "GET" })
 
     const userIds = Array.from(new Set((posts ?? []).map((p) => p.author_id)));
     const profiles = userIds.length
-      ? (await supabase.from("profiles").select("id, display_name, username, avatar_url, forum_signature, forum_post_count, forum_reputation, forum_rank").in("id", userIds)).data ?? []
+      ? (await supabase.from("profiles").select("id, display_name, username, avatar_url, subscription_tier, forum_signature, forum_post_count, forum_reputation, forum_rank").in("id", userIds)).data ?? []
       : [];
     const authorMap: Record<string, typeof profiles[number]> = {};
     for (const p of profiles) authorMap[p.id] = p;
 
-    // increment view (best effort, ignore failure)
     await supabase.from("forum_topics").update({ view_count: topic.view_count + 1 }).eq("id", topic.id);
 
     return { topic, board, posts: posts ?? [], authors: authorMap };
@@ -167,4 +193,65 @@ export const setTopicFlag = createServerFn({ method: "POST" })
     });
 
     return { ok: true };
+  });
+
+export const markTopicSolution = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      topicId: z.string().uuid(),
+      postId: z.string().uuid().nullable(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: topic } = await supabase.from("forum_topics")
+      .select("author_id, solved_post_id").eq("id", data.topicId).maybeSingle();
+    if (!topic) throw new Error("האשכול לא נמצא");
+    const { data: roleRow } = await supabase.from("user_roles")
+      .select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    if (topic.author_id !== userId && !roleRow) throw new Error("רק פותח האשכול יכול לסמן פתרון");
+
+    if (data.postId) {
+      const { data: post } = await supabase.from("forum_posts")
+        .select("topic_id, author_id").eq("id", data.postId).maybeSingle();
+      if (!post || post.topic_id !== data.topicId) throw new Error("התגובה לא שייכת לאשכול");
+    }
+
+    const { error } = await supabase.from("forum_topics")
+      .update({ solved_post_id: data.postId }).eq("id", data.topicId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      topicId: z.string().uuid(),
+      subscribed: z.boolean(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    if (data.subscribed) {
+      await supabase.from("forum_subscriptions")
+        .upsert({ user_id: userId, target_type: "topic", target_id: data.topicId });
+    } else {
+      await supabase.from("forum_subscriptions")
+        .delete().eq("user_id", userId).eq("target_type", "topic").eq("target_id", data.topicId);
+    }
+    return { ok: true };
+  });
+
+export const isSubscribed = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ topicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row } = await supabase.from("forum_subscriptions")
+      .select("user_id")
+      .eq("user_id", userId).eq("target_type", "topic").eq("target_id", data.topicId)
+      .maybeSingle();
+    return { subscribed: !!row };
   });
