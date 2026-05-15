@@ -17,6 +17,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as ForumRouteImport } from './routes/forum'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as Admin1RouteImport } from './routes/admin1'
@@ -105,6 +106,11 @@ const MarketplaceRoute = MarketplaceRouteImport.update({
   path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForumRoute = ForumRouteImport.update({
+  id: '/forum',
+  path: '/forum',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -156,9 +162,9 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   getParentRoute: () => MarketplaceRoute,
 } as any)
 const ForumIndexRoute = ForumIndexRouteImport.update({
-  id: '/forum/',
-  path: '/forum/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => ForumRoute,
 } as any)
 const BeatIndexRoute = BeatIndexRouteImport.update({
   id: '/beat/',
@@ -355,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/forum': typeof ForumRouteWithChildren
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
@@ -466,6 +473,7 @@ export interface FileRoutesById {
   '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/forum': typeof ForumRouteWithChildren
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
@@ -525,6 +533,7 @@ export interface FileRouteTypes {
     | '/admin1'
     | '/auth'
     | '/contact'
+    | '/forum'
     | '/marketplace'
     | '/profile'
     | '/pros'
@@ -635,6 +644,7 @@ export interface FileRouteTypes {
     | '/admin1'
     | '/auth'
     | '/contact'
+    | '/forum'
     | '/marketplace'
     | '/profile'
     | '/pros'
@@ -693,6 +703,7 @@ export interface RootRouteChildren {
   Admin1Route: typeof Admin1RouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  ForumRoute: typeof ForumRouteWithChildren
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
@@ -706,7 +717,6 @@ export interface RootRouteChildren {
   UUsernameRoute: typeof UUsernameRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
   BeatIndexRoute: typeof BeatIndexRoute
-  ForumIndexRoute: typeof ForumIndexRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -769,6 +779,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/marketplace'
       preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forum': {
+      id: '/forum'
+      path: '/forum'
+      fullPath: '/forum'
+      preLoaderRoute: typeof ForumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -843,10 +860,10 @@ declare module '@tanstack/react-router' {
     }
     '/forum/': {
       id: '/forum/'
-      path: '/forum'
+      path: '/'
       fullPath: '/forum/'
       preLoaderRoute: typeof ForumIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ForumRoute
     }
     '/beat/': {
       id: '/beat/'
@@ -1145,6 +1162,42 @@ const Admin1RouteChildren: Admin1RouteChildren = {
 const Admin1RouteWithChildren =
   Admin1Route._addFileChildren(Admin1RouteChildren)
 
+interface ForumMessagesRouteChildren {
+  ForumMessagesThreadIdRoute: typeof ForumMessagesThreadIdRoute
+}
+
+const ForumMessagesRouteChildren: ForumMessagesRouteChildren = {
+  ForumMessagesThreadIdRoute: ForumMessagesThreadIdRoute,
+}
+
+const ForumMessagesRouteWithChildren = ForumMessagesRoute._addFileChildren(
+  ForumMessagesRouteChildren,
+)
+
+interface ForumRouteChildren {
+  ForumMessagesRoute: typeof ForumMessagesRouteWithChildren
+  ForumModerationRoute: typeof ForumModerationRoute
+  ForumNotificationsRoute: typeof ForumNotificationsRoute
+  ForumSearchRoute: typeof ForumSearchRoute
+  ForumIndexRoute: typeof ForumIndexRoute
+  ForumBoardSlugRoute: typeof ForumBoardSlugRoute
+  ForumTopicSlugRoute: typeof ForumTopicSlugRoute
+  ForumUserUsernameRoute: typeof ForumUserUsernameRoute
+}
+
+const ForumRouteChildren: ForumRouteChildren = {
+  ForumMessagesRoute: ForumMessagesRouteWithChildren,
+  ForumModerationRoute: ForumModerationRoute,
+  ForumNotificationsRoute: ForumNotificationsRoute,
+  ForumSearchRoute: ForumSearchRoute,
+  ForumIndexRoute: ForumIndexRoute,
+  ForumBoardSlugRoute: ForumBoardSlugRoute,
+  ForumTopicSlugRoute: ForumTopicSlugRoute,
+  ForumUserUsernameRoute: ForumUserUsernameRoute,
+}
+
+const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
+
 interface MarketplaceListingIdRouteChildren {
   MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
 }
@@ -1226,6 +1279,7 @@ const rootRouteChildren: RootRouteChildren = {
   Admin1Route: Admin1RouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  ForumRoute: ForumRouteWithChildren,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,
@@ -1239,7 +1293,6 @@ const rootRouteChildren: RootRouteChildren = {
   UUsernameRoute: UUsernameRoute,
   VerifyCodeRoute: VerifyCodeRoute,
   BeatIndexRoute: BeatIndexRoute,
-  ForumIndexRoute: ForumIndexRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:
@@ -1249,13 +1302,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
