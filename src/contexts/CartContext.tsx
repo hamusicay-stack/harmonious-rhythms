@@ -244,11 +244,60 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [userId, persistLocal]);
 
+  const applyCoupon = useCallback(async (code: string): Promise<{ ok: boolean; message: string }> => {
+    const trimmed = (code ?? "").trim();
+    if (!trimmed) return { ok: false, message: "יש להזין קוד" };
+    const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0);
+    const { data, error } = await (supabase as any)
+      .from("shop_coupons")
+      .select("id, code, discount_type, discount_value, min_order_amount, max_uses, current_uses, expires_at, starts_at, is_active")
+      .ilike("code", trimmed)
+      .maybeSingle();
+    if (error || !data) { setCoupon(null); return { ok: false, message: "קוד לא נמצא" }; }
+    if (!data.is_active) { setCoupon(null); return { ok: false, message: "הקוד אינו פעיל" }; }
+    const now = Date.now();
+    if (data.starts_at && new Date(data.starts_at).getTime() > now) { setCoupon(null); return { ok: false, message: "הקוד עוד לא פעיל" }; }
+    if (data.expires_at && new Date(data.expires_at).getTime() < now) { setCoupon(null); return { ok: false, message: "הקוד פג תוקף" }; }
+    if (data.max_uses != null && data.current_uses >= data.max_uses) { setCoupon(null); return { ok: false, message: "הקוד נוצל במלואו" }; }
+    if (data.min_order_amount && subtotal < Number(data.min_order_amount)) {
+      setCoupon(null);
+      return { ok: false, message: `הזמנה מינימלית ₪${data.min_order_amount}` };
+    }
+    setCoupon({
+      id: data.id,
+      code: data.code,
+      discount_type: data.discount_type,
+      discount_value: Number(data.discount_value),
+      min_order_amount: Number(data.min_order_amount ?? 0),
+    });
+    return { ok: true, message: "הקופון הופעל" };
+  }, [items]);
+
+  const removeCoupon = useCallback(() => setCoupon(null), []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = items.reduce((s, i) => s + i.qty, 0);
     const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0);
-    return { items, count, subtotal, add, remove, setQty, clear };
-  }, [items, add, remove, setQty, clear]);
+    const vipDiscountAmount = Math.round((subtotal * vipDiscountPercent) / 100 * 100) / 100;
+    const afterVip = Math.max(0, subtotal - vipDiscountAmount);
+    let couponDiscountAmount = 0;
+    if (coupon) {
+      if (coupon.discount_type === "percent") {
+        couponDiscountAmount = Math.round((afterVip * coupon.discount_value) / 100 * 100) / 100;
+      } else {
+        couponDiscountAmount = Math.min(afterVip, coupon.discount_value);
+      }
+    }
+    const totalDiscount = vipDiscountAmount + couponDiscountAmount;
+    const total = Math.max(0, subtotal - totalDiscount);
+    return {
+      items, count, subtotal,
+      vipDiscountPercent, vipDiscountAmount,
+      coupon, couponDiscountAmount, totalDiscount, total,
+      applyCoupon, removeCoupon,
+      add, remove, setQty, clear,
+    };
+  }, [items, vipDiscountPercent, coupon, applyCoupon, removeCoupon, add, remove, setQty, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
