@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon } from "lucide-react";
+import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon, Globe } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
