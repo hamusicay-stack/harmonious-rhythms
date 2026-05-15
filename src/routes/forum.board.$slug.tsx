@@ -8,7 +8,7 @@ import { listTopics, createTopic } from "@/lib/forum/topics.functions";
 import { getBoardBySlug } from "@/lib/forum/boards.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { ForumEditor } from "@/components/forum/ForumEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Pin, Lock, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -68,11 +68,11 @@ function BoardPage() {
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 ml-1" />אשכול חדש</Button>
             </DialogTrigger>
-            <DialogContent dir="rtl">
+            <DialogContent dir="rtl" className="max-w-2xl">
               <DialogHeader><DialogTitle>פתיחת אשכול חדש</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
-                <Textarea placeholder="תוכן (Markdown נתמך)" value={body} onChange={(e) => setBody(e.target.value)} rows={8} maxLength={20000} />
+                <ForumEditor value={body} onChange={setBody} placeholder="תוכן ההודעה — תוכל לעצב, להוסיף תמונות, אודיו וקישורי יוטיוב" />
               </div>
               <DialogFooter>
                 <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>
