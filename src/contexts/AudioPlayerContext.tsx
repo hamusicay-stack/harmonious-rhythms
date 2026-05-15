@@ -144,6 +144,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     document.addEventListener("play", onPlay, true);
     return () => document.removeEventListener("play", onPlay, true);
   }, []);
+
+  const value = useMemo(
     () => ({
       current,
       isPlaying,
@@ -152,12 +154,13 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       playQueue,
       toggle,
       stop,
+      stopGlobal,
       next,
       previous,
       hasNext: currentIndex < queue.length - 1,
       hasPrevious: currentIndex > 0,
     }),
-    [current, currentIndex, isPlaying, next, play, playQueue, previous, queue.length, stop, toggle],
+    [current, currentIndex, isPlaying, next, play, playQueue, previous, queue.length, stop, stopGlobal, toggle],
   );
 
   return <AudioPlayerContext.Provider value={value}>{children}</AudioPlayerContext.Provider>;
