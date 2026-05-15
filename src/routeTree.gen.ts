@@ -39,6 +39,10 @@ import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
+import { Route as ForumSearchRouteImport } from './routes/forum.search'
+import { Route as ForumNotificationsRouteImport } from './routes/forum.notifications'
+import { Route as ForumModerationRouteImport } from './routes/forum.moderation'
+import { Route as ForumMessagesRouteImport } from './routes/forum.messages'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
 import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
@@ -50,6 +54,9 @@ import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$order
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace.$listingId.edit'
+import { Route as ForumUserUsernameRouteImport } from './routes/forum.user.$username'
+import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
+import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -207,6 +214,26 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   path: '/$listingId',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const ForumSearchRoute = ForumSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => ForumRoute,
+} as any)
+const ForumNotificationsRoute = ForumNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => ForumRoute,
+} as any)
+const ForumModerationRoute = ForumModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => ForumRoute,
+} as any)
+const ForumMessagesRoute = ForumMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => ForumRoute,
+} as any)
 const BeatSetIdRoute = BeatSetIdRouteImport.update({
   id: '/beat/$setId',
   path: '/beat/$setId',
@@ -263,6 +290,21 @@ const MarketplaceListingIdEditRoute =
     path: '/edit',
     getParentRoute: () => MarketplaceListingIdRoute,
   } as any)
+const ForumUserUsernameRoute = ForumUserUsernameRouteImport.update({
+  id: '/user/$username',
+  path: '/user/$username',
+  getParentRoute: () => ForumRoute,
+} as any)
+const ForumTopicSlugRoute = ForumTopicSlugRouteImport.update({
+  id: '/topic/$slug',
+  path: '/topic/$slug',
+  getParentRoute: () => ForumRoute,
+} as any)
+const ForumMessagesThreadIdRoute = ForumMessagesThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => ForumMessagesRoute,
+} as any)
 const ForumBoardSlugRoute = ForumBoardSlugRouteImport.update({
   id: '/board/$slug',
   path: '/board/$slug',
@@ -323,6 +365,10 @@ export interface FileRoutesByFullPath {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/messages': typeof ForumMessagesRouteWithChildren
+  '/forum/moderation': typeof ForumModerationRoute
+  '/forum/notifications': typeof ForumNotificationsRoute
+  '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -339,6 +385,9 @@ export interface FileRoutesByFullPath {
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
+  '/forum/topic/$slug': typeof ForumTopicSlugRoute
+  '/forum/user/$username': typeof ForumUserUsernameRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -368,6 +417,10 @@ export interface FileRoutesByTo {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/messages': typeof ForumMessagesRouteWithChildren
+  '/forum/moderation': typeof ForumModerationRoute
+  '/forum/notifications': typeof ForumNotificationsRoute
+  '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -384,6 +437,9 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
+  '/forum/topic/$slug': typeof ForumTopicSlugRoute
+  '/forum/user/$username': typeof ForumUserUsernameRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -418,6 +474,10 @@ export interface FileRoutesById {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/messages': typeof ForumMessagesRouteWithChildren
+  '/forum/moderation': typeof ForumModerationRoute
+  '/forum/notifications': typeof ForumNotificationsRoute
+  '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -434,6 +494,9 @@ export interface FileRoutesById {
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
+  '/forum/topic/$slug': typeof ForumTopicSlugRoute
+  '/forum/user/$username': typeof ForumUserUsernameRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -469,6 +532,10 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/messages'
+    | '/forum/moderation'
+    | '/forum/notifications'
+    | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -485,6 +552,9 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/messages/$threadId'
+    | '/forum/topic/$slug'
+    | '/forum/user/$username'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -514,6 +584,10 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/messages'
+    | '/forum/moderation'
+    | '/forum/notifications'
+    | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -530,6 +604,9 @@ export interface FileRouteTypes {
     | '/shop'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/messages/$threadId'
+    | '/forum/topic/$slug'
+    | '/forum/user/$username'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -563,6 +640,10 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/messages'
+    | '/forum/moderation'
+    | '/forum/notifications'
+    | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -579,6 +660,9 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/messages/$threadId'
+    | '/forum/topic/$slug'
+    | '/forum/user/$username'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -828,6 +912,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof MarketplaceRoute
     }
+    '/forum/search': {
+      id: '/forum/search'
+      path: '/search'
+      fullPath: '/forum/search'
+      preLoaderRoute: typeof ForumSearchRouteImport
+      parentRoute: typeof ForumRoute
+    }
+    '/forum/notifications': {
+      id: '/forum/notifications'
+      path: '/notifications'
+      fullPath: '/forum/notifications'
+      preLoaderRoute: typeof ForumNotificationsRouteImport
+      parentRoute: typeof ForumRoute
+    }
+    '/forum/moderation': {
+      id: '/forum/moderation'
+      path: '/moderation'
+      fullPath: '/forum/moderation'
+      preLoaderRoute: typeof ForumModerationRouteImport
+      parentRoute: typeof ForumRoute
+    }
+    '/forum/messages': {
+      id: '/forum/messages'
+      path: '/messages'
+      fullPath: '/forum/messages'
+      preLoaderRoute: typeof ForumMessagesRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/beat/$setId': {
       id: '/beat/$setId'
       path: '/beat/$setId'
@@ -904,6 +1016,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/$listingId/edit'
       preLoaderRoute: typeof MarketplaceListingIdEditRouteImport
       parentRoute: typeof MarketplaceListingIdRoute
+    }
+    '/forum/user/$username': {
+      id: '/forum/user/$username'
+      path: '/user/$username'
+      fullPath: '/forum/user/$username'
+      preLoaderRoute: typeof ForumUserUsernameRouteImport
+      parentRoute: typeof ForumRoute
+    }
+    '/forum/topic/$slug': {
+      id: '/forum/topic/$slug'
+      path: '/topic/$slug'
+      fullPath: '/forum/topic/$slug'
+      preLoaderRoute: typeof ForumTopicSlugRouteImport
+      parentRoute: typeof ForumRoute
+    }
+    '/forum/messages/$threadId': {
+      id: '/forum/messages/$threadId'
+      path: '/$threadId'
+      fullPath: '/forum/messages/$threadId'
+      preLoaderRoute: typeof ForumMessagesThreadIdRouteImport
+      parentRoute: typeof ForumMessagesRoute
     }
     '/forum/board/$slug': {
       id: '/forum/board/$slug'
@@ -992,12 +1125,36 @@ const Admin1RouteChildren: Admin1RouteChildren = {
 const Admin1RouteWithChildren =
   Admin1Route._addFileChildren(Admin1RouteChildren)
 
+interface ForumMessagesRouteChildren {
+  ForumMessagesThreadIdRoute: typeof ForumMessagesThreadIdRoute
+}
+
+const ForumMessagesRouteChildren: ForumMessagesRouteChildren = {
+  ForumMessagesThreadIdRoute: ForumMessagesThreadIdRoute,
+}
+
+const ForumMessagesRouteWithChildren = ForumMessagesRoute._addFileChildren(
+  ForumMessagesRouteChildren,
+)
+
 interface ForumRouteChildren {
+  ForumMessagesRoute: typeof ForumMessagesRouteWithChildren
+  ForumModerationRoute: typeof ForumModerationRoute
+  ForumNotificationsRoute: typeof ForumNotificationsRoute
+  ForumSearchRoute: typeof ForumSearchRoute
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
+  ForumTopicSlugRoute: typeof ForumTopicSlugRoute
+  ForumUserUsernameRoute: typeof ForumUserUsernameRoute
 }
 
 const ForumRouteChildren: ForumRouteChildren = {
+  ForumMessagesRoute: ForumMessagesRouteWithChildren,
+  ForumModerationRoute: ForumModerationRoute,
+  ForumNotificationsRoute: ForumNotificationsRoute,
+  ForumSearchRoute: ForumSearchRoute,
   ForumBoardSlugRoute: ForumBoardSlugRoute,
+  ForumTopicSlugRoute: ForumTopicSlugRoute,
+  ForumUserUsernameRoute: ForumUserUsernameRoute,
 }
 
 const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
