@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as ShopRouteImport } from './routes/shop'
@@ -49,6 +50,11 @@ import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
 import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/public/marketplace.auto-bump'
 
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -266,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/beat/$setId': typeof BeatSetIdRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/beat/$setId': typeof BeatSetIdRoute
@@ -346,6 +354,7 @@ export interface FileRoutesById {
   '/shop': typeof ShopRouteWithChildren
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
+  '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/beat/$setId': typeof BeatSetIdRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/shorts'
     | '/store'
+    | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/beat/$setId'
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/shorts'
     | '/store'
+    | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/beat/$setId'
@@ -468,6 +479,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/shorts'
     | '/store'
+    | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/beat/$setId'
@@ -510,6 +522,7 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRouteWithChildren
   ShortsRoute: typeof ShortsRoute
   StoreRoute: typeof StoreRoute
+  ToolsRoute: typeof ToolsRoute
   BeatSetIdRoute: typeof BeatSetIdRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
@@ -522,6 +535,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/store': {
       id: '/store'
       path: '/store'
@@ -909,6 +929,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRouteWithChildren,
   ShortsRoute: ShortsRoute,
   StoreRoute: StoreRoute,
+  ToolsRoute: ToolsRoute,
   BeatSetIdRoute: BeatSetIdRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
   VerifyCodeRoute: VerifyCodeRoute,
@@ -922,12 +943,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -29,6 +29,7 @@ const navItems = [
   { to: "/academy", label: "אקדמיה" },
   { to: "/marketplace", label: "יד שנייה" },
   { to: "/pros", label: "מוזיקאים" },
+  { to: "/tools", label: "כלים" },
   { to: "/about", label: "אודות" },
 ] as const;
 
