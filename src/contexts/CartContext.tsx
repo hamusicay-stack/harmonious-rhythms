@@ -56,6 +56,8 @@ function readStorage(): CartItem[] {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [vipDiscountPercent, setVipDiscountPercent] = useState(0);
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
 
   // Track logged-in user
   useEffect(() => {
@@ -65,6 +67,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Resolve VIP discount from profile -> subscription_tiers (SSoT)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!userId) { setVipDiscountPercent(0); return; }
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("global_subscription_tier_id")
+        .eq("id", userId)
+        .maybeSingle();
+      const tierId = (prof as any)?.global_subscription_tier_id;
+      if (!tierId) { if (!cancelled) setVipDiscountPercent(0); return; }
+      const { data: tier } = await (supabase as any)
+        .from("subscription_tiers")
+        .select("discount_percent")
+        .eq("id", tierId)
+        .maybeSingle();
+      if (!cancelled) setVipDiscountPercent(Number((tier as any)?.discount_percent ?? 0) || 0);
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
 
   // Helper: load cart rows from DB into state
   const loadFromDb = useCallback(async (uid: string) => {
