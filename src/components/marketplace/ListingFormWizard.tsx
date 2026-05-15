@@ -715,8 +715,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <div className="space-y-2">
                   {[
                     { value: "none", title: "פרסום רגיל", desc: "המודעה תופיע ברשימה לפי תאריך פרסום", badge: "חינם" },
-                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: "חינם" },
-                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: "חינם" },
+                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "חינם" },
+                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "חינם" },
                   ].map((opt) => (
                     <button key={opt.value} type="button" onClick={() => setPromoOption(opt.value as "none" | "bump24" | "bump48")}
                       className={`w-full relative rounded-lg border-2 p-3 text-right transition ${promoOption === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
