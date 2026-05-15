@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/checkout")({
+  beforeLoad: requireAuth,
   head: () => ({
     meta: [
       { title: "תשלום — חנות המוזיקאי" },

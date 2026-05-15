@@ -24,6 +24,7 @@ import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 import { UserBadges } from "@/components/UserBadges";
 
 export const Route = createFileRoute("/profile")({
+  beforeLoad: requireAuth,
   head: () => ({
     meta: [
       { title: "הפרופיל שלי — המוזיקאי" },

@@ -26,6 +26,7 @@ import { Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/customers/$customerId")({
+  beforeLoad: requireAdmin,
   head: () => ({
     meta: [
       { title: "כרטיס לקוח — המוזיקאי" },

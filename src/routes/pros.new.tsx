@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 export const Route = createFileRoute("/pros/new")({
+  beforeLoad: requireAuth,
   component: NewProPage,
 });
 

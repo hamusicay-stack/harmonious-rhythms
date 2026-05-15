@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ListingFormWizard, type ListingInitial } from "@/components/marketplace/ListingFormWizard";
 
 export const Route = createFileRoute("/marketplace/$listingId/edit")({
+  beforeLoad: requireAuth,
   head: () => ({ meta: [{ title: "עריכת מודעה — המוזיקאי" }] }),
   component: EditListingPage,
 });

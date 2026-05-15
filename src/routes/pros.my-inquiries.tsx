@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { ProChatDialog } from "@/components/pros/ProChatDialog";
 
 export const Route = createFileRoute("/pros/my-inquiries")({
+  beforeLoad: requireAuth,
   head: () => ({
     meta: [
       { title: "ההזמנות שלי — המוזיקאי" },

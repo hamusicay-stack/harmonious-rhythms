@@ -13,6 +13,7 @@ import { ProProfileWizard, type ProFormState } from "@/components/pros/ProProfil
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pros/$proId/edit")({
+  beforeLoad: requireAuth,
   component: EditProPage,
 });
 

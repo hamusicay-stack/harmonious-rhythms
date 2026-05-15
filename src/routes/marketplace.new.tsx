@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ListingFormWizard } from "@/components/marketplace/ListingFormWizard";
 
 export const Route = createFileRoute("/marketplace/new")({
+  beforeLoad: requireAuth,
   head: () => ({ meta: [{ title: "פרסם מודעה — המוזיקאי" }] }),
   component: NewListingPage,
 });

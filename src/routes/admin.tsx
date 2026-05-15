@@ -50,6 +50,7 @@ import { NewsletterManager } from "@/components/admin/NewsletterManager";
 import { Mail, Palette } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: requireAdmin,
   head: () => ({
     meta: [
       { title: "ניהול המערכת — המוזיקאי" },
