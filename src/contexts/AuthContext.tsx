@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [vipTier, setVipTier] = useState<VipTier>(null);
   const [loading, setLoading] = useState(true);
   const activeUserIdRef = useRef<string | null>(null);
 
@@ -62,13 +63,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (profileError) console.error("Failed to load profile", profileError);
       if (roleError) console.error("Failed to load user role", roleError);
 
-      setProfile((prof as Profile | null) ?? null);
+      const p = (prof as Profile | null) ?? null;
+      setProfile(p);
       setIsAdmin(!!roleRow);
+
+      // Fetch the global VIP tier (single source of truth)
+      const tierId = (p as { global_subscription_tier_id?: string | null } | null)?.global_subscription_tier_id;
+      if (tierId) {
+        const { data: tier } = await supabase
+          .from("subscription_tiers")
+          .select("id, slug, name, rank, is_vip, color")
+          .eq("id", tierId)
+          .maybeSingle();
+        if (activeUserIdRef.current === userId) setVipTier((tier as VipTier) ?? null);
+      } else {
+        setVipTier(null);
+      }
     } catch (error) {
       if (activeUserIdRef.current !== userId) return;
       console.error("Failed to sync authenticated user", error);
       setProfile(null);
       setIsAdmin(false);
+      setVipTier(null);
     }
   }, []);
 
