@@ -141,7 +141,16 @@ export function AutomationsManager() {
                       {r.description && <div className="text-xs text-muted-foreground">{r.description}</div>}
                     </TableCell>
                     <TableCell><Badge variant="outline">{triggerLabel(r.trigger_type)}</Badge></TableCell>
-                    <TableCell><Badge>{actionLabel(r.action_type)}</Badge></TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Badge>{actionLabel(r.action_type)}</Badge>
+                        {SMART_ROUTING_ACTIONS.has(r.action_type) && (
+                          <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
+                            <Zap className="h-3 w-3" />ניתוב חכם
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-sm">
                       {r.run_count} פעמים
                       {r.last_run_at && (
