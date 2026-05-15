@@ -177,7 +177,7 @@ export function StudioCategory() {
       <ToolCard title="עורך ID3 מתקדם" description="הטמעת תמונות ומטא-דאטה לקובץ MP3" icon={<Tags className="h-5 w-5" />}>
         <Dropzone accept="audio/mpeg,.mp3" hint="קובץ MP3 לעריכה" onFiles={handle((f) => {
           id3.run("שמירת מטא-דאטה", async () => {
-            const { default: ID3Writer } = await import("browser-id3-writer");
+            const { ID3Writer } = await import("browser-id3-writer");
             const ab = await f.arrayBuffer();
             const writer = new ID3Writer(ab);
             if (artist) writer.setFrame("TPE1", [artist]);
