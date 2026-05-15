@@ -41,10 +41,14 @@ const TRIGGERS = [
 ];
 
 const ACTIONS = [
-  { value: "send_email", label: "שליחת מייל", icon: Mail },
-  { value: "open_whatsapp", label: "פתיחת קישור וואטסאפ", icon: MessageSquare },
+  { value: "send_message", label: "שלח הודעה (WhatsApp / Email)", icon: MessageSquare },
+  { value: "send_email", label: "שליחת מייל בלבד", icon: Mail },
+  { value: "open_whatsapp", label: "WhatsApp בלבד", icon: MessageSquare },
   { value: "create_task", label: "יצירת משימה", icon: ListTodo },
 ];
+
+// Actions that participate in the omnichannel fallback (WhatsApp → Email)
+const SMART_ROUTING_ACTIONS = new Set(["send_message"]);
 
 const LEAD_STATUSES = [
   { value: "new", label: "חדש" },
