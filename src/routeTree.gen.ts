@@ -67,6 +67,7 @@ import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
+import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
@@ -365,6 +366,11 @@ const AdminCustomersCustomerIdRoute =
     path: '/customers/$customerId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminCrmLeadsRoute = AdminCrmLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const AdminCrmCustomersRoute = AdminCrmCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
@@ -445,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
+  '/admin/crm/leads': typeof AdminCrmLeadsRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
+  '/admin/crm/leads': typeof AdminCrmLeadsRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -569,6 +577,7 @@ export interface FileRoutesById {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
+  '/admin/crm/leads': typeof AdminCrmLeadsRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -636,6 +645,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/crm/customers'
+    | '/admin/crm/leads'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -694,6 +704,7 @@ export interface FileRouteTypes {
     | '/pros'
     | '/shop'
     | '/admin/crm/customers'
+    | '/admin/crm/leads'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -759,6 +770,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/crm/customers'
+    | '/admin/crm/leads'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -1211,6 +1223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCustomersCustomerIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/crm/leads': {
+      id: '/admin/crm/leads'
+      path: '/leads'
+      fullPath: '/admin/crm/leads'
+      preLoaderRoute: typeof AdminCrmLeadsRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/admin/crm/customers': {
       id: '/admin/crm/customers'
       path: '/customers'
@@ -1264,11 +1283,13 @@ const AcademyRouteWithChildren =
 
 interface AdminCrmRouteChildren {
   AdminCrmCustomersRoute: typeof AdminCrmCustomersRoute
+  AdminCrmLeadsRoute: typeof AdminCrmLeadsRoute
   AdminCrmIndexRoute: typeof AdminCrmIndexRoute
 }
 
 const AdminCrmRouteChildren: AdminCrmRouteChildren = {
   AdminCrmCustomersRoute: AdminCrmCustomersRoute,
+  AdminCrmLeadsRoute: AdminCrmLeadsRoute,
   AdminCrmIndexRoute: AdminCrmIndexRoute,
 }
 
