@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { GigContractDialog } from "@/components/contract/GigContractDialog";
 
 type Message = {
   id: string;
