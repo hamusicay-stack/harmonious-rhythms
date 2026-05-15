@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { GigContractDialog } from "@/components/contract/GigContractDialog";
 
 type Message = {
   id: string;
