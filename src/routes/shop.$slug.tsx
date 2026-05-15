@@ -240,16 +240,25 @@ function ProductPage() {
             {outOfStock ? (
               <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-destructive font-semibold text-center">המוצר אזל מהמלאי</div>
             ) : (
-              <div className="mb-6 flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" onClick={() => setQty(Math.max(1, qty - 1))}>-</Button>
-                  <span className="w-12 text-center font-bold">{qty}</span>
-                  <Button variant="outline" size="icon" onClick={() => setQty(qty + 1)}>+</Button>
+              <>
+                {cpiRequired && (
+                  <div className="mb-4">
+                    <h3 className="mb-2 text-sm font-semibold">קובץ זיהוי הקלידים <span className="text-destructive">*</span></h3>
+                    <CpiDropzone productId={product.id} value={cpiFile} onChange={setCpiFile} />
+                  </div>
+                )}
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" onClick={() => setQty(Math.max(1, qty - 1))}>-</Button>
+                    <span className="w-12 text-center font-bold">{qty}</span>
+                    <Button variant="outline" size="icon" onClick={() => setQty(qty + 1)}>+</Button>
+                  </div>
+                  <Button size="lg" className="flex-1" onClick={addToCart} disabled={!canAddToCart}>
+                    <ShoppingBag className="ml-2 h-4 w-4" />
+                    {cpiRequired && !cpiFile ? "העלה קובץ זיהוי כדי להוסיף לסל" : "הוסף לסל"}
+                  </Button>
                 </div>
-                <Button size="lg" className="flex-1" onClick={addToCart}>
-                  <ShoppingBag className="ml-2 h-4 w-4" /> הוסף לסל
-                </Button>
-              </div>
+              </>
             )}
 
             <div className="mb-6 grid grid-cols-3 gap-3 text-center text-xs">
