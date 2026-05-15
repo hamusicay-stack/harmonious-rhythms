@@ -13,6 +13,9 @@ import { StickyCart } from "@/components/cart/StickyCart";
 import { NotificationsProvider } from "@/hooks/useNotifications";
 import { captureAffiliateRef } from "@/lib/affiliate";
 import { useDeviceGuard } from "@/hooks/useDeviceGuard";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
+import { SharedCartHydrator } from "@/components/cart/SharedCartHydrator";
 
 import appCss from "../styles.css?url";
 
