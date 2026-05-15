@@ -17,6 +17,7 @@ type AudioPlayerContextValue = {
   playQueue: (tracks: AudioTrack[], startId?: string) => void;
   toggle: () => void;
   stop: () => void;
+  stopGlobal: () => void;
   next: () => void;
   previous: () => void;
   hasNext: boolean;
