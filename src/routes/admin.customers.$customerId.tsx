@@ -113,6 +113,7 @@ const INTERACTION_LABELS: Record<Interaction["type"], string> = {
 function CustomerProfilePage() {
   const { customerId } = Route.useParams();
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const { startImpersonation } = useImpersonation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
