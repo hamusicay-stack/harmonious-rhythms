@@ -77,6 +77,7 @@ import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
+import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
@@ -424,6 +425,11 @@ const AdminCrmAdminsRoute = AdminCrmAdminsRouteImport.update({
   path: '/admins',
   getParentRoute: () => AdminCrmRoute,
 } as any)
+const AdminCommerceShopRoute = AdminCommerceShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -499,6 +505,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -565,6 +572,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -640,6 +648,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -716,6 +725,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -782,6 +792,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/pros'
     | '/shop'
+    | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -856,6 +867,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -1387,6 +1399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmAdminsRouteImport
       parentRoute: typeof AdminCrmRoute
     }
+    '/admin/commerce/shop': {
+      id: '/admin/commerce/shop'
+      path: '/shop'
+      fullPath: '/admin/commerce/shop'
+      preLoaderRoute: typeof AdminCommerceShopRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1432,10 +1451,12 @@ const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminCommerceRouteChildren {
+  AdminCommerceShopRoute: typeof AdminCommerceShopRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
 }
 
 const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
+  AdminCommerceShopRoute: AdminCommerceShopRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
 }
 
