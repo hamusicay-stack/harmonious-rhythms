@@ -459,7 +459,7 @@ function PointsTab() {
   useEffect(() => { load(); }, []);
 
   const update = async (r: PointsRule, patch: Partial<PointsRule>) => {
-    const res = await supabase.from("points_rules").update(patch).eq("id", r.id);
+    const res = await supabase.from("points_rules").update(patch as any).eq("id", r.id);
     if (res.error) return toast.error(res.error.message);
     setRules((prev) => prev.map((x) => (x.id === r.id ? { ...x, ...patch } : x)));
   };
