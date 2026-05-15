@@ -251,6 +251,25 @@ function CoursePage() {
                 )}
               </div>
 
+              {!theater && activeLesson && canWatch && (enrollment || vipUnlocks) && (
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/20 bg-gradient-to-l from-amber-500/5 to-transparent p-3">
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                    סיימת לצפות? סמן את השיעור כהושלם וקבל +5 נקודות.
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={progress[activeLesson.id]?.is_completed ? "outline" : "default"}
+                    disabled={!!progress[activeLesson.id]?.is_completed}
+                    onClick={() => markLessonComplete(activeLesson.id)}
+                    className={progress[activeLesson.id]?.is_completed ? "" : "bg-gradient-to-l from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"}
+                  >
+                    <CheckCircle2 className="ms-1 h-4 w-4" />
+                    {progress[activeLesson.id]?.is_completed ? "הושלם" : "סמן כהושלם"}
+                  </Button>
+                </div>
+              )}
+
               {!theater && (
                 <>
                   <div>
