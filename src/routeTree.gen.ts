@@ -41,6 +41,7 @@ import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as ForumSearchRouteImport } from './routes/forum.search'
 import { Route as ForumNotificationsRouteImport } from './routes/forum.notifications'
+import { Route as ForumMessagesRouteImport } from './routes/forum.messages'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
 import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
@@ -220,6 +221,11 @@ const ForumNotificationsRoute = ForumNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => ForumRoute,
 } as any)
+const ForumMessagesRoute = ForumMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => ForumRoute,
+} as any)
 const BeatSetIdRoute = BeatSetIdRouteImport.update({
   id: '/beat/$setId',
   path: '/beat/$setId',
@@ -341,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/messages': typeof ForumMessagesRoute
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -389,6 +396,7 @@ export interface FileRoutesByTo {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/messages': typeof ForumMessagesRoute
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -442,6 +450,7 @@ export interface FileRoutesById {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/messages': typeof ForumMessagesRoute
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -496,6 +505,7 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/messages'
     | '/forum/notifications'
     | '/forum/search'
     | '/marketplace/$listingId'
@@ -544,6 +554,7 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/messages'
     | '/forum/notifications'
     | '/forum/search'
     | '/marketplace/$listingId'
@@ -596,6 +607,7 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/messages'
     | '/forum/notifications'
     | '/forum/search'
     | '/marketplace/$listingId'
@@ -878,6 +890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumNotificationsRouteImport
       parentRoute: typeof ForumRoute
     }
+    '/forum/messages': {
+      id: '/forum/messages'
+      path: '/messages'
+      fullPath: '/forum/messages'
+      preLoaderRoute: typeof ForumMessagesRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/beat/$setId': {
       id: '/beat/$setId'
       path: '/beat/$setId'
@@ -1050,6 +1069,7 @@ const Admin1RouteWithChildren =
   Admin1Route._addFileChildren(Admin1RouteChildren)
 
 interface ForumRouteChildren {
+  ForumMessagesRoute: typeof ForumMessagesRoute
   ForumNotificationsRoute: typeof ForumNotificationsRoute
   ForumSearchRoute: typeof ForumSearchRoute
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
@@ -1057,6 +1077,7 @@ interface ForumRouteChildren {
 }
 
 const ForumRouteChildren: ForumRouteChildren = {
+  ForumMessagesRoute: ForumMessagesRoute,
   ForumNotificationsRoute: ForumNotificationsRoute,
   ForumSearchRoute: ForumSearchRoute,
   ForumBoardSlugRoute: ForumBoardSlugRoute,
