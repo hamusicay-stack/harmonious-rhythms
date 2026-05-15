@@ -1,8 +1,8 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteLayout } from "@/components/SiteLayout";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { listCategoriesWithBoards } from "@/lib/forum/boards.functions";
 import { MessageSquare, Search, Bell, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,6 @@ import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 
 export const Route = createFileRoute("/forum")({
-  beforeLoad: async ({ location }) => {
-    if (typeof window === "undefined") return;
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      throw redirect({ to: "/auth", search: { redirect: location.href } as never });
-    }
-  },
   head: () => ({
     meta: [
       { title: "פורום הקהילה — המוזיקאי" },
@@ -27,11 +20,15 @@ export const Route = createFileRoute("/forum")({
 });
 
 function ForumIndexPage() {
+  const { user, loading: authLoading } = useAuth();
   const fetchData = useServerFn(listCategoriesWithBoards);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["forum", "index"],
     queryFn: () => fetchData(),
+    enabled: !!user,
+    retry: false,
   });
+  const categories = data?.categories ?? [];
 
   return (
     <SiteLayout>
@@ -57,10 +54,33 @@ function ForumIndexPage() {
           </div>
         </header>
 
-        {isLoading && <p className="text-muted-foreground">טוען…</p>}
+        {authLoading && <p className="text-muted-foreground">טוען…</p>}
 
-        <div className="space-y-6">
-          {data?.categories.map((cat) => (
+        {!authLoading && !user && (
+          <section className="rounded-lg border border-border bg-card p-6 text-center">
+            <h2 className="text-xl font-semibold">הפורום פתוח לחברי הקהילה</h2>
+            <p className="mt-2 text-sm text-muted-foreground">התחברו או הירשמו כדי לצפות בדיונים, לפתוח אשכולות ולקבל התראות.</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Button asChild>
+                <Link to="/auth" search={{ redirect: "/forum" } as never}>כניסה לפורום</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/auth" search={{ mode: "signup", redirect: "/forum" } as never}>הרשמה</Link>
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {!!user && isLoading && <p className="text-muted-foreground">טוען…</p>}
+
+        {!!user && error && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            לא ניתן לטעון את הפורום כרגע. נסו לרענן או להתחבר מחדש.
+          </div>
+        )}
+
+        {!!user && !error && <div className="space-y-6">
+          {categories.map((cat) => (
             <section key={cat.id} className="rounded-lg border border-border bg-card overflow-hidden">
               <div className="px-4 py-3 border-b border-border bg-muted/30">
                 <h2 className="font-semibold text-lg" style={{ color: cat.color ?? undefined }}>{cat.name}</h2>
@@ -94,7 +114,7 @@ function ForumIndexPage() {
               </div>
             </section>
           ))}
-        </div>
+        </div>}
       </div>
     </SiteLayout>
   );
