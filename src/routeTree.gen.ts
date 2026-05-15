@@ -20,7 +20,6 @@ import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as Admin1RouteImport } from './routes/admin1'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
@@ -30,7 +29,6 @@ import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as ForumIndexRouteImport } from './routes/forum.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
-import { Route as Admin1IndexRouteImport } from './routes/admin1.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -47,10 +45,6 @@ import { Route as ForumNotificationsRouteImport } from './routes/forum.notificat
 import { Route as ForumModerationRouteImport } from './routes/forum.moderation'
 import { Route as ForumMessagesRouteImport } from './routes/forum.messages'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
-import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
-import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
-import { Route as Admin1BusinessRulesRouteImport } from './routes/admin1.business-rules'
-import { Route as Admin1AutomationsRouteImport } from './routes/admin1.automations'
 import { Route as AdminForumRouteImport } from './routes/admin.forum'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCrmRouteImport } from './routes/admin.crm'
@@ -79,10 +73,12 @@ import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.custom
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
 import { Route as AdminCommerceShortsRouteImport } from './routes/admin.commerce.shorts'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
+import { Route as AdminCommerceProductTypesRouteImport } from './routes/admin.commerce.product-types'
 import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerce.organ-ui'
 import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.commerce.newsletter'
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
+import { Route as AdminCommerceBusinessRulesRouteImport } from './routes/admin.commerce.business-rules'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as AdminCommerceBannersRouteImport } from './routes/admin.commerce.banners'
 import { Route as AdminCommerceAiRouteImport } from './routes/admin.commerce.ai'
@@ -148,11 +144,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Admin1Route = Admin1RouteImport.update({
-  id: '/admin1',
-  path: '/admin1',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -197,11 +188,6 @@ const BeatIndexRoute = BeatIndexRouteImport.update({
   id: '/beat/',
   path: '/beat/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const Admin1IndexRoute = Admin1IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => Admin1Route,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -282,26 +268,6 @@ const BeatSetIdRoute = BeatSetIdRouteImport.update({
   id: '/beat/$setId',
   path: '/beat/$setId',
   getParentRoute: () => rootRouteImport,
-} as any)
-const Admin1ProductTypesRoute = Admin1ProductTypesRouteImport.update({
-  id: '/product-types',
-  path: '/product-types',
-  getParentRoute: () => Admin1Route,
-} as any)
-const Admin1CrmRoute = Admin1CrmRouteImport.update({
-  id: '/crm',
-  path: '/crm',
-  getParentRoute: () => Admin1Route,
-} as any)
-const Admin1BusinessRulesRoute = Admin1BusinessRulesRouteImport.update({
-  id: '/business-rules',
-  path: '/business-rules',
-  getParentRoute: () => Admin1Route,
-} as any)
-const Admin1AutomationsRoute = Admin1AutomationsRouteImport.update({
-  id: '/automations',
-  path: '/automations',
-  getParentRoute: () => Admin1Route,
 } as any)
 const AdminForumRoute = AdminForumRouteImport.update({
   id: '/forum',
@@ -445,6 +411,12 @@ const AdminCommerceShopRoute = AdminCommerceShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceProductTypesRoute =
+  AdminCommerceProductTypesRouteImport.update({
+    id: '/product-types',
+    path: '/product-types',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
 const AdminCommerceOrganUiRoute = AdminCommerceOrganUiRouteImport.update({
   id: '/organ-ui',
   path: '/organ-ui',
@@ -464,6 +436,12 @@ const AdminCommerceMarketplaceRoute =
   AdminCommerceMarketplaceRouteImport.update({
     id: '/marketplace',
     path: '/marketplace',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
+const AdminCommerceBusinessRulesRoute =
+  AdminCommerceBusinessRulesRouteImport.update({
+    id: '/business-rules',
+    path: '/business-rules',
     getParentRoute: () => AdminCommerceRoute,
   } as any)
 const AdminCommerceBeatRoute = AdminCommerceBeatRouteImport.update({
@@ -521,7 +499,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRouteWithChildren
@@ -540,10 +517,6 @@ export interface FileRoutesByFullPath {
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
-  '/admin1/automations': typeof Admin1AutomationsRoute
-  '/admin1/business-rules': typeof Admin1BusinessRulesRoute
-  '/admin1/crm': typeof Admin1CrmRoute
-  '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -560,7 +533,6 @@ export interface FileRoutesByFullPath {
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -571,10 +543,12 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
+  '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -617,10 +591,6 @@ export interface FileRoutesByTo {
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
-  '/admin1/automations': typeof Admin1AutomationsRoute
-  '/admin1/business-rules': typeof Admin1BusinessRulesRoute
-  '/admin1/crm': typeof Admin1CrmRoute
-  '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -637,7 +607,6 @@ export interface FileRoutesByTo {
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/admin': typeof AdminIndexRoute
-  '/admin1': typeof Admin1IndexRoute
   '/beat': typeof BeatIndexRoute
   '/forum': typeof ForumIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
@@ -648,10 +617,12 @@ export interface FileRoutesByTo {
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
+  '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -684,7 +655,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRouteWithChildren
@@ -703,10 +673,6 @@ export interface FileRoutesById {
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
-  '/admin1/automations': typeof Admin1AutomationsRoute
-  '/admin1/business-rules': typeof Admin1BusinessRulesRoute
-  '/admin1/crm': typeof Admin1CrmRoute
-  '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -723,7 +689,6 @@ export interface FileRoutesById {
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -734,10 +699,12 @@ export interface FileRoutesById {
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
+  '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -771,7 +738,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/academy'
     | '/admin'
-    | '/admin1'
     | '/auth'
     | '/contact'
     | '/forum'
@@ -790,10 +756,6 @@ export interface FileRouteTypes {
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
-    | '/admin1/automations'
-    | '/admin1/business-rules'
-    | '/admin1/crm'
-    | '/admin1/product-types'
     | '/beat/$setId'
     | '/forum/messages'
     | '/forum/moderation'
@@ -810,7 +772,6 @@ export interface FileRouteTypes {
     | '/u/$username'
     | '/verify/$code'
     | '/admin/'
-    | '/admin1/'
     | '/beat/'
     | '/forum/'
     | '/marketplace/'
@@ -821,10 +782,12 @@ export interface FileRouteTypes {
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
+    | '/admin/commerce/business-rules'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
     | '/admin/commerce/organ-ui'
+    | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/crm/admins'
@@ -867,10 +830,6 @@ export interface FileRouteTypes {
     | '/admin/automations'
     | '/admin/dashboard'
     | '/admin/forum'
-    | '/admin1/automations'
-    | '/admin1/business-rules'
-    | '/admin1/crm'
-    | '/admin1/product-types'
     | '/beat/$setId'
     | '/forum/messages'
     | '/forum/moderation'
@@ -887,7 +846,6 @@ export interface FileRouteTypes {
     | '/u/$username'
     | '/verify/$code'
     | '/admin'
-    | '/admin1'
     | '/beat'
     | '/forum'
     | '/marketplace'
@@ -898,10 +856,12 @@ export interface FileRouteTypes {
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
+    | '/admin/commerce/business-rules'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
     | '/admin/commerce/organ-ui'
+    | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/crm/admins'
@@ -933,7 +893,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/academy'
     | '/admin'
-    | '/admin1'
     | '/auth'
     | '/contact'
     | '/forum'
@@ -952,10 +911,6 @@ export interface FileRouteTypes {
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
-    | '/admin1/automations'
-    | '/admin1/business-rules'
-    | '/admin1/crm'
-    | '/admin1/product-types'
     | '/beat/$setId'
     | '/forum/messages'
     | '/forum/moderation'
@@ -972,7 +927,6 @@ export interface FileRouteTypes {
     | '/u/$username'
     | '/verify/$code'
     | '/admin/'
-    | '/admin1/'
     | '/beat/'
     | '/forum/'
     | '/marketplace/'
@@ -983,10 +937,12 @@ export interface FileRouteTypes {
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
+    | '/admin/commerce/business-rules'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
     | '/admin/commerce/organ-ui'
+    | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/crm/admins'
@@ -1019,7 +975,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AcademyRoute: typeof AcademyRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  Admin1Route: typeof Admin1RouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForumRoute: typeof ForumRouteWithChildren
@@ -1121,13 +1076,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin1': {
-      id: '/admin1'
-      path: '/admin1'
-      fullPath: '/admin1'
-      preLoaderRoute: typeof Admin1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -1190,13 +1138,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/beat/'
       preLoaderRoute: typeof BeatIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/admin1/': {
-      id: '/admin1/'
-      path: '/'
-      fullPath: '/admin1/'
-      preLoaderRoute: typeof Admin1IndexRouteImport
-      parentRoute: typeof Admin1Route
     }
     '/admin/': {
       id: '/admin/'
@@ -1309,34 +1250,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/beat/$setId'
       preLoaderRoute: typeof BeatSetIdRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/admin1/product-types': {
-      id: '/admin1/product-types'
-      path: '/product-types'
-      fullPath: '/admin1/product-types'
-      preLoaderRoute: typeof Admin1ProductTypesRouteImport
-      parentRoute: typeof Admin1Route
-    }
-    '/admin1/crm': {
-      id: '/admin1/crm'
-      path: '/crm'
-      fullPath: '/admin1/crm'
-      preLoaderRoute: typeof Admin1CrmRouteImport
-      parentRoute: typeof Admin1Route
-    }
-    '/admin1/business-rules': {
-      id: '/admin1/business-rules'
-      path: '/business-rules'
-      fullPath: '/admin1/business-rules'
-      preLoaderRoute: typeof Admin1BusinessRulesRouteImport
-      parentRoute: typeof Admin1Route
-    }
-    '/admin1/automations': {
-      id: '/admin1/automations'
-      path: '/automations'
-      fullPath: '/admin1/automations'
-      preLoaderRoute: typeof Admin1AutomationsRouteImport
-      parentRoute: typeof Admin1Route
     }
     '/admin/forum': {
       id: '/admin/forum'
@@ -1534,6 +1447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceShopRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/product-types': {
+      id: '/admin/commerce/product-types'
+      path: '/product-types'
+      fullPath: '/admin/commerce/product-types'
+      preLoaderRoute: typeof AdminCommerceProductTypesRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/organ-ui': {
       id: '/admin/commerce/organ-ui'
       path: '/organ-ui'
@@ -1560,6 +1480,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/admin/commerce/marketplace'
       preLoaderRoute: typeof AdminCommerceMarketplaceRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
+    '/admin/commerce/business-rules': {
+      id: '/admin/commerce/business-rules'
+      path: '/business-rules'
+      fullPath: '/admin/commerce/business-rules'
+      preLoaderRoute: typeof AdminCommerceBusinessRulesRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
     '/admin/commerce/beat': {
@@ -1647,10 +1574,12 @@ interface AdminCommerceRouteChildren {
   AdminCommerceAiRoute: typeof AdminCommerceAiRoute
   AdminCommerceBannersRoute: typeof AdminCommerceBannersRoute
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
+  AdminCommerceBusinessRulesRoute: typeof AdminCommerceBusinessRulesRoute
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
   AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
+  AdminCommerceProductTypesRoute: typeof AdminCommerceProductTypesRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
   AdminCommerceShortsRoute: typeof AdminCommerceShortsRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
@@ -1662,10 +1591,12 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceAiRoute: AdminCommerceAiRoute,
   AdminCommerceBannersRoute: AdminCommerceBannersRoute,
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
+  AdminCommerceBusinessRulesRoute: AdminCommerceBusinessRulesRoute,
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,
   AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
+  AdminCommerceProductTypesRoute: AdminCommerceProductTypesRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
   AdminCommerceShortsRoute: AdminCommerceShortsRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
@@ -1724,25 +1655,6 @@ const AdminRouteChildren: AdminRouteChildren = {
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
-
-interface Admin1RouteChildren {
-  Admin1AutomationsRoute: typeof Admin1AutomationsRoute
-  Admin1BusinessRulesRoute: typeof Admin1BusinessRulesRoute
-  Admin1CrmRoute: typeof Admin1CrmRoute
-  Admin1ProductTypesRoute: typeof Admin1ProductTypesRoute
-  Admin1IndexRoute: typeof Admin1IndexRoute
-}
-
-const Admin1RouteChildren: Admin1RouteChildren = {
-  Admin1AutomationsRoute: Admin1AutomationsRoute,
-  Admin1BusinessRulesRoute: Admin1BusinessRulesRoute,
-  Admin1CrmRoute: Admin1CrmRoute,
-  Admin1ProductTypesRoute: Admin1ProductTypesRoute,
-  Admin1IndexRoute: Admin1IndexRoute,
-}
-
-const Admin1RouteWithChildren =
-  Admin1Route._addFileChildren(Admin1RouteChildren)
 
 interface ForumMessagesRouteChildren {
   ForumMessagesThreadIdRoute: typeof ForumMessagesThreadIdRoute
@@ -1858,7 +1770,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AcademyRoute: AcademyRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  Admin1Route: Admin1RouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForumRoute: ForumRouteWithChildren,
@@ -1884,3 +1795,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

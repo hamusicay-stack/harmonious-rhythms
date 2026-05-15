@@ -17,7 +17,7 @@ import {
   ArrowRight, Loader2, ShieldAlert, Mail, Phone, MapPin, Music, Crown,
   Plus, Tag as TagIcon, X, Calendar, ShoppingCart, BookOpen, MessageSquare,
   PhoneCall, Users as UsersIcon, FileText, DollarSign, Store, ShoppingBag,
-  CheckCircle2, XCircle, Clock,
+  CheckCircle2, XCircle, Clock, Piano, Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -446,7 +446,8 @@ function CustomerProfilePage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="details" className="mt-6">
+          <TabsContent value="details" className="mt-6 space-y-4">
+            <HardwareSmartOffers keyboardModelId={(profile as any).keyboard_model_id ?? null} />
             <Card>
               <CardHeader><CardTitle>פרטים אישיים</CardTitle></CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">

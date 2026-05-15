@@ -13,7 +13,7 @@ import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/admin1/product-types")({
+export const Route = createFileRoute("/admin/commerce/product-types")({
   component: ProductTypesPage,
 });
 
@@ -87,10 +87,7 @@ function ProductTypesPage() {
 
   const addField = () => {
     if (!editing) return;
-    setEditing({
-      ...editing,
-      attribute_schema: [...editing.attribute_schema, { key: "", label: "", type: "text" }],
-    });
+    setEditing({ ...editing, attribute_schema: [...editing.attribute_schema, { key: "", label: "", type: "text" }] });
   };
   const updateField = (i: number, patch: Partial<AttrField>) => {
     if (!editing) return;
@@ -104,10 +101,10 @@ function ProductTypesPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div dir="rtl" className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>סוגי מוצרים</CardTitle>
+          <CardTitle>סוגי מוצרים — מנוע דינמי</CardTitle>
           <Button onClick={() => setEditing(newDraft())} size="sm">
             <Plus className="h-4 w-4 ml-1" /> חדש
           </Button>

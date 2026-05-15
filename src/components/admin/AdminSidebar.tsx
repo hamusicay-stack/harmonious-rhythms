@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Users, ClipboardList, DollarSign, CheckCircle2, Building2,
   Package, KeyRound, ShieldCheck, ShoppingBag, Piano, Palette, Tags, Play,
   Music2, GraduationCap, Sparkles, Mail, Bot, Megaphone, MessagesSquare, Zap,
+  Boxes, Scale,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -29,6 +30,8 @@ const CRM: NavItem[] = [
 ];
 
 const COMMERCE: NavItem[] = [
+  { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
+  { to: "/admin/commerce/business-rules", title: "כללי VIP × מוצר", icon: Scale },
   { to: "/admin/commerce/shop", title: "חנות", icon: ShoppingBag },
   { to: "/admin/commerce/beat", title: "BEAT", icon: Piano },
   { to: "/admin/commerce/organ-ui", title: "עיצוב אורגן", icon: Palette },
