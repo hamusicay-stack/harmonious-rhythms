@@ -115,6 +115,43 @@ function CoursePage() {
     if (error) toast.error(error.message); else { toast.success("נרשמת!"); refresh(); }
   };
 
+  // Auto-enroll VIPs into premium courses so progress + points persist
+  useEffect(() => {
+    if (!user || enrollment || !course) return;
+    const premium = !course.is_free && (course.price ?? 0) > 0;
+    if (premium && isVip) {
+      void supabase
+        .from("academy_enrollments")
+        .insert({ user_id: user.id, course_id: course.id, source: "vip" })
+        .then(({ error }) => { if (!error) refresh(); });
+    }
+  }, [user?.id, isVip, enrollment, course?.id]);
+
+  const markLessonComplete = async (lessonId: string) => {
+    if (!user) { toast.error("יש להתחבר"); return; }
+    const lesson = lessons.find((l) => l.id === lessonId);
+    const wasCompleted = !!progress[lessonId]?.is_completed;
+    const { error } = await supabase
+      .from("academy_lesson_progress")
+      .upsert({
+        user_id: user.id,
+        lesson_id: lessonId,
+        course_id: course.id,
+        position_seconds: progress[lessonId]?.position_seconds ?? lesson?.duration_seconds ?? 0,
+        is_completed: true,
+        completed_at: new Date().toISOString(),
+      }, { onConflict: "user_id,lesson_id" });
+    if (error) { toast.error(error.message); return; }
+    if (!wasCompleted) {
+      toast.success("🎉 כל הכבוד! +5 נקודות נוספו לחשבונך", { duration: 4000 });
+    } else {
+      toast.success("השיעור סומן כהושלם");
+    }
+    void trackAcademyEvent({ itemType: "lesson", itemId: lessonId, eventType: "complete", courseId: course.id, percent: 100 });
+    refresh();
+    await tryIssueCertificate(course.id, user.id, course.title);
+  };
+
   // Course-level preview gate: free course OR first N% of lessons unlocked for everyone
   const previewPercent = (course as any)?.is_free ? 100 : Math.max(0, Math.min(100, (course as any)?.preview_percent ?? 10));
   const previewCount = Math.max(0, Math.ceil((lessons.length * previewPercent) / 100));
