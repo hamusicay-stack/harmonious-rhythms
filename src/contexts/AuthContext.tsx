@@ -148,6 +148,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [loadProfile]);
 
+  // Realtime: subscribe to profile_sync_events and invalidate caches when this user's profile changes anywhere
+  useEffect(() => {
+    const channel = supabase
+      .channel("profile-sync")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "profile_sync_events" },
+        (payload) => {
+          const changedUserId = (payload.new as { user_id?: string } | null)?.user_id;
+          if (!changedUserId) return;
+          // If this user's profile changed, refresh local state + caches
+          if (changedUserId === activeUserIdRef.current) {
+            void loadProfile(changedUserId);
+          }
+          clearUserBadgeCache(changedUserId);
+          // Invalidate any query that references this user's profile data
+          queryClient.invalidateQueries({ predicate: (q) => {
+            const k = q.queryKey as unknown[];
+            return k.includes(changedUserId) || k.includes("profile") || k.includes("public-profile");
+          }});
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [loadProfile, queryClient]);
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
