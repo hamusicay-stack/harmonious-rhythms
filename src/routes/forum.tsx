@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { SiteLayout } from "@/components/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { listCategoriesWithBoards } from "@/lib/forum/boards.functions";
-import { MessageSquare, Plus, Search, Bell, Mail } from "lucide-react";
+import { MessageSquare, Search, Bell, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
