@@ -123,24 +123,30 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     video_url: initial?.video_url ?? "",
   });
 
+  const [vipTier, setVipTier] = useState<string | null>(null);
+  const isVip = vipTier && !["free", "basic"].includes(vipTier);
+
   useEffect(() => {
     if (user) {
       setCheckingBusiness(true);
-      supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle()
-        .then(({ data }) => {
-          setHasBusinessAccount(!!data);
-          if (data) {
-            setBusinessForm({
-              business_name: data.business_name ?? "",
-              contact_name: "",
-              phone: data.phone ?? "",
-              email: data.email ?? user.email ?? "",
-            });
-          } else {
-            setBusinessForm((f) => ({ ...f, email: user.email ?? "" }));
-          }
-          setCheckingBusiness(false);
-        });
+      Promise.all([
+        supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle(),
+        supabase.from("profiles").select("subscription_tier, global_subscription_tier_id").eq("id", user.id).maybeSingle(),
+      ]).then(([{ data }, { data: prof }]) => {
+        setHasBusinessAccount(!!data);
+        setVipTier(prof?.subscription_tier ?? null);
+        if (data) {
+          setBusinessForm({
+            business_name: data.business_name ?? "",
+            contact_name: "",
+            phone: data.phone ?? "",
+            email: data.email ?? user.email ?? "",
+          });
+        } else {
+          setBusinessForm((f) => ({ ...f, email: user.email ?? "" }));
+        }
+        setCheckingBusiness(false);
+      });
     }
   }, [user]);
 
