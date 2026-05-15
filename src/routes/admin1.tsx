@@ -5,14 +5,16 @@ import { Boxes, Scale, Users, Zap, LayoutDashboard } from "lucide-react";
 
 export const Route = createFileRoute("/admin1")({
   beforeLoad: async ({ location }) => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    // Skip auth check during SSR — session lives in browser localStorage
+    if (typeof window === "undefined") return;
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
       throw redirect({ to: "/auth", search: { redirect: location.href } as never });
     }
     const { data: roleRow } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", sess.session.user.id)
+      .eq("user_id", userData.user.id)
       .eq("role", "admin")
       .maybeSingle();
     if (!roleRow) throw redirect({ to: "/" });
