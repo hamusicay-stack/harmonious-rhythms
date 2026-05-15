@@ -85,19 +85,23 @@ function RootComponent() {
   }, [i18n.resolvedLanguage, i18n.language]);
   return (
     <AuthProvider>
-      <NotificationsProvider>
-        <CartProvider>
-          <AudioPlayerProvider>
-            <KeyboardSelectionProvider>
-              <DeviceGuardInner />
-              <Outlet />
-              <FloatingAudioPlayer />
-              <StickyCart />
-              <Toaster richColors position="top-center" />
-            </KeyboardSelectionProvider>
-          </AudioPlayerProvider>
-        </CartProvider>
-      </NotificationsProvider>
+      <ImpersonationProvider>
+        <NotificationsProvider>
+          <CartProvider>
+            <AudioPlayerProvider>
+              <KeyboardSelectionProvider>
+                <DeviceGuardInner />
+                <ImpersonationBanner />
+                <SharedCartHydrator />
+                <Outlet />
+                <FloatingAudioPlayer />
+                <StickyCart />
+                <Toaster richColors position="top-center" />
+              </KeyboardSelectionProvider>
+            </AudioPlayerProvider>
+          </CartProvider>
+        </NotificationsProvider>
+      </ImpersonationProvider>
     </AuthProvider>
   );
 }
