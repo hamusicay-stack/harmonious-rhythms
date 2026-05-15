@@ -140,16 +140,37 @@ function AuthPage() {
               />
             </div>
             {mode === "signup" && (
-              <label className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Checkbox
-                  checked={emailOptIn}
-                  onCheckedChange={(v) => setEmailOptIn(v === true)}
-                  className="mt-0.5"
-                />
-                <span>
-                  אני מאשר/ת קבלת דיוור, עדכונים ומבצעים במייל. ניתן להסיר את ההסכמה בכל עת.
-                </span>
-              </label>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">מספר טלפון</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="050-1234567"
+                    dir="ltr"
+                  />
+                </div>
+                <label className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Checkbox
+                    checked={hasWhatsapp}
+                    onCheckedChange={(v) => setHasWhatsapp(v === true)}
+                    className="mt-0.5"
+                  />
+                  <span>יש לי וואטסאפ פעיל במספר זה</span>
+                </label>
+                <label className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Checkbox
+                    checked={emailOptIn}
+                    onCheckedChange={(v) => setEmailOptIn(v === true)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    אני מאשר/ת קבלת דיוור, עדכונים ומבצעים במייל. ניתן להסיר את ההסכמה בכל עת.
+                  </span>
+                </label>
+              </>
             )}
             <Button
               type="submit"
