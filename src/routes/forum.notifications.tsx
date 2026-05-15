@@ -47,10 +47,10 @@ function NotificationsPage() {
         {isLoading && <p className="text-muted-foreground">טוען…</p>}
         <div className="space-y-2">
           {data?.notifications.map((n) => (
-            <Link
+            <a
               key={n.id}
-              to={n.link as any || "/forum"}
-              onClick={async () => { await markRead({ data: { ids: [n.id] } }); qc.invalidateQueries({ queryKey: ["forum", "notifications"] }); }}
+              href={n.link || "/forum"}
+              onClick={async (e) => { await markRead({ data: { ids: [n.id] } }); qc.invalidateQueries({ queryKey: ["forum", "notifications"] }); }}
               className={`block rounded border border-border p-3 hover:bg-accent/40 ${!n.read_at ? "bg-accent/20" : ""}`}
             >
               <div className="flex items-center justify-between gap-3">
@@ -62,7 +62,7 @@ function NotificationsPage() {
                   {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: he })}
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
           {data?.notifications.length === 0 && <p className="text-center py-8 text-muted-foreground">אין התראות</p>}
         </div>
