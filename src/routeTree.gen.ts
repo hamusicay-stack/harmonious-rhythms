@@ -41,6 +41,7 @@ import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as ForumSearchRouteImport } from './routes/forum.search'
 import { Route as ForumNotificationsRouteImport } from './routes/forum.notifications'
+import { Route as ForumModerationRouteImport } from './routes/forum.moderation'
 import { Route as ForumMessagesRouteImport } from './routes/forum.messages'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
@@ -53,6 +54,7 @@ import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$order
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace.$listingId.edit'
+import { Route as ForumUserUsernameRouteImport } from './routes/forum.user.$username'
 import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
@@ -222,6 +224,11 @@ const ForumNotificationsRoute = ForumNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => ForumRoute,
 } as any)
+const ForumModerationRoute = ForumModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => ForumRoute,
+} as any)
 const ForumMessagesRoute = ForumMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -283,6 +290,11 @@ const MarketplaceListingIdEditRoute =
     path: '/edit',
     getParentRoute: () => MarketplaceListingIdRoute,
   } as any)
+const ForumUserUsernameRoute = ForumUserUsernameRouteImport.update({
+  id: '/user/$username',
+  path: '/user/$username',
+  getParentRoute: () => ForumRoute,
+} as any)
 const ForumTopicSlugRoute = ForumTopicSlugRouteImport.update({
   id: '/topic/$slug',
   path: '/topic/$slug',
@@ -354,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
+  '/forum/moderation': typeof ForumModerationRoute
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -374,6 +387,7 @@ export interface FileRoutesByFullPath {
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
+  '/forum/user/$username': typeof ForumUserUsernameRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -404,6 +418,7 @@ export interface FileRoutesByTo {
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
+  '/forum/moderation': typeof ForumModerationRoute
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -424,6 +439,7 @@ export interface FileRoutesByTo {
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
+  '/forum/user/$username': typeof ForumUserUsernameRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -459,6 +475,7 @@ export interface FileRoutesById {
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
+  '/forum/moderation': typeof ForumModerationRoute
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -479,6 +496,7 @@ export interface FileRoutesById {
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
+  '/forum/user/$username': typeof ForumUserUsernameRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -515,6 +533,7 @@ export interface FileRouteTypes {
     | '/admin1/product-types'
     | '/beat/$setId'
     | '/forum/messages'
+    | '/forum/moderation'
     | '/forum/notifications'
     | '/forum/search'
     | '/marketplace/$listingId'
@@ -535,6 +554,7 @@ export interface FileRouteTypes {
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
+    | '/forum/user/$username'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -565,6 +585,7 @@ export interface FileRouteTypes {
     | '/admin1/product-types'
     | '/beat/$setId'
     | '/forum/messages'
+    | '/forum/moderation'
     | '/forum/notifications'
     | '/forum/search'
     | '/marketplace/$listingId'
@@ -585,6 +606,7 @@ export interface FileRouteTypes {
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
+    | '/forum/user/$username'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -619,6 +641,7 @@ export interface FileRouteTypes {
     | '/admin1/product-types'
     | '/beat/$setId'
     | '/forum/messages'
+    | '/forum/moderation'
     | '/forum/notifications'
     | '/forum/search'
     | '/marketplace/$listingId'
@@ -639,6 +662,7 @@ export interface FileRouteTypes {
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
+    | '/forum/user/$username'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -902,6 +926,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumNotificationsRouteImport
       parentRoute: typeof ForumRoute
     }
+    '/forum/moderation': {
+      id: '/forum/moderation'
+      path: '/moderation'
+      fullPath: '/forum/moderation'
+      preLoaderRoute: typeof ForumModerationRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/forum/messages': {
       id: '/forum/messages'
       path: '/messages'
@@ -985,6 +1016,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/$listingId/edit'
       preLoaderRoute: typeof MarketplaceListingIdEditRouteImport
       parentRoute: typeof MarketplaceListingIdRoute
+    }
+    '/forum/user/$username': {
+      id: '/forum/user/$username'
+      path: '/user/$username'
+      fullPath: '/forum/user/$username'
+      preLoaderRoute: typeof ForumUserUsernameRouteImport
+      parentRoute: typeof ForumRoute
     }
     '/forum/topic/$slug': {
       id: '/forum/topic/$slug'
@@ -1101,18 +1139,22 @@ const ForumMessagesRouteWithChildren = ForumMessagesRoute._addFileChildren(
 
 interface ForumRouteChildren {
   ForumMessagesRoute: typeof ForumMessagesRouteWithChildren
+  ForumModerationRoute: typeof ForumModerationRoute
   ForumNotificationsRoute: typeof ForumNotificationsRoute
   ForumSearchRoute: typeof ForumSearchRoute
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
   ForumTopicSlugRoute: typeof ForumTopicSlugRoute
+  ForumUserUsernameRoute: typeof ForumUserUsernameRoute
 }
 
 const ForumRouteChildren: ForumRouteChildren = {
   ForumMessagesRoute: ForumMessagesRouteWithChildren,
+  ForumModerationRoute: ForumModerationRoute,
   ForumNotificationsRoute: ForumNotificationsRoute,
   ForumSearchRoute: ForumSearchRoute,
   ForumBoardSlugRoute: ForumBoardSlugRoute,
   ForumTopicSlugRoute: ForumTopicSlugRoute,
+  ForumUserUsernameRoute: ForumUserUsernameRoute,
 }
 
 const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
@@ -1220,3 +1262,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
