@@ -69,6 +69,7 @@ import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as AdminCrmTasksRouteImport } from './routes/admin.crm.tasks'
 import { Route as AdminCrmSuppliersRouteImport } from './routes/admin.crm.suppliers'
+import { Route as AdminCrmRolesRouteImport } from './routes/admin.crm.roles'
 import { Route as AdminCrmPurchaseOrdersRouteImport } from './routes/admin.crm.purchase-orders'
 import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
@@ -380,6 +381,11 @@ const AdminCrmSuppliersRoute = AdminCrmSuppliersRouteImport.update({
   path: '/suppliers',
   getParentRoute: () => AdminCrmRoute,
 } as any)
+const AdminCrmRolesRoute = AdminCrmRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const AdminCrmPurchaseOrdersRoute = AdminCrmPurchaseOrdersRouteImport.update({
   id: '/purchase-orders',
   path: '/purchase-orders',
@@ -478,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
   '/admin/crm/purchase-orders': typeof AdminCrmPurchaseOrdersRoute
+  '/admin/crm/roles': typeof AdminCrmRolesRoute
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
@@ -541,6 +548,7 @@ export interface FileRoutesByTo {
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
   '/admin/crm/purchase-orders': typeof AdminCrmPurchaseOrdersRoute
+  '/admin/crm/roles': typeof AdminCrmRolesRoute
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
@@ -612,6 +620,7 @@ export interface FileRoutesById {
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
   '/admin/crm/purchase-orders': typeof AdminCrmPurchaseOrdersRoute
+  '/admin/crm/roles': typeof AdminCrmRolesRoute
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
@@ -684,6 +693,7 @@ export interface FileRouteTypes {
     | '/admin/crm/deals'
     | '/admin/crm/leads'
     | '/admin/crm/purchase-orders'
+    | '/admin/crm/roles'
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
@@ -747,6 +757,7 @@ export interface FileRouteTypes {
     | '/admin/crm/deals'
     | '/admin/crm/leads'
     | '/admin/crm/purchase-orders'
+    | '/admin/crm/roles'
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
@@ -817,6 +828,7 @@ export interface FileRouteTypes {
     | '/admin/crm/deals'
     | '/admin/crm/leads'
     | '/admin/crm/purchase-orders'
+    | '/admin/crm/roles'
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
@@ -1285,6 +1297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmSuppliersRouteImport
       parentRoute: typeof AdminCrmRoute
     }
+    '/admin/crm/roles': {
+      id: '/admin/crm/roles'
+      path: '/roles'
+      fullPath: '/admin/crm/roles'
+      preLoaderRoute: typeof AdminCrmRolesRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/admin/crm/purchase-orders': {
       id: '/admin/crm/purchase-orders'
       path: '/purchase-orders'
@@ -1362,6 +1381,7 @@ interface AdminCrmRouteChildren {
   AdminCrmDealsRoute: typeof AdminCrmDealsRoute
   AdminCrmLeadsRoute: typeof AdminCrmLeadsRoute
   AdminCrmPurchaseOrdersRoute: typeof AdminCrmPurchaseOrdersRoute
+  AdminCrmRolesRoute: typeof AdminCrmRolesRoute
   AdminCrmSuppliersRoute: typeof AdminCrmSuppliersRoute
   AdminCrmTasksRoute: typeof AdminCrmTasksRoute
   AdminCrmIndexRoute: typeof AdminCrmIndexRoute
@@ -1372,6 +1392,7 @@ const AdminCrmRouteChildren: AdminCrmRouteChildren = {
   AdminCrmDealsRoute: AdminCrmDealsRoute,
   AdminCrmLeadsRoute: AdminCrmLeadsRoute,
   AdminCrmPurchaseOrdersRoute: AdminCrmPurchaseOrdersRoute,
+  AdminCrmRolesRoute: AdminCrmRolesRoute,
   AdminCrmSuppliersRoute: AdminCrmSuppliersRoute,
   AdminCrmTasksRoute: AdminCrmTasksRoute,
   AdminCrmIndexRoute: AdminCrmIndexRoute,
