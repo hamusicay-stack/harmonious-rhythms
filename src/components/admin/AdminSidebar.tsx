@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, ClipboardList, DollarSign, CheckCircle2, Building2,
   Package, KeyRound, ShieldCheck, ShoppingBag, Piano, Palette, Tags, Play,
   Music2, GraduationCap, Sparkles, Mail, Bot, Megaphone, MessagesSquare, Zap,
-  Boxes, Scale, TicketPercent,
+  Boxes, Scale, TicketPercent, Receipt, Activity, Upload, MessageSquareWarning,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -14,8 +14,6 @@ type NavItem = { to: string; title: string; icon: React.ComponentType<{ classNam
 
 const MAIN: NavItem[] = [
   { to: "/admin/dashboard", title: "דשבורד", icon: LayoutDashboard },
-  { to: "/admin/forum", title: "פורום וקהילה", icon: MessagesSquare },
-  { to: "/admin/automations", title: "אוטומציות", icon: Zap },
 ];
 
 const CRM: NavItem[] = [
@@ -30,20 +28,32 @@ const CRM: NavItem[] = [
 ];
 
 const COMMERCE: NavItem[] = [
-  { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
-  { to: "/admin/commerce/business-rules", title: "כללי VIP × מוצר", icon: Scale },
-  { to: "/admin/commerce/coupons", title: "קופונים", icon: TicketPercent },
   { to: "/admin/commerce/shop", title: "חנות", icon: ShoppingBag },
+  { to: "/admin/commerce/orders", title: "הזמנות", icon: Receipt },
+  { to: "/admin/commerce/cpi", title: "CPI אוטומציה", icon: Upload },
   { to: "/admin/commerce/beat", title: "BEAT", icon: Piano },
   { to: "/admin/commerce/organ-ui", title: "עיצוב אורגן", icon: Palette },
   { to: "/admin/commerce/marketplace", title: "יד 2", icon: Tags },
   { to: "/admin/commerce/shorts", title: "שורטס", icon: Play },
   { to: "/admin/commerce/music-pros", title: "מוזיקאים", icon: Music2 },
   { to: "/admin/commerce/academy", title: "אקדמיה", icon: GraduationCap },
+  { to: "/admin/commerce/academy-analytics", title: "אנליטיקת אקדמיה", icon: Activity },
   { to: "/admin/commerce/affiliates", title: "שותפים", icon: Sparkles },
+];
+
+const MARKETING: NavItem[] = [
+  { to: "/admin/commerce/coupons", title: "קופונים", icon: TicketPercent },
+  { to: "/admin/commerce/business-rules", title: "כללי VIP × מוצר", icon: Scale },
+  { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
   { to: "/admin/commerce/newsletter", title: "ניוזלטר", icon: Mail },
-  { to: "/admin/commerce/ai", title: "עוזרי AI", icon: Bot },
+  { to: "/admin/automations", title: "אוטומציות", icon: Zap },
   { to: "/admin/commerce/banners", title: "פרסומות", icon: Megaphone },
+  { to: "/admin/commerce/ai", title: "עוזרי AI", icon: Bot },
+];
+
+const COMMUNITY: NavItem[] = [
+  { to: "/admin/forum", title: "ניהול פורום", icon: MessagesSquare },
+  { to: "/admin/chat-oversight", title: "פיקוח צ'אטים", icon: MessageSquareWarning },
 ];
 
 function NavGroup({ label, items, currentPath }: { label: string; items: NavItem[]; currentPath: string }) {
@@ -84,7 +94,9 @@ export function AdminSidebar() {
       <SidebarContent>
         <NavGroup label="ראשי" items={MAIN} currentPath={currentPath} />
         <NavGroup label="CRM" items={CRM} currentPath={currentPath} />
-        <NavGroup label="חנות ושיווק" items={COMMERCE} currentPath={currentPath} />
+        <NavGroup label="חנות" items={COMMERCE} currentPath={currentPath} />
+        <NavGroup label="שיווק וכללים" items={MARKETING} currentPath={currentPath} />
+        <NavGroup label="פורום וקהילה" items={COMMUNITY} currentPath={currentPath} />
       </SidebarContent>
     </Sidebar>
   );
