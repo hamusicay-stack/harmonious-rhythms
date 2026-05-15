@@ -84,7 +84,7 @@ export const getTopicBySlug = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data: topic, error } = await supabase
       .from("forum_topics")
-      .select("id, board_id, title, slug, is_locked, is_pinned, is_deleted, view_count, reply_count, author_id, created_at, last_post_at")
+      .select("id, board_id, title, slug, is_locked, is_pinned, is_deleted, view_count, reply_count, author_id, created_at, last_post_at, solved_post_id")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -100,12 +100,11 @@ export const getTopicBySlug = createServerFn({ method: "GET" })
 
     const userIds = Array.from(new Set((posts ?? []).map((p) => p.author_id)));
     const profiles = userIds.length
-      ? (await supabase.from("profiles").select("id, display_name, username, avatar_url, forum_signature, forum_post_count, forum_reputation, forum_rank").in("id", userIds)).data ?? []
+      ? (await supabase.from("profiles").select("id, display_name, username, avatar_url, subscription_tier, forum_signature, forum_post_count, forum_reputation, forum_rank").in("id", userIds)).data ?? []
       : [];
     const authorMap: Record<string, typeof profiles[number]> = {};
     for (const p of profiles) authorMap[p.id] = p;
 
-    // increment view (best effort, ignore failure)
     await supabase.from("forum_topics").update({ view_count: topic.view_count + 1 }).eq("id", topic.id);
 
     return { topic, board, posts: posts ?? [], authors: authorMap };
