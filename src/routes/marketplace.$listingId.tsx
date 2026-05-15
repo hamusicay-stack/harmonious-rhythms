@@ -16,6 +16,37 @@ import { ChatThreadDialog } from "@/components/marketplace/ChatThreadDialog";
 import { useListingLike } from "@/hooks/useListingLike";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("marketplace_listings")
+      .select("id, title, description, price, images, brand, model")
+      .eq("id", params.listingId)
+      .maybeSingle();
+    return { meta: data };
+  },
+  head: ({ loaderData, params }) => {
+    const m = loaderData?.meta;
+    const title = (m?.title || "מודעה ביד שנייה") + " — המוזיקאי";
+    const desc =
+      (m?.description ? String(m.description).slice(0, 155) : null) ||
+      [m?.brand, m?.model].filter(Boolean).join(" ") ||
+      "מודעת יד שנייה בלוח של המוזיקאי.";
+    const img = Array.isArray(m?.images) && m!.images.length > 0 ? String(m!.images[0]) : null;
+    const url = `https://harmonious-rhythms.lovable.app/marketplace/${params.listingId}`;
+    const meta: { title?: string; name?: string; property?: string; content?: string }[] = [
+      { title },
+      { name: "description", content: desc },
+      { property: "og:title", content: title },
+      { property: "og:description", content: desc },
+      { property: "og:type", content: "product" },
+      { property: "og:url", content: url },
+    ];
+    if (img) {
+      meta.push({ property: "og:image", content: img });
+      meta.push({ name: "twitter:image", content: img });
+    }
+    return { meta, links: [{ rel: "canonical", href: url }] };
+  },
   component: ListingDetailPage,
 });
 

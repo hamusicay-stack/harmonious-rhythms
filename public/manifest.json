@@ -1,0 +1,18 @@
+{
+  "name": "HaMuzikai — קהילת המוזיקאים של ישראל",
+  "short_name": "HaMuzikai",
+  "description": "פלטפורמה יוקרתית למוזיקאים: פורום, חנות, אקדמיה, יד שנייה ועוד.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "he",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "categories": ["music", "education", "shopping", "social"],
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "any", "type": "image/x-icon" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}

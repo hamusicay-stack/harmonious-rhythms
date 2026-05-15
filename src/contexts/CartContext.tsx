@@ -88,12 +88,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   qty: it.qty,
                   requires_info_file: !!it.requires_info_file,
                   info_file_extension: it.info_file_extension ?? null,
-                } as any, { onConflict: "user_id,product_id,product_type" })
+                }, { onConflict: "user_id,product_id,product_type" })
               )
             );
-            const failed = results.find((r) => (r as any).error);
-            if (failed) {
-              console.error("Cart merge: at least one upsert failed", (failed as any).error);
+            const failed = results.find((r) => r.error);
+            if (failed?.error) {
+              console.error("Cart merge: at least one upsert failed", failed.error);
               // Retain local cart so the user doesn't lose items.
             } else {
               localStorage.removeItem(STORAGE_KEY);
@@ -156,7 +156,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         qty: newQty,
         requires_info_file: !!item.requires_info_file,
         info_file_extension: item.info_file_extension ?? null,
-      } as any, { onConflict: "user_id,product_id,product_type" });
+      }, { onConflict: "user_id,product_id,product_type" });
       setItems((prev) => {
         const idx = prev.findIndex((i) => i.id === item.id);
         if (idx >= 0) {
