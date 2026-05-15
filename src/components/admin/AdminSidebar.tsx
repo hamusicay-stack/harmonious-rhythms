@@ -32,6 +32,7 @@ const CRM: NavItem[] = [
 const COMMERCE: NavItem[] = [
   { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
   { to: "/admin/commerce/business-rules", title: "כללי VIP × מוצר", icon: Scale },
+  { to: "/admin/commerce/coupons", title: "קופונים", icon: TicketPercent },
   { to: "/admin/commerce/shop", title: "חנות", icon: ShoppingBag },
   { to: "/admin/commerce/beat", title: "BEAT", icon: Piano },
   { to: "/admin/commerce/organ-ui", title: "עיצוב אורגן", icon: Palette },
