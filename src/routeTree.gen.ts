@@ -51,6 +51,8 @@ import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-
 import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
 import { Route as Admin1BusinessRulesRouteImport } from './routes/admin1.business-rules'
 import { Route as Admin1AutomationsRouteImport } from './routes/admin1.automations'
+import { Route as AdminForumRouteImport } from './routes/admin.forum'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
@@ -277,6 +279,16 @@ const Admin1AutomationsRoute = Admin1AutomationsRouteImport.update({
   path: '/automations',
   getParentRoute: () => Admin1Route,
 } as any)
+const AdminForumRoute = AdminForumRouteImport.update({
+  id: '/forum',
+  path: '/forum',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   id: '/podcasts',
   path: '/podcasts',
@@ -378,6 +390,8 @@ export interface FileRoutesByFullPath {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
   '/admin1/crm': typeof Admin1CrmRoute
@@ -431,6 +445,8 @@ export interface FileRoutesByTo {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
   '/admin1/crm': typeof Admin1CrmRoute
@@ -491,6 +507,8 @@ export interface FileRoutesById {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
   '/admin1/crm': typeof Admin1CrmRoute
@@ -552,6 +570,8 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/dashboard'
+    | '/admin/forum'
     | '/admin1/automations'
     | '/admin1/business-rules'
     | '/admin1/crm'
@@ -605,6 +625,8 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/dashboard'
+    | '/admin/forum'
     | '/admin1/automations'
     | '/admin1/business-rules'
     | '/admin1/crm'
@@ -664,6 +686,8 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/dashboard'
+    | '/admin/forum'
     | '/admin1/automations'
     | '/admin1/business-rules'
     | '/admin1/crm'
@@ -1029,6 +1053,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Admin1AutomationsRouteImport
       parentRoute: typeof Admin1Route
     }
+    '/admin/forum': {
+      id: '/admin/forum'
+      path: '/forum'
+      fullPath: '/admin/forum'
+      preLoaderRoute: typeof AdminForumRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/academy/podcasts': {
       id: '/academy/podcasts'
       path: '/podcasts'
@@ -1151,11 +1189,15 @@ const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminForumRoute: typeof AdminForumRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminForumRoute: AdminForumRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminCustomersCustomerIdRoute: AdminCustomersCustomerIdRoute,
 }
@@ -1321,3 +1363,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
