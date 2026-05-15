@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowUp, ArrowDown, Quote, Flag, Pencil, Trash2, MessageCircle, Lock, CheckCircle2, Bell, BellOff, Crown } from "lucide-react";
+import { ArrowUp, ArrowDown, Quote, Flag, Pencil, Trash2, MessageCircle, Lock, CheckCircle2, Bell, BellOff, Crown, CornerDownRight, Reply } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 import { toast } from "sonner";
