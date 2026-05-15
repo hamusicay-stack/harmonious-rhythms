@@ -1,11 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { listCategoriesWithBoards } from "@/lib/forum/boards.functions";
-import { MessageSquare, Search, Bell, Mail } from "lucide-react";
+import { getRecentActivity } from "@/lib/forum/activity.functions";
+import { MessageSquare, Search, Bell, Mail, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -22,18 +26,44 @@ export const Route = createFileRoute("/forum")({
 function ForumIndexPage() {
   const { user, loading: authLoading } = useAuth();
   const fetchData = useServerFn(listCategoriesWithBoards);
+  const fetchActivity = useServerFn(getRecentActivity);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [q, setQ] = useState("");
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["forum", "index"],
     queryFn: () => fetchData(),
     enabled: !!user,
     retry: false,
   });
+  const activity = useQuery({
+    queryKey: ["forum", "activity"],
+    queryFn: () => fetchActivity(),
+    enabled: !!user,
+    retry: false,
+  });
   const categories = data?.categories ?? [];
+
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase.channel("forum-activity-feed")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "forum_posts" },
+        () => qc.invalidateQueries({ queryKey: ["forum", "activity"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user, qc]);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (q.trim().length < 2) return;
+    navigate({ to: "/forum/search", search: { q: q.trim() } as never });
+  };
 
   return (
     <SiteLayout>
       <div dir="rtl" className="container mx-auto px-4 py-8 max-w-6xl">
-        <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <header className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <MessageSquare className="h-7 w-7 text-primary" />
@@ -42,17 +72,29 @@ function ForumIndexPage() {
             <p className="text-sm text-muted-foreground mt-1">דיון, מוניטין וקהילה.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/forum/search" search={{ q: "" } as never}><Search className="h-4 w-4 ml-1" />חיפוש</Link>
-            </Button>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="min-h-[40px]">
               <Link to="/forum/notifications"><Bell className="h-4 w-4 ml-1" />התראות</Link>
             </Button>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="min-h-[40px]">
               <Link to="/forum/messages"><Mail className="h-4 w-4 ml-1" />הודעות</Link>
             </Button>
           </div>
         </header>
+
+        {!!user && (
+          <form onSubmit={submitSearch} className="mb-6 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="חיפוש בפורום: מילות מפתח, תגיות (#Yamaha, #Korg, #Mixing)…"
+                className="pr-10 min-h-[44px]"
+              />
+            </div>
+            <Button type="submit" className="min-h-[44px]">חיפוש</Button>
+          </form>
+        )}
 
         {authLoading && <p className="text-muted-foreground">טוען…</p>}
 
@@ -79,42 +121,76 @@ function ForumIndexPage() {
           </div>
         )}
 
-        {!!user && !error && <div className="space-y-6">
-          {categories.map((cat) => (
-            <section key={cat.id} className="rounded-lg border border-border bg-card overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-muted/30">
-                <h2 className="font-semibold text-lg" style={{ color: cat.color ?? undefined }}>{cat.name}</h2>
-                {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
-              </div>
-              <div className="divide-y divide-border">
-                {cat.boards.length === 0 && (
-                  <div className="px-4 py-6 text-sm text-muted-foreground">אין לוחות בקטגוריה זו עדיין.</div>
-                )}
-                {cat.boards.map((b) => (
-                  <Link
-                    key={b.id}
-                    to="/forum/board/$slug"
-                    params={{ slug: b.slug }}
-                    className="block px-4 py-3 hover:bg-accent/40 transition"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="font-medium">{b.name}</div>
-                        {b.description && <div className="text-xs text-muted-foreground truncate">{b.description}</div>}
+        {!!user && !error && (
+          <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+            <div className="space-y-6 min-w-0">
+              {categories.map((cat) => (
+                <section key={cat.id} className="rounded-lg border border-border bg-card overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border bg-muted/30">
+                    <h2 className="font-semibold text-lg" style={{ color: cat.color ?? undefined }}>{cat.name}</h2>
+                    {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
+                  </div>
+                  <div className="divide-y divide-border">
+                    {cat.boards.length === 0 && (
+                      <div className="px-4 py-6 text-sm text-muted-foreground">אין לוחות בקטגוריה זו עדיין.</div>
+                    )}
+                    {cat.boards.map((b) => (
+                      <Link
+                        key={b.id}
+                        to="/forum/board/$slug"
+                        params={{ slug: b.slug }}
+                        className="block px-4 py-3 hover:bg-accent/40 transition"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="min-w-0">
+                            <div className="font-medium">{b.name}</div>
+                            {b.description && <div className="text-xs text-muted-foreground truncate">{b.description}</div>}
+                          </div>
+                          <div className="text-xs text-muted-foreground text-left shrink-0">
+                            <div>{b.topic_count} אשכולות · {b.post_count} הודעות</div>
+                            {b.last_post_at && (
+                              <div>פעילות אחרונה: {formatDistanceToNow(new Date(b.last_post_at), { addSuffix: true, locale: he })}</div>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <aside className="lg:sticky lg:top-20 lg:self-start">
+              <section className="rounded-lg border border-border bg-card overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <h2 className="font-semibold">פעילות אחרונה</h2>
+                  <span className="ml-auto h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-label="חי" />
+                </div>
+                <div className="divide-y divide-border">
+                  {activity.isLoading && <div className="px-4 py-4 text-sm text-muted-foreground">טוען…</div>}
+                  {activity.data?.items?.length === 0 && (
+                    <div className="px-4 py-4 text-sm text-muted-foreground">אין פעילות עדיין.</div>
+                  )}
+                  {activity.data?.items?.map((it) => (
+                    <Link
+                      key={it.id}
+                      to="/forum/topic/$slug"
+                      params={{ slug: it.topic_slug! }}
+                      className="block px-4 py-3 hover:bg-accent/40 transition"
+                    >
+                      <div className="text-xs text-muted-foreground">
+                        {it.author_name} · {formatDistanceToNow(new Date(it.created_at), { addSuffix: true, locale: he })}
                       </div>
-                      <div className="text-xs text-muted-foreground text-left shrink-0">
-                        <div>{b.topic_count} אשכולות · {b.post_count} הודעות</div>
-                        {b.last_post_at && (
-                          <div>פעילות אחרונה: {formatDistanceToNow(new Date(b.last_post_at), { addSuffix: true, locale: he })}</div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>}
+                      <div className="font-medium text-sm truncate">{it.topic_title}</div>
+                      {it.excerpt && <div className="text-xs text-muted-foreground truncate mt-0.5">{it.excerpt}</div>}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            </aside>
+          </div>
+        )}
       </div>
     </SiteLayout>
   );
