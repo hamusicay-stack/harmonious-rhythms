@@ -1,45 +1,81 @@
-## הסקופ
+# פורום קהילה — אפיון בנייה מלא
 
-מערך גדול של שינויים. אבצע ב-5 חבילות בתוך אותו ריצה.
+החלפה מלאה של `/forum` הקיים במערכת פורומים בסגנון NodeBB. גישה: קריאה וכתיבה רק למשתמשים מחוברים.
 
-### 1. מיתוג מחדש "rhythms" → "BEAT"
+## שלב 1 — סכמת מסד נתונים
 
-- **טקסטים בממשק**: כל "מקצבים"/"Rhythms"/"Smart Rhythms" → "BEAT" (כותרות, תפריטים, טאבים בניהול, breadcrumbs).
-- **URLs**: יצירת `/beat` ו-`/beat/$setId` כראוטים חדשים. הראוטים הישנים `/rhythms` ו-`/rhythms/$setId` יישארו עם redirect ל-`/beat` כדי לא לשבור קישורים קיימים.
-- **שמות תיקיות בקוד**: `src/components/rhythm/` → אשאיר כפי שהוא (פנימי בלבד) כדי למנוע שבירת imports נרחבת.
-- **שמות טבלאות במסד**: אבצע `ALTER TABLE ... RENAME` עבור הטבלאות העיקריות (`rhythm_sets`, `rhythm_items`, `rhythm_orders`, `rhythm_automation_settings`) → `beat_sets` וכו'. כל הקוד שצורך מהן יעודכן, וטיפוסי Supabase יתחדשו אוטומטית.
+הסרת הטבלאות הישנות (`forum_categories`, `forum_posts`, `forum_comments`) ויצירת סכמה חדשה:
 
-### 2. עורך עיצוב אורגן — הרחבה
+**היררכיית תוכן:**
+- `forum_categories` — קטגוריות-על (סדר, אייקון, צבע)
+- `forum_boards` — לוחות בתוך קטגוריה (slug, שם, תיאור, היררכיה)
+- `forum_topics` — אשכולות (כותרת, slug, נעול, מוצמד, מחבר, board_id, view_count, last_post_at)
+- `forum_posts` — תגובות (תוכן Markdown, מחבר, ציטוט של post_id, נמחק)
+- `forum_tags` + `forum_topic_tags` — תיוג חוצה-לוחות
+- `forum_post_votes` — Upvote/Downvote
+- `forum_subscriptions` — מעקב אחרי אשכולות/לוחות
+- `forum_reports` — דיווחי משתמשים
+- `forum_moderation_log` — יומן ניהול
+- `forum_user_bans` — השתקות וחסימות
+- `forum_badges` + `forum_user_badges` — באג'ים ידניים
+- `forum_direct_messages` + `forum_dm_threads` — הודעות פרטיות
+- `forum_notifications` — מרכז התראות
 
-- **העלאות תמונה**: הוספת שדות `bgImage` ל-`topBanner`, `bottomBanner`, ו-`lcd` ב-OrganTheme. רכיב `MediaUploader` קיים — אשתמש בו עם bucket `music-pros` בתיקייה `organ-themes/`.
-- **העלאות אודיו לדגימות**: ב-`RhythmSetsManager` (Beat Sets Manager), הוספת אפשרות העלאת קובץ אודיו ישירה (mp3/wav/m4a/ogg) לבאקט `rhythm-files` (קיים) במקביל לשדה ה-URL הקיים. תמיכה ב-Google Drive: זיהוי URL-ים מסוג `drive.google.com/file/d/{id}/view` והמרה אוטומטית ל-`uc?export=download&id={id}` שעובד כמקור אודיו.
-- **כפתור עיצוב אורגן**: אעביר אותו מטאב נפרד ל-toolbar בתוך `RhythmSetsManager` (תחת "BEAT") כ-Button "עיצוב אורגן" שפותח את העורך כ-Dialog.
+**הרחבת `profiles`:**
+- `forum_signature` (text) — חתימה
+- `forum_post_count` (integer)
+- `forum_reputation` (integer)
+- `forum_rank` (text, נגזר אוטומטית)
 
-### 3. דף מוצר ציבורי לכל סט
+**טריגרים ופונקציות:**
+- `award_reputation()` בעת upvote/downvote
+- `bump_post_count()` ביצירת תגובה
+- `compute_rank()` לפי וותק + מונה
+- `update_topic_last_post_at()` בתגובה חדשה
+- `notify_on_mention()` סורק `@username` ויוצר התראה
+- `notify_on_quote()` ביצירת ציטוט
 
-- **ראוט חדש**: `/beat/$setId` יציג דף מוצר כמו marketplace listing — banner/cover, תיאור, מחיר, רשימת רצועות (mp3) עם נגן רצועה אחר רצועה, כפתור הוספה לעגלה. הסנכרון עם נתוני הסט אוטומטי כי כולם קוראים מאותה טבלה (`rhythm_sets` → `beat_sets`).
-- **רכיב חדש**: `BeatSetProductPage.tsx` עם רשימת רצועות שלמות (לא דמו של אורגן). שימוש בנגן `<audio>` עם פלייליסט.
-- **מהאורגן**: כפתור חדש "צפה כדף מוצר" יוביל ל-`/beat/$setId`.
+**RLS:**
+- כל הטבלאות: SELECT רק למחוברים
+- INSERT/UPDATE: בעלות + אדמין/מנהל פורום
+- מחיקה רכה (`deleted_at`) במקום DELETE
 
-### 4. ניהול
+## שלב 2 — Server Functions
 
-- טאב הניהול הקיים "מקצבים" יקרא "BEAT".
-- כפתור "עיצוב אורגן" יישאר בטאב נפרד כגיבוי, אבל גם יהיה זמין מתוך BEAT manager.
+תחת `src/lib/forum/`:
+- `boards.functions.ts` — רשימת קטגוריות + לוחות עם ספירת אשכולות/הודעות
+- `topics.functions.ts` — יצירה, רשימה (paginated), נעילה/הצמדה/העברה/מיזוג
+- `posts.functions.ts` — יצירת תגובה, עריכה, מחיקה רכה, הצבעה
+- `search.functions.ts` — חיפוש Full-Text ב-Postgres `tsvector`
+- `moderation.functions.ts` — דיווחים, חסימות, יומן
+- `dm.functions.ts` — שליחת/קריאת הודעות פרטיות
+- `notifications.functions.ts` — סימון נקרא, רשימה
+- `tags.functions.ts` — CRUD תגיות
 
-### 5. סנכרון
+כולן עם `requireSupabaseAuth` ו-Zod validation.
 
-כל הצגות הסט (אורגן + דף מוצר + admin) יקראו מאותן טבלאות → סנכרון אוטומטי.
+## שלב 3 — Realtime
 
-### קבצים עיקריים שיתעדכנו
+Supabase Realtime על `forum_posts` ו-`forum_notifications`:
+- בדף אשכול — תגובות חדשות מופיעות בזמן אמת
+- מרכז התראות בכותרת מתעדכן מיד
 
-- מיגרציה: שינוי שמות טבלאות + הוספת שדה `cover_image_url` אם חסר.
-- `src/lib/organTheme.ts` + `OrganUIThemeEditor.tsx` + `OrganScreenPreview.tsx` — תמיכה בתמונות רקע.
-- `src/components/admin/RhythmSetsManager.tsx` — העלאת אודיו, כפתור עורך עיצוב, תווית BEAT.
-- `src/routes/beat.tsx` + `src/routes/beat.$setId.tsx` — ראוטים חדשים.
-- `src/routes/rhythms.tsx` + `src/routes/rhythms.$setId.tsx` — redirect.
-- `src/components/rhythm/BeatSetProductPage.tsx` — חדש.
-- `src/components/SiteHeader.tsx` ועוד — תיוג מחדש.
+## שלב 4 — מסכי UI
 
-### היקף
+```text
+/forum                              → רשימת קטגוריות ולוחות
+/forum/board/$slug                  → רשימת אשכולות בלוח
+/forum/topic/$slug                  → תצוגת אשכול + תגובות
+/forum/topic/new?board=$slug        → יצירת אשכול חדש
+/forum/tag/$tag                     → אשכולות לפי תגית
+/forum/search?q=...                 → תוצאות חיפוש
+/forum/user/$username               → פרופיל פורום (חתימה, באג'ים, הודעות אחרונות)
+/forum/messages                     → תיבת הודעות פרטיות
+/forum/messages/$threadId           → שיחה
+/forum/notifications                → מרכז התראות
+/forum/moderation                   → לוח מנהלי קהילה (דיווחים + יומן)
+```
 
-עבודה גדולה. אבצע בריצה אחת לאחר אישור.
+**רכיבים מרכזיים** (ב-`src/components/forum/`):
+- `MarkdownEditor` — עורך עם תצוגה מקדימה, הדבקת תמונות, ציטוטים, embeds (YouTube/Twitter)
+- `PostCard` — אווטר, חתימה, ד
