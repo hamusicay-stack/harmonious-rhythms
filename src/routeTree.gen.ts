@@ -31,6 +31,7 @@ import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index
 import { Route as ForumIndexRouteImport } from './routes/forum.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
 import { Route as Admin1IndexRouteImport } from './routes/admin1.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
@@ -175,6 +176,11 @@ const Admin1IndexRoute = Admin1IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => Admin1Route,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/verify/$code',
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
@@ -415,7 +422,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRouteWithChildren
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/profile': typeof ProfileRoute
@@ -444,6 +450,7 @@ export interface FileRoutesByTo {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin': typeof AdminIndexRoute
   '/admin1': typeof Admin1IndexRoute
   '/beat': typeof BeatIndexRoute
   '/forum': typeof ForumIndexRoute
@@ -503,6 +510,7 @@ export interface FileRoutesById {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
@@ -563,6 +571,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/admin/'
     | '/admin1/'
     | '/beat/'
     | '/forum/'
@@ -587,7 +596,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/academy'
-    | '/admin'
     | '/auth'
     | '/contact'
     | '/profile'
@@ -616,6 +624,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/admin'
     | '/admin1'
     | '/beat'
     | '/forum'
@@ -674,6 +683,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/admin/'
     | '/admin1/'
     | '/beat/'
     | '/forum/'
@@ -878,6 +888,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin1/'
       preLoaderRoute: typeof Admin1IndexRouteImport
       parentRoute: typeof Admin1Route
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/verify/$code': {
       id: '/verify/$code'
@@ -1134,10 +1151,12 @@ const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
   AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
   AdminCustomersCustomerIdRoute: AdminCustomersCustomerIdRoute,
 }
 
