@@ -342,6 +342,10 @@ function AdminPage() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="deals" className="mt-6">
+                <DealsKanban />
+              </TabsContent>
+
               <TabsContent value="tasks" className="mt-6">
                 <Card>
                   <CardHeader className="flex-row items-center justify-between space-y-0">
