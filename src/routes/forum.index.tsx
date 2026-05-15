@@ -124,12 +124,26 @@ function ForumIndexPage() {
         {!!user && !error && (
           <div className="grid lg:grid-cols-[1fr_300px] gap-6">
             <div className="space-y-6 min-w-0">
-              {categories.map((cat) => (
-                <section key={cat.id} className="rounded-lg border border-border bg-card overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border bg-muted/30">
-                    <h2 className="font-semibold text-lg" style={{ color: cat.color ?? undefined }}>{cat.name}</h2>
-                    {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
-                  </div>
+              {categories.map((cat) => {
+                const firstBoard = cat.boards[0];
+                return (
+                <section key={cat.id} className="relative rounded-lg border border-border bg-card overflow-hidden">
+                  {firstBoard ? (
+                    <Link
+                      to="/forum/board/$slug"
+                      params={{ slug: firstBoard.slug }}
+                      preload="intent"
+                      className="relative z-10 block px-4 py-3 border-b border-border bg-muted/30 transition-colors hover:bg-accent/40"
+                    >
+                      <h2 className="font-semibold text-lg" style={{ color: cat.color ?? undefined }}>{cat.name}</h2>
+                      {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
+                    </Link>
+                  ) : (
+                    <div className="px-4 py-3 border-b border-border bg-muted/30">
+                      <h2 className="font-semibold text-lg" style={{ color: cat.color ?? undefined }}>{cat.name}</h2>
+                      {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
+                    </div>
+                  )}
                   <div className="divide-y divide-border">
                     {cat.boards.length === 0 && (
                       <div className="px-4 py-6 text-sm text-muted-foreground">אין לוחות בקטגוריה זו עדיין.</div>
@@ -139,7 +153,8 @@ function ForumIndexPage() {
                         key={b.id}
                         to="/forum/board/$slug"
                         params={{ slug: b.slug }}
-                        className="block px-4 py-3 hover:bg-accent/40 transition"
+                        preload="intent"
+                        className="relative z-10 block cursor-pointer px-4 py-3 transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div className="min-w-0">
@@ -157,7 +172,7 @@ function ForumIndexPage() {
                     ))}
                   </div>
                 </section>
-              ))}
+              );})}
             </div>
 
             <aside className="lg:sticky lg:top-20 lg:self-start">
