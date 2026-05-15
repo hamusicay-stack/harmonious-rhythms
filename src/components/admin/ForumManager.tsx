@@ -332,7 +332,7 @@ function ThreadsTab() {
               return (
                 <TableRow key={t.id} className={t.is_deleted ? "opacity-50" : ""}>
                   <TableCell>
-                    <Link to={"/forum/topic/$slug" as any} params={{ slug: t.slug }} className="hover:underline">
+                    <Link to={"/forum/topic/$slug" as any} params={{ slug: t.slug } as any} className="hover:underline">
                       {t.title} <ExternalLink className="inline h-3 w-3" />
                     </Link>
                   </TableCell>
