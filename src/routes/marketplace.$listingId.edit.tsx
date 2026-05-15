@@ -27,12 +27,15 @@ function EditListingPage() {
     (async () => {
       const { data, error } = await supabase
         .from("marketplace_listings")
-        .select("id, seller_id, seller_type, title, description, category, custom_category, subcategory, custom_subcategory, brand, custom_brand, model, item_condition, price, city, phone, whatsapp, images, video_url, audio_url, is_urgent, specs, status")
+        .select("id, seller_id, seller_type, title, description, category, custom_category, subcategory, custom_subcategory, brand, custom_brand, model, item_condition, price, city, images, video_url, audio_url, is_urgent, specs, status")
         .eq("id", listingId)
         .maybeSingle();
       if (error || !data) { setLoading(false); return; }
       if (data.seller_id !== user.id) { setForbidden(true); setLoading(false); return; }
-      setListing(data as ListingInitial);
+      // Phone/WhatsApp are protected — fetch via secure RPC (owner-only).
+      const { data: contact } = await supabase.rpc("get_listing_contact", { _listing_id: listingId });
+      const c = Array.isArray(contact) ? contact[0] : contact;
+      setListing({ ...(data as ListingInitial), phone: c?.phone ?? null, whatsapp: c?.whatsapp ?? null });
       setLoading(false);
     })();
   }, [listingId, user, authLoading]);
