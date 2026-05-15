@@ -78,6 +78,7 @@ import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
+import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerce.organ-ui'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
@@ -431,6 +432,11 @@ const AdminCommerceShopRoute = AdminCommerceShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceOrganUiRoute = AdminCommerceOrganUiRouteImport.update({
+  id: '/organ-ui',
+  path: '/organ-ui',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const AdminCommerceBeatRoute = AdminCommerceBeatRouteImport.update({
   id: '/beat',
   path: '/beat',
@@ -512,6 +518,7 @@ export interface FileRoutesByFullPath {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
@@ -580,6 +587,7 @@ export interface FileRoutesByTo {
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
@@ -657,6 +665,7 @@ export interface FileRoutesById {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
@@ -735,6 +744,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/beat'
+    | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
@@ -803,6 +813,7 @@ export interface FileRouteTypes {
     | '/pros'
     | '/shop'
     | '/admin/commerce/beat'
+    | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
@@ -879,6 +890,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/beat'
+    | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
@@ -1418,6 +1430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceShopRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/organ-ui': {
+      id: '/admin/commerce/organ-ui'
+      path: '/organ-ui'
+      fullPath: '/admin/commerce/organ-ui'
+      preLoaderRoute: typeof AdminCommerceOrganUiRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/beat': {
       id: '/admin/commerce/beat'
       path: '/beat'
@@ -1471,12 +1490,14 @@ const AcademyRouteWithChildren =
 
 interface AdminCommerceRouteChildren {
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
+  AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
 }
 
 const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
+  AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
 }
