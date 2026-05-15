@@ -254,6 +254,25 @@ function CustomerProfilePage() {
                 {profile.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.location}</span>}
               </div>
             </div>
+            <div className="md:self-start">
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => {
+                  startImpersonation({
+                    id: profile.id,
+                    name: displayName,
+                    email: profile.email,
+                    avatar_url: profile.avatar_url,
+                  });
+                  toast.success(`מצב השתלטות הופעל עבור ${displayName}`);
+                  navigate({ to: "/" });
+                }}
+              >
+                <Eye className="h-4 w-4" />
+                השתלטות על חשבון
+              </Button>
+            </div>
           </div>
 
           {/* Tags */}
