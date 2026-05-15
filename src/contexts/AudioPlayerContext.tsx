@@ -84,7 +84,6 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         }
         setCurrent(tracks[nextIndex]);
         setIsPlaying(true);
-        setTimeout(() => audioRef.current?.play().catch(() => setIsPlaying(false)), 50);
         return nextIndex;
       });
       return tracks;
@@ -97,7 +96,6 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         const prevIndex = Math.max(0, index - 1);
         setCurrent(tracks[prevIndex] ?? null);
         setIsPlaying(true);
-        setTimeout(() => audioRef.current?.play().catch(() => setIsPlaying(false)), 50);
         return prevIndex;
       });
       return tracks;
