@@ -71,7 +71,7 @@ function ListingDetailPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: l } = await supabase.from("marketplace_listings").select("*").eq("id", listingId).maybeSingle();
+      const { data: l } = await supabase.from("marketplace_listings").select("id, seller_id, title, description, category, subcategory, brand, model, item_condition, price, currency, region, city, images, video_url, audio_url, specs, status, seller_type, bump_expires_at, is_urgent, is_sold, created_at").eq("id", listingId).maybeSingle();
       if (!l) { setLoading(false); return; }
       setListing(l);
 
