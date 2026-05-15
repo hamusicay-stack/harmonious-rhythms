@@ -53,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [vipTier, setVipTier] = useState<VipTier>(null);
   const [loading, setLoading] = useState(true);
   const activeUserIdRef = useRef<string | null>(null);
+  const queryClient = useQueryClient();
 
   const loadProfile = useCallback(async (userId: string) => {
     try {
