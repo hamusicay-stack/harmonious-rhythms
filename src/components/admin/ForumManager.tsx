@@ -103,8 +103,8 @@ function StructureTab() {
     };
     if (!payload.name || !payload.slug) return toast.error("שם וסלאג חובה");
     const res = c.id
-      ? await supabase.from("forum_categories").update(payload).eq("id", c.id)
-      : await supabase.from("forum_categories").insert(payload);
+      ? await supabase.from("forum_categories").update(payload as any).eq("id", c.id)
+      : await supabase.from("forum_categories").insert(payload as any);
     if (res.error) return toast.error(res.error.message);
     toast.success("נשמר"); setCatDialog(null); load();
   };
