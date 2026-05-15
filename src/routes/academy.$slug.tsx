@@ -59,7 +59,6 @@ export const Route = createFileRoute("/academy/$slug")({
 function CoursePage() {
   const { course } = Route.useLoaderData();
   const { user, isVip, vipTier } = useAuth();
-  const router = useRouter();
   const [modules, setModules] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, any>>({});
