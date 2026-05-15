@@ -11,8 +11,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "login" | "signup" } => ({
+  validateSearch: (search: Record<string, unknown>): { mode?: "login" | "signup"; redirect?: string } => ({
     mode: (search.mode as string) === "signup" ? "signup" : "login",
+    redirect: typeof search.redirect === "string" && search.redirect.startsWith("/") ? search.redirect : "/",
   }),
   head: () => ({
     meta: [
@@ -39,8 +40,8 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) navigate({ to: "/" });
-  }, [user, authLoading, navigate]);
+    if (!authLoading && user) navigate({ to: search.redirect ?? "/" });
+  }, [user, authLoading, navigate, search.redirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,12 +66,12 @@ function AuthPage() {
           }).eq("id", newUserId);
         }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
-        navigate({ to: "/" });
+        navigate({ to: search.redirect ?? "/" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("התחברתם בהצלחה");
-        navigate({ to: "/" });
+        navigate({ to: search.redirect ?? "/" });
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "אירעה שגיאה";
