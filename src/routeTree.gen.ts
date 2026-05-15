@@ -28,6 +28,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
+import { Route as ForumIndexRouteImport } from './routes/forum.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
 import { Route as Admin1IndexRouteImport } from './routes/admin1.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
@@ -159,6 +160,11 @@ const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketplaceRoute,
+} as any)
+const ForumIndexRoute = ForumIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ForumRoute,
 } as any)
 const BeatIndexRoute = BeatIndexRouteImport.update({
   id: '/beat/',
@@ -387,6 +393,7 @@ export interface FileRoutesByFullPath {
   '/verify/$code': typeof VerifyCodeRoute
   '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
+  '/forum/': typeof ForumIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -411,7 +418,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/forum': typeof ForumRouteWithChildren
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shorts': typeof ShortsRoute
@@ -440,6 +446,7 @@ export interface FileRoutesByTo {
   '/verify/$code': typeof VerifyCodeRoute
   '/admin1': typeof Admin1IndexRoute
   '/beat': typeof BeatIndexRoute
+  '/forum': typeof ForumIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
@@ -498,6 +505,7 @@ export interface FileRoutesById {
   '/verify/$code': typeof VerifyCodeRoute
   '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
+  '/forum/': typeof ForumIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -557,6 +565,7 @@ export interface FileRouteTypes {
     | '/verify/$code'
     | '/admin1/'
     | '/beat/'
+    | '/forum/'
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
@@ -581,7 +590,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/contact'
-    | '/forum'
     | '/profile'
     | '/reset-password'
     | '/shorts'
@@ -610,6 +618,7 @@ export interface FileRouteTypes {
     | '/verify/$code'
     | '/admin1'
     | '/beat'
+    | '/forum'
     | '/marketplace'
     | '/pros'
     | '/shop'
@@ -667,6 +676,7 @@ export interface FileRouteTypes {
     | '/verify/$code'
     | '/admin1/'
     | '/beat/'
+    | '/forum/'
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
@@ -847,6 +857,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/marketplace/'
       preLoaderRoute: typeof MarketplaceIndexRouteImport
       parentRoute: typeof MarketplaceRoute
+    }
+    '/forum/': {
+      id: '/forum/'
+      path: '/'
+      fullPath: '/forum/'
+      preLoaderRoute: typeof ForumIndexRouteImport
+      parentRoute: typeof ForumRoute
     }
     '/beat/': {
       id: '/beat/'
@@ -1162,6 +1179,7 @@ interface ForumRouteChildren {
   ForumModerationRoute: typeof ForumModerationRoute
   ForumNotificationsRoute: typeof ForumNotificationsRoute
   ForumSearchRoute: typeof ForumSearchRoute
+  ForumIndexRoute: typeof ForumIndexRoute
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
   ForumTopicSlugRoute: typeof ForumTopicSlugRoute
   ForumUserUsernameRoute: typeof ForumUserUsernameRoute
@@ -1172,6 +1190,7 @@ const ForumRouteChildren: ForumRouteChildren = {
   ForumModerationRoute: ForumModerationRoute,
   ForumNotificationsRoute: ForumNotificationsRoute,
   ForumSearchRoute: ForumSearchRoute,
+  ForumIndexRoute: ForumIndexRoute,
   ForumBoardSlugRoute: ForumBoardSlugRoute,
   ForumTopicSlugRoute: ForumTopicSlugRoute,
   ForumUserUsernameRoute: ForumUserUsernameRoute,
