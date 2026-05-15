@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/i18n";
 import { applyDocumentDir } from "@/i18n";
@@ -87,30 +88,33 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { i18n } = useTranslation();
+  const [queryClient] = useState(() => new QueryClient());
   useEffect(() => { void captureAffiliateRef(); }, []);
   useEffect(() => {
     applyDocumentDir(i18n.resolvedLanguage || i18n.language || "he");
   }, [i18n.resolvedLanguage, i18n.language]);
   return (
-    <AuthProvider>
-      <ImpersonationProvider>
-        <NotificationsProvider>
-          <CartProvider>
-            <AudioPlayerProvider>
-              <KeyboardSelectionProvider>
-                <DeviceGuardInner />
-                <ImpersonationBanner />
-                <SharedCartHydrator />
-                <Outlet />
-                <FloatingAudioPlayer />
-                <StickyCart />
-                <Toaster richColors position="top-center" />
-              </KeyboardSelectionProvider>
-            </AudioPlayerProvider>
-          </CartProvider>
-        </NotificationsProvider>
-      </ImpersonationProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ImpersonationProvider>
+          <NotificationsProvider>
+            <CartProvider>
+              <AudioPlayerProvider>
+                <KeyboardSelectionProvider>
+                  <DeviceGuardInner />
+                  <ImpersonationBanner />
+                  <SharedCartHydrator />
+                  <Outlet />
+                  <FloatingAudioPlayer />
+                  <StickyCart />
+                  <Toaster richColors position="top-center" />
+                </KeyboardSelectionProvider>
+              </AudioPlayerProvider>
+            </CartProvider>
+          </NotificationsProvider>
+        </ImpersonationProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
