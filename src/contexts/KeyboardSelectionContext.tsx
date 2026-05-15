@@ -89,6 +89,26 @@ export function KeyboardSelectionProvider({ children }: { children: ReactNode })
     })();
   }, [location.pathname]);
 
+  // Cross-tab sync: react to localStorage changes from other tabs.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== LS_KEY) return;
+      const newId = e.newValue;
+      if (!newId) {
+        setSelectedModelState(null);
+        return;
+      }
+      if (newId === selectedModel?.id) return;
+      (async () => {
+        const m = await fetchModel(newId);
+        if (m) setSelectedModelState(m);
+      })();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [selectedModel?.id]);
+
   return (
     <KeyboardSelectionContext.Provider value={{ selectedModel, setSelectedModel }}>
       {children}
