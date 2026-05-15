@@ -287,7 +287,7 @@ function ThreadsTab() {
   }, [topics, search, boardFilter]);
 
   const toggle = async (t: Topic, field: "is_pinned" | "is_locked" | "is_deleted") => {
-    const res = await supabase.from("forum_topics").update({ [field]: !t[field] }).eq("id", t.id);
+    const res = await supabase.from("forum_topics").update({ [field]: !t[field] } as any).eq("id", t.id);
     if (res.error) return toast.error(res.error.message);
     toast.success("עודכן"); load();
   };
