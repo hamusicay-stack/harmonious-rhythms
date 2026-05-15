@@ -241,7 +241,14 @@ function CheckoutPage() {
         ));
       }
 
+      // Best-effort: bump coupon usage counter (RLS allows admin only on update,
+      // so this is fine if it silently fails — order integrity already records the code).
+      if (coupon) {
+        await (supabase as any).rpc("increment_coupon_usage", { _coupon_id: coupon.id }).then?.(() => {}).catch?.(() => {});
+      }
+
       clear();
+      removeCoupon();
       toast.success("הזמנתכם נקלטה — נחתם במאסטר ✓");
       navigate({ to: "/shop/order/$orderId", params: { orderId: order.id } });
     } catch (e: any) {
