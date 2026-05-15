@@ -23,8 +23,6 @@ export type CardListing = {
   bump_expires_at: string | null;
   is_urgent?: boolean;
   audio_url?: string | null;
-  phone?: string | null;
-  whatsapp?: string | null;
 };
 
 interface Props {
