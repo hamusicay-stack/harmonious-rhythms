@@ -486,6 +486,10 @@ function AdminPage() {
               </TabsContent>
             </Tabs>
           </TabsContent>
+
+          <TabsContent value="forum" className="mt-6">
+            <ForumManager />
+          </TabsContent>
         </Tabs>
       </section>
       </div>
