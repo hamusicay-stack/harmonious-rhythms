@@ -26,13 +26,14 @@ export const Route = createFileRoute("/admin1")({
   component: Admin1Layout,
 });
 
-const NAV = [
+type NavItem = { to: string; label: string; icon: typeof Boxes; exact?: boolean };
+const NAV: NavItem[] = [
   { to: "/admin1", label: "סקירה", icon: LayoutDashboard, exact: true },
   { to: "/admin1/product-types", label: "סוגי מוצרים", icon: Boxes },
   { to: "/admin1/business-rules", label: "כללי עסק גלובליים", icon: Scale },
   { to: "/admin1/crm", label: "CRM 360", icon: Users },
   { to: "/admin1/automations", label: "אוטומציות", icon: Zap },
-] as const;
+];
 
 function Admin1Layout() {
   return (
