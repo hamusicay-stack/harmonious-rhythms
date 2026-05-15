@@ -39,6 +39,7 @@ import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
+import { Route as ForumSearchRouteImport } from './routes/forum.search'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
 import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
@@ -208,6 +209,11 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   path: '/$listingId',
   getParentRoute: () => MarketplaceRoute,
 } as any)
+const ForumSearchRoute = ForumSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => ForumRoute,
+} as any)
 const BeatSetIdRoute = BeatSetIdRouteImport.update({
   id: '/beat/$setId',
   path: '/beat/$setId',
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -375,6 +382,7 @@ export interface FileRoutesByTo {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -426,6 +434,7 @@ export interface FileRoutesById {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
+  '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -524,6 +534,7 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
+    | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/pros/$proId'
@@ -840,6 +852,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof MarketplaceRoute
     }
+    '/forum/search': {
+      id: '/forum/search'
+      path: '/search'
+      fullPath: '/forum/search'
+      preLoaderRoute: typeof ForumSearchRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/beat/$setId': {
       id: '/beat/$setId'
       path: '/beat/$setId'
@@ -1012,11 +1031,13 @@ const Admin1RouteWithChildren =
   Admin1Route._addFileChildren(Admin1RouteChildren)
 
 interface ForumRouteChildren {
+  ForumSearchRoute: typeof ForumSearchRoute
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
   ForumTopicSlugRoute: typeof ForumTopicSlugRoute
 }
 
 const ForumRouteChildren: ForumRouteChildren = {
+  ForumSearchRoute: ForumSearchRoute,
   ForumBoardSlugRoute: ForumBoardSlugRoute,
   ForumTopicSlugRoute: ForumTopicSlugRoute,
 }
