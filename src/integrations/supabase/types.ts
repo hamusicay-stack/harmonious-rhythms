@@ -3174,6 +3174,8 @@ export type Database = {
           email: string | null
           email_opt_in: boolean
           full_name: string | null
+          global_subscription_tier_id: string | null
+          has_whatsapp: boolean
           id: string
           instagram: string | null
           last_login_at: string | null
@@ -3197,6 +3199,8 @@ export type Database = {
           email?: string | null
           email_opt_in?: boolean
           full_name?: string | null
+          global_subscription_tier_id?: string | null
+          has_whatsapp?: boolean
           id: string
           instagram?: string | null
           last_login_at?: string | null
@@ -3220,6 +3224,8 @@ export type Database = {
           email?: string | null
           email_opt_in?: boolean
           full_name?: string | null
+          global_subscription_tier_id?: string | null
+          has_whatsapp?: boolean
           id?: string
           instagram?: string | null
           last_login_at?: string | null
@@ -3234,7 +3240,15 @@ export type Database = {
           website?: string | null
           youtube?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_global_subscription_tier_id_fkey"
+            columns: ["global_subscription_tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rhythm_automation_settings: {
         Row: {
@@ -4627,6 +4641,42 @@ export type Database = {
           updated_at?: string
           video_url?: string
           views_count?: number
+        }
+        Relationships: []
+      }
+      subscription_tiers: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_vip: boolean
+          name: string
+          rank: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_vip?: boolean
+          name: string
+          rank?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_vip?: boolean
+          name?: string
+          rank?: number
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
