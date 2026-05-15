@@ -79,6 +79,7 @@ import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.custom
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
 import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerce.organ-ui'
+import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
@@ -437,6 +438,12 @@ const AdminCommerceOrganUiRoute = AdminCommerceOrganUiRouteImport.update({
   path: '/organ-ui',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceMarketplaceRoute =
+  AdminCommerceMarketplaceRouteImport.update({
+    id: '/marketplace',
+    path: '/marketplace',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
 const AdminCommerceBeatRoute = AdminCommerceBeatRouteImport.update({
   id: '/beat',
   path: '/beat',
@@ -518,6 +525,7 @@ export interface FileRoutesByFullPath {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -587,6 +595,7 @@ export interface FileRoutesByTo {
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -665,6 +674,7 @@ export interface FileRoutesById {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -744,6 +754,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/beat'
+    | '/admin/commerce/marketplace'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
@@ -813,6 +824,7 @@ export interface FileRouteTypes {
     | '/pros'
     | '/shop'
     | '/admin/commerce/beat'
+    | '/admin/commerce/marketplace'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
@@ -890,6 +902,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/beat'
+    | '/admin/commerce/marketplace'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
@@ -1437,6 +1450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceOrganUiRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/marketplace': {
+      id: '/admin/commerce/marketplace'
+      path: '/marketplace'
+      fullPath: '/admin/commerce/marketplace'
+      preLoaderRoute: typeof AdminCommerceMarketplaceRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/beat': {
       id: '/admin/commerce/beat'
       path: '/beat'
@@ -1490,6 +1510,7 @@ const AcademyRouteWithChildren =
 
 interface AdminCommerceRouteChildren {
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
+  AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
@@ -1497,6 +1518,7 @@ interface AdminCommerceRouteChildren {
 
 const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
+  AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
