@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -172,6 +173,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     display_name: "", username: "", bio: "", location: "", website: "", instagram: "", youtube: "",
+    phone: "", has_whatsapp: false,
   });
 
   useEffect(() => {
@@ -184,6 +186,8 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
         website: profile.website ?? "",
         instagram: profile.instagram ?? "",
         youtube: profile.youtube ?? "",
+        phone: (profile as { phone?: string | null }).phone ?? "",
+        has_whatsapp: !!(profile as { has_whatsapp?: boolean | null }).has_whatsapp,
       });
     }
   }, [profile]);
@@ -201,6 +205,8 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
         website: form.website || null,
         instagram: form.instagram || null,
         youtube: form.youtube || null,
+        phone: form.phone || null,
+        has_whatsapp: !!form.phone && form.has_whatsapp,
       }).eq("id", user.id);
       if (error) throw error;
       await refreshProfile();
@@ -282,6 +288,23 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
         <Input id="location" value={form.location}
           onChange={(e) => setForm({ ...form, location: e.target.value })}
           placeholder="תל אביב, ישראל" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="profile_phone">טלפון</Label>
+          <Input id="profile_phone" type="tel" dir="ltr" value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="050-1234567" />
+        </div>
+        <label className="flex items-end gap-2 pb-2 text-sm text-muted-foreground">
+          <Checkbox
+            checked={form.has_whatsapp}
+            onCheckedChange={(v) => setForm({ ...form, has_whatsapp: v === true })}
+            disabled={!form.phone.trim()}
+            className="mt-0.5"
+          />
+          <span>יש לי וואטסאפ פעיל במספר זה</span>
+        </label>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">

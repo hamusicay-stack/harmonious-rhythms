@@ -41,10 +41,14 @@ const TRIGGERS = [
 ];
 
 const ACTIONS = [
-  { value: "send_email", label: "שליחת מייל", icon: Mail },
-  { value: "open_whatsapp", label: "פתיחת קישור וואטסאפ", icon: MessageSquare },
+  { value: "send_message", label: "שלח הודעה (WhatsApp / Email)", icon: MessageSquare },
+  { value: "send_email", label: "שליחת מייל בלבד", icon: Mail },
+  { value: "open_whatsapp", label: "WhatsApp בלבד", icon: MessageSquare },
   { value: "create_task", label: "יצירת משימה", icon: ListTodo },
 ];
+
+// Actions that participate in the omnichannel fallback (WhatsApp → Email)
+const SMART_ROUTING_ACTIONS = new Set(["send_message"]);
 
 const LEAD_STATUSES = [
   { value: "new", label: "חדש" },
@@ -94,12 +98,26 @@ export function AutomationsManager() {
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />מרכז אוטומציות ({rules.length})</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">חוקי "טריגר → פעולה" שיחסכו לך עבודה ידנית</p>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />אוטומציות (WhatsApp / Email) ({rules.length})
+          </CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">
+            ניתוב חכם: אם ללקוח יש WhatsApp פעיל — ההודעה תישלח לוואטסאפ. אחרת — אותה תבנית תישלח לתור המייל אוטומטית.
+          </p>
         </div>
         <RuleEditDialog onSaved={load} />
       </CardHeader>
       <CardContent>
+        <div className="mb-4 flex items-start gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
+          <Zap className="mt-0.5 h-4 w-4 text-primary" />
+          <div>
+            <div className="font-medium">ניתוב חכם (Smart Routing) פעיל</div>
+            <div className="text-muted-foreground">
+              פעולות מסוג "שלח הודעה" בודקות את <code className="rounded bg-muted px-1">has_whatsapp</code> של הלקוח —
+              TRUE → WhatsApp API · FALSE/NULL → תור המייל. אותה תבנית הודעה משמשת לשני הערוצים.
+            </div>
+          </div>
+        </div>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : (
@@ -123,7 +141,16 @@ export function AutomationsManager() {
                       {r.description && <div className="text-xs text-muted-foreground">{r.description}</div>}
                     </TableCell>
                     <TableCell><Badge variant="outline">{triggerLabel(r.trigger_type)}</Badge></TableCell>
-                    <TableCell><Badge>{actionLabel(r.action_type)}</Badge></TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Badge>{actionLabel(r.action_type)}</Badge>
+                        {SMART_ROUTING_ACTIONS.has(r.action_type) && (
+                          <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
+                            <Zap className="h-3 w-3" />ניתוב חכם
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-sm">
                       {r.run_count} פעמים
                       {r.last_run_at && (

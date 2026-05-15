@@ -42,12 +42,14 @@ type Profile = {
   full_name: string | null;
   email: string | null;
   phone: string | null;
+  has_whatsapp?: boolean | null;
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
   user_type: string;
   organ_model: string | null;
   subscription_tier: string;
+  global_subscription_tier_id?: string | null;
   specialties: string[] | null;
   website: string | null;
   instagram: string | null;
@@ -56,6 +58,8 @@ type Profile = {
   email_opt_in?: boolean;
   last_login_at?: string | null;
 };
+
+type TierOption = { id: string; slug: string; name: string; is_vip: boolean };
 
 type CustomerTag = { id: string; tag: string; color: string | null };
 type Interaction = {
@@ -129,9 +133,28 @@ function CustomerProfilePage() {
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("default");
 
+  const [tierOptions, setTierOptions] = useState<TierOption[]>([]);
+  const [tierSaving, setTierSaving] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    supabase.from("subscription_tiers").select("id, slug, name, is_vip, rank").order("rank")
+      .then(({ data }) => setTierOptions(((data ?? []) as TierOption[])));
+  }, []);
+
+  const updateGlobalTier = async (tierId: string) => {
+    setTierSaving(true);
+    const { error } = await supabase.from("profiles")
+      .update({ global_subscription_tier_id: tierId === "__none__" ? null : tierId })
+      .eq("id", customerId);
+    setTierSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("רמת ה-VIP הגלובלית עודכנה — חל מיד בכל המערכת");
+    load();
+  };
 
   const load = async () => {
     setLoading(true);
@@ -247,13 +270,42 @@ function CustomerProfilePage() {
               <h1 className="font-display text-3xl font-bold">{displayName}</h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <Badge variant="outline">{profile.user_type}</Badge>
-                <Badge>{profile.subscription_tier}</Badge>
+                {(() => {
+                  const currentTier = tierOptions.find((t) => t.id === profile.global_subscription_tier_id)
+                    ?? tierOptions.find((t) => t.slug === (profile.subscription_tier ?? "free").toLowerCase());
+                  return currentTier?.is_vip ? (
+                    <Badge className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
+                      <Crown className="ml-1 h-3 w-3" /> VIP גלובלי · {currentTier.name}
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">{currentTier?.name ?? profile.subscription_tier}</Badge>
+                  );
+                })()}
+                {profile.has_whatsapp && <Badge variant="outline" className="gap-1"><MessageSquare className="h-3 w-3" />WhatsApp פעיל</Badge>}
                 {profile.organ_model && <Badge variant="outline"><Music className="ml-1 h-3 w-3" />{profile.organ_model}</Badge>}
               </div>
               <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 {profile.email && <span className="flex items-center gap-1"><Mail className="h-4 w-4" />{profile.email}</span>}
                 {profile.phone && <span className="flex items-center gap-1" dir="ltr"><Phone className="h-4 w-4" />{profile.phone}</span>}
                 {profile.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.location}</span>}
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3">
+                <Crown className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">רמת VIP גלובלית (חל בכל המערכת):</span>
+                <Select
+                  value={profile.global_subscription_tier_id ?? "__none__"}
+                  onValueChange={updateGlobalTier}
+                  disabled={tierSaving}
+                >
+                  <SelectTrigger className="h-8 w-44"><SelectValue placeholder="בחר רמה" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">ללא (חינם)</SelectItem>
+                    {tierOptions.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}{t.is_vip ? " ⭐" : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {tierSaving && <Loader2 className="h-4 w-4 animate-spin" />}
               </div>
             </div>
             <div className="md:self-start">

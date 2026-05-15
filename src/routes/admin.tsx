@@ -431,7 +431,7 @@ function AdminPage() {
                   <TabsTrigger value="academy" className="shrink-0 md:flex-1"><GraduationCap className="ml-1 h-4 w-4" />אקדמיה</TabsTrigger>
                   <TabsTrigger value="affiliates" className="shrink-0 md:flex-1"><Sparkles className="ml-1 h-4 w-4" />שותפים</TabsTrigger>
                   <TabsTrigger value="newsletter" className="shrink-0 md:flex-1"><Mail className="ml-1 h-4 w-4" />ניוזלטר</TabsTrigger>
-                  <TabsTrigger value="automations" className="shrink-0 md:flex-1"><Zap className="ml-1 h-4 w-4" />אוטומציות</TabsTrigger>
+                  <TabsTrigger value="automations" className="shrink-0 md:flex-1"><Zap className="ml-1 h-4 w-4" />אוטומציות (WhatsApp / Email)</TabsTrigger>
                   <TabsTrigger value="ai" className="shrink-0 md:flex-1"><Bot className="ml-1 h-4 w-4" />עוזרי AI</TabsTrigger>
                   <TabsTrigger value="banners" className="shrink-0 md:flex-1"><Megaphone className="ml-1 h-4 w-4" />פרסומות</TabsTrigger>
                 </TabsList>
