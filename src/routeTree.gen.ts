@@ -67,6 +67,7 @@ import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
+import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
@@ -364,6 +365,11 @@ const AdminCustomersCustomerIdRoute =
     path: '/customers/$customerId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminCrmCustomersRoute = AdminCrmCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -438,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -495,6 +502,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -560,6 +568,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -626,6 +635,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/crm/customers'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -683,6 +693,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/pros'
     | '/shop'
+    | '/admin/crm/customers'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -747,6 +758,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/crm/customers'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -1199,6 +1211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCustomersCustomerIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/crm/customers': {
+      id: '/admin/crm/customers'
+      path: '/customers'
+      fullPath: '/admin/crm/customers'
+      preLoaderRoute: typeof AdminCrmCustomersRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1244,10 +1263,12 @@ const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminCrmRouteChildren {
+  AdminCrmCustomersRoute: typeof AdminCrmCustomersRoute
   AdminCrmIndexRoute: typeof AdminCrmIndexRoute
 }
 
 const AdminCrmRouteChildren: AdminCrmRouteChildren = {
+  AdminCrmCustomersRoute: AdminCrmCustomersRoute,
   AdminCrmIndexRoute: AdminCrmIndexRoute,
 }
 
