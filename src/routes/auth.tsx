@@ -29,6 +29,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const redirectTo = (search.redirect ?? "/") as never;
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">(search.mode as "login" | "signup");
   const [displayName, setDisplayName] = useState("");
@@ -40,8 +41,8 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) navigate({ to: search.redirect ?? "/" });
-  }, [user, authLoading, navigate, search.redirect]);
+    if (!authLoading && user) navigate({ to: redirectTo });
+  }, [user, authLoading, navigate, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,12 +67,12 @@ function AuthPage() {
           }).eq("id", newUserId);
         }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
-        navigate({ to: search.redirect ?? "/" });
+        navigate({ to: redirectTo });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("התחברתם בהצלחה");
-        navigate({ to: search.redirect ?? "/" });
+        navigate({ to: redirectTo });
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "אירעה שגיאה";
