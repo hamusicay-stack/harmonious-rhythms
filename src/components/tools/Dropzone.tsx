@@ -22,10 +22,15 @@ export function Dropzone({ accept = "audio/*", multiple = false, onFiles, hint, 
     (list: FileList | null) => {
       if (!list) return;
       const arr = Array.from(list);
+      const tooBig = arr.filter((f) => f.size > maxSize);
+      if (tooBig.length > 0) {
+        toast.error("הקובץ גדול מדי. הגודל המרבי המותר הוא 50MB");
+        return;
+      }
       setFiles((prev) => (multiple ? [...prev, ...arr] : arr));
       onFiles?.(arr);
     },
-    [multiple, onFiles]
+    [multiple, onFiles, maxSize]
   );
 
   const onDrop = (e: DragEvent) => {
