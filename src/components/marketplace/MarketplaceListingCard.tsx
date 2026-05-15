@@ -52,14 +52,6 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
     if (!r.ok && r.reason === "error") toast.error("הפעולה נכשלה");
   };
 
-  const openWa = (e: MouseEvent) => {
-    stop(e);
-    const wa = formatWa(listing.whatsapp || listing.phone);
-    if (!wa) { toast.error("אין מספר וואטסאפ זמין"); return; }
-    const text = encodeURIComponent(`היי, ראיתי את "${listing.title}" בלוח המוזיקאי`);
-    window.open(`https://wa.me/${wa}?text=${text}`, "_blank");
-  };
-
   const openQuickView = (e: MouseEvent) => { stop(e); setQuickOpen(true); };
   const nextImg = (e: MouseEvent) => { stop(e); setImgIdx((i) => (i + 1) % images.length); };
   const prevImg = (e: MouseEvent) => { stop(e); setImgIdx((i) => (i - 1 + images.length) % images.length); };
