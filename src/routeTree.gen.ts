@@ -43,6 +43,7 @@ import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
 import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
 import { Route as Admin1BusinessRulesRouteImport } from './routes/admin1.business-rules'
+import { Route as Admin1AutomationsRouteImport } from './routes/admin1.automations'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
@@ -225,6 +226,11 @@ const Admin1BusinessRulesRoute = Admin1BusinessRulesRouteImport.update({
   path: '/business-rules',
   getParentRoute: () => Admin1Route,
 } as any)
+const Admin1AutomationsRoute = Admin1AutomationsRouteImport.update({
+  id: '/automations',
+  path: '/automations',
+  getParentRoute: () => Admin1Route,
+} as any)
 const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   id: '/podcasts',
   path: '/podcasts',
@@ -306,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin1/automations': typeof Admin1AutomationsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByTo {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin1/automations': typeof Admin1AutomationsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
@@ -397,6 +405,7 @@ export interface FileRoutesById {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin1/automations': typeof Admin1AutomationsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
@@ -446,6 +455,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin1/automations'
     | '/admin1/business-rules'
     | '/admin1/crm'
     | '/admin1/product-types'
@@ -489,6 +499,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin1/automations'
     | '/admin1/business-rules'
     | '/admin1/crm'
     | '/admin1/product-types'
@@ -536,6 +547,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin1/automations'
     | '/admin1/business-rules'
     | '/admin1/crm'
     | '/admin1/product-types'
@@ -832,6 +844,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Admin1BusinessRulesRouteImport
       parentRoute: typeof Admin1Route
     }
+    '/admin1/automations': {
+      id: '/admin1/automations'
+      path: '/automations'
+      fullPath: '/admin1/automations'
+      preLoaderRoute: typeof Admin1AutomationsRouteImport
+      parentRoute: typeof Admin1Route
+    }
     '/academy/podcasts': {
       id: '/academy/podcasts'
       path: '/podcasts'
@@ -936,6 +955,7 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface Admin1RouteChildren {
+  Admin1AutomationsRoute: typeof Admin1AutomationsRoute
   Admin1BusinessRulesRoute: typeof Admin1BusinessRulesRoute
   Admin1CrmRoute: typeof Admin1CrmRoute
   Admin1ProductTypesRoute: typeof Admin1ProductTypesRoute
@@ -943,6 +963,7 @@ interface Admin1RouteChildren {
 }
 
 const Admin1RouteChildren: Admin1RouteChildren = {
+  Admin1AutomationsRoute: Admin1AutomationsRoute,
   Admin1BusinessRulesRoute: Admin1BusinessRulesRoute,
   Admin1CrmRoute: Admin1CrmRoute,
   Admin1ProductTypesRoute: Admin1ProductTypesRoute,
