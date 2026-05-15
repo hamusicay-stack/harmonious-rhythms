@@ -98,12 +98,26 @@ export function AutomationsManager() {
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />מרכז אוטומציות ({rules.length})</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">חוקי "טריגר → פעולה" שיחסכו לך עבודה ידנית</p>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />אוטומציות (WhatsApp / Email) ({rules.length})
+          </CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">
+            ניתוב חכם: אם ללקוח יש WhatsApp פעיל — ההודעה תישלח לוואטסאפ. אחרת — אותה תבנית תישלח לתור המייל אוטומטית.
+          </p>
         </div>
         <RuleEditDialog onSaved={load} />
       </CardHeader>
       <CardContent>
+        <div className="mb-4 flex items-start gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
+          <Zap className="mt-0.5 h-4 w-4 text-primary" />
+          <div>
+            <div className="font-medium">ניתוב חכם (Smart Routing) פעיל</div>
+            <div className="text-muted-foreground">
+              פעולות מסוג "שלח הודעה" בודקות את <code className="rounded bg-muted px-1">has_whatsapp</code> של הלקוח —
+              TRUE → WhatsApp API · FALSE/NULL → תור המייל. אותה תבנית הודעה משמשת לשני הערוצים.
+            </div>
+          </div>
+        </div>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : (
