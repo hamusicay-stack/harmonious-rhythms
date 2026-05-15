@@ -164,12 +164,15 @@ export async function ffmpegTranscode(
   const { fetchFile } = await import("@ffmpeg/util");
   await ffmpeg.writeFile(inputName, await fetchFile(source));
   await ffmpeg.exec(["-i", inputName, ...args, outputName]);
-  const data = await ffmpeg.readFile(outputName);
+  const data = (await ffmpeg.readFile(outputName)) as Uint8Array;
   try {
     await ffmpeg.deleteFile(inputName);
     await ffmpeg.deleteFile(outputName);
   } catch {}
-  return new Blob([data as Uint8Array], { type: outputMime });
+  // copy into a fresh ArrayBuffer to satisfy strict BlobPart typing
+  const copy = new Uint8Array(data.byteLength);
+  copy.set(data);
+  return new Blob([copy.buffer], { type: outputMime });
 }
 
 // ────────────────────────────────────────────────────────────────────
