@@ -209,10 +209,14 @@ function CoursePage() {
                     }}
                   />
                 ) : activeLesson && !canWatch ? (
-                  <div className="flex h-full flex-col items-center justify-center gap-2 text-white">
-                    <Lock className="h-10 w-10" />
-                    <p>השיעור הזה דורש הרשמה לקורס</p>
-                  </div>
+                  showPremiumLock ? (
+                    <PremiumLockOverlay tierName={vipTier?.name ?? null} coursePrice={course.price} courseSlug={course.slug} />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-white">
+                      <Lock className="h-10 w-10" />
+                      <p>השיעור הזה דורש הרשמה לקורס</p>
+                    </div>
+                  )
                 ) : (
                   <div className="flex h-full items-center justify-center text-white">
                     <PlayCircle className="h-12 w-12" />
