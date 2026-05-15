@@ -50,6 +50,7 @@ import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$order
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace.$listingId.edit'
+import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
@@ -262,6 +263,11 @@ const MarketplaceListingIdEditRoute =
     path: '/edit',
     getParentRoute: () => MarketplaceListingIdRoute,
   } as any)
+const ForumBoardSlugRoute = ForumBoardSlugRouteImport.update({
+  id: '/board/$slug',
+  path: '/board/$slug',
+  getParentRoute: () => ForumRoute,
+} as any)
 const AdminCustomersCustomerIdRoute =
   AdminCustomersCustomerIdRouteImport.update({
     id: '/customers/$customerId',
@@ -301,7 +307,7 @@ export interface FileRoutesByFullPath {
   '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/forum': typeof ForumRoute
+  '/forum': typeof ForumRouteWithChildren
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
@@ -332,6 +338,7 @@ export interface FileRoutesByFullPath {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -348,7 +355,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/forum': typeof ForumRoute
+  '/forum': typeof ForumRouteWithChildren
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shorts': typeof ShortsRoute
@@ -376,6 +383,7 @@ export interface FileRoutesByTo {
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -394,7 +402,7 @@ export interface FileRoutesById {
   '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
-  '/forum': typeof ForumRoute
+  '/forum': typeof ForumRouteWithChildren
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
@@ -425,6 +433,7 @@ export interface FileRoutesById {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/customers/$customerId'
+    | '/forum/board/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/pros'
     | '/shop'
     | '/admin/customers/$customerId'
+    | '/forum/board/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -567,6 +578,7 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/customers/$customerId'
+    | '/forum/board/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -585,7 +597,7 @@ export interface RootRouteChildren {
   Admin1Route: typeof Admin1RouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
-  ForumRoute: typeof ForumRoute
+  ForumRoute: typeof ForumRouteWithChildren
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
@@ -893,6 +905,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdEditRouteImport
       parentRoute: typeof MarketplaceListingIdRoute
     }
+    '/forum/board/$slug': {
+      id: '/forum/board/$slug'
+      path: '/board/$slug'
+      fullPath: '/forum/board/$slug'
+      preLoaderRoute: typeof ForumBoardSlugRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/admin/customers/$customerId': {
       id: '/admin/customers/$customerId'
       path: '/customers/$customerId'
@@ -972,6 +991,16 @@ const Admin1RouteChildren: Admin1RouteChildren = {
 
 const Admin1RouteWithChildren =
   Admin1Route._addFileChildren(Admin1RouteChildren)
+
+interface ForumRouteChildren {
+  ForumBoardSlugRoute: typeof ForumBoardSlugRoute
+}
+
+const ForumRouteChildren: ForumRouteChildren = {
+  ForumBoardSlugRoute: ForumBoardSlugRoute,
+}
+
+const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
 
 interface MarketplaceListingIdRouteChildren {
   MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
@@ -1054,7 +1083,7 @@ const rootRouteChildren: RootRouteChildren = {
   Admin1Route: Admin1RouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
-  ForumRoute: ForumRoute,
+  ForumRoute: ForumRouteWithChildren,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,

@@ -556,8 +556,10 @@ function LikedItems({ userId }: { userId: string }) {
     }
     if (groups.forum_post?.length) {
       const { data } = await supabase.from("forum_posts")
-        .select("id, title, content").in("id", groups.forum_post);
-      for (const r of data ?? []) map[`forum_post:${r.id}`] = r;
+        .select("id, body_md, topic_id").in("id", groups.forum_post);
+      for (const r of (data ?? []) as Array<{ id: string; body_md: string; topic_id: string }>) {
+        map[`forum_post:${r.id}`] = { id: r.id, title: r.body_md.slice(0, 60), content: r.body_md };
+      }
     }
     if (groups.shorts_video?.length) {
       const { data } = await supabase.from("shorts_videos")
