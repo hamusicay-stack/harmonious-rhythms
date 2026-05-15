@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Sparkles, Loader2, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { scoreListing } from "@/lib/scoreListing.functions";
 
 export interface EngagementInput {
   title?: string;
@@ -39,12 +40,12 @@ export function EngagementMeter({ input, auto = true }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const lastKey = useRef<string>("");
+  const scoreFn = useServerFn(scoreListing);
 
   const compute = async () => {
     setLoading(true); setError(null);
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke("score-listing", { body: input });
-      if (fnErr) throw fnErr;
+      const data = await scoreFn({ data: input });
       if (data?.error) throw new Error(data.error);
       setResult(data as ScoreResult);
     } catch (e: any) {
