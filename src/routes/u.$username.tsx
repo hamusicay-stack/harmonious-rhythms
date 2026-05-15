@@ -142,17 +142,49 @@ function PublicProfilePage() {
           </Card>
 
           {/* Tabs */}
-          <Tabs defaultValue="listings" className="mt-6">
-            <TabsList className="w-full sm:w-auto">
+          <Tabs defaultValue="forum" className="mt-6">
+            <TabsList className="w-full sm:w-auto flex-wrap h-auto">
+              <TabsTrigger value="forum"><MessageSquare className="h-4 w-4 ml-1" />קהילה ({data.topics.length + data.posts.length})</TabsTrigger>
               <TabsTrigger value="listings"><Tag className="h-4 w-4 ml-1" />יד 2 ({data.listings.length})</TabsTrigger>
               <TabsTrigger value="shorts"><Video className="h-4 w-4 ml-1" />שורטס ({data.shorts.length})</TabsTrigger>
-              <TabsTrigger value="forum"><MessageSquare className="h-4 w-4 ml-1" />פורום ({data.topics.length + data.posts.length})</TabsTrigger>
-              <TabsTrigger value="pro"><Briefcase className="h-4 w-4 ml-1" />אינדקס</TabsTrigger>
+              <TabsTrigger value="pro"><Briefcase className="h-4 w-4 ml-1" />כרטיס מקצועי</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="forum" className="mt-4 space-y-6">
+              <section>
+                <h3 className="font-semibold mb-2 text-sm text-muted-foreground">אשכולות שנפתחו</h3>
+                {data.topics.length === 0 ? <Empty icon={MessageSquare} label={`@${p.username} עדיין לא פתח/ה אשכולות בפורום`} /> : (
+                  <div className="space-y-1.5">
+                    {data.topics.map((t) => (
+                      <Link key={t.id} to="/forum/topic/$slug" params={{ slug: t.slug }} className="block px-3 py-2.5 rounded-lg border border-border hover:bg-accent/40 transition-colors">
+                        <div className="text-sm font-medium">{t.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{t.reply_count} תגובות · {t.view_count} צפיות</div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </section>
+              <section>
+                <h3 className="font-semibold mb-2 text-sm text-muted-foreground">תגובות אחרונות</h3>
+                {data.posts.length === 0 ? <Empty icon={MessageSquare} label={`@${p.username} עדיין לא הגיב/ה בפורום`} /> : (
+                  <div className="space-y-2">
+                    {data.posts.map((po) => {
+                      const topic = (po as { topic?: { title?: string; slug?: string } }).topic;
+                      return (
+                        <Link key={po.id} to="/forum/topic/$slug" params={{ slug: topic?.slug ?? "" }} className="block rounded-lg border border-border p-3 hover:bg-accent/40 transition-colors">
+                          <div className="text-sm font-medium">{topic?.title ?? "אשכול"}</div>
+                          <div className="text-xs text-muted-foreground line-clamp-2 mt-1">{po.body_md}</div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            </TabsContent>
 
             <TabsContent value="listings" className="mt-4">
               {data.listings.length === 0 ? (
-                <Empty icon={Tag} label="אין מודעות פעילות" />
+                <Empty icon={Tag} label={`ל@${p.username} אין מודעות פעילות ביד 2`} />
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {data.listings.map((l) => (
@@ -174,7 +206,7 @@ function PublicProfilePage() {
 
             <TabsContent value="shorts" className="mt-4">
               {data.shorts.length === 0 ? (
-                <Empty icon={Video} label="אין סרטוני שורטס" />
+                <Empty icon={Video} label={`@${p.username} עדיין לא העלה/תה סרטוני שורטס`} />
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {data.shorts.map((s) => (
@@ -194,41 +226,9 @@ function PublicProfilePage() {
               )}
             </TabsContent>
 
-            <TabsContent value="forum" className="mt-4 space-y-6">
-              <section>
-                <h3 className="font-semibold mb-2">אשכולות</h3>
-                {data.topics.length === 0 ? <Empty icon={MessageSquare} label="אין אשכולות" /> : (
-                  <div className="space-y-1">
-                    {data.topics.map((t) => (
-                      <Link key={t.id} to="/forum/topic/$slug" params={{ slug: t.slug }} className="block px-3 py-2 rounded border border-border hover:bg-accent/40">
-                        <span className="text-sm font-medium">{t.title}</span>
-                        <span className="text-xs text-muted-foreground mr-2">· {t.reply_count} תגובות · {t.view_count} צפיות</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </section>
-              <section>
-                <h3 className="font-semibold mb-2">תגובות אחרונות</h3>
-                {data.posts.length === 0 ? <Empty icon={MessageSquare} label="אין תגובות" /> : (
-                  <div className="space-y-2">
-                    {data.posts.map((po) => {
-                      const topic = (po as { topic?: { title?: string; slug?: string } }).topic;
-                      return (
-                        <Link key={po.id} to="/forum/topic/$slug" params={{ slug: topic?.slug ?? "" }} className="block rounded border border-border p-3 hover:bg-accent/40">
-                          <div className="text-sm font-medium">{topic?.title ?? "אשכול"}</div>
-                          <div className="text-xs text-muted-foreground line-clamp-2 mt-1">{po.body_md}</div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-            </TabsContent>
-
             <TabsContent value="pro" className="mt-4">
               {!data.musicPro ? (
-                <Empty icon={Briefcase} label="המשתמש לא רשום באינדקס המקצועי" />
+                <Empty icon={Briefcase} label={`ל@${p.username} אין עדיין כרטיס באינדקס המקצועי`} />
               ) : (
                 <Link to="/pros/$proId" params={{ proId: data.musicPro.id }} className="block">
                   <Card className="overflow-hidden hover:border-primary/50 transition-colors">

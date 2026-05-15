@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon } from "lucide-react";
+import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon, Globe } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -139,6 +139,12 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                     <UserIcon className="ml-2 h-4 w-4" />
                     הפרופיל שלי
                   </DropdownMenuItem>
+                  {profile?.username && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/u/$username", params: { username: profile.username! } })} className="cursor-pointer">
+                      <Globe className="ml-2 h-4 w-4" />
+                      הפרופיל הציבורי שלי
+                    </DropdownMenuItem>
+                  )}
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
                       <Shield className="ml-2 h-4 w-4 text-primary" />
@@ -204,6 +210,14 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                         הפרופיל שלי
                       </Button>
                     </Link>
+                    {profile?.username && (
+                      <Link to="/u/$username" params={{ username: profile.username }} onClick={() => setOpen(false)}>
+                        <Button variant="outline" className="w-full rounded-full">
+                          <Globe className="ml-2 h-4 w-4" />
+                          הפרופיל הציבורי שלי
+                        </Button>
+                      </Link>
+                    )}
                     {isAdmin && (
                       <Link to="/admin" onClick={() => setOpen(false)}>
                         <Button variant="outline" className="w-full rounded-full border-primary/40 text-primary">
