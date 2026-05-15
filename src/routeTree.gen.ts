@@ -79,6 +79,7 @@ import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.custom
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
 import { Route as AdminCommerceShortsRouteImport } from './routes/admin.commerce.shorts'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
+import { Route as AdminCommerceProductTypesRouteImport } from './routes/admin.commerce.product-types'
 import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerce.organ-ui'
 import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.commerce.newsletter'
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
@@ -445,6 +446,12 @@ const AdminCommerceShopRoute = AdminCommerceShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceProductTypesRoute =
+  AdminCommerceProductTypesRouteImport.update({
+    id: '/product-types',
+    path: '/product-types',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
 const AdminCommerceOrganUiRoute = AdminCommerceOrganUiRouteImport.update({
   id: '/organ-ui',
   path: '/organ-ui',
@@ -575,6 +582,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
+  '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -652,6 +660,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
+  '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -738,6 +747,7 @@ export interface FileRoutesById {
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
+  '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
@@ -825,6 +835,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
     | '/admin/commerce/organ-ui'
+    | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/crm/admins'
@@ -902,6 +913,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
     | '/admin/commerce/organ-ui'
+    | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/crm/admins'
@@ -987,6 +999,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
     | '/admin/commerce/organ-ui'
+    | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/crm/admins'
@@ -1534,6 +1547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceShopRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/product-types': {
+      id: '/admin/commerce/product-types'
+      path: '/product-types'
+      fullPath: '/admin/commerce/product-types'
+      preLoaderRoute: typeof AdminCommerceProductTypesRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/organ-ui': {
       id: '/admin/commerce/organ-ui'
       path: '/organ-ui'
@@ -1651,6 +1671,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
   AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
+  AdminCommerceProductTypesRoute: typeof AdminCommerceProductTypesRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
   AdminCommerceShortsRoute: typeof AdminCommerceShortsRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
@@ -1666,6 +1687,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,
   AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
+  AdminCommerceProductTypesRoute: AdminCommerceProductTypesRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
   AdminCommerceShortsRoute: AdminCommerceShortsRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
