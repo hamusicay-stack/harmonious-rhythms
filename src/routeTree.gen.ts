@@ -40,6 +40,7 @@ import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
+import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
@@ -207,6 +208,11 @@ const BeatSetIdRoute = BeatSetIdRouteImport.update({
   path: '/beat/$setId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Admin1ProductTypesRoute = Admin1ProductTypesRouteImport.update({
+  id: '/product-types',
+  path: '/product-types',
+  getParentRoute: () => Admin1Route,
+} as any)
 const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   id: '/podcasts',
   path: '/podcasts',
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -373,6 +381,7 @@ export interface FileRoutesById {
   '/tools': typeof ToolsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin1/product-types'
     | '/beat/$setId'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -459,6 +469,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin1/product-types'
     | '/beat/$setId'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin1/product-types'
     | '/beat/$setId'
     | '/marketplace/$listingId'
     | '/marketplace/new'
@@ -775,6 +787,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BeatSetIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin1/product-types': {
+      id: '/admin1/product-types'
+      path: '/product-types'
+      fullPath: '/admin1/product-types'
+      preLoaderRoute: typeof Admin1ProductTypesRouteImport
+      parentRoute: typeof Admin1Route
+    }
     '/academy/podcasts': {
       id: '/academy/podcasts'
       path: '/podcasts'
@@ -879,10 +898,12 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface Admin1RouteChildren {
+  Admin1ProductTypesRoute: typeof Admin1ProductTypesRoute
   Admin1IndexRoute: typeof Admin1IndexRoute
 }
 
 const Admin1RouteChildren: Admin1RouteChildren = {
+  Admin1ProductTypesRoute: Admin1ProductTypesRoute,
   Admin1IndexRoute: Admin1IndexRoute,
 }
 
