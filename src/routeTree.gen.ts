@@ -41,6 +41,7 @@ import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as Admin1ProductTypesRouteImport } from './routes/admin1.product-types'
+import { Route as Admin1CrmRouteImport } from './routes/admin1.crm'
 import { Route as Admin1BusinessRulesRouteImport } from './routes/admin1.business-rules'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
@@ -214,6 +215,11 @@ const Admin1ProductTypesRoute = Admin1ProductTypesRouteImport.update({
   path: '/product-types',
   getParentRoute: () => Admin1Route,
 } as any)
+const Admin1CrmRoute = Admin1CrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => Admin1Route,
+} as any)
 const Admin1BusinessRulesRoute = Admin1BusinessRulesRouteImport.update({
   id: '/business-rules',
   path: '/business-rules',
@@ -301,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
+  '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -343,6 +350,7 @@ export interface FileRoutesByTo {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
+  '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -390,6 +398,7 @@ export interface FileRoutesById {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin1/business-rules': typeof Admin1BusinessRulesRoute
+  '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -438,6 +447,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin1/business-rules'
+    | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
     | '/marketplace/$listingId'
@@ -480,6 +490,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin1/business-rules'
+    | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
     | '/marketplace/$listingId'
@@ -526,6 +537,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin1/business-rules'
+    | '/admin1/crm'
     | '/admin1/product-types'
     | '/beat/$setId'
     | '/marketplace/$listingId'
@@ -806,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Admin1ProductTypesRouteImport
       parentRoute: typeof Admin1Route
     }
+    '/admin1/crm': {
+      id: '/admin1/crm'
+      path: '/crm'
+      fullPath: '/admin1/crm'
+      preLoaderRoute: typeof Admin1CrmRouteImport
+      parentRoute: typeof Admin1Route
+    }
     '/admin1/business-rules': {
       id: '/admin1/business-rules'
       path: '/business-rules'
@@ -918,12 +937,14 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface Admin1RouteChildren {
   Admin1BusinessRulesRoute: typeof Admin1BusinessRulesRoute
+  Admin1CrmRoute: typeof Admin1CrmRoute
   Admin1ProductTypesRoute: typeof Admin1ProductTypesRoute
   Admin1IndexRoute: typeof Admin1IndexRoute
 }
 
 const Admin1RouteChildren: Admin1RouteChildren = {
   Admin1BusinessRulesRoute: Admin1BusinessRulesRoute,
+  Admin1CrmRoute: Admin1CrmRoute,
   Admin1ProductTypesRoute: Admin1ProductTypesRoute,
   Admin1IndexRoute: Admin1IndexRoute,
 }
