@@ -291,6 +291,22 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
+          <Label htmlFor="profile_phone">טלפון</Label>
+          <Input id="profile_phone" type="tel" dir="ltr" value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="050-1234567" />
+        </div>
+        <label className="flex items-end gap-2 pb-2 text-sm text-muted-foreground">
+          <Checkbox
+            checked={form.has_whatsapp}
+            onCheckedChange={(v) => setForm({ ...form, has_whatsapp: v === true })}
+            disabled={!form.phone.trim()}
+            className="mt-0.5"
+          />
+          <span>יש לי וואטסאפ פעיל במספר זה</span>
+        </label>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
           <Label htmlFor="website">אתר אישי</Label>
           <Input id="website" value={form.website} dir="ltr"
             onChange={(e) => setForm({ ...form, website: e.target.value })}
