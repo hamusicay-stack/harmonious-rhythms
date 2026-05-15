@@ -36,10 +36,18 @@ const focusToCenter = (e: React.FocusEvent<HTMLElement>) => {
 };
 
 function CheckoutPage() {
-  const { items, subtotal, clear } = useCart();
+  const {
+    items, subtotal, clear,
+    vipDiscountPercent, vipDiscountAmount,
+    coupon, couponDiscountAmount, totalDiscount, total: cartTotal,
+    applyCoupon, removeCoupon,
+  } = useCart();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoBusy, setPromoBusy] = useState(false);
 
   const [form, setForm] = useState({
     customer_name: "",
