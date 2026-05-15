@@ -305,6 +305,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
           />
           <span>יש לי וואטסאפ פעיל במספר זה</span>
         </label>
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="website">אתר אישי</Label>
