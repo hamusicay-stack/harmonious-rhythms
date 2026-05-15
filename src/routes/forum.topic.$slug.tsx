@@ -84,6 +84,7 @@ function TopicPage() {
   const [me, setMe] = useState<string | null>(null);
   const [body, setBody] = useState("");
   const [quoted, setQuoted] = useState<string | null>(null);
+  const [replyParent, setReplyParent] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
   const [reportFor, setReportFor] = useState<string | null>(null);
