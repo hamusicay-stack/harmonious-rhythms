@@ -110,24 +110,44 @@ function ShopHomePage() {
           </div>
         </div>
 
-        {/* Categories strip */}
+        {/* Category cards grid */}
         {categories.length > 0 && (
-          <div className="mb-6 flex gap-3 overflow-x-auto pb-2">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {categories.map((c) => {
+              const active = categoryFilter === c.id;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => setCategoryFilter(active ? "all" : c.id)}
+                  className={`group relative aspect-[4/3] overflow-hidden rounded-2xl border bg-gradient-to-br from-card to-card/50 p-4 text-right transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-elegant ${active ? "border-primary shadow-elegant ring-1 ring-primary/40" : "border-border/60"}`}
+                >
+                  {c.image_url ? (
+                    <img src={c.image_url} alt={c.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity group-hover:opacity-50" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+                  )}
+                  <div className="relative flex h-full flex-col justify-between">
+                    <Tag className="h-5 w-5 text-primary" />
+                    <div>
+                      <div className="text-base font-bold">{c.label}</div>
+                      {active && <div className="text-[10px] uppercase tracking-wider text-primary">מסונן</div>}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Categories chip strip (kept for quick reset) */}
+        {categories.length > 0 && (
+          <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setCategoryFilter("all")}
-              className={`shrink-0 rounded-full border px-4 py-2 text-sm transition ${categoryFilter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs transition ${categoryFilter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}
             >
-              הכל
+              כל הקטגוריות
             </button>
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setCategoryFilter(c.id)}
-                className={`shrink-0 rounded-full border px-4 py-2 text-sm transition ${categoryFilter === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}
-              >
-                {c.label}
-              </button>
-            ))}
           </div>
         )}
 

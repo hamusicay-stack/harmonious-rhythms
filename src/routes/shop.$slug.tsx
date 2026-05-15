@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS, PRODUCT_TYPE_LABEL } from "@/lib/shopUtils";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
+import { VirtualOrganPreview } from "@/components/shop/VirtualOrganPreview";
+import { CpiDropzone, type CpiFileInfo } from "@/components/shop/CpiDropzone";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
@@ -72,9 +74,11 @@ function ProductPage() {
   const { slug } = useParams({ from: "/shop/$slug" });
   const [product, setProduct] = useState<Product | null>(null);
   const [images, setImages] = useState<ProductImage[]>([]);
+  const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
+  const [cpiFile, setCpiFile] = useState<CpiFileInfo | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -88,12 +92,18 @@ function ProductPage() {
       if (p) {
         setProduct(p as any);
         setActiveImg(p.main_image);
-        const { data: imgs } = await supabase
-          .from("shop_product_images")
-          .select("id,image_url,alt_text")
-          .eq("product_id", p.id)
-          .order("display_order");
+        const [{ data: imgs }, catRes] = await Promise.all([
+          supabase
+            .from("shop_product_images")
+            .select("id,image_url,alt_text")
+            .eq("product_id", p.id)
+            .order("display_order"),
+          p.category_id
+            ? supabase.from("shop_categories").select("slug").eq("id", p.category_id).maybeSingle()
+            : Promise.resolve({ data: null } as any),
+        ]);
         setImages((imgs as ProductImage[]) ?? []);
+        setCategorySlug((catRes?.data as any)?.slug ?? null);
       }
       setLoading(false);
     })();
@@ -123,11 +133,37 @@ function ProductPage() {
   const finalPrice = hasSale ? product.sale_price! : product.price;
   const outOfStock = product.manage_stock && product.stock_quantity <= 0;
 
+  // Smart Rhythms detection by category slug
+  const isSmartRhythm = !!categorySlug && ["BITS", "smart-rhythms", "rhythms", "מקצבים"].includes(categorySlug);
+  // Optional per-button samples from custom_fields.organ_samples (record of button code → URL)
+  const organSamples =
+    (product.custom_fields && (product.custom_fields as any).organ_samples) as Record<string, string> | undefined;
+
+  const cpiRequired = isSmartRhythm;
+  const canAddToCart = !outOfStock && (!cpiRequired || !!cpiFile);
+
   const addToCart = () => {
+    if (cpiRequired && !cpiFile) {
+      toast.error("חובה להעלות קובץ זיהוי (.n27 / .info) לפני הוספה לסל");
+      return;
+    }
     const cart = JSON.parse(localStorage.getItem("shop_cart") || "[]");
     const existing = cart.find((i: any) => i.id === product.id);
-    if (existing) existing.qty += qty;
-    else cart.push({ id: product.id, slug: product.slug, title: product.title, price: finalPrice, image: product.main_image, qty, product_type: product.product_type });
+    if (existing) {
+      existing.qty += qty;
+      if (cpiFile) existing.cpi_file = cpiFile;
+    } else {
+      cart.push({
+        id: product.id,
+        slug: product.slug,
+        title: product.title,
+        price: finalPrice,
+        image: product.main_image,
+        qty,
+        product_type: product.product_type,
+        ...(cpiFile ? { cpi_file: cpiFile } : {}),
+      });
+    }
     localStorage.setItem("shop_cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("shop_cart_updated"));
     toast.success("נוסף לסל הקניות");
@@ -164,14 +200,20 @@ function ProductPage() {
               </div>
             )}
 
-            {(product.audio_demo_url || product.video_demo_url) && (
-              <Card className="mt-4 p-4">
-                <h3 className="mb-2 font-semibold">הדגמה</h3>
-                {product.audio_demo_url && <audio controls src={product.audio_demo_url} className="w-full" />}
-                {product.video_demo_url && (
-                  <video controls src={product.video_demo_url} className="mt-2 w-full rounded-lg" />
-                )}
-              </Card>
+            {isSmartRhythm ? (
+              <div className="mt-4">
+                <VirtualOrganPreview samples={organSamples} fallbackAudio={product.audio_demo_url} />
+              </div>
+            ) : (
+              (product.audio_demo_url || product.video_demo_url) && (
+                <Card className="mt-4 p-4">
+                  <h3 className="mb-2 font-semibold">הדגמה</h3>
+                  {product.audio_demo_url && <audio controls src={product.audio_demo_url} className="w-full" />}
+                  {product.video_demo_url && (
+                    <video controls src={product.video_demo_url} className="mt-2 w-full rounded-lg" />
+                  )}
+                </Card>
+              )
             )}
           </div>
 
@@ -198,16 +240,25 @@ function ProductPage() {
             {outOfStock ? (
               <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-destructive font-semibold text-center">המוצר אזל מהמלאי</div>
             ) : (
-              <div className="mb-6 flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" onClick={() => setQty(Math.max(1, qty - 1))}>-</Button>
-                  <span className="w-12 text-center font-bold">{qty}</span>
-                  <Button variant="outline" size="icon" onClick={() => setQty(qty + 1)}>+</Button>
+              <>
+                {cpiRequired && (
+                  <div className="mb-4">
+                    <h3 className="mb-2 text-sm font-semibold">קובץ זיהוי הקלידים <span className="text-destructive">*</span></h3>
+                    <CpiDropzone productId={product.id} value={cpiFile} onChange={setCpiFile} />
+                  </div>
+                )}
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" onClick={() => setQty(Math.max(1, qty - 1))}>-</Button>
+                    <span className="w-12 text-center font-bold">{qty}</span>
+                    <Button variant="outline" size="icon" onClick={() => setQty(qty + 1)}>+</Button>
+                  </div>
+                  <Button size="lg" className="flex-1" onClick={addToCart} disabled={!canAddToCart}>
+                    <ShoppingBag className="ml-2 h-4 w-4" />
+                    {cpiRequired && !cpiFile ? "העלה קובץ זיהוי כדי להוסיף לסל" : "הוסף לסל"}
+                  </Button>
                 </div>
-                <Button size="lg" className="flex-1" onClick={addToCart}>
-                  <ShoppingBag className="ml-2 h-4 w-4" /> הוסף לסל
-                </Button>
-              </div>
+              </>
             )}
 
             <div className="mb-6 grid grid-cols-3 gap-3 text-center text-xs">
@@ -259,8 +310,9 @@ function ProductPage() {
             <span className="text-[11px] text-muted-foreground">סה״כ</span>
             <span className="text-base font-bold text-primary">{formatILS(finalPrice * qty)}</span>
           </div>
-          <Button size="lg" className="flex-1 h-11" onClick={addToCart}>
-            <ShoppingBag className="ml-2 h-4 w-4" /> הוסף לסל
+          <Button size="lg" className="flex-1 h-11" onClick={addToCart} disabled={!canAddToCart}>
+            <ShoppingBag className="ml-2 h-4 w-4" />
+            {cpiRequired && !cpiFile ? "נדרש קובץ זיהוי" : "הוסף לסל"}
           </Button>
         </div>
       )}
