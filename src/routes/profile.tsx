@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -23,6 +24,7 @@ import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 import { UserBadges } from "@/components/UserBadges";
 
 export const Route = createFileRoute("/profile")({
+  beforeLoad: requireAuth,
   head: () => ({
     meta: [
       { title: "הפרופיל שלי — המוזיקאי" },

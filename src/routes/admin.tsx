@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -49,6 +50,7 @@ import { NewsletterManager } from "@/components/admin/NewsletterManager";
 import { Mail, Palette } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: requireAdmin,
   head: () => ({
     meta: [
       { title: "ניהול המערכת — המוזיקאי" },

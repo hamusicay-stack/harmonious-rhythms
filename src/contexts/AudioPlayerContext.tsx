@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export type AudioTrack = {
   id: string;
@@ -17,6 +17,7 @@ type AudioPlayerContextValue = {
   playQueue: (tracks: AudioTrack[], startId?: string) => void;
   toggle: () => void;
   stop: () => void;
+  stopGlobal: () => void;
   next: () => void;
   previous: () => void;
   hasNext: boolean;
@@ -106,6 +107,45 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Global Audio Collision Manager:
+  // - When ANY native <video>/<audio> begins playing, stop our context track
+  //   and broadcast app:stop-all-audio so Virtual Organ / Web Audio loops mute.
+  // - When our context track plays (playGlobal), pause all other native media.
+  const stopGlobal = useCallback(() => {
+    audioRef.current?.pause();
+    setIsPlaying(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("app:stop-all-audio"));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onPlay = (e: Event) => {
+      const target = e.target as HTMLMediaElement | null;
+      if (!target || (target.tagName !== "VIDEO" && target.tagName !== "AUDIO")) return;
+      if (target === audioRef.current) {
+        // Our context's track started → pause every OTHER native media element.
+        document.querySelectorAll<HTMLMediaElement>("video, audio").forEach((el) => {
+          if (el !== audioRef.current && !el.paused) el.pause();
+        });
+        // And mute Web Audio loops (Virtual Organ etc).
+        window.dispatchEvent(new CustomEvent("app:stop-web-audio"));
+      } else {
+        // Another media element started → stop our context + Web Audio.
+        if (audioRef.current && !audioRef.current.paused) audioRef.current.pause();
+        setIsPlaying(false);
+        // Pause every OTHER native media too (one-at-a-time policy).
+        document.querySelectorAll<HTMLMediaElement>("video, audio").forEach((el) => {
+          if (el !== target && el !== audioRef.current && !el.paused) el.pause();
+        });
+        window.dispatchEvent(new CustomEvent("app:stop-web-audio"));
+      }
+    };
+    document.addEventListener("play", onPlay, true);
+    return () => document.removeEventListener("play", onPlay, true);
+  }, []);
+
   const value = useMemo(
     () => ({
       current,
@@ -115,12 +155,13 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       playQueue,
       toggle,
       stop,
+      stopGlobal,
       next,
       previous,
       hasNext: currentIndex < queue.length - 1,
       hasPrevious: currentIndex > 0,
     }),
-    [current, currentIndex, isPlaying, next, play, playQueue, previous, queue.length, stop, toggle],
+    [current, currentIndex, isPlaying, next, play, playQueue, previous, queue.length, stop, stopGlobal, toggle],
   );
 
   return <AudioPlayerContext.Provider value={value}>{children}</AudioPlayerContext.Provider>;

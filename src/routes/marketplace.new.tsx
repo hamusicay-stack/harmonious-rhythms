@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
@@ -6,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ListingFormWizard } from "@/components/marketplace/ListingFormWizard";
 
 export const Route = createFileRoute("/marketplace/new")({
+  beforeLoad: requireAuth,
   head: () => ({ meta: [{ title: "פרסם מודעה — המוזיקאי" }] }),
   component: NewListingPage,
 });

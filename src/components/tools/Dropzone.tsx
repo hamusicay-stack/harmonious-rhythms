@@ -1,6 +1,9 @@
 import { useCallback, useState, type DragEvent } from "react";
 import { Upload, X, FileAudio } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
 interface Props {
   accept?: string;
@@ -8,9 +11,10 @@ interface Props {
   onFiles?: (files: File[]) => void;
   hint?: string;
   className?: string;
+  maxSize?: number;
 }
 
-export function Dropzone({ accept = "audio/*", multiple = false, onFiles, hint, className }: Props) {
+export function Dropzone({ accept = "audio/*", multiple = false, onFiles, hint, className, maxSize = MAX_SIZE_BYTES }: Props) {
   const [over, setOver] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -18,10 +22,15 @@ export function Dropzone({ accept = "audio/*", multiple = false, onFiles, hint, 
     (list: FileList | null) => {
       if (!list) return;
       const arr = Array.from(list);
+      const tooBig = arr.filter((f) => f.size > maxSize);
+      if (tooBig.length > 0) {
+        toast.error("הקובץ גדול מדי. הגודל המרבי המותר הוא 50MB");
+        return;
+      }
       setFiles((prev) => (multiple ? [...prev, ...arr] : arr));
       onFiles?.(arr);
     },
-    [multiple, onFiles]
+    [multiple, onFiles, maxSize]
   );
 
   const onDrop = (e: DragEvent) => {

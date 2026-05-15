@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2, Trash2, Plus, Music, Video } from "lucide-react";
@@ -12,6 +13,7 @@ import { ProProfileWizard, type ProFormState } from "@/components/pros/ProProfil
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pros/$proId/edit")({
+  beforeLoad: requireAuth,
   component: EditProPage,
 });
 
