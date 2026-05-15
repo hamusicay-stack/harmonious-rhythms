@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/customers/$customerId")({
@@ -111,6 +113,7 @@ const INTERACTION_LABELS: Record<Interaction["type"], string> = {
 function CustomerProfilePage() {
   const { customerId } = Route.useParams();
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const { startImpersonation } = useImpersonation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -250,6 +253,25 @@ function CustomerProfilePage() {
                 {profile.phone && <span className="flex items-center gap-1" dir="ltr"><Phone className="h-4 w-4" />{profile.phone}</span>}
                 {profile.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.location}</span>}
               </div>
+            </div>
+            <div className="md:self-start">
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => {
+                  startImpersonation({
+                    id: profile.id,
+                    name: displayName,
+                    email: profile.email,
+                    avatar_url: profile.avatar_url,
+                  });
+                  toast.success(`מצב השתלטות הופעל עבור ${displayName}`);
+                  navigate({ to: "/" });
+                }}
+              >
+                <Eye className="h-4 w-4" />
+                השתלטות על חשבון
+              </Button>
             </div>
           </div>
 

@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ShoppingBag, Trash2, Plus, Minus } from "lucide-react";
+import { ShoppingBag, Trash2, Plus, Minus, Share2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { formatILS } from "@/lib/shopUtils";
+import { encodeSharedCart, isShareableItem } from "@/lib/sharedCart";
+import { toast } from "sonner";
 import { useState } from "react";
 
 export function CartDrawer() {
@@ -15,6 +17,30 @@ export function CartDrawer() {
   const goCheckout = () => {
     setOpen(false);
     navigate({ to: "/shop/checkout" });
+  };
+
+  const handleShare = async () => {
+    const shareable = items.filter(isShareableItem);
+    const skipped = items.length - shareable.length;
+    if (!shareable.length) {
+      toast.error("אין בעגלה מוצרים מלאים שניתן לשתף");
+      return;
+    }
+    const token = encodeSharedCart(shareable);
+    const url = `${window.location.origin}/shop?shared_cart=${encodeURIComponent(token)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "עגלת קניות משותפת", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("הקישור הועתק ללוח");
+      }
+      if (skipped > 0) {
+        toast.message(`${skipped} פריטים חלקיים לא נכללו בשיתוף`);
+      }
+    } catch {
+      // user cancelled share — ignore
+    }
   };
 
   return (
@@ -97,6 +123,10 @@ export function CartDrawer() {
                 </div>
                 <Button onClick={goCheckout} className="w-full" size="lg">
                   המשך לתשלום
+                </Button>
+                <Button onClick={handleShare} variant="outline" className="w-full gap-2" size="sm">
+                  <Share2 className="h-4 w-4" />
+                  שתף עגלה
                 </Button>
               </div>
             </SheetFooter>
