@@ -157,7 +157,9 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     return m;
   }, [samples, activeItemId, activeSetId]);
 
-  // Hardware theme variant per keyboard model
+  // Hardware theme variant per keyboard model — driven by the
+  // KeyboardSelectionContext (`selectedModel`) so the LCD glow, casing and
+  // accent colors match the chosen model (Tyros / Genos / Korg Pa).
   const hwTheme = useMemo(() => {
     const name = `${selectedModel?.brand?.name ?? ""} ${selectedModel?.model_name ?? ""}`.toLowerCase();
     if (/tyros|טיירוס|טירוס/.test(name)) {
@@ -169,6 +171,17 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
         headerText: "oklch(0.98 0.005 260)",
         lcdBg: "linear-gradient(180deg, oklch(0.80 0.010 260) 0%, oklch(0.68 0.012 260) 100%)",
         lcdText: "oklch(0.18 0.025 260)",
+      };
+    }
+    if (/korg|pa[\s-]?\d|pa[\s-]?series|קורג/.test(name)) {
+      return {
+        variant: "korg" as const,
+        panelBg: "linear-gradient(180deg, oklch(0.22 0.012 250) 0%, oklch(0.14 0.014 250) 55%, oklch(0.08 0.014 250) 100%)",
+        panelBorder: "oklch(0 0 0 / 0.75)",
+        headerBg: "linear-gradient(180deg, oklch(0.62 0.18 25) 0%, oklch(0.45 0.18 22) 100%)",
+        headerText: "oklch(1 0 0)",
+        lcdBg: "linear-gradient(180deg, oklch(0.16 0.06 235) 0%, oklch(0.08 0.05 235) 100%)",
+        lcdText: "oklch(0.92 0.10 200)",
       };
     }
     return {
