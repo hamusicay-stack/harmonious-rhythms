@@ -310,8 +310,9 @@ function ProductPage() {
             <span className="text-[11px] text-muted-foreground">סה״כ</span>
             <span className="text-base font-bold text-primary">{formatILS(finalPrice * qty)}</span>
           </div>
-          <Button size="lg" className="flex-1 h-11" onClick={addToCart}>
-            <ShoppingBag className="ml-2 h-4 w-4" /> הוסף לסל
+          <Button size="lg" className="flex-1 h-11" onClick={addToCart} disabled={!canAddToCart}>
+            <ShoppingBag className="ml-2 h-4 w-4" />
+            {cpiRequired && !cpiFile ? "נדרש קובץ זיהוי" : "הוסף לסל"}
           </Button>
         </div>
       )}
