@@ -3688,6 +3688,44 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_sync_events: {
+        Row: {
+          changed_fields: Json
+          created_at: string
+          event_type: string
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          user_id: string
+        }
+        Insert: {
+          changed_fields?: Json
+          created_at?: string
+          event_type: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          user_id: string
+        }
+        Update: {
+          changed_fields?: Json
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_sync_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -3704,10 +3742,12 @@ export type Database = {
           forum_reputation: number
           forum_signature: string | null
           full_name: string | null
+          global_status: Database["public"]["Enums"]["profile_global_status"]
           global_subscription_tier_id: string | null
           has_whatsapp: boolean
           id: string
           instagram: string | null
+          is_public_profile_active: boolean
           keyboard_model_id: string | null
           last_login_at: string | null
           location: string | null
@@ -3736,10 +3776,12 @@ export type Database = {
           forum_reputation?: number
           forum_signature?: string | null
           full_name?: string | null
+          global_status?: Database["public"]["Enums"]["profile_global_status"]
           global_subscription_tier_id?: string | null
           has_whatsapp?: boolean
           id: string
           instagram?: string | null
+          is_public_profile_active?: boolean
           keyboard_model_id?: string | null
           last_login_at?: string | null
           location?: string | null
@@ -3768,10 +3810,12 @@ export type Database = {
           forum_reputation?: number
           forum_signature?: string | null
           full_name?: string | null
+          global_status?: Database["public"]["Enums"]["profile_global_status"]
           global_subscription_tier_id?: string | null
           has_whatsapp?: boolean
           id?: string
           instagram?: string | null
+          is_public_profile_active?: boolean
           keyboard_model_id?: string | null
           last_login_at?: string | null
           location?: string | null
@@ -5661,6 +5705,7 @@ export type Database = {
         | "other"
       lead_status: "new" | "in_progress" | "converted" | "lost"
       payment_status: "pending" | "paid" | "cancelled" | "refunded"
+      profile_global_status: "active" | "suspended" | "banned" | "pending"
       shop_coupon_type: "percent" | "fixed"
       shop_field_type:
         | "text"
@@ -5866,6 +5911,7 @@ export const Constants = {
       ],
       lead_status: ["new", "in_progress", "converted", "lost"],
       payment_status: ["pending", "paid", "cancelled", "refunded"],
+      profile_global_status: ["active", "suspended", "banned", "pending"],
       shop_coupon_type: ["percent", "fixed"],
       shop_field_type: [
         "text",
