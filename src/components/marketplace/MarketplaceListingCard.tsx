@@ -211,9 +211,6 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
 
             {/* Quick actions - bottom (always on mobile, hover on desktop) */}
             <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
-              <button type="button" onClick={openWa} className="h-8 w-8 rounded-full bg-emerald-500 text-white shadow-lg flex items-center justify-center hover:scale-110 transition" title="וואטסאפ">
-                <MessageCircle className="h-4 w-4" />
-              </button>
               <div onClick={stop}>
                 <ChatThreadDialog
                   listingId={listing.id}
