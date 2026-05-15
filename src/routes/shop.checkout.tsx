@@ -195,6 +195,8 @@ function CheckoutPage() {
           customer_email: form.customer_email,
           customer_phone: form.customer_phone,
           subtotal,
+          discount_amount: totalDiscount,
+          coupon_code: coupon?.code ?? null,
           shipping_amount: shipping,
           total_amount: total,
           shipping_address: hasPhysical ? {
