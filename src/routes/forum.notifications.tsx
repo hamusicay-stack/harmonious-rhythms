@@ -1,10 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { useEffect } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { listForumNotifications, markNotificationsRead } from "@/lib/forum/notifications.functions";
+import { useNotifications } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import { Bell, Check } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -20,37 +17,28 @@ export const Route = createFileRoute("/forum/notifications")({
 });
 
 function NotificationsPage() {
-  const fetchN = useServerFn(listForumNotifications);
-  const markRead = useServerFn(markNotificationsRead);
-  const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["forum", "notifications"], queryFn: () => fetchN({ data: { limit: 50 } }) });
-
-  useEffect(() => {
-    const ch = supabase.channel("forum-notifications-realtime")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "forum_notifications" },
-        () => qc.invalidateQueries({ queryKey: ["forum", "notifications"] }))
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [qc]);
+  const { items, loading, markRead, markAllRead } = useNotifications();
+  const forumItems = items.filter((n) => n.type?.startsWith("forum_"));
 
   return (
     <SiteLayout>
       <div dir="rtl" className="container mx-auto px-4 py-6 max-w-3xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← פורום</Link>
         <header className="flex items-center justify-between my-4">
-          <h1 className="text-2xl font-bold flex items-center gap-2"><Bell className="h-6 w-6" />התראות</h1>
-          <Button variant="outline" size="sm" onClick={async () => { await markRead({ data: { all: true } }); qc.invalidateQueries({ queryKey: ["forum", "notifications"] }); }}>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><Bell className="h-6 w-6" />התראות פורום</h1>
+          <Button variant="outline" size="sm" onClick={() => markAllRead()}>
             <Check className="h-4 w-4 ml-1" />סמן הכל כנקרא
           </Button>
         </header>
+        <p className="text-xs text-muted-foreground mb-3">כל התראות הפורום מסונכרנות עם פעמון ההתראות הראשי באתר.</p>
 
-        {isLoading && <p className="text-muted-foreground">טוען…</p>}
+        {loading && <p className="text-muted-foreground">טוען…</p>}
         <div className="space-y-2">
-          {data?.notifications.map((n) => (
+          {forumItems.map((n) => (
             <a
               key={n.id}
               href={n.link || "/forum"}
-              onClick={async (e) => { await markRead({ data: { ids: [n.id] } }); qc.invalidateQueries({ queryKey: ["forum", "notifications"] }); }}
+              onClick={() => markRead(n.id)}
               className={`block rounded border border-border p-3 hover:bg-accent/40 ${!n.read_at ? "bg-accent/20" : ""}`}
             >
               <div className="flex items-center justify-between gap-3">
@@ -64,7 +52,7 @@ function NotificationsPage() {
               </div>
             </a>
           ))}
-          {data?.notifications.length === 0 && <p className="text-center py-8 text-muted-foreground">אין התראות</p>}
+          {!loading && forumItems.length === 0 && <p className="text-center py-8 text-muted-foreground">אין התראות פורום עדיין</p>}
         </div>
       </div>
     </SiteLayout>
