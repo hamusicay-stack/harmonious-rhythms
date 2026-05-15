@@ -57,6 +57,7 @@ import { Route as AdminCrmRouteImport } from './routes/admin.crm'
 import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
+import { Route as AdminCrmIndexRouteImport } from './routes/admin.crm.index'
 import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$orderId'
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
@@ -311,6 +312,11 @@ const AcademySlugRoute = AcademySlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AcademyRoute,
 } as any)
+const AdminCrmIndexRoute = AdminCrmIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const ShopOrderOrderIdRoute = ShopOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
@@ -403,7 +409,7 @@ export interface FileRoutesByFullPath {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
-  '/admin/crm': typeof AdminCrmRoute
+  '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
@@ -441,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
   '/shop/order/$orderId': typeof ShopOrderOrderIdRoute
+  '/admin/crm/': typeof AdminCrmIndexRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -460,7 +467,6 @@ export interface FileRoutesByTo {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
-  '/admin/crm': typeof AdminCrmRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
@@ -498,6 +504,7 @@ export interface FileRoutesByTo {
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
   '/shop/order/$orderId': typeof ShopOrderOrderIdRoute
+  '/admin/crm': typeof AdminCrmIndexRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -524,7 +531,7 @@ export interface FileRoutesById {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
-  '/admin/crm': typeof AdminCrmRoute
+  '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
@@ -562,6 +569,7 @@ export interface FileRoutesById {
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
   '/shop/order/$orderId': typeof ShopOrderOrderIdRoute
+  '/admin/crm/': typeof AdminCrmIndexRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -627,6 +635,7 @@ export interface FileRouteTypes {
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
     | '/shop/order/$orderId'
+    | '/admin/crm/'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -646,7 +655,6 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
-    | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
     | '/admin1/automations'
@@ -684,6 +692,7 @@ export interface FileRouteTypes {
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
     | '/shop/order/$orderId'
+    | '/admin/crm'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -747,6 +756,7 @@ export interface FileRouteTypes {
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
     | '/shop/order/$orderId'
+    | '/admin/crm/'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1119,6 +1129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcademySlugRouteImport
       parentRoute: typeof AcademyRoute
     }
+    '/admin/crm/': {
+      id: '/admin/crm/'
+      path: '/'
+      fullPath: '/admin/crm/'
+      preLoaderRoute: typeof AdminCrmIndexRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/shop/order/$orderId': {
       id: '/shop/order/$orderId'
       path: '/order/$orderId'
@@ -1226,9 +1243,21 @@ const AcademyRouteChildren: AcademyRouteChildren = {
 const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
+interface AdminCrmRouteChildren {
+  AdminCrmIndexRoute: typeof AdminCrmIndexRoute
+}
+
+const AdminCrmRouteChildren: AdminCrmRouteChildren = {
+  AdminCrmIndexRoute: AdminCrmIndexRoute,
+}
+
+const AdminCrmRouteWithChildren = AdminCrmRoute._addFileChildren(
+  AdminCrmRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminAutomationsRoute: typeof AdminAutomationsRoute
-  AdminCrmRoute: typeof AdminCrmRoute
+  AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminForumRoute: typeof AdminForumRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1237,7 +1266,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAutomationsRoute: AdminAutomationsRoute,
-  AdminCrmRoute: AdminCrmRoute,
+  AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminForumRoute: AdminForumRoute,
   AdminIndexRoute: AdminIndexRoute,
