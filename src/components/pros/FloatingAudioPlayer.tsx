@@ -1,16 +1,75 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Pause, Play, SkipBack, SkipForward, X } from "lucide-react";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 
+const CROSSFADE_MS = 80;
+
 export function FloatingAudioPlayer() {
   const { current, isPlaying, audioRef, toggle, stop, next, previous, hasNext, hasPrevious } = useAudioPlayer();
+  const lastUrlRef = useRef<string | null>(null);
+  const fadeIntervalRef = useRef<number | null>(null);
 
+  // Race-free playback: when `current` changes, fade out, swap src, wait for
+  // `canplay`, then fade in. Prevents AbortError from .play()-before-buffer
+  // and audio clicks when switching Virtual Organ Main A → Main B.
   useEffect(() => {
-    if (audioRef.current && current) {
-      audioRef.current.src = current.url;
-      audioRef.current.loop = !!current.loop;
-      audioRef.current.play().catch(() => {});
+    const audio = audioRef.current;
+    if (!audio || !current) return;
+    if (lastUrlRef.current === current.url) {
+      audio.loop = !!current.loop;
+      return;
     }
+
+    let cancelled = false;
+    const clearFade = () => {
+      if (fadeIntervalRef.current) {
+        window.clearInterval(fadeIntervalRef.current);
+        fadeIntervalRef.current = null;
+      }
+    };
+
+    const fadeTo = (target: number, done?: () => void) => {
+      clearFade();
+      const start = audio.volume;
+      const steps = 6;
+      let i = 0;
+      fadeIntervalRef.current = window.setInterval(() => {
+        i += 1;
+        const v = start + ((target - start) * i) / steps;
+        audio.volume = Math.max(0, Math.min(1, v));
+        if (i >= steps) {
+          clearFade();
+          done?.();
+        }
+      }, CROSSFADE_MS / 6) as unknown as number;
+    };
+
+    const swapAndPlay = () => {
+      if (cancelled) return;
+      audio.src = current.url;
+      audio.loop = !!current.loop;
+      audio.volume = 0;
+      lastUrlRef.current = current.url;
+      const onCanPlay = () => {
+        audio.removeEventListener("canplay", onCanPlay);
+        if (cancelled) return;
+        audio.play().then(() => fadeTo(1)).catch(() => {});
+      };
+      audio.addEventListener("canplay", onCanPlay);
+      // Kick off buffering
+      audio.load();
+    };
+
+    if (audio.paused || audio.volume === 0) {
+      swapAndPlay();
+    } else {
+      fadeTo(0, swapAndPlay);
+    }
+
+    return () => {
+      cancelled = true;
+      clearFade();
+    };
   }, [current, audioRef]);
 
   if (!current) return <audio ref={audioRef} preload="none" className="hidden" />;
