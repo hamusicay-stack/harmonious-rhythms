@@ -84,8 +84,8 @@ function CheckoutPage() {
     return Array.from(exts);
   }, [items]);
 
-  const shipping = hasPhysical && subtotal < 500 && subtotal > 0 ? 35 : 0;
-  const total = subtotal + shipping;
+  const shipping = hasPhysical && cartTotal < 500 && cartTotal > 0 ? 35 : 0;
+  const total = cartTotal + shipping;
 
   // Stepper: 1 = details, 1.5 = info file (if any item requires it), 2 = shipping (if physical), 3 = review
   type StepKey = "details" | "info_file" | "shipping" | "review";
