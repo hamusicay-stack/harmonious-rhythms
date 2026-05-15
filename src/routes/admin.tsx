@@ -223,10 +223,11 @@ function AdminPage() {
         </div>
 
         <Tabs defaultValue="dashboard" className="mt-8" dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 h-auto sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <TabsList className="grid w-full grid-cols-4 h-auto sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <TabsTrigger value="dashboard" className="text-xs sm:text-sm py-2"><LayoutDashboard className="ml-1 h-4 w-4" /><span className="hidden sm:inline">דשבורד</span><span className="sm:hidden">בית</span></TabsTrigger>
             <TabsTrigger value="crm" className="text-xs sm:text-sm py-2"><Users className="ml-1 h-4 w-4" />CRM</TabsTrigger>
             <TabsTrigger value="commerce" className="text-xs sm:text-sm py-2"><ShoppingBag className="ml-1 h-4 w-4" /><span className="hidden sm:inline">חנות ושיווק</span><span className="sm:hidden">חנות</span></TabsTrigger>
+            <TabsTrigger value="forum" className="text-xs sm:text-sm py-2"><MessagesSquare className="ml-1 h-4 w-4" /><span className="hidden sm:inline">פורום וקהילה</span><span className="sm:hidden">פורום</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="mt-6">
