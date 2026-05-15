@@ -114,9 +114,18 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               <div className="flex items-center justify-between pt-3 mt-2 border-t border-border/40">
                 <div className="font-display font-bold text-2xl text-gradient-gold">₪{Number(listing.price).toLocaleString()}</div>
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={openWa} className="rounded-full p-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 transition" title="וואטסאפ">
-                    <MessageCircle className="h-4 w-4" />
-                  </button>
+                  <div onClick={stop}>
+                    <ChatThreadDialog
+                      listingId={listing.id}
+                      sellerId={listing.seller_id}
+                      listingTitle={listing.title}
+                      trigger={
+                        <button type="button" className="rounded-full p-2 bg-primary/10 hover:bg-primary/20 text-primary transition" title="צ'אט מאובטח עם המוכר">
+                          <MessageSquare className="h-4 w-4" />
+                        </button>
+                      }
+                    />
+                  </div>
                   <button type="button" onClick={toggleLike} className={`rounded-full p-2 transition ${liked ? "bg-rose-500/15 text-rose-500" : "bg-muted hover:bg-rose-500/10 hover:text-rose-500"}`} title="מועדפים">
                     <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
                   </button>
