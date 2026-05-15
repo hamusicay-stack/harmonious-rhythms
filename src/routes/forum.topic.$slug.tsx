@@ -120,8 +120,8 @@ function TopicPage() {
     const trimmed = body.replace(/<[^>]+>/g, "").trim();
     if (trimmed.length < 1) return;
     try {
-      await reply({ data: { topicId: topicId!, body, quotedPostId: quoted ?? undefined } });
-      setBody(""); setQuoted(null);
+      await reply({ data: { topicId: topicId!, body, quotedPostId: quoted ?? undefined, parentPostId: replyParent ?? undefined } });
+      setBody(""); setQuoted(null); setReplyParent(null);
       qc.invalidateQueries({ queryKey: ["forum", "topic", slug] });
     } catch (e) { toast.error((e as Error).message); }
   };
