@@ -115,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         activeUserIdRef.current = null;
         setProfile(null);
         setIsAdmin(false);
+        setVipTier(null);
         setLoading(false);
       }
     };
