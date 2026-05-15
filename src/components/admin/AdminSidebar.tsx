@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Users, ClipboardList, DollarSign, CheckCircle2, Building2,
   Package, KeyRound, ShieldCheck, ShoppingBag, Piano, Palette, Tags, Play,
   Music2, GraduationCap, Sparkles, Mail, Bot, Megaphone, MessagesSquare, Zap,
+  Boxes, Scale,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,

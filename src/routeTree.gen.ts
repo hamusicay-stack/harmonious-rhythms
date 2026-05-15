@@ -84,6 +84,7 @@ import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerc
 import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.commerce.newsletter'
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
+import { Route as AdminCommerceBusinessRulesRouteImport } from './routes/admin.commerce.business-rules'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as AdminCommerceBannersRouteImport } from './routes/admin.commerce.banners'
 import { Route as AdminCommerceAiRouteImport } from './routes/admin.commerce.ai'
@@ -473,6 +474,12 @@ const AdminCommerceMarketplaceRoute =
     path: '/marketplace',
     getParentRoute: () => AdminCommerceRoute,
   } as any)
+const AdminCommerceBusinessRulesRoute =
+  AdminCommerceBusinessRulesRouteImport.update({
+    id: '/business-rules',
+    path: '/business-rules',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
 const AdminCommerceBeatRoute = AdminCommerceBeatRouteImport.update({
   id: '/beat',
   path: '/beat',
@@ -578,6 +585,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -656,6 +664,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -743,6 +752,7 @@ export interface FileRoutesById {
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
+  '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -831,6 +841,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
+    | '/admin/commerce/business-rules'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -909,6 +920,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
+    | '/admin/commerce/business-rules'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -995,6 +1007,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
+    | '/admin/commerce/business-rules'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -1582,6 +1595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceMarketplaceRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/business-rules': {
+      id: '/admin/commerce/business-rules'
+      path: '/business-rules'
+      fullPath: '/admin/commerce/business-rules'
+      preLoaderRoute: typeof AdminCommerceBusinessRulesRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/beat': {
       id: '/admin/commerce/beat'
       path: '/beat'
@@ -1667,6 +1687,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceAiRoute: typeof AdminCommerceAiRoute
   AdminCommerceBannersRoute: typeof AdminCommerceBannersRoute
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
+  AdminCommerceBusinessRulesRoute: typeof AdminCommerceBusinessRulesRoute
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
@@ -1683,6 +1704,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceAiRoute: AdminCommerceAiRoute,
   AdminCommerceBannersRoute: AdminCommerceBannersRoute,
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
+  AdminCommerceBusinessRulesRoute: AdminCommerceBusinessRulesRoute,
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,
