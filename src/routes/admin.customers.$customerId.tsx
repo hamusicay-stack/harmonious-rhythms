@@ -133,9 +133,28 @@ function CustomerProfilePage() {
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("default");
 
+  const [tierOptions, setTierOptions] = useState<TierOption[]>([]);
+  const [tierSaving, setTierSaving] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    supabase.from("subscription_tiers").select("id, slug, name, is_vip, rank").order("rank")
+      .then(({ data }) => setTierOptions(((data ?? []) as TierOption[])));
+  }, []);
+
+  const updateGlobalTier = async (tierId: string) => {
+    setTierSaving(true);
+    const { error } = await supabase.from("profiles")
+      .update({ global_subscription_tier_id: tierId === "__none__" ? null : tierId })
+      .eq("id", customerId);
+    setTierSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("רמת ה-VIP הגלובלית עודכנה — חל מיד בכל המערכת");
+    load();
+  };
 
   const load = async () => {
     setLoading(true);
