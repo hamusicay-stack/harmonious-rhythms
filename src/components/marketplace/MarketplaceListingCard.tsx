@@ -34,14 +34,8 @@ interface Props {
 
 const stop = (e: MouseEvent) => { e.preventDefault(); e.stopPropagation(); };
 
-function formatWa(num?: string | null) {
-  if (!num) return null;
-  const digits = num.replace(/\D/g, "");
-  if (!digits) return null;
-  if (digits.startsWith("972")) return digits;
-  if (digits.startsWith("0")) return "972" + digits.slice(1);
-  return digits;
-}
+// Privacy Shield: cards never expose seller phone/whatsapp.
+// Buyers must use the secure in-app chat (ChatThreadDialog).
 
 export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, isTrusted }: Props) {
   const { user } = useAuth();
