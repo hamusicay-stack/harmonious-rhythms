@@ -123,8 +123,8 @@ function ListingDetailPage() {
   );
 
   const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
-  const waNumber = (listing.whatsapp || listing.phone || "").replace(/\D/g, "").replace(/^0/, "972");
-  const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(`היי, ראיתי את המודעה "${listing.title}" באתר המוזיקאי`)}`;
+  // Privacy Shield: real phone/whatsapp are no longer fetched in the public bundle.
+  // Buyers must contact the seller through in-app chat (ChatThreadDialog).
 
   const submitReview = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
