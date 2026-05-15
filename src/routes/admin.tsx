@@ -49,6 +49,8 @@ import { OrganUIThemeEditor } from "@/components/admin/OrganUIThemeEditor";
 import { NewsletterManager } from "@/components/admin/NewsletterManager";
 import { Mail, Palette, DollarSign } from "lucide-react";
 import { DealsKanban } from "@/components/admin/DealsKanban";
+import { ForumManager } from "@/components/admin/ForumManager";
+import { MessagesSquare } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: requireAdmin,
