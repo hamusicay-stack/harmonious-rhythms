@@ -663,3 +663,35 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
   );
 }
 
+function PremiumLockOverlay({ tierName, coursePrice, courseSlug }: { tierName: string | null; coursePrice: number; courseSlug: string }) {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-black via-zinc-900 to-amber-950/40 p-6 text-center text-white">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, rgba(251,191,36,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(217,119,6,0.3), transparent 50%)" }} />
+      <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-2xl shadow-amber-500/40">
+        <Crown className="h-8 w-8 text-black" />
+      </div>
+      <div className="relative space-y-1">
+        <h3 className="text-xl font-bold">תוכן פרימיום</h3>
+        <p className="max-w-sm text-sm text-white/70">
+          {tierName ? `מנוי ${tierName} שלך אינו כולל קורס זה. ` : "קורס זה זמין למנויי VIP בלבד או לרכישה ישירה. "}
+          שדרגו עכשיו לגישה לכל הספרייה.
+        </p>
+      </div>
+      <div className="relative flex flex-wrap items-center justify-center gap-2">
+        <Button asChild className="bg-gradient-to-l from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500">
+          <Link to="/shop">
+            <Crown className="ms-1 h-4 w-4" />שדרוג ל-VIP
+          </Link>
+        </Button>
+        {coursePrice > 0 && (
+          <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
+            <Link to="/shop/$slug" params={{ slug: courseSlug }}>
+              רכישת הקורס · ₪{coursePrice}
+            </Link>
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
