@@ -200,14 +200,20 @@ function ProductPage() {
               </div>
             )}
 
-            {(product.audio_demo_url || product.video_demo_url) && (
-              <Card className="mt-4 p-4">
-                <h3 className="mb-2 font-semibold">הדגמה</h3>
-                {product.audio_demo_url && <audio controls src={product.audio_demo_url} className="w-full" />}
-                {product.video_demo_url && (
-                  <video controls src={product.video_demo_url} className="mt-2 w-full rounded-lg" />
-                )}
-              </Card>
+            {isSmartRhythm ? (
+              <div className="mt-4">
+                <VirtualOrganPreview samples={organSamples} fallbackAudio={product.audio_demo_url} />
+              </div>
+            ) : (
+              (product.audio_demo_url || product.video_demo_url) && (
+                <Card className="mt-4 p-4">
+                  <h3 className="mb-2 font-semibold">הדגמה</h3>
+                  {product.audio_demo_url && <audio controls src={product.audio_demo_url} className="w-full" />}
+                  {product.video_demo_url && (
+                    <video controls src={product.video_demo_url} className="mt-2 w-full rounded-lg" />
+                  )}
+                </Card>
+              )
             )}
           </div>
 
