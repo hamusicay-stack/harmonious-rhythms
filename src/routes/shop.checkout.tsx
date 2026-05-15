@@ -241,11 +241,8 @@ function CheckoutPage() {
         ));
       }
 
-      // Best-effort: bump coupon usage counter (RLS allows admin only on update,
-      // so this is fine if it silently fails — order integrity already records the code).
-      if (coupon) {
-        await (supabase as any).rpc("increment_coupon_usage", { _coupon_id: coupon.id }).then?.(() => {}).catch?.(() => {});
-      }
+      // Coupon code is recorded on the order row above; usage-count bump is handled
+      // by an admin task / scheduled job to avoid exposing writes via RLS.
 
       clear();
       removeCoupon();
