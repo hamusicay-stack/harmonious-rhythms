@@ -33,15 +33,15 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Playback (.play()) is triggered by FloatingAudioPlayer once the
+  // <audio> element fires `canplay` — this avoids the classic race where
+  // .play() is called before the new src has buffered, leading to
+  // AbortError or silent failures (Virtual Organ button switching).
   const play = useCallback((track: AudioTrack) => {
     setQueue([track]);
     setCurrentIndex(0);
     setCurrent(track);
     setIsPlaying(true);
-    // src change handled by FloatingAudioPlayer effect
-    setTimeout(() => {
-      audioRef.current?.play().catch(() => setIsPlaying(false));
-    }, 50);
   }, []);
 
   const playQueue = useCallback((tracks: AudioTrack[], startId?: string) => {
@@ -51,9 +51,6 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     setCurrentIndex(index);
     setCurrent(tracks[index]);
     setIsPlaying(true);
-    setTimeout(() => {
-      audioRef.current?.play().catch(() => setIsPlaying(false));
-    }, 50);
   }, []);
 
   const toggle = useCallback(() => {
