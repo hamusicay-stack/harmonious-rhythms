@@ -1,7 +1,34 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { slugify, withRandomSuffix } from "./utils";
+
+/** Public (no-auth) topic meta for SEO head() in route loaders. */
+export const getTopicMeta = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ slug: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data }) => {
+    const { data: t } = await supabaseAdmin
+      .from("forum_topics")
+      .select("id, title, slug, board_id, created_at, is_deleted")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!t || t.is_deleted) return { title: null, excerpt: null, board: null };
+    const { data: op } = await supabaseAdmin
+      .from("forum_posts")
+      .select("body_md")
+      .eq("topic_id", t.id)
+      .eq("is_op", true)
+      .maybeSingle();
+    const { data: board } = await supabaseAdmin
+      .from("forum_boards").select("name, slug").eq("id", t.board_id).maybeSingle();
+    const text = (op?.body_md ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return {
+      title: t.title,
+      excerpt: text.slice(0, 160),
+      board,
+    };
+  });
 
 export const listTopics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
