@@ -47,7 +47,8 @@ import { Music2, ShoppingBag, Play, Sparkles, GraduationCap, KeyRound, Bot, Pian
 import { RhythmSetsManager } from "@/components/admin/RhythmSetsManager";
 import { OrganUIThemeEditor } from "@/components/admin/OrganUIThemeEditor";
 import { NewsletterManager } from "@/components/admin/NewsletterManager";
-import { Mail, Palette } from "lucide-react";
+import { Mail, Palette, DollarSign } from "lucide-react";
+import { DealsKanban } from "@/components/admin/DealsKanban";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: requireAdmin,
