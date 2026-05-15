@@ -12,6 +12,34 @@ import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/$slug")({
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("shop_products")
+      .select("title, short_description, meta_title, meta_description, main_image, price, slug")
+      .eq("slug", params.slug)
+      .eq("status", "active")
+      .maybeSingle();
+    return { meta: data };
+  },
+  head: ({ loaderData, params }) => {
+    const m = loaderData?.meta;
+    const title = (m?.meta_title || m?.title || "מוצר") + " — המוזיקאי";
+    const description = m?.meta_description || m?.short_description || "פרטי מוצר בחנות המוזיקאי.";
+    const url = `https://harmonious-rhythms.lovable.app/shop/${params.slug}`;
+    const meta: { title?: string; name?: string; property?: string; content?: string }[] = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:type", content: "product" },
+      { property: "og:url", content: url },
+    ];
+    if (m?.main_image) {
+      meta.push({ property: "og:image", content: m.main_image });
+      meta.push({ name: "twitter:image", content: m.main_image });
+    }
+    return { meta, links: [{ rel: "canonical", href: url }] };
+  },
   component: ProductPage,
 });
 
