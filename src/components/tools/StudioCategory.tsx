@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ToolCard } from "./ToolCard";
 import { Dropzone } from "./Dropzone";
 import { Button } from "@/components/ui/button";
@@ -6,19 +6,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Scissors, Volume2, Music, Tags, Image as ImageIcon } from "lucide-react";
+import { Scissors, Volume2, Music, Tags, Image as ImageIcon, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import { useProcessingTask } from "./useProcessingTask";
 import { ProcessingPanel } from "./ProcessingPanel";
-
-const dummy = (name: string) => ({ bytes: `Generated: ${name}\n${new Date().toISOString()}`, filename: name, mime: "application/octet-stream" });
+import { decodeAudioFile, encodeWAV, normalizeToPeak, pitchShift, formatBytes } from "@/lib/audioTools";
 
 export function StudioCategory() {
   const [pitch, setPitch] = useState([0]);
+  const [normTarget, setNormTarget] = useState(-0.3);
   const slicer = useProcessingTask();
   const normalizer = useProcessingTask();
-  const pitchShift = useProcessingTask();
+  const pitchTask = useProcessingTask();
   const id3 = useProcessingTask();
+
+  // ID3 form state
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [artist, setArtist] = useState("");
+  const [title, setTitle] = useState("");
+  const [copyright, setCopyright] = useState("");
+
+  // Pitch preview
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handle = (cb: (f: File) => void) => (files: File[]) => {
     if (files[0]) { toast.success("הקובץ הועלה בהצלחה"); cb(files[0]); }
@@ -26,12 +37,34 @@ export function StudioCategory() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <ToolCard title="Bulk Slicer" description="חיתוך אודיו אוטומטי" icon={<Scissors className="h-5 w-5" />}>
+      <ToolCard title="Bulk Slicer" description="חיתוך אודיו לפלחים שווים" icon={<Scissors className="h-5 w-5" />}>
         <Dropzone hint="קובץ אודיו ארוך לחיתוך" onFiles={handle((f) => {
-          slicer.run("חיתוך", () => ({
-            data: { "פלחים": Math.floor(Math.random() * 20) + 8, "פורמט": "WAV" },
-            download: dummy(`${f.name.replace(/\.[^.]+$/, "")}-slices.zip`),
-          }), 3500);
+          slicer.run("חיתוך", async () => {
+            const buf = await decodeAudioFile(f);
+            const sliceSec = 4;
+            const sliceLen = Math.floor(buf.sampleRate * sliceSec);
+            const count = Math.ceil(buf.length / sliceLen);
+            // Produce a single concatenated WAV that includes 200ms silence between slices
+            const gap = Math.floor(buf.sampleRate * 0.2);
+            const totalLen = buf.length + gap * (count - 1);
+            const out = new AudioBuffer({ numberOfChannels: buf.numberOfChannels, length: totalLen, sampleRate: buf.sampleRate });
+            for (let c = 0; c < buf.numberOfChannels; c++) {
+              const src = buf.getChannelData(c);
+              const dst = out.getChannelData(c);
+              let writePos = 0;
+              for (let i = 0; i < count; i++) {
+                const start = i * sliceLen;
+                const end = Math.min(start + sliceLen, buf.length);
+                dst.set(src.subarray(start, end), writePos);
+                writePos += end - start + gap;
+              }
+            }
+            const blob = encodeWAV(out);
+            return {
+              data: { "פלחים": count, "משך פלח": `${sliceSec}s`, "גודל": formatBytes(blob.size) },
+              download: { bytes: blob, filename: `${f.name.replace(/\.[^.]+$/, "")}-sliced.wav`, mime: "audio/wav" },
+            };
+          });
         })} />
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div>
@@ -39,55 +72,69 @@ export function StudioCategory() {
             <Select defaultValue="time">
               <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="time">לפי זמן קבוע</SelectItem>
-                <SelectItem value="transient">לפי טרנזיינטים</SelectItem>
-                <SelectItem value="silence">לפי שתיקה</SelectItem>
+                <SelectItem value="time">לפי זמן קבוע (4s)</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label className="text-xs">משך פלח (שניות)</Label>
-            <Input type="number" defaultValue={4} min={0.1} step={0.1} className="h-9" />
+            <Label className="text-xs">פורמט פלט</Label>
+            <Input value="WAV" disabled className="h-9" />
           </div>
         </div>
         <ProcessingPanel {...slicer} onDownload={slicer.download} onReset={slicer.reset} />
       </ToolCard>
 
-      <ToolCard title="Batch Normalizer" description="נירמול עוצמה לכמה קבצים" icon={<Volume2 className="h-5 w-5" />}>
-        <Dropzone multiple hint="גרור מספר קבצים לנירמול אצווה" onFiles={(files) => {
-          if (files.length === 0) return;
-          toast.success(`${files.length} קבצים הועלו בהצלחה`);
-          normalizer.run("נירמול", () => ({
-            data: { "קבצים": files.length, "יעד": "-14 LUFS" },
-            download: dummy("normalized-batch.zip"),
-          }), 4000);
-        }} />
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs">יעד</Label>
-            <Select defaultValue="lufs">
-              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lufs">LUFS</SelectItem>
-                <SelectItem value="peak">Peak (dBFS)</SelectItem>
-                <SelectItem value="rms">RMS</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-xs">ערך יעד</Label>
-            <Input type="number" defaultValue={-14} className="h-9" dir="ltr" />
-          </div>
+      <ToolCard title="Normalizer" description="נירמול לעוצמה מירבית בטוחה" icon={<Volume2 className="h-5 w-5" />}>
+        <Dropzone hint="קובץ אודיו לנירמול" onFiles={handle((f) => {
+          normalizer.run("נירמול", async () => {
+            const buf = await decodeAudioFile(f);
+            const { buffer: normalized, peakDb, gain } = normalizeToPeak(buf, normTarget);
+            const blob = encodeWAV(normalized);
+            return {
+              data: {
+                "פיק מקורי": `${peakDb.toFixed(1)} dBFS`,
+                "Gain": `${(20 * Math.log10(gain)).toFixed(1)} dB`,
+                "יעד": `${normTarget} dBFS`,
+                "גודל": formatBytes(blob.size),
+              },
+              download: { bytes: blob, filename: `${f.name.replace(/\.[^.]+$/, "")}-normalized.wav`, mime: "audio/wav" },
+            };
+          });
+        })} />
+        <div className="mt-3">
+          <Label className="text-xs">יעד פיק (dBFS)</Label>
+          <Input
+            type="number"
+            value={normTarget}
+            onChange={(e) => setNormTarget(parseFloat(e.target.value) || -0.3)}
+            step={0.1}
+            max={0}
+            className="h-9"
+            dir="ltr"
+          />
         </div>
         <ProcessingPanel {...normalizer} onDownload={normalizer.download} onReset={normalizer.reset} />
       </ToolCard>
 
-      <ToolCard title="Pitch Shifter" description="שינוי גובה ללא שינוי טמפו" icon={<Music className="h-5 w-5" />}>
+      <ToolCard title="Pitch Shifter" description="שינוי גובה ב-Web Audio (משנה גם טמפו)" icon={<Music className="h-5 w-5" />}>
         <Dropzone hint="קובץ אודיו לשינוי גובה" onFiles={handle((f) => {
-          pitchShift.run("Pitch Shift", () => ({
-            data: { "סטייה": `${pitch[0] > 0 ? "+" : ""}${pitch[0]} חצאי טון` },
-            download: dummy(`${f.name.replace(/\.[^.]+$/, "")}-pitched.wav`),
-          }), 3000);
+          pitchTask.run("Pitch Shift", async () => {
+            const buf = await decodeAudioFile(f);
+            const shifted = await pitchShift(buf, pitch[0]);
+            const blob = encodeWAV(shifted);
+            const url = URL.createObjectURL(blob);
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(url);
+            setIsPlaying(false);
+            return {
+              data: {
+                "סטייה": `${pitch[0] > 0 ? "+" : ""}${pitch[0]} חצאי טון`,
+                "Sample Rate": `${buf.sampleRate} Hz`,
+                "גודל": formatBytes(blob.size),
+              },
+              download: { bytes: blob, filename: `${f.name.replace(/\.[^.]+$/, "")}-pitched.wav`, mime: "audio/wav" },
+            };
+          });
         })} />
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between">
@@ -101,28 +148,88 @@ export function StudioCategory() {
             <span>-12</span><span>0</span><span>+12</span>
           </div>
         </div>
-        <ProcessingPanel {...pitchShift} onDownload={pitchShift.download} onReset={pitchShift.reset} />
+        {previewUrl && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border bg-muted/30 p-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                if (!audioRef.current) return;
+                if (isPlaying) { audioRef.current.pause(); setIsPlaying(false); }
+                else { audioRef.current.play(); setIsPlaying(true); }
+              }}
+            >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+            <span className="text-xs text-muted-foreground">תצוגה מקדימה</span>
+            <audio
+              ref={audioRef}
+              src={previewUrl}
+              onEnded={() => setIsPlaying(false)}
+              className="ml-auto h-8 flex-1"
+              controls
+            />
+          </div>
+        )}
+        <ProcessingPanel {...pitchTask} onDownload={pitchTask.download} onReset={pitchTask.reset} />
       </ToolCard>
 
-      <ToolCard title="עורך ID3 מתקדם" description="הטמעת תמונות ומטא-דאטה" icon={<Tags className="h-5 w-5" />}>
+      <ToolCard title="עורך ID3 מתקדם" description="הטמעת תמונות ומטא-דאטה לקובץ MP3" icon={<Tags className="h-5 w-5" />}>
         <Dropzone accept="audio/mpeg,.mp3" hint="קובץ MP3 לעריכה" onFiles={handle((f) => {
-          id3.run("שמירת מטא-דאטה", () => ({
-            data: { "קובץ": f.name, "תגיות": "ID3v2.4" },
-            download: dummy(f.name),
-          }), 2000);
+          id3.run("שמירת מטא-דאטה", async () => {
+            const { ID3Writer } = await import("browser-id3-writer");
+            const ab = await f.arrayBuffer();
+            const writer = new ID3Writer(ab);
+            if (artist) writer.setFrame("TPE1", [artist]);
+            if (title) writer.setFrame("TIT2", title);
+            if (copyright) writer.setFrame("TCOP", copyright);
+            if (coverFile) {
+              const coverAb = await coverFile.arrayBuffer();
+              writer.setFrame("APIC", {
+                type: 3,
+                data: coverAb,
+                description: "Cover",
+              });
+            }
+            writer.addTag();
+            const blob = writer.getBlob();
+            return {
+              data: {
+                "אמן": artist || "—",
+                "כותרת": title || "—",
+                "עטיפה": coverFile ? "✓" : "—",
+                "גודל": formatBytes(blob.size),
+              },
+              download: { bytes: blob, filename: f.name, mime: "audio/mpeg" },
+            };
+          });
         })} />
         <div className="mt-3 grid grid-cols-[80px,1fr] gap-3">
           <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-muted-foreground hover:border-primary/50">
-            <ImageIcon className="h-5 w-5" />
-            <span className="text-[10px]">עטיפה</span>
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-              if (e.target.files?.[0]) toast.success("עטיפה הוטענה");
-            }} />
+            {coverFile ? (
+              <img src={URL.createObjectURL(coverFile)} alt="cover" className="h-full w-full rounded-md object-cover" />
+            ) : (
+              <>
+                <ImageIcon className="h-5 w-5" />
+                <span className="text-[10px]">עטיפה</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setCoverFile(e.target.files[0]);
+                  toast.success("עטיפה הוטענה");
+                }
+              }}
+            />
           </label>
           <div className="space-y-2">
-            <Input placeholder="שם האמן" className="h-8" />
-            <Input placeholder="שם השיר / אלבום" className="h-8" />
-            <Input placeholder="זכויות יוצרים © 2026" className="h-8" />
+            <Input placeholder="שם האמן" value={artist} onChange={(e) => setArtist(e.target.value)} className="h-8" />
+            <Input placeholder="שם השיר / אלבום" value={title} onChange={(e) => setTitle(e.target.value)} className="h-8" />
+            <Input placeholder="זכויות יוצרים © 2026" value={copyright} onChange={(e) => setCopyright(e.target.value)} className="h-8" />
           </div>
         </div>
         <ProcessingPanel {...id3} onDownload={id3.download} onReset={id3.reset} />
