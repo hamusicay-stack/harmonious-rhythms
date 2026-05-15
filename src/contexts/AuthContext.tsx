@@ -2,6 +2,15 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback,
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+export type VipTier = {
+  id: string;
+  slug: string;
+  name: string;
+  rank: number;
+  is_vip: boolean;
+  color: string | null;
+} | null;
+
 type Profile = {
   id: string;
   username: string | null;
@@ -14,6 +23,10 @@ type Profile = {
   website: string | null;
   instagram: string | null;
   youtube: string | null;
+  phone?: string | null;
+  has_whatsapp?: boolean | null;
+  global_subscription_tier_id?: string | null;
+  subscription_tier?: string | null;
 };
 
 type AuthContextValue = {
@@ -21,6 +34,8 @@ type AuthContextValue = {
   user: User | null;
   profile: Profile | null;
   isAdmin: boolean;
+  vipTier: VipTier;
+  isVip: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
