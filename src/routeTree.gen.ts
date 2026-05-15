@@ -54,6 +54,7 @@ import { Route as Admin1AutomationsRouteImport } from './routes/admin1.automatio
 import { Route as AdminForumRouteImport } from './routes/admin.forum'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCrmRouteImport } from './routes/admin.crm'
+import { Route as AdminCommerceRouteImport } from './routes/admin.commerce'
 import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
@@ -74,6 +75,7 @@ import { Route as AdminCrmPurchaseOrdersRouteImport } from './routes/admin.crm.p
 import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
+import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
@@ -304,6 +306,11 @@ const AdminCrmRoute = AdminCrmRouteImport.update({
   path: '/crm',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCommerceRoute = AdminCommerceRouteImport.update({
+  id: '/commerce',
+  path: '/commerce',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAutomationsRoute = AdminAutomationsRouteImport.update({
   id: '/automations',
   path: '/automations',
@@ -406,6 +413,11 @@ const AdminCrmCustomersRoute = AdminCrmCustomersRouteImport.update({
   path: '/customers',
   getParentRoute: () => AdminCrmRoute,
 } as any)
+const AdminCrmAdminsRoute = AdminCrmAdminsRouteImport.update({
+  id: '/admins',
+  path: '/admins',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -451,6 +463,7 @@ export interface FileRoutesByFullPath {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
+  '/admin/commerce': typeof AdminCommerceRoute
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
@@ -480,6 +493,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
@@ -516,6 +530,7 @@ export interface FileRoutesByTo {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
+  '/admin/commerce': typeof AdminCommerceRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin1/automations': typeof Admin1AutomationsRoute
@@ -544,6 +559,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
@@ -587,6 +603,7 @@ export interface FileRoutesById {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
+  '/admin/commerce': typeof AdminCommerceRoute
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
@@ -616,6 +633,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
@@ -660,6 +678,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
+    | '/admin/commerce'
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
@@ -689,6 +708,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
     | '/admin/crm/leads'
@@ -725,6 +745,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
+    | '/admin/commerce'
     | '/admin/dashboard'
     | '/admin/forum'
     | '/admin1/automations'
@@ -753,6 +774,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/pros'
     | '/shop'
+    | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
     | '/admin/crm/leads'
@@ -795,6 +817,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
+    | '/admin/commerce'
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
@@ -824,6 +847,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
     | '/admin/crm/leads'
@@ -1192,6 +1216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/commerce': {
+      id: '/admin/commerce'
+      path: '/commerce'
+      fullPath: '/admin/commerce'
+      preLoaderRoute: typeof AdminCommerceRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/automations': {
       id: '/admin/automations'
       path: '/automations'
@@ -1332,6 +1363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmCustomersRouteImport
       parentRoute: typeof AdminCrmRoute
     }
+    '/admin/crm/admins': {
+      id: '/admin/crm/admins'
+      path: '/admins'
+      fullPath: '/admin/crm/admins'
+      preLoaderRoute: typeof AdminCrmAdminsRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1377,6 +1415,7 @@ const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminCrmRouteChildren {
+  AdminCrmAdminsRoute: typeof AdminCrmAdminsRoute
   AdminCrmCustomersRoute: typeof AdminCrmCustomersRoute
   AdminCrmDealsRoute: typeof AdminCrmDealsRoute
   AdminCrmLeadsRoute: typeof AdminCrmLeadsRoute
@@ -1388,6 +1427,7 @@ interface AdminCrmRouteChildren {
 }
 
 const AdminCrmRouteChildren: AdminCrmRouteChildren = {
+  AdminCrmAdminsRoute: AdminCrmAdminsRoute,
   AdminCrmCustomersRoute: AdminCrmCustomersRoute,
   AdminCrmDealsRoute: AdminCrmDealsRoute,
   AdminCrmLeadsRoute: AdminCrmLeadsRoute,
@@ -1404,6 +1444,7 @@ const AdminCrmRouteWithChildren = AdminCrmRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminAutomationsRoute: typeof AdminAutomationsRoute
+  AdminCommerceRoute: typeof AdminCommerceRoute
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminForumRoute: typeof AdminForumRoute
@@ -1413,6 +1454,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAutomationsRoute: AdminAutomationsRoute,
+  AdminCommerceRoute: AdminCommerceRoute,
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminForumRoute: AdminForumRoute,
@@ -1581,3 +1623,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
