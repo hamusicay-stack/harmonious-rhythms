@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import type { Session, User } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { clearUserBadgeCache } from "@/components/UserBadges";
 
 export type VipTier = {
   id: string;
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [vipTier, setVipTier] = useState<VipTier>(null);
   const [loading, setLoading] = useState(true);
   const activeUserIdRef = useRef<string | null>(null);
+  const queryClient = useQueryClient();
 
   const loadProfile = useCallback(async (userId: string) => {
     try {
@@ -144,6 +147,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, [loadProfile]);
+
+  // Realtime: subscribe to profile_sync_events and invalidate caches when this user's profile changes anywhere
+  useEffect(() => {
+    const channel = supabase
+      .channel("profile-sync")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "profile_sync_events" },
+        (payload) => {
+          const changedUserId = (payload.new as { user_id?: string } | null)?.user_id;
+          if (!changedUserId) return;
+          // If this user's profile changed, refresh local state + caches
+          if (changedUserId === activeUserIdRef.current) {
+            void loadProfile(changedUserId);
+          }
+          clearUserBadgeCache(changedUserId);
+          // Invalidate any query that references this user's profile data
+          queryClient.invalidateQueries({ predicate: (q) => {
+            const k = q.queryKey as unknown[];
+            return k.includes(changedUserId) || k.includes("profile") || k.includes("public-profile");
+          }});
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [loadProfile, queryClient]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
