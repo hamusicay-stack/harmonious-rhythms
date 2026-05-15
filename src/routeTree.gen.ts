@@ -77,6 +77,7 @@ import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
+import { Route as AdminCommerceShortsRouteImport } from './routes/admin.commerce.shorts'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
 import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerce.organ-ui'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
@@ -428,6 +429,11 @@ const AdminCrmAdminsRoute = AdminCrmAdminsRouteImport.update({
   path: '/admins',
   getParentRoute: () => AdminCrmRoute,
 } as any)
+const AdminCommerceShortsRoute = AdminCommerceShortsRouteImport.update({
+  id: '/shorts',
+  path: '/shorts',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const AdminCommerceShopRoute = AdminCommerceShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -528,6 +534,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
+  '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -598,6 +605,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
+  '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -677,6 +685,7 @@ export interface FileRoutesById {
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
+  '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -757,6 +766,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/marketplace'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
+    | '/admin/commerce/shorts'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -827,6 +837,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/marketplace'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
+    | '/admin/commerce/shorts'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -905,6 +916,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/marketplace'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/shop'
+    | '/admin/commerce/shorts'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -1436,6 +1448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmAdminsRouteImport
       parentRoute: typeof AdminCrmRoute
     }
+    '/admin/commerce/shorts': {
+      id: '/admin/commerce/shorts'
+      path: '/shorts'
+      fullPath: '/admin/commerce/shorts'
+      preLoaderRoute: typeof AdminCommerceShortsRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/shop': {
       id: '/admin/commerce/shop'
       path: '/shop'
@@ -1513,6 +1532,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
+  AdminCommerceShortsRoute: typeof AdminCommerceShortsRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
 }
 
@@ -1521,6 +1541,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
+  AdminCommerceShortsRoute: AdminCommerceShortsRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
 }
 
