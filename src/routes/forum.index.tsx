@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 
-export const Route = createFileRoute("/forum")({
+export const Route = createFileRoute("/forum/")({
   head: () => ({
     meta: [
       { title: "פורום הקהילה — המוזיקאי" },
