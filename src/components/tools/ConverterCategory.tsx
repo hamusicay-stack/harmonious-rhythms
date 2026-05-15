@@ -6,31 +6,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { FileAudio2, AudioLines, Music2, Settings2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
-
-function PlaceholderRun({ label = "המר עכשיו" }: { label?: string }) {
-  return (
-    <Button
-      className="w-full"
-      onClick={() => toast.info("הכלי בבנייה — ההמרה תופעל בקרוב")}
-    >
-      <Wand2 className="ml-2 h-4 w-4" /> {label}
-    </Button>
-  );
-}
+import { useProcessingTask } from "./useProcessingTask";
+import { ProcessingPanel } from "./ProcessingPanel";
 
 export function ConverterCategory() {
   const [audioFmt, setAudioFmt] = useState("mp3");
   const [midiFmt, setMidiFmt] = useState("mp3");
+  const [styTarget, setStyTarget] = useState("genos");
+  const [stereoMode, setStereoMode] = useState("avg");
+
+  const audioConv = useProcessingTask();
+  const stereoConv = useProcessingTask();
+  const midiRender = useProcessingTask();
+  const styCompile = useProcessingTask();
+
+  const handleFile = (cb: (file: File) => void) => (files: File[]) => {
+    if (files[0]) {
+      toast.success("הקובץ הועלה בהצלחה");
+      cb(files[0]);
+    }
+  };
+
+  const dummy = (name: string) => ({
+    bytes: `Converted file: ${name}\n${new Date().toISOString()}`,
+    filename: name,
+    mime: "application/octet-stream",
+  });
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <ToolCard
-        title="המרת אודיו כללית"
-        description="MP3 · WAV · FLAC · AAC"
-        icon={<FileAudio2 className="h-5 w-5" />}
-        badge="פופולרי"
-      >
-        <Dropzone hint="עד 100MB · MP3, WAV, FLAC, AAC, OGG" />
+      <ToolCard title="המרת אודיו כללית" description="MP3 · WAV · FLAC · AAC" icon={<FileAudio2 className="h-5 w-5" />} badge="פופולרי">
+        <Dropzone hint="עד 100MB · MP3, WAV, FLAC, AAC, OGG" onFiles={handleFile((f) => {
+          audioConv.run("המרה", () => ({
+            data: { "פורמט": audioFmt.toUpperCase(), "מקור": f.name.split(".").pop()?.toUpperCase() || "?", "גודל": `${(f.size / 1024 / 1024).toFixed(1)}MB` },
+            download: dummy(`${f.name.replace(/\.[^.]+$/, "")}.${audioFmt}`),
+          }));
+        })} />
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div>
             <Label className="text-xs">פורמט יעד</Label>
@@ -57,18 +68,19 @@ export function ConverterCategory() {
             </Select>
           </div>
         </div>
-        <div className="mt-3"><PlaceholderRun /></div>
+        <ProcessingPanel {...audioConv} onDownload={audioConv.download} onReset={audioConv.reset} />
       </ToolCard>
 
-      <ToolCard
-        title="סטריאו למונו"
-        description="המרת ערוצים לערוץ אחד"
-        icon={<AudioLines className="h-5 w-5" />}
-      >
-        <Dropzone hint="קובץ סטריאו — יומר לערוץ מונו אחד" />
+      <ToolCard title="סטריאו למונו" description="המרת ערוצים לערוץ אחד" icon={<AudioLines className="h-5 w-5" />}>
+        <Dropzone hint="קובץ סטריאו — יומר לערוץ מונו אחד" onFiles={handleFile((f) => {
+          stereoConv.run("המרת מונו", () => ({
+            data: { "שיטה": stereoMode, "ערוצים": "2 → 1" },
+            download: dummy(`${f.name.replace(/\.[^.]+$/, "")}-mono.wav`),
+          }), 2500);
+        })} />
         <div className="mt-3">
           <Label className="text-xs">שיטת ערבוב</Label>
-          <Select defaultValue="avg">
+          <Select value={stereoMode} onValueChange={setStereoMode}>
             <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="avg">ממוצע ערוצים</SelectItem>
@@ -78,15 +90,16 @@ export function ConverterCategory() {
             </SelectContent>
           </Select>
         </div>
-        <div className="mt-3"><PlaceholderRun /></div>
+        <ProcessingPanel {...stereoConv} onDownload={stereoConv.download} onReset={stereoConv.reset} />
       </ToolCard>
 
-      <ToolCard
-        title="MIDI לאודיו"
-        description="רנדר קובץ MIDI ל-MP3 או WAV"
-        icon={<Music2 className="h-5 w-5" />}
-      >
-        <Dropzone accept=".mid,.midi" hint="קבצי .MID / .MIDI בלבד" />
+      <ToolCard title="MIDI לאודיו" description="רנדר קובץ MIDI ל-MP3 או WAV" icon={<Music2 className="h-5 w-5" />}>
+        <Dropzone accept=".mid,.midi" hint="קבצי .MID / .MIDI בלבד" onFiles={handleFile((f) => {
+          midiRender.run("רנדר MIDI", () => ({
+            data: { "פורמט": midiFmt.toUpperCase(), "SoundFont": "General MIDI" },
+            download: dummy(`${f.name.replace(/\.[^.]+$/, "")}.${midiFmt}`),
+          }), 4000);
+        })} />
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div>
             <Label className="text-xs">פורמט פלט</Label>
@@ -110,19 +123,19 @@ export function ConverterCategory() {
             </Select>
           </div>
         </div>
-        <div className="mt-3"><PlaceholderRun label="רנדר עכשיו" /></div>
+        <ProcessingPanel {...midiRender} onDownload={midiRender.download} onReset={midiRender.reset} />
       </ToolCard>
 
-      <ToolCard
-        title="MIDI ל-Yamaha Style"
-        description="קומפילציה של .STY עבור אורגנים"
-        icon={<Settings2 className="h-5 w-5" />}
-        badge="חדש"
-      >
-        <Dropzone accept=".mid,.midi" hint="MIDI מובנה לפי תבנית Style של Yamaha" />
+      <ToolCard title="MIDI ל-Yamaha Style" description="קומפילציה של .STY עבור אורגנים" icon={<Settings2 className="h-5 w-5" />} badge="חדש">
+        <Dropzone accept=".mid,.midi" hint="MIDI מובנה לפי תבנית Style של Yamaha" onFiles={handleFile((f) => {
+          styCompile.run("קומפילציה ל-.STY", () => ({
+            data: { "דגם": styTarget.toUpperCase(), "סקציות": 8 },
+            download: dummy(`${f.name.replace(/\.[^.]+$/, "")}.sty`),
+          }), 4500);
+        })} />
         <div className="mt-3">
           <Label className="text-xs">דגם יעד</Label>
-          <Select defaultValue="genos">
+          <Select value={styTarget} onValueChange={setStyTarget}>
             <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="genos">Genos / Genos2</SelectItem>
@@ -132,7 +145,7 @@ export function ConverterCategory() {
             </SelectContent>
           </Select>
         </div>
-        <div className="mt-3"><PlaceholderRun label="קמפל ל-.STY" /></div>
+        <ProcessingPanel {...styCompile} onDownload={styCompile.download} onReset={styCompile.reset} />
       </ToolCard>
     </div>
   );

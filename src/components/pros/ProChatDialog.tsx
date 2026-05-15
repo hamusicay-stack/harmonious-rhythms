@@ -158,7 +158,12 @@ export function ProChatDialog({
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם {peerName}</DialogTitle>
             {isProRole && (
-              <GigContractDialog clientName={senderName || ""} proName={user.user_metadata?.display_name || user.email || ""} />
+              <GigContractDialog
+                clientName={senderName || ""}
+                proName={user.user_metadata?.display_name || user.email || ""}
+                threadId={threadId}
+                senderId={user.id}
+              />
             )}
           </div>
         </DialogHeader>

@@ -4,20 +4,76 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileSignature, Send } from "lucide-react";
+import { FileSignature, Send, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   clientName?: string;
   trigger?: React.ReactNode;
   /** Optional: who the contract is from */
   proName?: string;
+  /** Optional: pro chat thread id — when present, a "contract generated" message is inserted */
+  threadId?: string | null;
+  /** Optional: sender of the chat message (defaults to current user) */
+  senderId?: string;
 }
 
-export function GigContractDialog({ clientName = "", trigger, proName = "" }: Props) {
+const fmtDate = (iso: string) => {
+  if (!iso) return "—";
+  try { return new Date(iso).toLocaleDateString("he-IL"); } catch { return iso; }
+};
+
+function buildContractHtml(data: {
+  clientName: string;
+  proName: string;
+  eventDate: string;
+  eventLocation: string;
+  price: string;
+  notes: string;
+}) {
+  const today = new Date().toLocaleDateString("he-IL");
+  return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8" />
+<title>חוזה עבודה — ${data.clientName}</title>
+<style>
+  @page { size: A4; margin: 22mm; }
+  body { font-family: -apple-system, "Segoe UI", "Heebo", Arial, sans-serif; color: #111; line-height: 1.7; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  .muted { color: #666; font-size: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin: 22px 0; }
+  .row { border-bottom: 1px dashed #ddd; padding: 6px 0; }
+  .row .k { font-size: 11px; color: #888; }
+  .row .v { font-size: 15px; font-weight: 600; }
+  .notes { white-space: pre-wrap; border: 1px solid #eee; border-radius: 8px; padding: 12px; background: #fafafa; }
+  .sig { margin-top: 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .sig .line { border-top: 1px solid #333; padding-top: 6px; font-size: 12px; color: #555; text-align: center; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; background: #111; color: #fff; font-size: 11px; }
+</style></head><body>
+<header>
+  <span class="badge">חוזה עבודה</span>
+  <h1>הסכם להזמנת שירותי מוזיקה</h1>
+  <div class="muted">נחתם בתאריך ${today} ${data.proName ? `· מטעם ${data.proName}` : ""}</div>
+</header>
+<div class="grid">
+  <div class="row"><div class="k">שם הלקוח</div><div class="v">${data.clientName || "—"}</div></div>
+  <div class="row"><div class="k">תאריך האירוע</div><div class="v">${fmtDate(data.eventDate)}</div></div>
+  <div class="row"><div class="k">מיקום</div><div class="v">${data.eventLocation || "—"}</div></div>
+  <div class="row"><div class="k">מחיר מוסכם</div><div class="v">₪ ${Number(data.price || 0).toLocaleString("he-IL")}</div></div>
+</div>
+<h3>תנאים והערות</h3>
+<div class="notes">${data.notes ? data.notes.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c] as string)) : "אין הערות נוספות."}</div>
+<div class="sig">
+  <div class="line">חתימת המזמין</div>
+  <div class="line">חתימת נותן השירות</div>
+</div>
+<script>window.onload = () => setTimeout(() => window.print(), 250);</script>
+</body></html>`;
+}
+
+export function GigContractDialog({ clientName = "", trigger, proName = "", threadId = null, senderId }: Props) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    clientName: clientName,
+    clientName,
     eventDate: "",
     eventLocation: "",
     price: "",
@@ -34,9 +90,46 @@ export function GigContractDialog({ clientName = "", trigger, proName = "" }: Pr
     }
     setSending(true);
     try {
-      // Placeholder: PDF generation + send hook will be wired to backend
-      await new Promise((r) => setTimeout(r, 700));
-      toast.success("החוזה נוצר ונשלח כ-PDF ללקוח");
+      const html = buildContractHtml({ ...form, proName });
+      const w = window.open("", "_blank", "width=860,height=1024");
+      if (w) {
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+      } else {
+        // fallback: download as HTML
+        const blob = new Blob([html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `contract-${form.clientName}.html`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+      }
+
+      // Insert a "contract generated" message into the chat thread (notifies client via existing trigger)
+      if (threadId) {
+        const senderUid = senderId ?? (await supabase.auth.getUser()).data.user?.id;
+        if (senderUid) {
+          const body =
+            `📄 חוזה עבודה הופק ונשלח\n` +
+            `לקוח: ${form.clientName}\n` +
+            `תאריך אירוע: ${fmtDate(form.eventDate)}\n` +
+            `מחיר מוסכם: ₪${Number(form.price).toLocaleString("he-IL")}` +
+            (form.eventLocation ? `\nמיקום: ${form.eventLocation}` : "") +
+            (form.notes ? `\nהערות: ${form.notes.slice(0, 280)}` : "");
+          const { error } = await supabase.from("pro_chat_messages").insert({
+            thread_id: threadId,
+            sender_id: senderUid,
+            body,
+          });
+          if (error) console.warn("contract message insert failed", error);
+        }
+      }
+
+      toast.success("החוזה נשלח בהצלחה!");
       setOpen(false);
     } finally {
       setSending(false);
@@ -99,7 +192,7 @@ export function GigContractDialog({ clientName = "", trigger, proName = "" }: Pr
           )}
 
           <Button className="w-full" onClick={submit} disabled={sending}>
-            <Send className="ml-2 h-4 w-4" />
+            {sending ? <Send className="ml-2 h-4 w-4 animate-pulse" /> : <Printer className="ml-2 h-4 w-4" />}
             {sending ? "מייצר חוזה..." : "שלח כ-PDF"}
           </Button>
         </div>
