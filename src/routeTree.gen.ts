@@ -67,7 +67,9 @@ import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
+import { Route as AdminCrmTasksRouteImport } from './routes/admin.crm.tasks'
 import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
+import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
@@ -366,9 +368,19 @@ const AdminCustomersCustomerIdRoute =
     path: '/customers/$customerId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminCrmTasksRoute = AdminCrmTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
 const AdminCrmLeadsRoute = AdminCrmLeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
+  getParentRoute: () => AdminCrmRoute,
+} as any)
+const AdminCrmDealsRoute = AdminCrmDealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
   getParentRoute: () => AdminCrmRoute,
 } as any)
 const AdminCrmCustomersRoute = AdminCrmCustomersRouteImport.update({
@@ -451,7 +463,9 @@ export interface FileRoutesByFullPath {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
+  '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
+  '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -510,7 +524,9 @@ export interface FileRoutesByTo {
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
+  '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
+  '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -577,7 +593,9 @@ export interface FileRoutesById {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
+  '/admin/crm/deals': typeof AdminCrmDealsRoute
   '/admin/crm/leads': typeof AdminCrmLeadsRoute
+  '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
@@ -645,7 +663,9 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/crm/customers'
+    | '/admin/crm/deals'
     | '/admin/crm/leads'
+    | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -704,7 +724,9 @@ export interface FileRouteTypes {
     | '/pros'
     | '/shop'
     | '/admin/crm/customers'
+    | '/admin/crm/deals'
     | '/admin/crm/leads'
+    | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -770,7 +792,9 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/crm/customers'
+    | '/admin/crm/deals'
     | '/admin/crm/leads'
+    | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
@@ -1223,11 +1247,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCustomersCustomerIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/crm/tasks': {
+      id: '/admin/crm/tasks'
+      path: '/tasks'
+      fullPath: '/admin/crm/tasks'
+      preLoaderRoute: typeof AdminCrmTasksRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
     '/admin/crm/leads': {
       id: '/admin/crm/leads'
       path: '/leads'
       fullPath: '/admin/crm/leads'
       preLoaderRoute: typeof AdminCrmLeadsRouteImport
+      parentRoute: typeof AdminCrmRoute
+    }
+    '/admin/crm/deals': {
+      id: '/admin/crm/deals'
+      path: '/deals'
+      fullPath: '/admin/crm/deals'
+      preLoaderRoute: typeof AdminCrmDealsRouteImport
       parentRoute: typeof AdminCrmRoute
     }
     '/admin/crm/customers': {
@@ -1283,13 +1321,17 @@ const AcademyRouteWithChildren =
 
 interface AdminCrmRouteChildren {
   AdminCrmCustomersRoute: typeof AdminCrmCustomersRoute
+  AdminCrmDealsRoute: typeof AdminCrmDealsRoute
   AdminCrmLeadsRoute: typeof AdminCrmLeadsRoute
+  AdminCrmTasksRoute: typeof AdminCrmTasksRoute
   AdminCrmIndexRoute: typeof AdminCrmIndexRoute
 }
 
 const AdminCrmRouteChildren: AdminCrmRouteChildren = {
   AdminCrmCustomersRoute: AdminCrmCustomersRoute,
+  AdminCrmDealsRoute: AdminCrmDealsRoute,
   AdminCrmLeadsRoute: AdminCrmLeadsRoute,
+  AdminCrmTasksRoute: AdminCrmTasksRoute,
   AdminCrmIndexRoute: AdminCrmIndexRoute,
 }
 
@@ -1476,3 +1518,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
