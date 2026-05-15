@@ -33,6 +33,8 @@ function AuthPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [hasWhatsapp, setHasWhatsapp] = useState(true);
   const [emailOptIn, setEmailOptIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -45,7 +47,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -54,6 +56,14 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Persist phone + WhatsApp preference on the new profile (best-effort)
+        const newUserId = data.user?.id;
+        if (newUserId) {
+          await supabase.from("profiles").update({
+            phone: phone.trim() || null,
+            has_whatsapp: !!phone.trim() && hasWhatsapp,
+          }).eq("id", newUserId);
+        }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
         navigate({ to: "/" });
       } else {
