@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 export type TaskState = "idle" | "processing" | "done" | "error";
@@ -6,50 +6,63 @@ export type TaskState = "idle" | "processing" | "done" | "error";
 export interface TaskResult {
   /** Plain object describing the result for display */
   data?: Record<string, string | number>;
-  /** Optional bytes to provide as a download */
-  download?: { bytes: BlobPart; filename: string; mime?: string };
+  /** Optional bytes/blob to provide as a download */
+  download?: { bytes: BlobPart | Blob; filename: string; mime?: string };
 }
 
 /**
- * Generic processing simulator: shows progress 0..100 over `duration` ms,
- * then resolves with a mock result. Toasts in Hebrew.
+ * Real processing task runner. Runs the producer function with a live
+ * progress bar that animates while real work is happening, then resolves
+ * to a TaskResult that the panel can display + download.
  */
 export function useProcessingTask() {
   const [state, setState] = useState<TaskState>("idle");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<TaskResult | null>(null);
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopTicker = () => {
+    if (tickRef.current) {
+      clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
+  };
 
   const run = async (
     label: string,
-    produce: () => TaskResult | Promise<TaskResult>,
-    duration = 3500
+    produce: () => TaskResult | Promise<TaskResult>
   ) => {
     if (state === "processing") return;
     setState("processing");
     setProgress(0);
     setResult(null);
     toast.info("מעבד נתונים, אנא המתן...");
-    const start = Date.now();
-    const tick = () => {
-      const p = Math.min(99, ((Date.now() - start) / duration) * 100);
+
+    let p = 0;
+    stopTicker();
+    tickRef.current = setInterval(() => {
+      p = Math.min(p + 2, 92);
       setProgress(p);
-      if (p < 99 && state !== "error") setTimeout(tick, 90);
-    };
-    tick();
-    await new Promise((r) => setTimeout(r, duration));
+    }, 120);
+
     try {
       const out = await produce();
+      stopTicker();
       setResult(out);
       setProgress(100);
       setState("done");
       toast.success(`${label} הושלם בהצלחה`);
-    } catch (e) {
+    } catch (e: any) {
+      stopTicker();
       setState("error");
-      toast.error(`${label} נכשל`);
+      setProgress(0);
+      console.error(`[${label}] failed`, e);
+      toast.error(`${label} נכשל: ${e?.message ?? "שגיאה לא ידועה"}`);
     }
   };
 
   const reset = () => {
+    stopTicker();
     setState("idle");
     setProgress(0);
     setResult(null);
