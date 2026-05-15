@@ -62,6 +62,7 @@ import { Route as ForumUserUsernameRouteImport } from './routes/forum.user.$user
 import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
+import { Route as AdminForumChatOversightRouteImport } from './routes/admin.forum.chat-oversight'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as AdminCrmTasksRouteImport } from './routes/admin.crm.tasks'
 import { Route as AdminCrmSuppliersRouteImport } from './routes/admin.crm.suppliers'
@@ -75,15 +76,18 @@ import { Route as AdminCommerceShortsRouteImport } from './routes/admin.commerce
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
 import { Route as AdminCommerceProductTypesRouteImport } from './routes/admin.commerce.product-types'
 import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerce.organ-ui'
+import { Route as AdminCommerceOrdersRouteImport } from './routes/admin.commerce.orders'
 import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.commerce.newsletter'
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
+import { Route as AdminCommerceCpiRouteImport } from './routes/admin.commerce.cpi'
 import { Route as AdminCommerceCouponsRouteImport } from './routes/admin.commerce.coupons'
 import { Route as AdminCommerceBusinessRulesRouteImport } from './routes/admin.commerce.business-rules'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as AdminCommerceBannersRouteImport } from './routes/admin.commerce.banners'
 import { Route as AdminCommerceAiRouteImport } from './routes/admin.commerce.ai'
 import { Route as AdminCommerceAffiliatesRouteImport } from './routes/admin.commerce.affiliates'
+import { Route as AdminCommerceAcademyAnalyticsRouteImport } from './routes/admin.commerce.academy-analytics'
 import { Route as AdminCommerceAcademyRouteImport } from './routes/admin.commerce.academy'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
@@ -356,6 +360,11 @@ const ForumBoardSlugRoute = ForumBoardSlugRouteImport.update({
   path: '/board/$slug',
   getParentRoute: () => ForumRoute,
 } as any)
+const AdminForumChatOversightRoute = AdminForumChatOversightRouteImport.update({
+  id: '/chat-oversight',
+  path: '/chat-oversight',
+  getParentRoute: () => AdminForumRoute,
+} as any)
 const AdminCustomersCustomerIdRoute =
   AdminCustomersCustomerIdRouteImport.update({
     id: '/customers/$customerId',
@@ -423,6 +432,11 @@ const AdminCommerceOrganUiRoute = AdminCommerceOrganUiRouteImport.update({
   path: '/organ-ui',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceOrdersRoute = AdminCommerceOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const AdminCommerceNewsletterRoute = AdminCommerceNewsletterRouteImport.update({
   id: '/newsletter',
   path: '/newsletter',
@@ -439,6 +453,11 @@ const AdminCommerceMarketplaceRoute =
     path: '/marketplace',
     getParentRoute: () => AdminCommerceRoute,
   } as any)
+const AdminCommerceCpiRoute = AdminCommerceCpiRouteImport.update({
+  id: '/cpi',
+  path: '/cpi',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const AdminCommerceCouponsRoute = AdminCommerceCouponsRouteImport.update({
   id: '/coupons',
   path: '/coupons',
@@ -470,6 +489,12 @@ const AdminCommerceAffiliatesRoute = AdminCommerceAffiliatesRouteImport.update({
   path: '/affiliates',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceAcademyAnalyticsRoute =
+  AdminCommerceAcademyAnalyticsRouteImport.update({
+    id: '/academy-analytics',
+    path: '/academy-analytics',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
 const AdminCommerceAcademyRoute = AdminCommerceAcademyRouteImport.update({
   id: '/academy',
   path: '/academy',
@@ -522,7 +547,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/forum': typeof AdminForumRoute
+  '/admin/forum': typeof AdminForumRouteWithChildren
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -545,15 +570,18 @@ export interface FileRoutesByFullPath {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
+  '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
+  '/admin/commerce/cpi': typeof AdminCommerceCpiRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
+  '/admin/commerce/orders': typeof AdminCommerceOrdersRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
@@ -567,6 +595,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/admin/forum/chat-oversight': typeof AdminForumChatOversightRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
@@ -597,7 +626,7 @@ export interface FileRoutesByTo {
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/forum': typeof AdminForumRoute
+  '/admin/forum': typeof AdminForumRouteWithChildren
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -620,15 +649,18 @@ export interface FileRoutesByTo {
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
+  '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
+  '/admin/commerce/cpi': typeof AdminCommerceCpiRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
+  '/admin/commerce/orders': typeof AdminCommerceOrdersRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
@@ -642,6 +674,7 @@ export interface FileRoutesByTo {
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/admin/forum/chat-oversight': typeof AdminForumChatOversightRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
@@ -680,7 +713,7 @@ export interface FileRoutesById {
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/forum': typeof AdminForumRoute
+  '/admin/forum': typeof AdminForumRouteWithChildren
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -703,15 +736,18 @@ export interface FileRoutesById {
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
+  '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
+  '/admin/commerce/cpi': typeof AdminCommerceCpiRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
+  '/admin/commerce/orders': typeof AdminCommerceOrdersRoute
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
@@ -725,6 +761,7 @@ export interface FileRoutesById {
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
+  '/admin/forum/chat-oversight': typeof AdminForumChatOversightRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
@@ -787,15 +824,18 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/academy'
+    | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/business-rules'
     | '/admin/commerce/coupons'
+    | '/admin/commerce/cpi'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
+    | '/admin/commerce/orders'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
@@ -809,6 +849,7 @@ export interface FileRouteTypes {
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
+    | '/admin/forum/chat-oversight'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
@@ -862,15 +903,18 @@ export interface FileRouteTypes {
     | '/pros'
     | '/shop'
     | '/admin/commerce/academy'
+    | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/business-rules'
     | '/admin/commerce/coupons'
+    | '/admin/commerce/cpi'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
+    | '/admin/commerce/orders'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
@@ -884,6 +928,7 @@ export interface FileRouteTypes {
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
+    | '/admin/forum/chat-oversight'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
@@ -944,15 +989,18 @@ export interface FileRouteTypes {
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/academy'
+    | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
     | '/admin/commerce/ai'
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/business-rules'
     | '/admin/commerce/coupons'
+    | '/admin/commerce/cpi'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
+    | '/admin/commerce/orders'
     | '/admin/commerce/organ-ui'
     | '/admin/commerce/product-types'
     | '/admin/commerce/shop'
@@ -966,6 +1014,7 @@ export interface FileRouteTypes {
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
+    | '/admin/forum/chat-oversight'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
@@ -1382,6 +1431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumBoardSlugRouteImport
       parentRoute: typeof ForumRoute
     }
+    '/admin/forum/chat-oversight': {
+      id: '/admin/forum/chat-oversight'
+      path: '/chat-oversight'
+      fullPath: '/admin/forum/chat-oversight'
+      preLoaderRoute: typeof AdminForumChatOversightRouteImport
+      parentRoute: typeof AdminForumRoute
+    }
     '/admin/customers/$customerId': {
       id: '/admin/customers/$customerId'
       path: '/customers/$customerId'
@@ -1473,6 +1529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceOrganUiRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/orders': {
+      id: '/admin/commerce/orders'
+      path: '/orders'
+      fullPath: '/admin/commerce/orders'
+      preLoaderRoute: typeof AdminCommerceOrdersRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/newsletter': {
       id: '/admin/commerce/newsletter'
       path: '/newsletter'
@@ -1492,6 +1555,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/admin/commerce/marketplace'
       preLoaderRoute: typeof AdminCommerceMarketplaceRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
+    '/admin/commerce/cpi': {
+      id: '/admin/commerce/cpi'
+      path: '/cpi'
+      fullPath: '/admin/commerce/cpi'
+      preLoaderRoute: typeof AdminCommerceCpiRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
     '/admin/commerce/coupons': {
@@ -1534,6 +1604,13 @@ declare module '@tanstack/react-router' {
       path: '/affiliates'
       fullPath: '/admin/commerce/affiliates'
       preLoaderRoute: typeof AdminCommerceAffiliatesRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
+    '/admin/commerce/academy-analytics': {
+      id: '/admin/commerce/academy-analytics'
+      path: '/academy-analytics'
+      fullPath: '/admin/commerce/academy-analytics'
+      preLoaderRoute: typeof AdminCommerceAcademyAnalyticsRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
     '/admin/commerce/academy': {
@@ -1589,15 +1666,18 @@ const AcademyRouteWithChildren =
 
 interface AdminCommerceRouteChildren {
   AdminCommerceAcademyRoute: typeof AdminCommerceAcademyRoute
+  AdminCommerceAcademyAnalyticsRoute: typeof AdminCommerceAcademyAnalyticsRoute
   AdminCommerceAffiliatesRoute: typeof AdminCommerceAffiliatesRoute
   AdminCommerceAiRoute: typeof AdminCommerceAiRoute
   AdminCommerceBannersRoute: typeof AdminCommerceBannersRoute
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
   AdminCommerceBusinessRulesRoute: typeof AdminCommerceBusinessRulesRoute
   AdminCommerceCouponsRoute: typeof AdminCommerceCouponsRoute
+  AdminCommerceCpiRoute: typeof AdminCommerceCpiRoute
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
+  AdminCommerceOrdersRoute: typeof AdminCommerceOrdersRoute
   AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
   AdminCommerceProductTypesRoute: typeof AdminCommerceProductTypesRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
@@ -1607,15 +1687,18 @@ interface AdminCommerceRouteChildren {
 
 const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceAcademyRoute: AdminCommerceAcademyRoute,
+  AdminCommerceAcademyAnalyticsRoute: AdminCommerceAcademyAnalyticsRoute,
   AdminCommerceAffiliatesRoute: AdminCommerceAffiliatesRoute,
   AdminCommerceAiRoute: AdminCommerceAiRoute,
   AdminCommerceBannersRoute: AdminCommerceBannersRoute,
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
   AdminCommerceBusinessRulesRoute: AdminCommerceBusinessRulesRoute,
   AdminCommerceCouponsRoute: AdminCommerceCouponsRoute,
+  AdminCommerceCpiRoute: AdminCommerceCpiRoute,
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,
+  AdminCommerceOrdersRoute: AdminCommerceOrdersRoute,
   AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
   AdminCommerceProductTypesRoute: AdminCommerceProductTypesRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
@@ -1655,12 +1738,24 @@ const AdminCrmRouteWithChildren = AdminCrmRoute._addFileChildren(
   AdminCrmRouteChildren,
 )
 
+interface AdminForumRouteChildren {
+  AdminForumChatOversightRoute: typeof AdminForumChatOversightRoute
+}
+
+const AdminForumRouteChildren: AdminForumRouteChildren = {
+  AdminForumChatOversightRoute: AdminForumChatOversightRoute,
+}
+
+const AdminForumRouteWithChildren = AdminForumRoute._addFileChildren(
+  AdminForumRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminAutomationsRoute: typeof AdminAutomationsRoute
   AdminCommerceRoute: typeof AdminCommerceRouteWithChildren
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminForumRoute: typeof AdminForumRoute
+  AdminForumRoute: typeof AdminForumRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
 }
@@ -1670,7 +1765,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommerceRoute: AdminCommerceRouteWithChildren,
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminForumRoute: AdminForumRoute,
+  AdminForumRoute: AdminForumRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminCustomersCustomerIdRoute: AdminCustomersCustomerIdRoute,
 }
@@ -1816,13 +1911,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
