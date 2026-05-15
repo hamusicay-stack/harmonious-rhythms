@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS, PRODUCT_TYPE_LABEL } from "@/lib/shopUtils";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
+import { VirtualOrganPreview } from "@/components/shop/VirtualOrganPreview";
+import { CpiDropzone, type CpiFileInfo } from "@/components/shop/CpiDropzone";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
