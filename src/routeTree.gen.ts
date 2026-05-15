@@ -54,6 +54,7 @@ import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace.$listingId.edit'
 import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
+import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -287,6 +288,11 @@ const ForumTopicSlugRoute = ForumTopicSlugRouteImport.update({
   path: '/topic/$slug',
   getParentRoute: () => ForumRoute,
 } as any)
+const ForumMessagesThreadIdRoute = ForumMessagesThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => ForumMessagesRoute,
+} as any)
 const ForumBoardSlugRoute = ForumBoardSlugRouteImport.update({
   id: '/board/$slug',
   path: '/board/$slug',
@@ -347,7 +353,7 @@ export interface FileRoutesByFullPath {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
-  '/forum/messages': typeof ForumMessagesRoute
+  '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -366,6 +372,7 @@ export interface FileRoutesByFullPath {
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
@@ -396,7 +403,7 @@ export interface FileRoutesByTo {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
-  '/forum/messages': typeof ForumMessagesRoute
+  '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -415,6 +422,7 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
@@ -450,7 +458,7 @@ export interface FileRoutesById {
   '/admin1/crm': typeof Admin1CrmRoute
   '/admin1/product-types': typeof Admin1ProductTypesRoute
   '/beat/$setId': typeof BeatSetIdRoute
-  '/forum/messages': typeof ForumMessagesRoute
+  '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/notifications': typeof ForumNotificationsRoute
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
@@ -524,6 +533,7 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
@@ -626,6 +637,7 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
@@ -981,6 +993,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumTopicSlugRouteImport
       parentRoute: typeof ForumRoute
     }
+    '/forum/messages/$threadId': {
+      id: '/forum/messages/$threadId'
+      path: '/$threadId'
+      fullPath: '/forum/messages/$threadId'
+      preLoaderRoute: typeof ForumMessagesThreadIdRouteImport
+      parentRoute: typeof ForumMessagesRoute
+    }
     '/forum/board/$slug': {
       id: '/forum/board/$slug'
       path: '/board/$slug'
@@ -1068,8 +1087,20 @@ const Admin1RouteChildren: Admin1RouteChildren = {
 const Admin1RouteWithChildren =
   Admin1Route._addFileChildren(Admin1RouteChildren)
 
+interface ForumMessagesRouteChildren {
+  ForumMessagesThreadIdRoute: typeof ForumMessagesThreadIdRoute
+}
+
+const ForumMessagesRouteChildren: ForumMessagesRouteChildren = {
+  ForumMessagesThreadIdRoute: ForumMessagesThreadIdRoute,
+}
+
+const ForumMessagesRouteWithChildren = ForumMessagesRoute._addFileChildren(
+  ForumMessagesRouteChildren,
+)
+
 interface ForumRouteChildren {
-  ForumMessagesRoute: typeof ForumMessagesRoute
+  ForumMessagesRoute: typeof ForumMessagesRouteWithChildren
   ForumNotificationsRoute: typeof ForumNotificationsRoute
   ForumSearchRoute: typeof ForumSearchRoute
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
@@ -1077,7 +1108,7 @@ interface ForumRouteChildren {
 }
 
 const ForumRouteChildren: ForumRouteChildren = {
-  ForumMessagesRoute: ForumMessagesRoute,
+  ForumMessagesRoute: ForumMessagesRouteWithChildren,
   ForumNotificationsRoute: ForumNotificationsRoute,
   ForumSearchRoute: ForumSearchRoute,
   ForumBoardSlugRoute: ForumBoardSlugRoute,
