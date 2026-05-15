@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, MouseEvent } from "react";
-import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageCircle, MessageSquare } from "lucide-react";
+import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
