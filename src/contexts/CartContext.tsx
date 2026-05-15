@@ -13,10 +13,27 @@ export type CartItem = {
   info_file_extension?: string | null;
 };
 
+export type AppliedCoupon = {
+  id: string;
+  code: string;
+  discount_type: "percent" | "fixed";
+  discount_value: number;
+  min_order_amount: number;
+};
+
 type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
+  // Discount engine
+  vipDiscountPercent: number;
+  vipDiscountAmount: number;
+  coupon: AppliedCoupon | null;
+  couponDiscountAmount: number;
+  totalDiscount: number;
+  total: number;
+  applyCoupon: (code: string) => Promise<{ ok: boolean; message: string }>;
+  removeCoupon: () => void;
   add: (item: Omit<CartItem, "qty"> & { qty?: number }) => void;
   remove: (id: string) => void;
   setQty: (id: string, qty: number) => void;
