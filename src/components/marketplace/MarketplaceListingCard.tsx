@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, MouseEvent } from "react";
-import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageCircle, MessageSquare } from "lucide-react";
+import { MapPin, Briefcase, BadgeCheck, ArrowUp, Flame, Heart, Eye, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -23,8 +23,6 @@ export type CardListing = {
   bump_expires_at: string | null;
   is_urgent?: boolean;
   audio_url?: string | null;
-  phone?: string | null;
-  whatsapp?: string | null;
 };
 
 interface Props {
@@ -36,14 +34,8 @@ interface Props {
 
 const stop = (e: MouseEvent) => { e.preventDefault(); e.stopPropagation(); };
 
-function formatWa(num?: string | null) {
-  if (!num) return null;
-  const digits = num.replace(/\D/g, "");
-  if (!digits) return null;
-  if (digits.startsWith("972")) return digits;
-  if (digits.startsWith("0")) return "972" + digits.slice(1);
-  return digits;
-}
+// Privacy Shield: cards never expose seller phone/whatsapp.
+// Buyers must use the secure in-app chat (ChatThreadDialog).
 
 export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, isTrusted }: Props) {
   const { user } = useAuth();
@@ -58,14 +50,6 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
     if (!user) { toast.error("יש להתחבר כדי לשמור מועדפים"); return; }
     const r = await toggle();
     if (!r.ok && r.reason === "error") toast.error("הפעולה נכשלה");
-  };
-
-  const openWa = (e: MouseEvent) => {
-    stop(e);
-    const wa = formatWa(listing.whatsapp || listing.phone);
-    if (!wa) { toast.error("אין מספר וואטסאפ זמין"); return; }
-    const text = encodeURIComponent(`היי, ראיתי את "${listing.title}" בלוח המוזיקאי`);
-    window.open(`https://wa.me/${wa}?text=${text}`, "_blank");
   };
 
   const openQuickView = (e: MouseEvent) => { stop(e); setQuickOpen(true); };
@@ -130,9 +114,18 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               <div className="flex items-center justify-between pt-3 mt-2 border-t border-border/40">
                 <div className="font-display font-bold text-2xl text-gradient-gold">₪{Number(listing.price).toLocaleString()}</div>
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={openWa} className="rounded-full p-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 transition" title="וואטסאפ">
-                    <MessageCircle className="h-4 w-4" />
-                  </button>
+                  <div onClick={stop}>
+                    <ChatThreadDialog
+                      listingId={listing.id}
+                      sellerId={listing.seller_id}
+                      listingTitle={listing.title}
+                      trigger={
+                        <button type="button" className="rounded-full p-2 bg-primary/10 hover:bg-primary/20 text-primary transition" title="צ'אט מאובטח עם המוכר">
+                          <MessageSquare className="h-4 w-4" />
+                        </button>
+                      }
+                    />
+                  </div>
                   <button type="button" onClick={toggleLike} className={`rounded-full p-2 transition ${liked ? "bg-rose-500/15 text-rose-500" : "bg-muted hover:bg-rose-500/10 hover:text-rose-500"}`} title="מועדפים">
                     <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
                   </button>
@@ -218,9 +211,6 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
 
             {/* Quick actions - bottom (always on mobile, hover on desktop) */}
             <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
-              <button type="button" onClick={openWa} className="h-8 w-8 rounded-full bg-emerald-500 text-white shadow-lg flex items-center justify-center hover:scale-110 transition" title="וואטסאפ">
-                <MessageCircle className="h-4 w-4" />
-              </button>
               <div onClick={stop}>
                 <ChatThreadDialog
                   listingId={listing.id}

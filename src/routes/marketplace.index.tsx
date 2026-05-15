@@ -42,8 +42,6 @@ type Listing = {
   created_at: string;
   is_urgent?: boolean;
   audio_url?: string | null;
-  phone?: string | null;
-  whatsapp?: string | null;
 };
 
 type CategoryRow = {
