@@ -49,7 +49,7 @@ function Admin1Layout() {
               {NAV.map(({ to, label, icon: Icon, exact }) => (
                 <Link
                   key={to}
-                  to={to}
+                  to={to as never}
                   activeOptions={{ exact: !!exact }}
                   className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent transition"
                   activeProps={{ className: "flex items-center gap-2 rounded-md px-3 py-2 text-sm bg-primary text-primary-foreground" }}
