@@ -94,7 +94,7 @@ export const getTopicBySlug = createServerFn({ method: "GET" })
       .select("id, name, slug, category_id").eq("id", topic.board_id).maybeSingle();
 
     const { data: posts } = await supabase.from("forum_posts")
-      .select("id, author_id, body_md, quoted_post_id, is_op, is_deleted, edited_at, created_at")
+      .select("id, author_id, body_md, quoted_post_id, parent_post_id, is_op, is_deleted, edited_at, created_at")
       .eq("topic_id", topic.id)
       .order("created_at");
 
