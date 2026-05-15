@@ -1,6 +1,9 @@
 import { useCallback, useState, type DragEvent } from "react";
 import { Upload, X, FileAudio } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
 interface Props {
   accept?: string;
@@ -8,9 +11,10 @@ interface Props {
   onFiles?: (files: File[]) => void;
   hint?: string;
   className?: string;
+  maxSize?: number;
 }
 
-export function Dropzone({ accept = "audio/*", multiple = false, onFiles, hint, className }: Props) {
+export function Dropzone({ accept = "audio/*", multiple = false, onFiles, hint, className, maxSize = MAX_SIZE_BYTES }: Props) {
   const [over, setOver] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
