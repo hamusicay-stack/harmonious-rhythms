@@ -194,3 +194,64 @@ export const setTopicFlag = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+export const markTopicSolution = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      topicId: z.string().uuid(),
+      postId: z.string().uuid().nullable(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: topic } = await supabase.from("forum_topics")
+      .select("author_id, solved_post_id").eq("id", data.topicId).maybeSingle();
+    if (!topic) throw new Error("האשכול לא נמצא");
+    const { data: roleRow } = await supabase.from("user_roles")
+      .select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    if (topic.author_id !== userId && !roleRow) throw new Error("רק פותח האשכול יכול לסמן פתרון");
+
+    if (data.postId) {
+      const { data: post } = await supabase.from("forum_posts")
+        .select("topic_id, author_id").eq("id", data.postId).maybeSingle();
+      if (!post || post.topic_id !== data.topicId) throw new Error("התגובה לא שייכת לאשכול");
+    }
+
+    const { error } = await supabase.from("forum_topics")
+      .update({ solved_post_id: data.postId }).eq("id", data.topicId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      topicId: z.string().uuid(),
+      subscribed: z.boolean(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    if (data.subscribed) {
+      await supabase.from("forum_subscriptions")
+        .upsert({ user_id: userId, target_type: "topic", target_id: data.topicId });
+    } else {
+      await supabase.from("forum_subscriptions")
+        .delete().eq("user_id", userId).eq("target_type", "topic").eq("target_id", data.topicId);
+    }
+    return { ok: true };
+  });
+
+export const isSubscribed = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ topicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row } = await supabase.from("forum_subscriptions")
+      .select("user_id")
+      .eq("user_id", userId).eq("target_type", "topic").eq("target_id", data.topicId)
+      .maybeSingle();
+    return { subscribed: !!row };
+  });
