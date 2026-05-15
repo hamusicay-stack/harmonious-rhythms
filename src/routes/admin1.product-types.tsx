@@ -67,9 +67,8 @@ function ProductTypesPage() {
       slug: editing.slug, name: editing.name, icon: editing.icon, description: editing.description,
       attribute_schema: editing.attribute_schema, sort_order: editing.sort_order, enabled: editing.enabled,
     };
-    const q = editing.id
-      ? supabase.from("product_types" as never).update(payload).eq("id", editing.id)
-      : supabase.from("product_types" as never).insert(payload);
+    const tbl = supabase.from("product_types" as never) as any;
+    const q = editing.id ? tbl.update(payload).eq("id", editing.id) : tbl.insert(payload);
     const { error } = await q;
     setSaving(false);
     if (error) { toast.error(error.message); return; }
