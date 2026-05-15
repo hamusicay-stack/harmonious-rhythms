@@ -78,6 +78,7 @@ import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
+import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
@@ -430,6 +431,11 @@ const AdminCommerceShopRoute = AdminCommerceShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceBeatRoute = AdminCommerceBeatRouteImport.update({
+  id: '/beat',
+  path: '/beat',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -505,6 +511,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
@@ -572,6 +579,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
@@ -648,6 +656,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
@@ -725,6 +734,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/commerce/beat'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
@@ -792,6 +802,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/pros'
     | '/shop'
+    | '/admin/commerce/beat'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
@@ -867,6 +878,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/pros/'
     | '/shop/'
+    | '/admin/commerce/beat'
     | '/admin/commerce/shop'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
@@ -1406,6 +1418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceShopRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/beat': {
+      id: '/admin/commerce/beat'
+      path: '/beat'
+      fullPath: '/admin/commerce/beat'
+      preLoaderRoute: typeof AdminCommerceBeatRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1451,11 +1470,13 @@ const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
 interface AdminCommerceRouteChildren {
+  AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
   AdminCommerceIndexRoute: typeof AdminCommerceIndexRoute
 }
 
 const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
+  AdminCommerceBeatRoute: AdminCommerceBeatRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
   AdminCommerceIndexRoute: AdminCommerceIndexRoute,
 }
