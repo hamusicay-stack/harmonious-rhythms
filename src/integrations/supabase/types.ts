@@ -1488,6 +1488,47 @@ export type Database = {
         }
         Relationships: []
       }
+      business_rules: {
+        Row: {
+          allowed: boolean
+          created_at: string
+          discount_percent: number | null
+          id: string
+          notes: string | null
+          product_type_id: string
+          tier_id: string
+          updated_at: string
+        }
+        Insert: {
+          allowed?: boolean
+          created_at?: string
+          discount_percent?: number | null
+          id?: string
+          notes?: string | null
+          product_type_id: string
+          tier_id: string
+          updated_at?: string
+        }
+        Update: {
+          allowed?: boolean
+          created_at?: string
+          discount_percent?: number | null
+          id?: string
+          notes?: string | null
+          product_type_id?: string
+          tier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_rules_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           added_at: string
@@ -3164,6 +3205,45 @@ export type Database = {
           },
         ]
       }
+      product_types: {
+        Row: {
+          attribute_schema: Json
+          created_at: string
+          description: string | null
+          enabled: boolean
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          attribute_schema?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          attribute_schema?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -3178,6 +3258,7 @@ export type Database = {
           has_whatsapp: boolean
           id: string
           instagram: string | null
+          keyboard_model_id: string | null
           last_login_at: string | null
           location: string | null
           organ_model: string | null
@@ -3203,6 +3284,7 @@ export type Database = {
           has_whatsapp?: boolean
           id: string
           instagram?: string | null
+          keyboard_model_id?: string | null
           last_login_at?: string | null
           location?: string | null
           organ_model?: string | null
@@ -3228,6 +3310,7 @@ export type Database = {
           has_whatsapp?: boolean
           id?: string
           instagram?: string | null
+          keyboard_model_id?: string | null
           last_login_at?: string | null
           location?: string | null
           organ_model?: string | null
