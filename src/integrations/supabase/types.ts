@@ -1599,6 +1599,45 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string
+          id: string
+          notes: string | null
+          position: number
+          status: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name: string
+          id?: string
+          notes?: string | null
+          position?: number
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           clicked_at: string | null
