@@ -49,6 +49,7 @@ import { Route as AdminForumRouteImport } from './routes/admin.forum'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCrmRouteImport } from './routes/admin.crm'
 import { Route as AdminCommerceRouteImport } from './routes/admin.commerce'
+import { Route as AdminChatOversightRouteImport } from './routes/admin.chat-oversight'
 import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
@@ -62,7 +63,6 @@ import { Route as ForumUserUsernameRouteImport } from './routes/forum.user.$user
 import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumMessagesThreadIdRouteImport } from './routes/forum.messages.$threadId'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
-import { Route as AdminForumChatOversightRouteImport } from './routes/admin.forum.chat-oversight'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as AdminCrmTasksRouteImport } from './routes/admin.crm.tasks'
 import { Route as AdminCrmSuppliersRouteImport } from './routes/admin.crm.suppliers'
@@ -294,6 +294,11 @@ const AdminCommerceRoute = AdminCommerceRouteImport.update({
   path: '/commerce',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminChatOversightRoute = AdminChatOversightRouteImport.update({
+  id: '/chat-oversight',
+  path: '/chat-oversight',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAutomationsRoute = AdminAutomationsRouteImport.update({
   id: '/automations',
   path: '/automations',
@@ -359,11 +364,6 @@ const ForumBoardSlugRoute = ForumBoardSlugRouteImport.update({
   id: '/board/$slug',
   path: '/board/$slug',
   getParentRoute: () => ForumRoute,
-} as any)
-const AdminForumChatOversightRoute = AdminForumChatOversightRouteImport.update({
-  id: '/chat-oversight',
-  path: '/chat-oversight',
-  getParentRoute: () => AdminForumRoute,
 } as any)
 const AdminCustomersCustomerIdRoute =
   AdminCustomersCustomerIdRouteImport.update({
@@ -544,10 +544,11 @@ export interface FileRoutesByFullPath {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
+  '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/forum': typeof AdminForumRouteWithChildren
+  '/admin/forum': typeof AdminForumRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -595,7 +596,6 @@ export interface FileRoutesByFullPath {
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
-  '/admin/forum/chat-oversight': typeof AdminForumChatOversightRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
@@ -625,8 +625,9 @@ export interface FileRoutesByTo {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
+  '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/forum': typeof AdminForumRouteWithChildren
+  '/admin/forum': typeof AdminForumRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -674,7 +675,6 @@ export interface FileRoutesByTo {
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
-  '/admin/forum/chat-oversight': typeof AdminForumChatOversightRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
@@ -710,10 +710,11 @@ export interface FileRoutesById {
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
+  '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/forum': typeof AdminForumRouteWithChildren
+  '/admin/forum': typeof AdminForumRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -761,7 +762,6 @@ export interface FileRoutesById {
   '/admin/crm/suppliers': typeof AdminCrmSuppliersRoute
   '/admin/crm/tasks': typeof AdminCrmTasksRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
-  '/admin/forum/chat-oversight': typeof AdminForumChatOversightRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
   '/forum/messages/$threadId': typeof ForumMessagesThreadIdRoute
   '/forum/topic/$slug': typeof ForumTopicSlugRoute
@@ -798,6 +798,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
+    | '/admin/chat-oversight'
     | '/admin/commerce'
     | '/admin/crm'
     | '/admin/dashboard'
@@ -849,7 +850,6 @@ export interface FileRouteTypes {
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
-    | '/admin/forum/chat-oversight'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
@@ -879,6 +879,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
+    | '/admin/chat-oversight'
     | '/admin/dashboard'
     | '/admin/forum'
     | '/beat/$setId'
@@ -928,7 +929,6 @@ export interface FileRouteTypes {
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
-    | '/admin/forum/chat-oversight'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
@@ -963,6 +963,7 @@ export interface FileRouteTypes {
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
+    | '/admin/chat-oversight'
     | '/admin/commerce'
     | '/admin/crm'
     | '/admin/dashboard'
@@ -1014,7 +1015,6 @@ export interface FileRouteTypes {
     | '/admin/crm/suppliers'
     | '/admin/crm/tasks'
     | '/admin/customers/$customerId'
-    | '/admin/forum/chat-oversight'
     | '/forum/board/$slug'
     | '/forum/messages/$threadId'
     | '/forum/topic/$slug'
@@ -1340,6 +1340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/chat-oversight': {
+      id: '/admin/chat-oversight'
+      path: '/chat-oversight'
+      fullPath: '/admin/chat-oversight'
+      preLoaderRoute: typeof AdminChatOversightRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/automations': {
       id: '/admin/automations'
       path: '/automations'
@@ -1430,13 +1437,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/forum/board/$slug'
       preLoaderRoute: typeof ForumBoardSlugRouteImport
       parentRoute: typeof ForumRoute
-    }
-    '/admin/forum/chat-oversight': {
-      id: '/admin/forum/chat-oversight'
-      path: '/chat-oversight'
-      fullPath: '/admin/forum/chat-oversight'
-      preLoaderRoute: typeof AdminForumChatOversightRouteImport
-      parentRoute: typeof AdminForumRoute
     }
     '/admin/customers/$customerId': {
       id: '/admin/customers/$customerId'
@@ -1738,34 +1738,24 @@ const AdminCrmRouteWithChildren = AdminCrmRoute._addFileChildren(
   AdminCrmRouteChildren,
 )
 
-interface AdminForumRouteChildren {
-  AdminForumChatOversightRoute: typeof AdminForumChatOversightRoute
-}
-
-const AdminForumRouteChildren: AdminForumRouteChildren = {
-  AdminForumChatOversightRoute: AdminForumChatOversightRoute,
-}
-
-const AdminForumRouteWithChildren = AdminForumRoute._addFileChildren(
-  AdminForumRouteChildren,
-)
-
 interface AdminRouteChildren {
   AdminAutomationsRoute: typeof AdminAutomationsRoute
+  AdminChatOversightRoute: typeof AdminChatOversightRoute
   AdminCommerceRoute: typeof AdminCommerceRouteWithChildren
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminForumRoute: typeof AdminForumRouteWithChildren
+  AdminForumRoute: typeof AdminForumRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAutomationsRoute: AdminAutomationsRoute,
+  AdminChatOversightRoute: AdminChatOversightRoute,
   AdminCommerceRoute: AdminCommerceRouteWithChildren,
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminForumRoute: AdminForumRouteWithChildren,
+  AdminForumRoute: AdminForumRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminCustomersCustomerIdRoute: AdminCustomersCustomerIdRoute,
 }
@@ -1911,3 +1901,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
