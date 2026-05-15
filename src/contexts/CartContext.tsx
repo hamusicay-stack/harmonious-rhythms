@@ -49,6 +49,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Helper: load cart rows from DB into state
+  const loadFromDb = useCallback(async (uid: string) => {
+    const { data } = await supabase.from("cart_items").select("*").eq("user_id", uid).order("added_at");
+    const mapped: CartItem[] = (data ?? []).map((r: any) => ({
+      id: r.product_id,
+      slug: r.product_slug ?? r.product_id,
+      title: r.title,
+      price: Number(r.price),
+      image: r.image,
+      qty: r.qty,
+      product_type: r.product_type,
+      requires_info_file: !!r.requires_info_file,
+      info_file_extension: r.info_file_extension ?? null,
+    }));
+    setItems(mapped);
+  }, []);
+
   // Load: from DB if logged in, else from localStorage. Merge any local items into DB on login.
   useEffect(() => {
     let cancelled = false;
@@ -56,37 +73,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (userId) {
         const local = readStorage();
         if (local.length > 0) {
-          // Merge local into DB
-          await Promise.all(local.map((it) =>
-            supabase.from("cart_items").upsert({
-              user_id: userId,
-              product_id: it.id,
-              product_type: it.product_type,
-              product_slug: it.slug,
-              title: it.title,
-              price: it.price,
-              image: it.image,
-              qty: it.qty,
-              requires_info_file: !!it.requires_info_file,
-              info_file_extension: it.info_file_extension ?? null,
-            } as any, { onConflict: "user_id,product_id,product_type" })
-          ));
-          localStorage.removeItem(STORAGE_KEY);
+          // FAIL-SAFE MERGE: only clear localStorage if upserts ALL succeed.
+          try {
+            const results = await Promise.all(
+              local.map((it) =>
+                supabase.from("cart_items").upsert({
+                  user_id: userId,
+                  product_id: it.id,
+                  product_type: it.product_type,
+                  product_slug: it.slug,
+                  title: it.title,
+                  price: it.price,
+                  image: it.image,
+                  qty: it.qty,
+                  requires_info_file: !!it.requires_info_file,
+                  info_file_extension: it.info_file_extension ?? null,
+                } as any, { onConflict: "user_id,product_id,product_type" })
+              )
+            );
+            const failed = results.find((r) => (r as any).error);
+            if (failed) {
+              console.error("Cart merge: at least one upsert failed", (failed as any).error);
+              // Retain local cart so the user doesn't lose items.
+            } else {
+              localStorage.removeItem(STORAGE_KEY);
+            }
+          } catch (err) {
+            console.error("Cart merge failed; keeping local cart for retry", err);
+          }
         }
-        const { data } = await supabase.from("cart_items").select("*").eq("user_id", userId).order("added_at");
         if (cancelled) return;
-        const mapped: CartItem[] = (data ?? []).map((r: any) => ({
-          id: r.product_id,
-          slug: r.product_slug ?? r.product_id,
-          title: r.title,
-          price: Number(r.price),
-          image: r.image,
-          qty: r.qty,
-          product_type: r.product_type,
-          requires_info_file: !!r.requires_info_file,
-          info_file_extension: r.info_file_extension ?? null,
-        }));
-        setItems(mapped);
+        await loadFromDb(userId);
       } else {
         setItems(readStorage());
       }
@@ -95,12 +112,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const onStorage = (e: StorageEvent) => { if (e.key === STORAGE_KEY && !userId) setItems(readStorage()); };
     window.addEventListener("shop_cart_updated", onUpdate);
     window.addEventListener("storage", onStorage);
+
+    // Realtime cross-tab/device sync for authenticated users.
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    if (userId) {
+      channel = supabase
+        .channel(`cart-items-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "cart_items", filter: `user_id=eq.${userId}` },
+          () => { void loadFromDb(userId); },
+        )
+        .subscribe();
+    }
+
     return () => {
       cancelled = true;
       window.removeEventListener("shop_cart_updated", onUpdate);
       window.removeEventListener("storage", onStorage);
+      if (channel) supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, loadFromDb]);
 
   const persistLocal = useCallback((next: CartItem[]) => {
     setItems(next);
