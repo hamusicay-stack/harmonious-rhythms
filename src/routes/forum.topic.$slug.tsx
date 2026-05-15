@@ -235,7 +235,7 @@ function TopicPage() {
                         <div>
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {a?.username ? (
-                              <Link to="/forum/user/$username" params={{ username: a.username }} className="font-medium hover:underline">{a.display_name ?? a.username}</Link>
+                              <Link to="/u/$username" params={{ username: a.username }} className="font-medium hover:underline">{a.display_name ?? a.username}</Link>
                             ) : <span className="font-medium">{a?.display_name ?? "משתמש"}</span>}
                             <VipBadge tier={tier} />
                           </div>
