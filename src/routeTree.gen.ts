@@ -50,6 +50,7 @@ import { Route as ShopOrderOrderIdRouteImport } from './routes/shop.order.$order
 import { Route as ProsProIdEditRouteImport } from './routes/pros.$proId.edit'
 import { Route as MarketplaceCategorySlugRouteImport } from './routes/marketplace.category.$slug'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace.$listingId.edit'
+import { Route as ForumTopicSlugRouteImport } from './routes/forum.topic.$slug'
 import { Route as ForumBoardSlugRouteImport } from './routes/forum.board.$slug'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -263,6 +264,11 @@ const MarketplaceListingIdEditRoute =
     path: '/edit',
     getParentRoute: () => MarketplaceListingIdRoute,
   } as any)
+const ForumTopicSlugRoute = ForumTopicSlugRouteImport.update({
+  id: '/topic/$slug',
+  path: '/topic/$slug',
+  getParentRoute: () => ForumRoute,
+} as any)
 const ForumBoardSlugRoute = ForumBoardSlugRouteImport.update({
   id: '/board/$slug',
   path: '/board/$slug',
@@ -339,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/topic/$slug': typeof ForumTopicSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -384,6 +391,7 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/topic/$slug': typeof ForumTopicSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -434,6 +442,7 @@ export interface FileRoutesById {
   '/shop/': typeof ShopIndexRoute
   '/admin/customers/$customerId': typeof AdminCustomersCustomerIdRoute
   '/forum/board/$slug': typeof ForumBoardSlugRoute
+  '/forum/topic/$slug': typeof ForumTopicSlugRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/marketplace/category/$slug': typeof MarketplaceCategorySlugRoute
   '/pros/$proId/edit': typeof ProsProIdEditRoute
@@ -485,6 +494,7 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/topic/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -530,6 +540,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/topic/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -579,6 +590,7 @@ export interface FileRouteTypes {
     | '/shop/'
     | '/admin/customers/$customerId'
     | '/forum/board/$slug'
+    | '/forum/topic/$slug'
     | '/marketplace/$listingId/edit'
     | '/marketplace/category/$slug'
     | '/pros/$proId/edit'
@@ -905,6 +917,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdEditRouteImport
       parentRoute: typeof MarketplaceListingIdRoute
     }
+    '/forum/topic/$slug': {
+      id: '/forum/topic/$slug'
+      path: '/topic/$slug'
+      fullPath: '/forum/topic/$slug'
+      preLoaderRoute: typeof ForumTopicSlugRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/forum/board/$slug': {
       id: '/forum/board/$slug'
       path: '/board/$slug'
@@ -994,10 +1013,12 @@ const Admin1RouteWithChildren =
 
 interface ForumRouteChildren {
   ForumBoardSlugRoute: typeof ForumBoardSlugRoute
+  ForumTopicSlugRoute: typeof ForumTopicSlugRoute
 }
 
 const ForumRouteChildren: ForumRouteChildren = {
   ForumBoardSlugRoute: ForumBoardSlugRoute,
+  ForumTopicSlugRoute: ForumTopicSlugRoute,
 }
 
 const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
@@ -1105,3 +1126,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
