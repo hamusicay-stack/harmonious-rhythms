@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ShoppingBag, Loader2, ArrowRight, ArrowLeft, Check, User, MapPin, Receipt, FileUp, FileCheck2, AlertTriangle, Trash2 } from "lucide-react";
