@@ -42,12 +42,14 @@ type Profile = {
   full_name: string | null;
   email: string | null;
   phone: string | null;
+  has_whatsapp?: boolean | null;
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
   user_type: string;
   organ_model: string | null;
   subscription_tier: string;
+  global_subscription_tier_id?: string | null;
   specialties: string[] | null;
   website: string | null;
   instagram: string | null;
@@ -56,6 +58,8 @@ type Profile = {
   email_opt_in?: boolean;
   last_login_at?: string | null;
 };
+
+type TierOption = { id: string; slug: string; name: string; is_vip: boolean };
 
 type CustomerTag = { id: string; tag: string; color: string | null };
 type Interaction = {
