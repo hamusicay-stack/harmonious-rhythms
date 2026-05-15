@@ -139,6 +139,12 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                     <UserIcon className="ml-2 h-4 w-4" />
                     הפרופיל שלי
                   </DropdownMenuItem>
+                  {profile?.username && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/u/$username", params: { username: profile.username! } })} className="cursor-pointer">
+                      <Globe className="ml-2 h-4 w-4" />
+                      הפרופיל הציבורי שלי
+                    </DropdownMenuItem>
+                  )}
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
                       <Shield className="ml-2 h-4 w-4 text-primary" />
