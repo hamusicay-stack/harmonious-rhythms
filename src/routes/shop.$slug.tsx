@@ -74,9 +74,11 @@ function ProductPage() {
   const { slug } = useParams({ from: "/shop/$slug" });
   const [product, setProduct] = useState<Product | null>(null);
   const [images, setImages] = useState<ProductImage[]>([]);
+  const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
+  const [cpiFile, setCpiFile] = useState<CpiFileInfo | null>(null);
 
   useEffect(() => {
     (async () => {
