@@ -2099,6 +2099,7 @@ export type Database = {
           id: string
           is_deleted: boolean
           is_op: boolean
+          parent_post_id: string | null
           quoted_post_id: string | null
           search_tsv: unknown
           topic_id: string
@@ -2111,6 +2112,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           is_op?: boolean
+          parent_post_id?: string | null
           quoted_post_id?: string | null
           search_tsv?: unknown
           topic_id: string
@@ -2123,11 +2125,19 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           is_op?: boolean
+          parent_post_id?: string | null
           quoted_post_id?: string | null
           search_tsv?: unknown
           topic_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "forum_posts_parent_post_id_fkey"
+            columns: ["parent_post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "forum_posts_quoted_post_id_fkey"
             columns: ["quoted_post_id"]

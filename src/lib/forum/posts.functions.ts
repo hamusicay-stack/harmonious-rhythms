@@ -9,6 +9,7 @@ export const createReply = createServerFn({ method: "POST" })
       topicId: z.string().uuid(),
       body: z.string().trim().min(1).max(20000),
       quotedPostId: z.string().uuid().optional(),
+      parentPostId: z.string().uuid().optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -18,6 +19,7 @@ export const createReply = createServerFn({ method: "POST" })
       author_id: userId,
       body_md: data.body,
       quoted_post_id: data.quotedPostId ?? null,
+      parent_post_id: data.parentPostId ?? null,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
