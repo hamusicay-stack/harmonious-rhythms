@@ -446,7 +446,8 @@ function CustomerProfilePage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="details" className="mt-6">
+          <TabsContent value="details" className="mt-6 space-y-4">
+            <HardwareSmartOffers keyboardModelId={(profile as any).keyboard_model_id ?? null} />
             <Card>
               <CardHeader><CardTitle>פרטים אישיים</CardTitle></CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
