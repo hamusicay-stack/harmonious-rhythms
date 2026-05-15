@@ -29,6 +29,7 @@ import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
+import { Route as Admin1IndexRouteImport } from './routes/admin1.index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
@@ -151,6 +152,11 @@ const BeatIndexRoute = BeatIndexRouteImport.update({
   path: '/beat/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Admin1IndexRoute = Admin1IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => Admin1Route,
+} as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/verify/$code',
   path: '/verify/$code',
@@ -268,7 +274,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/admin1': typeof Admin1Route
+  '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
@@ -292,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
@@ -311,7 +318,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/admin1': typeof Admin1Route
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
@@ -332,6 +338,7 @@ export interface FileRoutesByTo {
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin1': typeof Admin1IndexRoute
   '/beat': typeof BeatIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/pros': typeof ProsIndexRoute
@@ -352,7 +359,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/academy': typeof AcademyRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/admin1': typeof Admin1Route
+  '/admin1': typeof Admin1RouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRoute
@@ -376,6 +383,7 @@ export interface FileRoutesById {
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/checkout': typeof ShopCheckoutRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/admin1/': typeof Admin1IndexRoute
   '/beat/': typeof BeatIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/pros/': typeof ProsIndexRoute
@@ -421,6 +429,7 @@ export interface FileRouteTypes {
     | '/shop/$slug'
     | '/shop/checkout'
     | '/verify/$code'
+    | '/admin1/'
     | '/beat/'
     | '/marketplace/'
     | '/pros/'
@@ -440,7 +449,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/academy'
     | '/admin'
-    | '/admin1'
     | '/auth'
     | '/contact'
     | '/forum'
@@ -461,6 +469,7 @@ export interface FileRouteTypes {
     | '/shop/$slug'
     | '/shop/checkout'
     | '/verify/$code'
+    | '/admin1'
     | '/beat'
     | '/marketplace'
     | '/pros'
@@ -504,6 +513,7 @@ export interface FileRouteTypes {
     | '/shop/$slug'
     | '/shop/checkout'
     | '/verify/$code'
+    | '/admin1/'
     | '/beat/'
     | '/marketplace/'
     | '/pros/'
@@ -524,7 +534,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AcademyRoute: typeof AcademyRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  Admin1Route: typeof Admin1Route
+  Admin1Route: typeof Admin1RouteWithChildren
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForumRoute: typeof ForumRoute
@@ -687,6 +697,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/beat/'
       preLoaderRoute: typeof BeatIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin1/': {
+      id: '/admin1/'
+      path: '/'
+      fullPath: '/admin1/'
+      preLoaderRoute: typeof Admin1IndexRouteImport
+      parentRoute: typeof Admin1Route
     }
     '/verify/$code': {
       id: '/verify/$code'
@@ -861,6 +878,17 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface Admin1RouteChildren {
+  Admin1IndexRoute: typeof Admin1IndexRoute
+}
+
+const Admin1RouteChildren: Admin1RouteChildren = {
+  Admin1IndexRoute: Admin1IndexRoute,
+}
+
+const Admin1RouteWithChildren =
+  Admin1Route._addFileChildren(Admin1RouteChildren)
+
 interface MarketplaceListingIdRouteChildren {
   MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
 }
@@ -939,7 +967,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AcademyRoute: AcademyRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  Admin1Route: Admin1Route,
+  Admin1Route: Admin1RouteWithChildren,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForumRoute: ForumRoute,
@@ -964,3 +992,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
