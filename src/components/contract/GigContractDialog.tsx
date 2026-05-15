@@ -91,22 +91,44 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
     setSending(true);
     try {
       const html = buildContractHtml({ ...form, proName });
-      const w = window.open("", "_blank", "width=860,height=1024");
-      if (w) {
-        w.document.open();
-        w.document.write(html);
-        w.document.close();
-      } else {
-        // fallback: download as HTML
-        const blob = new Blob([html], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `contract-${form.clientName}.html`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+      // Render HTML → canvas → real PDF (Hebrew preserved as raster).
+      const container = document.createElement("div");
+      container.style.cssText = "position:fixed;left:-99999px;top:0;width:794px;background:#fff;";
+      container.innerHTML = html.replace(/<script[\s\S]*?<\/script>/g, "");
+      document.body.appendChild(container);
+      try {
+        const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+          import("html2canvas"),
+          import("jspdf"),
+        ]);
+        const target = container.querySelector("body") || container;
+        const canvas = await html2canvas(target as HTMLElement, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+        });
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
+        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const imgW = pageW;
+        const imgH = (canvas.height * imgW) / canvas.width;
+        if (imgH <= pageH) {
+          pdf.addImage(imgData, "JPEG", 0, 0, imgW, imgH);
+        } else {
+          // multi-page
+          let y = 0;
+          while (y < imgH) {
+            pdf.addImage(imgData, "JPEG", 0, -y, imgW, imgH);
+            y += pageH;
+            if (y < imgH) pdf.addPage();
+          }
+        }
+        const filename = `contract-${(form.clientName || "client").replace(/\s+/g, "-")}.pdf`;
+        pdf.save(filename);
+      } finally {
+        container.remove();
       }
 
       // Insert a "contract generated" message into the chat thread (notifies client via existing trigger)
@@ -131,6 +153,9 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
 
       toast.success("החוזה נשלח בהצלחה!");
       setOpen(false);
+    } catch (e: any) {
+      console.error("contract generation failed", e);
+      toast.error(`יצירת החוזה נכשלה: ${e?.message ?? "שגיאה"}`);
     } finally {
       setSending(false);
     }
