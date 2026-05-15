@@ -92,12 +92,18 @@ function ProductPage() {
       if (p) {
         setProduct(p as any);
         setActiveImg(p.main_image);
-        const { data: imgs } = await supabase
-          .from("shop_product_images")
-          .select("id,image_url,alt_text")
-          .eq("product_id", p.id)
-          .order("display_order");
+        const [{ data: imgs }, catRes] = await Promise.all([
+          supabase
+            .from("shop_product_images")
+            .select("id,image_url,alt_text")
+            .eq("product_id", p.id)
+            .order("display_order"),
+          p.category_id
+            ? supabase.from("shop_categories").select("slug").eq("id", p.category_id).maybeSingle()
+            : Promise.resolve({ data: null } as any),
+        ]);
         setImages((imgs as ProductImage[]) ?? []);
+        setCategorySlug((catRes?.data as any)?.slug ?? null);
       }
       setLoading(false);
     })();
