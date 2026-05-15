@@ -124,10 +124,13 @@ function CoursePage() {
   };
 
   const activeLesson = lessons.find((l) => l.id === activeLessonId);
-  const canWatch = !!enrollment || activeLesson?.is_preview || (activeLesson ? isLessonUnlockedByPreview(activeLesson.id) : false);
+  const isCoursePremium = !course.is_free && (course.price ?? 0) > 0;
+  const vipUnlocks = isVip && isCoursePremium; // VIPs get free access to premium courses
+  const canWatch = !!enrollment || vipUnlocks || activeLesson?.is_preview || (activeLesson ? isLessonUnlockedByPreview(activeLesson.id) : false);
+  const showPremiumLock = !canWatch && isCoursePremium && !!activeLesson && !isVip;
   const activeIndex = lessons.findIndex((l) => l.id === activeLessonId);
   const nextLesson = activeIndex >= 0 ? lessons[activeIndex + 1] : null;
-  const canPlayNext = nextLesson && (!!enrollment || nextLesson.is_preview || isLessonUnlockedByPreview(nextLesson.id));
+  const canPlayNext = nextLesson && (!!enrollment || vipUnlocks || nextLesson.is_preview || isLessonUnlockedByPreview(nextLesson.id));
 
   const goNext = () => {
     setShowAutoNext(false);
