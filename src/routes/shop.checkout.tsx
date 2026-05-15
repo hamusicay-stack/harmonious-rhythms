@@ -522,8 +522,63 @@ function CheckoutPage() {
               ))}
             </ul>
 
+            {/* Promo code */}
+            <div className="mt-4 space-y-2 border-t pt-4">
+              <Label htmlFor="promo" className="text-xs">קוד קופון</Label>
+              {coupon ? (
+                <div className="flex items-center justify-between rounded border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm">
+                  <div>
+                    <code className="font-bold">{coupon.code}</code>
+                    <span className="mr-2 text-xs text-emerald-700 dark:text-emerald-300">הופעל</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => { removeCoupon(); setPromoInput(""); setPromoError(null); }}>הסר</Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="promo"
+                    value={promoInput}
+                    onChange={(e) => { setPromoInput(e.target.value); setPromoError(null); }}
+                    placeholder="WELCOME10"
+                    className={cn(promoError && "border-destructive")}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={promoBusy || !promoInput.trim()}
+                    onClick={async () => {
+                      setPromoBusy(true);
+                      const r = await applyCoupon(promoInput);
+                      setPromoBusy(false);
+                      if (r.ok) { toast.success(r.message); setPromoError(null); }
+                      else { setPromoError(r.message); toast.error(r.message); }
+                    }}
+                  >
+                    {promoBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "החל"}
+                  </Button>
+                </div>
+              )}
+              {promoError && <p className="text-xs text-destructive">{promoError}</p>}
+            </div>
+
             <div className="mt-4 space-y-2 border-t pt-4 text-sm">
               <div className="flex justify-between"><span>סכום ביניים</span><span>{formatILS(subtotal)}</span></div>
+              {vipDiscountAmount > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-gradient-to-l from-amber-500/10 to-amber-300/5 p-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-1 font-semibold text-amber-700 dark:text-amber-300">
+                      ✨ הנחת VIP הופעלה ({vipDiscountPercent}%)
+                    </span>
+                    <span className="font-bold text-amber-700 dark:text-amber-300">−{formatILS(vipDiscountAmount)}</span>
+                  </div>
+                </div>
+              )}
+              {couponDiscountAmount > 0 && coupon && (
+                <div className="flex justify-between text-emerald-700 dark:text-emerald-300">
+                  <span>קופון ({coupon.code})</span>
+                  <span className="font-semibold">−{formatILS(couponDiscountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>משלוח</span>
                 <span>{shipping === 0 ? <span className="text-emerald-600 font-semibold">חינם</span> : formatILS(shipping)}</span>
