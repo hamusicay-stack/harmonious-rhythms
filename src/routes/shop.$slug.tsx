@@ -133,11 +133,37 @@ function ProductPage() {
   const finalPrice = hasSale ? product.sale_price! : product.price;
   const outOfStock = product.manage_stock && product.stock_quantity <= 0;
 
+  // Smart Rhythms detection by category slug
+  const isSmartRhythm = !!categorySlug && ["BITS", "smart-rhythms", "rhythms", "מקצבים"].includes(categorySlug);
+  // Optional per-button samples from custom_fields.organ_samples (record of button code → URL)
+  const organSamples =
+    (product.custom_fields && (product.custom_fields as any).organ_samples) as Record<string, string> | undefined;
+
+  const cpiRequired = isSmartRhythm;
+  const canAddToCart = !outOfStock && (!cpiRequired || !!cpiFile);
+
   const addToCart = () => {
+    if (cpiRequired && !cpiFile) {
+      toast.error("חובה להעלות קובץ זיהוי (.n27 / .info) לפני הוספה לסל");
+      return;
+    }
     const cart = JSON.parse(localStorage.getItem("shop_cart") || "[]");
     const existing = cart.find((i: any) => i.id === product.id);
-    if (existing) existing.qty += qty;
-    else cart.push({ id: product.id, slug: product.slug, title: product.title, price: finalPrice, image: product.main_image, qty, product_type: product.product_type });
+    if (existing) {
+      existing.qty += qty;
+      if (cpiFile) existing.cpi_file = cpiFile;
+    } else {
+      cart.push({
+        id: product.id,
+        slug: product.slug,
+        title: product.title,
+        price: finalPrice,
+        image: product.main_image,
+        qty,
+        product_type: product.product_type,
+        ...(cpiFile ? { cpi_file: cpiFile } : {}),
+      });
+    }
     localStorage.setItem("shop_cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("shop_cart_updated"));
     toast.success("נוסף לסל הקניות");
