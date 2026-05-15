@@ -155,7 +155,12 @@ export function ProChatDialog({
       </DialogTrigger>
       <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]" dir="rtl">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
-          <DialogTitle className="text-right text-base line-clamp-1">צ'אט עם {peerName}</DialogTitle>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם {peerName}</DialogTitle>
+            {isProRole && (
+              <GigContractDialog clientName={senderName || ""} proName={user.user_metadata?.display_name || user.email || ""} />
+            )}
+          </div>
         </DialogHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-muted/30">
