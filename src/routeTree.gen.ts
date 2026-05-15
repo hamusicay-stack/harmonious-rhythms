@@ -84,6 +84,7 @@ import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.comm
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
+import { Route as AdminCommerceBannersRouteImport } from './routes/admin.commerce.banners'
 import { Route as AdminCommerceAiRouteImport } from './routes/admin.commerce.ai'
 import { Route as AdminCommerceAffiliatesRouteImport } from './routes/admin.commerce.affiliates'
 import { Route as AdminCommerceAcademyRouteImport } from './routes/admin.commerce.academy'
@@ -470,6 +471,11 @@ const AdminCommerceBeatRoute = AdminCommerceBeatRouteImport.update({
   path: '/beat',
   getParentRoute: () => AdminCommerceRoute,
 } as any)
+const AdminCommerceBannersRoute = AdminCommerceBannersRouteImport.update({
+  id: '/banners',
+  path: '/banners',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const AdminCommerceAiRoute = AdminCommerceAiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -563,6 +569,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
+  '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
@@ -639,6 +646,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
+  '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
@@ -724,6 +732,7 @@ export interface FileRoutesById {
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
   '/admin/commerce/ai': typeof AdminCommerceAiRoute
+  '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
@@ -810,6 +819,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/academy'
     | '/admin/commerce/affiliates'
     | '/admin/commerce/ai'
+    | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
@@ -886,6 +896,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/academy'
     | '/admin/commerce/affiliates'
     | '/admin/commerce/ai'
+    | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
@@ -970,6 +981,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/academy'
     | '/admin/commerce/affiliates'
     | '/admin/commerce/ai'
+    | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
@@ -1557,6 +1569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceBeatRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/banners': {
+      id: '/admin/commerce/banners'
+      path: '/banners'
+      fullPath: '/admin/commerce/banners'
+      preLoaderRoute: typeof AdminCommerceBannersRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/ai': {
       id: '/admin/commerce/ai'
       path: '/ai'
@@ -1626,6 +1645,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceAcademyRoute: typeof AdminCommerceAcademyRoute
   AdminCommerceAffiliatesRoute: typeof AdminCommerceAffiliatesRoute
   AdminCommerceAiRoute: typeof AdminCommerceAiRoute
+  AdminCommerceBannersRoute: typeof AdminCommerceBannersRoute
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
@@ -1640,6 +1660,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceAcademyRoute: AdminCommerceAcademyRoute,
   AdminCommerceAffiliatesRoute: AdminCommerceAffiliatesRoute,
   AdminCommerceAiRoute: AdminCommerceAiRoute,
+  AdminCommerceBannersRoute: AdminCommerceBannersRoute,
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
