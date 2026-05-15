@@ -123,24 +123,30 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     video_url: initial?.video_url ?? "",
   });
 
+  const [vipTier, setVipTier] = useState<string | null>(null);
+  const isVip = vipTier && !["free", "basic"].includes(vipTier);
+
   useEffect(() => {
     if (user) {
       setCheckingBusiness(true);
-      supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle()
-        .then(({ data }) => {
-          setHasBusinessAccount(!!data);
-          if (data) {
-            setBusinessForm({
-              business_name: data.business_name ?? "",
-              contact_name: "",
-              phone: data.phone ?? "",
-              email: data.email ?? user.email ?? "",
-            });
-          } else {
-            setBusinessForm((f) => ({ ...f, email: user.email ?? "" }));
-          }
-          setCheckingBusiness(false);
-        });
+      Promise.all([
+        supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle(),
+        supabase.from("profiles").select("subscription_tier, global_subscription_tier_id").eq("id", user.id).maybeSingle(),
+      ]).then(([{ data }, { data: prof }]) => {
+        setHasBusinessAccount(!!data);
+        setVipTier(prof?.subscription_tier ?? null);
+        if (data) {
+          setBusinessForm({
+            business_name: data.business_name ?? "",
+            contact_name: "",
+            phone: data.phone ?? "",
+            email: data.email ?? user.email ?? "",
+          });
+        } else {
+          setBusinessForm((f) => ({ ...f, email: user.email ?? "" }));
+        }
+        setCheckingBusiness(false);
+      });
     }
   }, [user]);
 
@@ -709,8 +715,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <div className="space-y-2">
                   {[
                     { value: "none", title: "פרסום רגיל", desc: "המודעה תופיע ברשימה לפי תאריך פרסום", badge: "חינם" },
-                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: "חינם" },
-                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: "חינם" },
+                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "חינם" },
+                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "חינם" },
                   ].map((opt) => (
                     <button key={opt.value} type="button" onClick={() => setPromoOption(opt.value as "none" | "bump24" | "bump48")}
                       className={`w-full relative rounded-lg border-2 p-3 text-right transition ${promoOption === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>

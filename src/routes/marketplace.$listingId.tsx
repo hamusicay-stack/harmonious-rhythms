@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Phone, MessageCircle, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Flame, Images, BadgeCheck } from "lucide-react";
+import { ArrowRight, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Flame, Images, BadgeCheck } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +71,7 @@ function ListingDetailPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: l } = await supabase.from("marketplace_listings").select("*").eq("id", listingId).maybeSingle();
+      const { data: l } = await supabase.from("marketplace_listings").select("id, seller_id, title, description, category, subcategory, brand, model, item_condition, price, currency, region, city, images, video_url, audio_url, specs, status, seller_type, bump_expires_at, is_urgent, is_sold, created_at").eq("id", listingId).maybeSingle();
       if (!l) { setLoading(false); return; }
       setListing(l);
 
@@ -123,8 +123,8 @@ function ListingDetailPage() {
   );
 
   const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
-  const waNumber = (listing.whatsapp || listing.phone || "").replace(/\D/g, "").replace(/^0/, "972");
-  const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(`היי, ראיתי את המודעה "${listing.title}" באתר המוזיקאי`)}`;
+  // Privacy Shield: real phone/whatsapp are no longer fetched in the public bundle.
+  // Buyers must contact the seller through in-app chat (ChatThreadDialog).
 
   const submitReview = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
@@ -287,14 +287,12 @@ function ListingDetailPage() {
                 {listing.seller_type === "business" && <Badge variant="default">מוכר עסקי</Badge>}
               </div>
 
-              <div className={`grid gap-2 pt-2 ${listing.whatsapp ? "grid-cols-2" : "grid-cols-1"}`}>
-                <a href={`tel:${listing.phone}`} onClick={() => trackContact("phone_click")}><Button className="w-full" size="sm"><Phone className="h-4 w-4" />חיוג</Button></a>
-                {listing.whatsapp && (
-                  <a href={waLink} target="_blank" rel="noopener noreferrer" onClick={() => trackContact("whatsapp_click")}>
-                    <Button variant="outline" className="w-full" size="sm"><MessageCircle className="h-4 w-4" />וואטסאפ</Button>
-                  </a>
-                )}
-              </div>
+              {!isOwner && (
+                <div className="pt-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground flex items-start gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <span>לשמירה על פרטיות המוכר, יצירת הקשר נעשית דרך הצ׳אט המאובטח באתר. מספר הטלפון אינו נחשף.</span>
+                </div>
+              )}
               {!isOwner && (
                 <ChatThreadDialog listingId={listing.id} sellerId={listing.seller_id} listingTitle={listing.title} />
               )}

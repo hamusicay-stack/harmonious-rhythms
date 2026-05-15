@@ -2773,7 +2773,15 @@ export type Database = {
           views_count?: number
           whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listings_seller_profile_fk"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       marketplace_reports: {
         Row: {
@@ -5528,6 +5536,13 @@ export type Database = {
         Returns: number
       }
       generate_ref_code: { Args: never; Returns: string }
+      get_listing_contact: {
+        Args: { _listing_id: string }
+        Returns: {
+          phone: string
+          whatsapp: string
+        }[]
+      }
       get_listing_stats: {
         Args: { _listing_id: string }
         Returns: {
