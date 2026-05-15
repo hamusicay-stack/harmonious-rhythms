@@ -210,6 +210,14 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                         הפרופיל שלי
                       </Button>
                     </Link>
+                    {profile?.username && (
+                      <Link to="/u/$username" params={{ username: profile.username }} onClick={() => setOpen(false)}>
+                        <Button variant="outline" className="w-full rounded-full">
+                          <Globe className="ml-2 h-4 w-4" />
+                          הפרופיל הציבורי שלי
+                        </Button>
+                      </Link>
+                    )}
                     {isAdmin && (
                       <Link to="/admin" onClick={() => setOpen(false)}>
                         <Button variant="outline" className="w-full rounded-full border-primary/40 text-primary">
