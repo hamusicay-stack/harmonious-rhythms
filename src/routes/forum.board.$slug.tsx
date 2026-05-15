@@ -8,7 +8,7 @@ import { listTopics, createTopic } from "@/lib/forum/topics.functions";
 import { getBoardBySlug } from "@/lib/forum/boards.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { ForumEditor } from "@/components/forum/ForumEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Pin, Lock, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
