@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X, Headphones, Video as VideoIcon, ChevronDown } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X, Headphones, Video as VideoIcon, ChevronDown, Crown, Sparkles } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/academy/$slug")({
 
 function CoursePage() {
   const { course } = Route.useLoaderData();
-  const { user } = useAuth();
+  const { user, isVip, vipTier } = useAuth();
   const [modules, setModules] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, any>>({});
@@ -115,6 +115,43 @@ function CoursePage() {
     if (error) toast.error(error.message); else { toast.success("נרשמת!"); refresh(); }
   };
 
+  // Auto-enroll VIPs into premium courses so progress + points persist
+  useEffect(() => {
+    if (!user || enrollment || !course) return;
+    const premium = !course.is_free && (course.price ?? 0) > 0;
+    if (premium && isVip) {
+      void supabase
+        .from("academy_enrollments")
+        .insert({ user_id: user.id, course_id: course.id, source: "vip" })
+        .then(({ error }) => { if (!error) refresh(); });
+    }
+  }, [user?.id, isVip, enrollment, course?.id]);
+
+  const markLessonComplete = async (lessonId: string) => {
+    if (!user) { toast.error("יש להתחבר"); return; }
+    const lesson = lessons.find((l) => l.id === lessonId);
+    const wasCompleted = !!progress[lessonId]?.is_completed;
+    const { error } = await supabase
+      .from("academy_lesson_progress")
+      .upsert({
+        user_id: user.id,
+        lesson_id: lessonId,
+        course_id: course.id,
+        position_seconds: progress[lessonId]?.position_seconds ?? lesson?.duration_seconds ?? 0,
+        is_completed: true,
+        completed_at: new Date().toISOString(),
+      }, { onConflict: "user_id,lesson_id" });
+    if (error) { toast.error(error.message); return; }
+    if (!wasCompleted) {
+      toast.success("🎉 כל הכבוד! +5 נקודות נוספו לחשבונך", { duration: 4000 });
+    } else {
+      toast.success("השיעור סומן כהושלם");
+    }
+    void trackAcademyEvent({ itemType: "lesson", itemId: lessonId, eventType: "complete", courseId: course.id, percent: 100 });
+    refresh();
+    await tryIssueCertificate(course.id, user.id, course.title);
+  };
+
   // Course-level preview gate: free course OR first N% of lessons unlocked for everyone
   const previewPercent = (course as any)?.is_free ? 100 : Math.max(0, Math.min(100, (course as any)?.preview_percent ?? 10));
   const previewCount = Math.max(0, Math.ceil((lessons.length * previewPercent) / 100));
@@ -124,10 +161,13 @@ function CoursePage() {
   };
 
   const activeLesson = lessons.find((l) => l.id === activeLessonId);
-  const canWatch = !!enrollment || activeLesson?.is_preview || (activeLesson ? isLessonUnlockedByPreview(activeLesson.id) : false);
+  const isCoursePremium = !course.is_free && (course.price ?? 0) > 0;
+  const vipUnlocks = isVip && isCoursePremium; // VIPs get free access to premium courses
+  const canWatch = !!enrollment || vipUnlocks || activeLesson?.is_preview || (activeLesson ? isLessonUnlockedByPreview(activeLesson.id) : false);
+  const showPremiumLock = !canWatch && isCoursePremium && !!activeLesson && !isVip;
   const activeIndex = lessons.findIndex((l) => l.id === activeLessonId);
   const nextLesson = activeIndex >= 0 ? lessons[activeIndex + 1] : null;
-  const canPlayNext = nextLesson && (!!enrollment || nextLesson.is_preview || isLessonUnlockedByPreview(nextLesson.id));
+  const canPlayNext = nextLesson && (!!enrollment || vipUnlocks || nextLesson.is_preview || isLessonUnlockedByPreview(nextLesson.id));
 
   const goNext = () => {
     setShowAutoNext(false);
@@ -206,10 +246,14 @@ function CoursePage() {
                     }}
                   />
                 ) : activeLesson && !canWatch ? (
-                  <div className="flex h-full flex-col items-center justify-center gap-2 text-white">
-                    <Lock className="h-10 w-10" />
-                    <p>השיעור הזה דורש הרשמה לקורס</p>
-                  </div>
+                  showPremiumLock ? (
+                    <PremiumLockOverlay tierName={vipTier?.name ?? null} coursePrice={course.price} courseSlug={course.slug} />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-white">
+                      <Lock className="h-10 w-10" />
+                      <p>השיעור הזה דורש הרשמה לקורס</p>
+                    </div>
+                  )
                 ) : (
                   <div className="flex h-full items-center justify-center text-white">
                     <PlayCircle className="h-12 w-12" />
@@ -243,6 +287,25 @@ function CoursePage() {
                   />
                 )}
               </div>
+
+              {!theater && activeLesson && canWatch && (enrollment || vipUnlocks) && (
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/20 bg-gradient-to-l from-amber-500/5 to-transparent p-3">
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                    סיימת לצפות? סמן את השיעור כהושלם וקבל +5 נקודות.
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={progress[activeLesson.id]?.is_completed ? "outline" : "default"}
+                    disabled={!!progress[activeLesson.id]?.is_completed}
+                    onClick={() => markLessonComplete(activeLesson.id)}
+                    className={progress[activeLesson.id]?.is_completed ? "" : "bg-gradient-to-l from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"}
+                  >
+                    <CheckCircle2 className="ms-1 h-4 w-4" />
+                    {progress[activeLesson.id]?.is_completed ? "הושלם" : "סמן כהושלם"}
+                  </Button>
+                </div>
+              )}
 
               {!theater && (
                 <>
@@ -311,6 +374,11 @@ function CoursePage() {
                     {enrollment.progress_percent === 100 && (
                       <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 pt-1">
                         <Award className="h-4 w-4" />סיימת את הקורס!
+                      </div>
+                    )}
+                    {enrollment.source === "vip" && (
+                      <div className="flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-xs text-amber-500 dark:text-amber-300">
+                        <Crown className="h-3.5 w-3.5" />הוענק כחלק ממנוי VIP
                       </div>
                     )}
                   </CardContent>
@@ -595,6 +663,38 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
             {s}x
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function PremiumLockOverlay({ tierName, coursePrice, courseSlug }: { tierName: string | null; coursePrice: number; courseSlug: string }) {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-black via-zinc-900 to-amber-950/40 p-6 text-center text-white">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, rgba(251,191,36,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(217,119,6,0.3), transparent 50%)" }} />
+      <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-2xl shadow-amber-500/40">
+        <Crown className="h-8 w-8 text-black" />
+      </div>
+      <div className="relative space-y-1">
+        <h3 className="text-xl font-bold">תוכן פרימיום</h3>
+        <p className="max-w-sm text-sm text-white/70">
+          {tierName ? `מנוי ${tierName} שלך אינו כולל קורס זה. ` : "קורס זה זמין למנויי VIP בלבד או לרכישה ישירה. "}
+          שדרגו עכשיו לגישה לכל הספרייה.
+        </p>
+      </div>
+      <div className="relative flex flex-wrap items-center justify-center gap-2">
+        <Button asChild className="bg-gradient-to-l from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500">
+          <Link to="/shop">
+            <Crown className="ms-1 h-4 w-4" />שדרוג ל-VIP
+          </Link>
+        </Button>
+        {coursePrice > 0 && (
+          <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
+            <Link to="/shop/$slug" params={{ slug: courseSlug }}>
+              רכישת הקורס · ₪{coursePrice}
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );
