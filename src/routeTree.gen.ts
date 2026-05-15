@@ -78,6 +78,7 @@ import { Route as AdminCommerceOrganUiRouteImport } from './routes/admin.commerc
 import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.commerce.newsletter'
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
+import { Route as AdminCommerceCouponsRouteImport } from './routes/admin.commerce.coupons'
 import { Route as AdminCommerceBusinessRulesRouteImport } from './routes/admin.commerce.business-rules'
 import { Route as AdminCommerceBeatRouteImport } from './routes/admin.commerce.beat'
 import { Route as AdminCommerceBannersRouteImport } from './routes/admin.commerce.banners'
@@ -438,6 +439,11 @@ const AdminCommerceMarketplaceRoute =
     path: '/marketplace',
     getParentRoute: () => AdminCommerceRoute,
   } as any)
+const AdminCommerceCouponsRoute = AdminCommerceCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => AdminCommerceRoute,
+} as any)
 const AdminCommerceBusinessRulesRoute =
   AdminCommerceBusinessRulesRouteImport.update({
     id: '/business-rules',
@@ -544,6 +550,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
+  '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -618,6 +625,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
+  '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -700,6 +708,7 @@ export interface FileRoutesById {
   '/admin/commerce/banners': typeof AdminCommerceBannersRoute
   '/admin/commerce/beat': typeof AdminCommerceBeatRoute
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
+  '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -783,6 +792,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/business-rules'
+    | '/admin/commerce/coupons'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -857,6 +867,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/business-rules'
+    | '/admin/commerce/coupons'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -938,6 +949,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/banners'
     | '/admin/commerce/beat'
     | '/admin/commerce/business-rules'
+    | '/admin/commerce/coupons'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -1482,6 +1494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceMarketplaceRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/coupons': {
+      id: '/admin/commerce/coupons'
+      path: '/coupons'
+      fullPath: '/admin/commerce/coupons'
+      preLoaderRoute: typeof AdminCommerceCouponsRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/business-rules': {
       id: '/admin/commerce/business-rules'
       path: '/business-rules'
@@ -1575,6 +1594,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceBannersRoute: typeof AdminCommerceBannersRoute
   AdminCommerceBeatRoute: typeof AdminCommerceBeatRoute
   AdminCommerceBusinessRulesRoute: typeof AdminCommerceBusinessRulesRoute
+  AdminCommerceCouponsRoute: typeof AdminCommerceCouponsRoute
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
@@ -1592,6 +1612,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceBannersRoute: AdminCommerceBannersRoute,
   AdminCommerceBeatRoute: AdminCommerceBeatRoute,
   AdminCommerceBusinessRulesRoute: AdminCommerceBusinessRulesRoute,
+  AdminCommerceCouponsRoute: AdminCommerceCouponsRoute,
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,
@@ -1795,3 +1816,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
