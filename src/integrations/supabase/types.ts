@@ -5238,6 +5238,7 @@ export type Database = {
           color: string | null
           created_at: string
           description: string | null
+          discount_percent: number
           id: string
           is_vip: boolean
           name: string
@@ -5249,6 +5250,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           description?: string | null
+          discount_percent?: number
           id?: string
           is_vip?: boolean
           name: string
@@ -5260,6 +5262,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           description?: string | null
+          discount_percent?: number
           id?: string
           is_vip?: boolean
           name?: string
