@@ -156,7 +156,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         qty: newQty,
         requires_info_file: !!item.requires_info_file,
         info_file_extension: item.info_file_extension ?? null,
-      } as any, { onConflict: "user_id,product_id,product_type" });
+      }, { onConflict: "user_id,product_id,product_type" });
       setItems((prev) => {
         const idx = prev.findIndex((i) => i.id === item.id);
         if (idx >= 0) {
