@@ -124,6 +124,10 @@ export function CartDrawer() {
                 <Button onClick={goCheckout} className="w-full" size="lg">
                   המשך לתשלום
                 </Button>
+                <Button onClick={handleShare} variant="outline" className="w-full gap-2" size="sm">
+                  <Share2 className="h-4 w-4" />
+                  שתף עגלה
+                </Button>
               </div>
             </SheetFooter>
           </>
