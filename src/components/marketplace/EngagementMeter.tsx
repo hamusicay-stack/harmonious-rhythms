@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Sparkles, Loader2, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { scoreListing } from "@/lib/scoreListing.functions";
 
 export interface EngagementInput {
   title?: string;
