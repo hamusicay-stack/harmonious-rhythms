@@ -38,6 +38,14 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
   --font-display: 'Readex Pro', 'Heebo', system-ui, sans-serif;
   --font-sans: 'Assistant', 'Heebo', system-ui, sans-serif;
 }
@@ -107,6 +115,16 @@
                 0 0 24px oklch(0.78 0.13 215 / 0.35);
 
   --transition-smooth: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Sidebar */
+  --sidebar: oklch(0.99 0.005 260);
+  --sidebar-foreground: oklch(0.20 0.025 260);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.94 0.01 260);
+  --sidebar-accent-foreground: oklch(0.20 0.025 260);
+  --sidebar-border: oklch(0.20 0.025 260 / 10%);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
@@ -125,6 +143,14 @@
   --surface-glass: oklch(0.20 0.02 260 / 0.60);
   --surface-glass-strong: oklch(0.20 0.02 260 / 0.80);
   --glass-reflection: oklch(1 0 0 / 0.18);
+  --sidebar: oklch(0.18 0.02 260);
+  --sidebar-foreground: oklch(0.96 0.01 260);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.26 0.02 260);
+  --sidebar-accent-foreground: oklch(0.96 0.01 260);
+  --sidebar-border: oklch(0.96 0.01 260 / 10%);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
