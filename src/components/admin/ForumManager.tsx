@@ -126,8 +126,8 @@ function StructureTab() {
     };
     if (!payload.name || !payload.slug || !payload.category_id) return toast.error("שם, סלאג וקטגוריה חובה");
     const res = b.id
-      ? await supabase.from("forum_boards").update(payload).eq("id", b.id)
-      : await supabase.from("forum_boards").insert(payload);
+      ? await supabase.from("forum_boards").update(payload as any).eq("id", b.id)
+      : await supabase.from("forum_boards").insert(payload as any);
     if (res.error) return toast.error(res.error.message);
     toast.success("נשמר"); setBoardDialog(null); load();
   };
