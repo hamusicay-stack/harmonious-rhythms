@@ -16,6 +16,7 @@ import { RequestQuoteDialog } from "@/components/pros/RequestQuoteDialog";
 import { AddReviewDialog } from "@/components/pros/AddReviewDialog";
 import { FollowButton } from "@/components/FollowButton";
 import { toast } from "sonner";
+import { isUserVip } from "@/lib/tiers";
 
 export const Route = createFileRoute("/pros/$proId")({
   component: ProDetailPage,
@@ -79,7 +80,14 @@ function ProDetailPage() {
         supabase.from("music_pro_reviews").select("*").eq("pro_id", proId).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
-      setPro(p as Pro | null);
+      // Unified tier: derive VIP from owning user's global tier, not legacy column.
+      const proRow = p as Pro | null;
+      if (proRow) {
+        const vip = await isUserVip(proRow.user_id);
+        proRow.subscription_tier = vip ? "vip" : "free";
+      }
+      if (cancelled) return;
+      setPro(proRow);
       setMedia((m as Media[]) ?? []);
       setPackages((pk as Pkg[]) ?? []);
       setReviews((rv as Review[]) ?? []);
