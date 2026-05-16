@@ -62,8 +62,6 @@ function ProfilePage() {
     );
   }
 
-  const initials = (profile?.display_name || user.email || "?")
-    .split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <SiteLayout>
