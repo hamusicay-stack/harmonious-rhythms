@@ -300,6 +300,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeCoupon = useCallback(() => setCoupon(null), []);
 
+  const setPointsToRedeem = useCallback((n: number) => {
+    setPointsToRedeemState(Math.max(0, Math.floor(Number(n) || 0)));
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = items.reduce((s, i) => s + i.qty, 0);
     const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0);
@@ -313,16 +317,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         couponDiscountAmount = Math.min(afterVip, coupon.discount_value);
       }
     }
-    const totalDiscount = vipDiscountAmount + couponDiscountAmount;
+    const afterCoupon = Math.max(0, afterVip - couponDiscountAmount);
+    // Points redemption: bounded by balance and by remaining cash
+    const maxByCash = Math.floor(afterCoupon * pointsPerNis);
+    const maxRedeemablePoints = Math.max(0, Math.min(pointsBalance, maxByCash));
+    const clampedPoints = Math.min(pointsToRedeem, maxRedeemablePoints);
+    const pointsDiscountAmount = Math.round((clampedPoints / Math.max(1, pointsPerNis)) * 100) / 100;
+    const totalDiscount = vipDiscountAmount + couponDiscountAmount + pointsDiscountAmount;
     const total = Math.max(0, subtotal - totalDiscount);
     return {
       items, count, subtotal,
       vipDiscountPercent, vipDiscountAmount,
-      coupon, couponDiscountAmount, totalDiscount, total,
+      coupon, couponDiscountAmount,
+      pointsBalance, pointsPerNis,
+      pointsToRedeem: clampedPoints,
+      pointsDiscountAmount, maxRedeemablePoints, setPointsToRedeem,
+      totalDiscount, total,
       applyCoupon, removeCoupon,
       add, remove, setQty, clear,
     };
-  }, [items, vipDiscountPercent, coupon, applyCoupon, removeCoupon, add, remove, setQty, clear]);
+  }, [items, vipDiscountPercent, coupon, pointsBalance, pointsPerNis, pointsToRedeem, setPointsToRedeem, applyCoupon, removeCoupon, add, remove, setQty, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
