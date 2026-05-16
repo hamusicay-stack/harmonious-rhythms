@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useOrganTheme } from "@/hooks/useOrganTheme";
 
-type ButtonDef = { code: string; label: string; led: "blue" | "amber" | "red" | "green" };
+type Led = "blue" | "amber" | "red" | "green";
+type ButtonDef = { code: string; label: string; led: Led };
 
-const BUTTONS: ButtonDef[] = [
+const FALLBACK_BUTTONS: ButtonDef[] = [
   { code: "Intro_1", label: "Intro I", led: "blue" },
   { code: "Intro_2", label: "Intro II", led: "blue" },
   { code: "Intro_3", label: "Intro III", led: "blue" },
@@ -17,11 +19,11 @@ const BUTTONS: ButtonDef[] = [
   { code: "Ending_3", label: "Ending III", led: "red" },
 ];
 
-const LED_COLORS: Record<ButtonDef["led"], string> = {
-  blue: "bg-sky-400 shadow-[0_0_12px_2px_rgba(56,189,248,0.9)]",
-  amber: "bg-amber-400 shadow-[0_0_12px_2px_rgba(251,191,36,0.95)]",
-  red: "bg-red-500 shadow-[0_0_12px_2px_rgba(239,68,68,0.9)]",
-  green: "bg-emerald-400 shadow-[0_0_12px_2px_rgba(52,211,153,0.9)]",
+const LED_GLOW: Record<Led, string> = {
+  blue: "0 0 12px 2px rgba(56,189,248,0.9)",
+  amber: "0 0 12px 2px rgba(251,191,36,0.95)",
+  red: "0 0 12px 2px rgba(239,68,68,0.9)",
+  green: "0 0 12px 2px rgba(52,211,153,0.9)",
 };
 
 /**
