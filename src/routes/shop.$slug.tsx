@@ -135,7 +135,8 @@ function ProductPage() {
   // Resolve the active keyboard model id: context → profile fallback → none
   const activeModelId = useMemo<string | null>(() => {
     if (selectedModel?.id) return selectedModel.id;
-    if (profile?.keyboard_model_id) return profile.keyboard_model_id;
+    const fromProfile = (profile as any)?.keyboard_model_id as string | null | undefined;
+    if (fromProfile) return fromProfile;
     return null;
   }, [selectedModel, profile]);
 
