@@ -41,6 +41,8 @@ function CheckoutPage() {
     vipDiscountPercent, vipDiscountAmount,
     coupon, couponDiscountAmount, totalDiscount, total: cartTotal,
     applyCoupon, removeCoupon,
+    pointsBalance, pointsPerNis, pointsToRedeem, pointsDiscountAmount,
+    maxRedeemablePoints, setPointsToRedeem,
   } = useCart();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
