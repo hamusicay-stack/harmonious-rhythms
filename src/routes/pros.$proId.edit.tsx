@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { isUserVip } from "@/lib/tiers";
 import { MediaUploader } from "@/components/pros/MediaUploader";
 import { type EditablePackage } from "@/components/pros/PackagesEditor";
 import { ProProfileWizard, type ProFormState } from "@/components/pros/ProProfileWizard";
@@ -42,6 +43,9 @@ function EditProPage() {
         p.genres = p.genres ?? [];
         p.cities = p.cities ?? [];
         p.gear_list = p.gear_list ?? [];
+        // Unified tier: derive VIP from owner's global tier
+        const vip = await isUserVip(p.user_id);
+        p.subscription_tier = vip ? "vip" : "free";
       }
       setPro(p);
       setPackages((pk as EditablePackage[]) ?? []);
