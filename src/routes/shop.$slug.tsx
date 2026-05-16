@@ -1,17 +1,20 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ShoppingBag, ArrowRight, ShieldCheck, Truck, Package, Heart } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ShoppingBag, ArrowRight, ShieldCheck, Truck, Package, Piano } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS, PRODUCT_TYPE_LABEL } from "@/lib/shopUtils";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 import { VirtualOrganPreview } from "@/components/shop/VirtualOrganPreview";
 import { CpiDropzone, type CpiFileInfo } from "@/components/shop/CpiDropzone";
+import { useKeyboardSelection, type SelectedModel } from "@/contexts/KeyboardSelectionContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
