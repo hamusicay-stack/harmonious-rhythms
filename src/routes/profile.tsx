@@ -25,6 +25,10 @@ import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 import { UserBadges } from "@/components/UserBadges";
 import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { HardwareTab } from "@/components/dashboard/HardwareTab";
+import { MyCoursesTab } from "@/components/dashboard/MyCoursesTab";
+import { MyOrdersTab } from "@/components/dashboard/MyOrdersTab";
+import { MyPointsTab } from "@/components/dashboard/MyPointsTab";
+import { Coins } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireAuth,
