@@ -25,11 +25,18 @@ type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
-  // Discount engine
+  // Discount engine — SSoT: subscription_tiers.shop_discount_percent
   vipDiscountPercent: number;
   vipDiscountAmount: number;
   coupon: AppliedCoupon | null;
   couponDiscountAmount: number;
+  // Points redemption
+  pointsBalance: number;
+  pointsPerNis: number;
+  pointsToRedeem: number;
+  pointsDiscountAmount: number;
+  maxRedeemablePoints: number;
+  setPointsToRedeem: (n: number) => void;
   totalDiscount: number;
   total: number;
   applyCoupon: (code: string) => Promise<{ ok: boolean; message: string }>;
@@ -58,6 +65,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [vipDiscountPercent, setVipDiscountPercent] = useState(0);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [pointsBalance, setPointsBalance] = useState(0);
+  const [pointsPerNis, setPointsPerNis] = useState(100);
+  const [pointsToRedeem, setPointsToRedeemState] = useState(0);
 
   // Track logged-in user
   useEffect(() => {
@@ -68,7 +78,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Resolve VIP discount from profile -> subscription_tiers (SSoT)
+  // Resolve VIP shop discount from profile -> subscription_tiers (SSoT)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -82,10 +92,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (!tierId) { if (!cancelled) setVipDiscountPercent(0); return; }
       const { data: tier } = await (supabase as any)
         .from("subscription_tiers")
-        .select("discount_percent")
+        .select("shop_discount_percent")
         .eq("id", tierId)
         .maybeSingle();
-      if (!cancelled) setVipDiscountPercent(Number((tier as any)?.discount_percent ?? 0) || 0);
+      if (!cancelled) setVipDiscountPercent(Number((tier as any)?.shop_discount_percent ?? 0) || 0);
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // Load user points balance + global exchange rate
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: settings } = await (supabase as any)
+        .from("points_settings").select("points_per_nis").eq("id", 1).maybeSingle();
+      if (!cancelled) setPointsPerNis(Number((settings as any)?.points_per_nis ?? 100) || 100);
+      if (!userId) { if (!cancelled) setPointsBalance(0); return; }
+      const { data: up } = await (supabase as any)
+        .from("user_points").select("total_points").eq("user_id", userId).maybeSingle();
+      if (!cancelled) setPointsBalance(Number((up as any)?.total_points ?? 0) || 0);
     })();
     return () => { cancelled = true; };
   }, [userId]);
@@ -275,6 +300,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeCoupon = useCallback(() => setCoupon(null), []);
 
+  const setPointsToRedeem = useCallback((n: number) => {
+    setPointsToRedeemState(Math.max(0, Math.floor(Number(n) || 0)));
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = items.reduce((s, i) => s + i.qty, 0);
     const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0);
@@ -288,16 +317,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         couponDiscountAmount = Math.min(afterVip, coupon.discount_value);
       }
     }
-    const totalDiscount = vipDiscountAmount + couponDiscountAmount;
+    const afterCoupon = Math.max(0, afterVip - couponDiscountAmount);
+    // Points redemption: bounded by balance and by remaining cash
+    const maxByCash = Math.floor(afterCoupon * pointsPerNis);
+    const maxRedeemablePoints = Math.max(0, Math.min(pointsBalance, maxByCash));
+    const clampedPoints = Math.min(pointsToRedeem, maxRedeemablePoints);
+    const pointsDiscountAmount = Math.round((clampedPoints / Math.max(1, pointsPerNis)) * 100) / 100;
+    const totalDiscount = vipDiscountAmount + couponDiscountAmount + pointsDiscountAmount;
     const total = Math.max(0, subtotal - totalDiscount);
     return {
       items, count, subtotal,
       vipDiscountPercent, vipDiscountAmount,
-      coupon, couponDiscountAmount, totalDiscount, total,
+      coupon, couponDiscountAmount,
+      pointsBalance, pointsPerNis,
+      pointsToRedeem: clampedPoints,
+      pointsDiscountAmount, maxRedeemablePoints, setPointsToRedeem,
+      totalDiscount, total,
       applyCoupon, removeCoupon,
       add, remove, setQty, clear,
     };
-  }, [items, vipDiscountPercent, coupon, applyCoupon, removeCoupon, add, remove, setQty, clear]);
+  }, [items, vipDiscountPercent, coupon, pointsBalance, pointsPerNis, pointsToRedeem, setPointsToRedeem, applyCoupon, removeCoupon, add, remove, setQty, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

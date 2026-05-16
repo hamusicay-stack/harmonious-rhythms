@@ -41,6 +41,8 @@ function CheckoutPage() {
     vipDiscountPercent, vipDiscountAmount,
     coupon, couponDiscountAmount, totalDiscount, total: cartTotal,
     applyCoupon, removeCoupon,
+    pointsBalance, pointsPerNis, pointsToRedeem, pointsDiscountAmount,
+    maxRedeemablePoints, setPointsToRedeem,
   } = useCart();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -86,6 +88,9 @@ function CheckoutPage() {
 
   const shipping = hasPhysical && cartTotal < 500 && cartTotal > 0 ? 35 : 0;
   const total = cartTotal + shipping;
+  // Order totals BEFORE points redemption — RPC will deduct points server-side
+  const discountBeforePoints = totalDiscount - pointsDiscountAmount;
+  const totalBeforePoints = subtotal - discountBeforePoints + shipping;
 
   // Stepper: 1 = details, 1.5 = info file (if any item requires it), 2 = shipping (if physical), 3 = review
   type StepKey = "details" | "info_file" | "shipping" | "review";
@@ -195,10 +200,10 @@ function CheckoutPage() {
           customer_email: form.customer_email,
           customer_phone: form.customer_phone,
           subtotal,
-          discount_amount: totalDiscount,
+          discount_amount: discountBeforePoints,
           coupon_code: coupon?.code ?? null,
           shipping_amount: shipping,
-          total_amount: total,
+          total_amount: totalBeforePoints,
           shipping_address: hasPhysical ? {
             address_line: form.address_line,
             city: form.city,
@@ -213,6 +218,17 @@ function CheckoutPage() {
         .select("id, order_number")
         .single();
       if (orderErr || !order) throw orderErr ?? new Error("Order failed");
+
+      // Atomically deduct points + lower order total (writes ledger entry)
+      if (pointsToRedeem > 0 && user?.id) {
+        const { error: rdmErr } = await (supabase as any).rpc("redeem_points_for_order", {
+          _order_id: order.id, _points: pointsToRedeem,
+        });
+        if (rdmErr) {
+          console.warn("points redemption failed", rdmErr);
+          toast.warning("נקודות לא נוצלו — הזמנה נקלטה ללא הנחת הנקודות");
+        }
+      }
 
       const orderItems = items.map((it) => ({
         order_id: order.id,
@@ -560,6 +576,45 @@ function CheckoutPage() {
               )}
               {promoError && <p className="text-xs text-destructive">{promoError}</p>}
             </div>
+
+            {pointsBalance > 0 && (
+              <div className="mt-3 rounded-lg border border-amber-500/40 bg-gradient-to-l from-amber-500/10 to-transparent p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="flex items-center gap-1 text-sm font-semibold text-amber-700 dark:text-amber-300">
+                    🪙 שלם בנקודות
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    יתרה: <strong className="text-amber-700 dark:text-amber-300">{pointsBalance.toLocaleString("he-IL")}</strong>
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Input
+                    type="number" min={0} max={maxRedeemablePoints} step={pointsPerNis}
+                    value={pointsToRedeem || ""}
+                    onChange={(e) => setPointsToRedeem(Number(e.target.value))}
+                    placeholder="0"
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={() => setPointsToRedeem(maxRedeemablePoints)}>
+                    מקסימום
+                  </Button>
+                  {pointsToRedeem > 0 && (
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setPointsToRedeem(0)}>
+                      בטל
+                    </Button>
+                  )}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  שער: {pointsPerNis} נקודות = ₪1 · ניתן לפדות עד {maxRedeemablePoints.toLocaleString("he-IL")} נקודות (₪{(maxRedeemablePoints / pointsPerNis).toFixed(2)})
+                </p>
+                {pointsDiscountAmount > 0 && (
+                  <div className="mt-2 flex justify-between text-sm font-semibold text-amber-700 dark:text-amber-300">
+                    <span>הנחת נקודות</span>
+                    <span>−{formatILS(pointsDiscountAmount)}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-4 space-y-2 border-t pt-4 text-sm">
               <div className="flex justify-between"><span>סכום ביניים</span><span>{formatILS(subtotal)}</span></div>

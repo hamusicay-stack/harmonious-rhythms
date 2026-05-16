@@ -4522,6 +4522,8 @@ export type Database = {
           order_number: string
           payment_method: string | null
           payment_status: Database["public"]["Enums"]["shop_payment_status"]
+          points_discount_amount: number
+          points_redeemed: number
           shipping_address: Json | null
           shipping_amount: number
           shipping_carrier: string | null
@@ -4550,6 +4552,8 @@ export type Database = {
           order_number: string
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["shop_payment_status"]
+          points_discount_amount?: number
+          points_redeemed?: number
           shipping_address?: Json | null
           shipping_amount?: number
           shipping_carrier?: string | null
@@ -4578,6 +4582,8 @@ export type Database = {
           order_number?: string
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["shop_payment_status"]
+          points_discount_amount?: number
+          points_redeemed?: number
           shipping_address?: Json | null
           shipping_amount?: number
           shipping_carrier?: string | null
@@ -5254,6 +5260,7 @@ export type Database = {
       subscription_tiers: {
         Row: {
           academy_discount_percent: number
+          beat_access: boolean
           color: string | null
           created_at: string
           description: string | null
@@ -5269,6 +5276,7 @@ export type Database = {
         }
         Insert: {
           academy_discount_percent?: number
+          beat_access?: boolean
           color?: string | null
           created_at?: string
           description?: string | null
@@ -5284,6 +5292,7 @@ export type Database = {
         }
         Update: {
           academy_discount_percent?: number
+          beat_access?: boolean
           color?: string | null
           created_at?: string
           description?: string | null
@@ -5684,6 +5693,10 @@ export type Database = {
             Returns: string
           }
       redeem_academy_access_code: { Args: { _code: string }; Returns: string }
+      redeem_points_for_order: {
+        Args: { _order_id: string; _points: number }
+        Returns: number
+      }
       register_device: {
         Args: { _device_id: string; _user_agent: string }
         Returns: boolean
