@@ -169,6 +169,7 @@ function VipMatrixTab() {
                     <TableHead className="text-center">הנחת חנות (%)</TableHead>
                     <TableHead className="text-center">הנחת אקדמיה (%)</TableHead>
                     <TableHead className="text-center">קידומים חינם ביד 2</TableHead>
+                    <TableHead className="text-center">גישת BEAT</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -205,6 +206,14 @@ function VipMatrixTab() {
                           onChange={(e) => patch(t.id, "marketplace_free_boosts", Number(e.target.value))}
                         />
                       </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center">
+                          <Switch
+                            checked={!!t.beat_access}
+                            onCheckedChange={(v) => patch(t.id, "beat_access", v)}
+                          />
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -213,8 +222,6 @@ function VipMatrixTab() {
           )}
         </CardContent>
       </Card>
-
-      <UserUpgradesTable tiers={tiers} />
     </div>
   );
 }
