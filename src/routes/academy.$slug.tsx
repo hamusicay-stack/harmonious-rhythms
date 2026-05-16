@@ -14,6 +14,7 @@ import { ModuleQuiz } from "@/components/academy/ModuleQuiz";
 import { ChaptersList } from "@/components/academy/ChaptersList";
 import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
 import { trackAcademyEvent } from "@/lib/academyAnalytics";
+import { fetchAcademyDiscountPercent } from "@/lib/tiers";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
@@ -69,6 +70,17 @@ function CoursePage() {
   const [autoNextOn, setAutoNextOn] = useState(true);
   const [showAutoNext, setShowAutoNext] = useState(false);
   const playerSeekRef = useRef<((sec: number) => void) | null>(null);
+  const [academyDiscountPct, setAcademyDiscountPct] = useState<number>(0);
+
+  useEffect(() => {
+    if (!user) { setAcademyDiscountPct(0); return; }
+    void fetchAcademyDiscountPercent(user.id).then(setAcademyDiscountPct);
+  }, [user?.id]);
+
+  const originalPrice = Number(course.price ?? 0);
+  const effectiveDiscount = isVip ? 100 : Math.max(0, Math.min(100, academyDiscountPct));
+  const discountedPrice = Math.max(0, Math.round(originalPrice * (1 - effectiveDiscount / 100)));
+  const hasDiscount = originalPrice > 0 && effectiveDiscount > 0 && discountedPrice < originalPrice;
 
   const refresh = useCallback(async () => {
     const [{ data: mods }, { data: lsns }] = await Promise.all([
@@ -350,12 +362,29 @@ function CoursePage() {
               {!enrollment && (
                 <Card className="border-primary/40">
                   <CardContent className="p-4 space-y-3">
-                    <div className="text-2xl font-bold text-primary">
-                      {course.price > 0 ? `₪${course.price}` : "חינם"}
-                    </div>
+                    {originalPrice > 0 ? (
+                      hasDiscount ? (
+                        <div className="space-y-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-primary">₪{discountedPrice}</span>
+                            <span className="text-sm text-muted-foreground line-through">₪{originalPrice}</span>
+                          </div>
+                          <Badge className="border-amber-500/40 bg-gradient-to-r from-amber-500 to-yellow-400 text-white">
+                            <Crown className="ml-1 h-3 w-3" />
+                            {effectiveDiscount === 100 ? "מנוי VIP — חינם" : `הנחת VIP ${effectiveDiscount}%`}
+                          </Badge>
+                        </div>
+                      ) : (
+                        <div className="text-2xl font-bold text-primary">₪{originalPrice}</div>
+                      )
+                    ) : (
+                      <div className="text-2xl font-bold text-primary">חינם</div>
+                    )}
                     <p className="text-xs text-muted-foreground">גישה לכל החיים. ללא הגבלת זמן.</p>
                     <Button className="w-full" onClick={enroll}>
-                      {course.price > 0 ? "רכוש עכשיו" : "הירשם בחינם"}
+                      {originalPrice > 0
+                        ? (effectiveDiscount === 100 ? "הפעל גישת VIP" : "רכוש עכשיו")
+                        : "הירשם בחינם"}
                     </Button>
                   </CardContent>
                 </Card>
