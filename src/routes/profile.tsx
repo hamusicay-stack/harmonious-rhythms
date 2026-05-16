@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
   Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search, Music2, Pencil,
-  Phone, MessageCircle, ShoppingBag, GraduationCap, MessageSquare, Store, Sparkles,
+  Phone, MessageCircle, ShoppingBag, GraduationCap, MessageSquare, Store, Sparkles, Piano,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,8 @@ import { NotificationsList } from "@/components/NotificationsList";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 import { UserBadges } from "@/components/UserBadges";
+import { DashboardHero } from "@/components/dashboard/DashboardHero";
+import { HardwareTab } from "@/components/dashboard/HardwareTab";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireAuth,
