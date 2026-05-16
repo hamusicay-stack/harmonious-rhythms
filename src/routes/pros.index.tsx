@@ -8,6 +8,7 @@ import { ProCard, type ProCardData } from "@/components/pros/ProCard";
 import { ProListItem } from "@/components/pros/ProListItem";
 import { ProFilters, DEFAULT_FILTERS, type ProFiltersState } from "@/components/pros/ProFilters";
 import { RequestQuoteDialog } from "@/components/pros/RequestQuoteDialog";
+import { fetchVipUserIds } from "@/lib/tiers";
 
 export const Route = createFileRoute("/pros/")({
   head: () => ({
@@ -45,7 +46,13 @@ function ProsIndex() {
         .eq("status", "approved");
       if (cancelled) return;
       if (error) console.error(error);
-      const list = (data as (ProCardData & { created_at: string })[]) ?? [];
+      const rawList = (data as (ProCardData & { created_at: string })[]) ?? [];
+      // Unified tier: derive VIP from profiles.global_subscription_tier_id → subscription_tiers.is_vip
+      const vipUserIds = await fetchVipUserIds(rawList.map((p) => p.user_id));
+      const list = rawList.map((p) => ({
+        ...p,
+        subscription_tier: vipUserIds.has(p.user_id) ? "vip" : "free",
+      }));
       setPros(list);
 
       // Fetch all approved reviews in one query for ranking
