@@ -79,11 +79,15 @@ function CategoryPage() {
           .eq("category", slug)
           .order("bump_expires_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false }),
-        supabase.from("marketplace_business_sellers").select("user_id").eq("subscription_status", "active"),
+        supabase.from("marketplace_business_sellers").select("user_id"),
         supabase.from("marketplace_trusted_sellers").select("user_id"),
       ]);
       setListings((list ?? []) as Listing[]);
-      setBusinessSellers(new Set((business ?? []).map((b: any) => b.user_id)));
+      // Unified tier: business badge requires both a business_sellers row AND a VIP global tier.
+      const { fetchVipUserIds } = await import("@/lib/tiers");
+      const businessUserIds = (business ?? []).map((b: any) => b.user_id);
+      const vipSet = await fetchVipUserIds(businessUserIds);
+      setBusinessSellers(new Set(businessUserIds.filter((uid: string) => vipSet.has(uid))));
       setTrustedSellers(new Set((trusted ?? []).map((t: any) => t.user_id)));
       setLoading(false);
     })();

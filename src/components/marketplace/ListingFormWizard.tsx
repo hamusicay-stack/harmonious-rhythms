@@ -130,11 +130,21 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     if (user) {
       setCheckingBusiness(true);
       Promise.all([
-        supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).eq("subscription_status", "active").maybeSingle(),
+        supabase.from("marketplace_business_sellers").select("user_id, business_name, phone, email").eq("user_id", user.id).maybeSingle(),
         supabase.from("profiles").select("subscription_tier, global_subscription_tier_id").eq("id", user.id).maybeSingle(),
-      ]).then(([{ data }, { data: prof }]) => {
+      ]).then(async ([{ data }, { data: prof }]) => {
         setHasBusinessAccount(!!data);
-        setVipTier(prof?.subscription_tier ?? null);
+        // Unified tier: read VIP strictly from global_subscription_tier_id → subscription_tiers.is_vip
+        let vipSlug: string | null = null;
+        if (prof?.global_subscription_tier_id) {
+          const { data: tier } = await supabase
+            .from("subscription_tiers")
+            .select("slug, is_vip")
+            .eq("id", prof.global_subscription_tier_id)
+            .maybeSingle();
+          if (tier?.is_vip) vipSlug = tier.slug;
+        }
+        setVipTier(vipSlug);
         if (data) {
           setBusinessForm({
             business_name: data.business_name ?? "",
