@@ -65,6 +65,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [vipDiscountPercent, setVipDiscountPercent] = useState(0);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [pointsBalance, setPointsBalance] = useState(0);
+  const [pointsPerNis, setPointsPerNis] = useState(100);
+  const [pointsToRedeem, setPointsToRedeemState] = useState(0);
 
   // Track logged-in user
   useEffect(() => {
@@ -75,7 +78,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Resolve VIP discount from profile -> subscription_tiers (SSoT)
+  // Resolve VIP shop discount from profile -> subscription_tiers (SSoT)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -89,10 +92,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (!tierId) { if (!cancelled) setVipDiscountPercent(0); return; }
       const { data: tier } = await (supabase as any)
         .from("subscription_tiers")
-        .select("discount_percent")
+        .select("shop_discount_percent")
         .eq("id", tierId)
         .maybeSingle();
-      if (!cancelled) setVipDiscountPercent(Number((tier as any)?.discount_percent ?? 0) || 0);
+      if (!cancelled) setVipDiscountPercent(Number((tier as any)?.shop_discount_percent ?? 0) || 0);
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // Load user points balance + global exchange rate
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: settings } = await (supabase as any)
+        .from("points_settings").select("points_per_nis").eq("id", 1).maybeSingle();
+      if (!cancelled) setPointsPerNis(Number((settings as any)?.points_per_nis ?? 100) || 100);
+      if (!userId) { if (!cancelled) setPointsBalance(0); return; }
+      const { data: up } = await (supabase as any)
+        .from("user_points").select("total_points").eq("user_id", userId).maybeSingle();
+      if (!cancelled) setPointsBalance(Number((up as any)?.total_points ?? 0) || 0);
     })();
     return () => { cancelled = true; };
   }, [userId]);
