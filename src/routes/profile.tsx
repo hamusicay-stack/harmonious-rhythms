@@ -25,6 +25,10 @@ import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 import { UserBadges } from "@/components/UserBadges";
 import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { HardwareTab } from "@/components/dashboard/HardwareTab";
+import { MyCoursesTab } from "@/components/dashboard/MyCoursesTab";
+import { MyOrdersTab } from "@/components/dashboard/MyOrdersTab";
+import { MyPointsTab } from "@/components/dashboard/MyPointsTab";
+import { Coins } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireAuth,
@@ -71,9 +75,12 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-6xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1"><Bell className="h-4 w-4" />התראות</TabsTrigger>
+            <TabsTrigger value="courses" className="gap-1"><GraduationCap className="h-4 w-4" />האקדמיה שלי</TabsTrigger>
+            <TabsTrigger value="orders" className="gap-1"><ShoppingBag className="h-4 w-4" />ההזמנות שלי</TabsTrigger>
+            <TabsTrigger value="points" className="gap-1"><Coins className="h-4 w-4" />הנקודות שלי</TabsTrigger>
             <TabsTrigger value="hardware" className="gap-1"><Piano className="h-4 w-4" />חומרה</TabsTrigger>
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="pro" className="gap-1"><Music2 className="h-4 w-4" />האינדקס שלי</TabsTrigger>
@@ -90,6 +97,18 @@ function ProfilePage() {
           <TabsContent value="notifications" className="mt-6 space-y-6">
             <NotificationSettings />
             <NotificationsList />
+          </TabsContent>
+
+          <TabsContent value="courses" className="mt-6">
+            <MyCoursesTab userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="orders" className="mt-6">
+            <MyOrdersTab userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="points" className="mt-6">
+            <MyPointsTab userId={user.id} />
           </TabsContent>
 
           <TabsContent value="hardware" className="mt-6">
