@@ -51,14 +51,16 @@ function GlobalEconomyPage() {
       </header>
 
       <Tabs defaultValue="vip" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
           <TabsTrigger value="vip" className="gap-1"><Crown className="h-4 w-4" /> מטריצת VIP</TabsTrigger>
+          <TabsTrigger value="users" className="gap-1"><UsersIcon className="h-4 w-4" /> משתמשים והרשאות</TabsTrigger>
           <TabsTrigger value="coupons" className="gap-1"><TicketPercent className="h-4 w-4" /> קופונים</TabsTrigger>
           <TabsTrigger value="points" className="gap-1"><Gamepad2 className="h-4 w-4" /> נקודות</TabsTrigger>
           <TabsTrigger value="affiliates" className="gap-1"><Handshake className="h-4 w-4" /> שותפים</TabsTrigger>
         </TabsList>
 
         <TabsContent value="vip"><VipMatrixTab /></TabsContent>
+        <TabsContent value="users"><UsersOverridesTab /></TabsContent>
         <TabsContent value="coupons"><CouponsTab /></TabsContent>
         <TabsContent value="points"><PointsTab /></TabsContent>
         <TabsContent value="affiliates"><AffiliatesTab /></TabsContent>
