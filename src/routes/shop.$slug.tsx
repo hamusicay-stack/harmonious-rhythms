@@ -247,8 +247,33 @@ function ProductPage() {
             )}
 
             {isSmartRhythm ? (
-              <div className="mt-4">
-                <VirtualOrganPreview samples={organSamples} fallbackAudio={product.audio_demo_url} />
+              <div className="mt-4 space-y-3">
+                {/* Manual keyboard model selector — dark/gold theme */}
+                <div
+                  className="rounded-xl border border-amber-500/30 bg-gradient-to-b from-zinc-900 to-black p-3"
+                  dir="rtl"
+                >
+                  <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-amber-300/90">
+                    <Piano className="h-3.5 w-3.5" />
+                    בחר באורגן שלך
+                  </label>
+                  <Select value={activeModelId ?? undefined} onValueChange={onPickModel}>
+                    <SelectTrigger className="w-full border-amber-500/30 bg-zinc-950/60 text-zinc-100 hover:border-amber-400/60">
+                      <SelectValue placeholder="בחר דגם אורגן/קלידים…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {keyboardModels.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.brand?.name ? `${m.brand.name} · ` : ""}{m.model_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1.5 text-[10px] text-zinc-500">
+                    הבחירה מחליפה את עיצוב הנגן בזמן אמת ושומרת את העדפתך.
+                  </p>
+                </div>
+                <VirtualOrganPreview samples={organSamples} fallbackAudio={product.audio_demo_url} modelId={activeModelId} />
               </div>
             ) : (
               (product.audio_demo_url || product.video_demo_url) && (
