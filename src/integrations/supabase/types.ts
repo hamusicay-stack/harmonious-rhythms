@@ -3573,6 +3573,24 @@ export type Database = {
         }
         Relationships: []
       }
+      points_settings: {
+        Row: {
+          id: number
+          points_per_nis: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          points_per_nis?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          points_per_nis?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pro_chat_messages: {
         Row: {
           body: string
@@ -5235,38 +5253,47 @@ export type Database = {
       }
       subscription_tiers: {
         Row: {
+          academy_discount_percent: number
           color: string | null
           created_at: string
           description: string | null
           discount_percent: number
           id: string
           is_vip: boolean
+          marketplace_free_boosts: number
           name: string
           rank: number
+          shop_discount_percent: number
           slug: string
           updated_at: string
         }
         Insert: {
+          academy_discount_percent?: number
           color?: string | null
           created_at?: string
           description?: string | null
           discount_percent?: number
           id?: string
           is_vip?: boolean
+          marketplace_free_boosts?: number
           name: string
           rank?: number
+          shop_discount_percent?: number
           slug: string
           updated_at?: string
         }
         Update: {
+          academy_discount_percent?: number
           color?: string | null
           created_at?: string
           description?: string | null
           discount_percent?: number
           id?: string
           is_vip?: boolean
+          marketplace_free_boosts?: number
           name?: string
           rank?: number
+          shop_discount_percent?: number
           slug?: string
           updated_at?: string
         }
