@@ -80,6 +80,7 @@ import { Route as AdminCommerceOrdersRouteImport } from './routes/admin.commerce
 import { Route as AdminCommerceNewsletterRouteImport } from './routes/admin.commerce.newsletter'
 import { Route as AdminCommerceMusicProsRouteImport } from './routes/admin.commerce.music-pros'
 import { Route as AdminCommerceMarketplaceRouteImport } from './routes/admin.commerce.marketplace'
+import { Route as AdminCommerceGlobalEconomyRouteImport } from './routes/admin.commerce.global-economy'
 import { Route as AdminCommerceCpiRouteImport } from './routes/admin.commerce.cpi'
 import { Route as AdminCommerceCouponsRouteImport } from './routes/admin.commerce.coupons'
 import { Route as AdminCommerceBusinessRulesRouteImport } from './routes/admin.commerce.business-rules'
@@ -453,6 +454,12 @@ const AdminCommerceMarketplaceRoute =
     path: '/marketplace',
     getParentRoute: () => AdminCommerceRoute,
   } as any)
+const AdminCommerceGlobalEconomyRoute =
+  AdminCommerceGlobalEconomyRouteImport.update({
+    id: '/global-economy',
+    path: '/global-economy',
+    getParentRoute: () => AdminCommerceRoute,
+  } as any)
 const AdminCommerceCpiRoute = AdminCommerceCpiRouteImport.update({
   id: '/cpi',
   path: '/cpi',
@@ -579,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
   '/admin/commerce/cpi': typeof AdminCommerceCpiRoute
+  '/admin/commerce/global-economy': typeof AdminCommerceGlobalEconomyRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -658,6 +666,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
   '/admin/commerce/cpi': typeof AdminCommerceCpiRoute
+  '/admin/commerce/global-economy': typeof AdminCommerceGlobalEconomyRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -745,6 +754,7 @@ export interface FileRoutesById {
   '/admin/commerce/business-rules': typeof AdminCommerceBusinessRulesRoute
   '/admin/commerce/coupons': typeof AdminCommerceCouponsRoute
   '/admin/commerce/cpi': typeof AdminCommerceCpiRoute
+  '/admin/commerce/global-economy': typeof AdminCommerceGlobalEconomyRoute
   '/admin/commerce/marketplace': typeof AdminCommerceMarketplaceRoute
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
@@ -833,6 +843,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/business-rules'
     | '/admin/commerce/coupons'
     | '/admin/commerce/cpi'
+    | '/admin/commerce/global-economy'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -912,6 +923,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/business-rules'
     | '/admin/commerce/coupons'
     | '/admin/commerce/cpi'
+    | '/admin/commerce/global-economy'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -998,6 +1010,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/business-rules'
     | '/admin/commerce/coupons'
     | '/admin/commerce/cpi'
+    | '/admin/commerce/global-economy'
     | '/admin/commerce/marketplace'
     | '/admin/commerce/music-pros'
     | '/admin/commerce/newsletter'
@@ -1557,6 +1570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommerceMarketplaceRouteImport
       parentRoute: typeof AdminCommerceRoute
     }
+    '/admin/commerce/global-economy': {
+      id: '/admin/commerce/global-economy'
+      path: '/global-economy'
+      fullPath: '/admin/commerce/global-economy'
+      preLoaderRoute: typeof AdminCommerceGlobalEconomyRouteImport
+      parentRoute: typeof AdminCommerceRoute
+    }
     '/admin/commerce/cpi': {
       id: '/admin/commerce/cpi'
       path: '/cpi'
@@ -1674,6 +1694,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceBusinessRulesRoute: typeof AdminCommerceBusinessRulesRoute
   AdminCommerceCouponsRoute: typeof AdminCommerceCouponsRoute
   AdminCommerceCpiRoute: typeof AdminCommerceCpiRoute
+  AdminCommerceGlobalEconomyRoute: typeof AdminCommerceGlobalEconomyRoute
   AdminCommerceMarketplaceRoute: typeof AdminCommerceMarketplaceRoute
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
@@ -1695,6 +1716,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceBusinessRulesRoute: AdminCommerceBusinessRulesRoute,
   AdminCommerceCouponsRoute: AdminCommerceCouponsRoute,
   AdminCommerceCpiRoute: AdminCommerceCpiRoute,
+  AdminCommerceGlobalEconomyRoute: AdminCommerceGlobalEconomyRoute,
   AdminCommerceMarketplaceRoute: AdminCommerceMarketplaceRoute,
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,

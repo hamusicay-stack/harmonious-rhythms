@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, ClipboardList, DollarSign, CheckCircle2, Building2,
   Package, KeyRound, ShieldCheck, ShoppingBag, Piano, Palette, Tags, Play,
   Music2, GraduationCap, Sparkles, Mail, Bot, Megaphone, MessagesSquare, Zap,
-  Boxes, Scale, TicketPercent, Receipt, Activity, Upload, MessageSquareWarning,
+  Boxes, Scale, TicketPercent, Receipt, Activity, Upload, MessageSquareWarning, Crown,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -42,6 +42,7 @@ const COMMERCE: NavItem[] = [
 ];
 
 const MARKETING: NavItem[] = [
+  { to: "/admin/commerce/global-economy", title: "כלכלה והרשאות", icon: Crown },
   { to: "/admin/commerce/coupons", title: "קופונים", icon: TicketPercent },
   { to: "/admin/commerce/business-rules", title: "כללי VIP × מוצר", icon: Scale },
   { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
