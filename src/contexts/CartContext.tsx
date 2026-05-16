@@ -25,11 +25,18 @@ type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
-  // Discount engine
+  // Discount engine — SSoT: subscription_tiers.shop_discount_percent
   vipDiscountPercent: number;
   vipDiscountAmount: number;
   coupon: AppliedCoupon | null;
   couponDiscountAmount: number;
+  // Points redemption
+  pointsBalance: number;
+  pointsPerNis: number;
+  pointsToRedeem: number;
+  pointsDiscountAmount: number;
+  maxRedeemablePoints: number;
+  setPointsToRedeem: (n: number) => void;
   totalDiscount: number;
   total: number;
   applyCoupon: (code: string) => Promise<{ ok: boolean; message: string }>;
