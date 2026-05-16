@@ -577,6 +577,45 @@ function CheckoutPage() {
               {promoError && <p className="text-xs text-destructive">{promoError}</p>}
             </div>
 
+            {pointsBalance > 0 && (
+              <div className="mt-3 rounded-lg border border-amber-500/40 bg-gradient-to-l from-amber-500/10 to-transparent p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="flex items-center gap-1 text-sm font-semibold text-amber-700 dark:text-amber-300">
+                    🪙 שלם בנקודות
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    יתרה: <strong className="text-amber-700 dark:text-amber-300">{pointsBalance.toLocaleString("he-IL")}</strong>
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Input
+                    type="number" min={0} max={maxRedeemablePoints} step={pointsPerNis}
+                    value={pointsToRedeem || ""}
+                    onChange={(e) => setPointsToRedeem(Number(e.target.value))}
+                    placeholder="0"
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={() => setPointsToRedeem(maxRedeemablePoints)}>
+                    מקסימום
+                  </Button>
+                  {pointsToRedeem > 0 && (
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setPointsToRedeem(0)}>
+                      בטל
+                    </Button>
+                  )}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  שער: {pointsPerNis} נקודות = ₪1 · ניתן לפדות עד {maxRedeemablePoints.toLocaleString("he-IL")} נקודות (₪{(maxRedeemablePoints / pointsPerNis).toFixed(2)})
+                </p>
+                {pointsDiscountAmount > 0 && (
+                  <div className="mt-2 flex justify-between text-sm font-semibold text-amber-700 dark:text-amber-300">
+                    <span>הנחת נקודות</span>
+                    <span>−{formatILS(pointsDiscountAmount)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mt-4 space-y-2 border-t pt-4 text-sm">
               <div className="flex justify-between"><span>סכום ביניים</span><span>{formatILS(subtotal)}</span></div>
               {vipDiscountAmount > 0 && (
