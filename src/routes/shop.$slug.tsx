@@ -1,17 +1,20 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ShoppingBag, ArrowRight, ShieldCheck, Truck, Package, Heart } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ShoppingBag, ArrowRight, ShieldCheck, Truck, Package, Piano } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { formatILS, STATUS_TAG_OPTIONS, PRODUCT_TYPE_LABEL } from "@/lib/shopUtils";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 import { VirtualOrganPreview } from "@/components/shop/VirtualOrganPreview";
 import { CpiDropzone, type CpiFileInfo } from "@/components/shop/CpiDropzone";
+import { useKeyboardSelection, type SelectedModel } from "@/contexts/KeyboardSelectionContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
@@ -72,13 +75,17 @@ type ProductImage = { id: string; image_url: string; alt_text: string | null };
 
 function ProductPage() {
   const { slug } = useParams({ from: "/shop/$slug" });
+  const { profile } = useAuth();
+  const { selectedModel, setSelectedModel } = useKeyboardSelection();
   const [product, setProduct] = useState<Product | null>(null);
   const [images, setImages] = useState<ProductImage[]>([]);
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
+  const [linkedRhythmSet, setLinkedRhythmSet] = useState<{ id: string; requires_info_file: boolean; info_file_extension: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [cpiFile, setCpiFile] = useState<CpiFileInfo | null>(null);
+  const [keyboardModels, setKeyboardModels] = useState<{ id: string; brand_id: string; model_name: string; ui_image_url: string | null; brand?: { id: string; name: string; logo_url: string | null } | null }[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -92,7 +99,8 @@ function ProductPage() {
       if (p) {
         setProduct(p as any);
         setActiveImg(p.main_image);
-        const [{ data: imgs }, catRes] = await Promise.all([
+        const rhythmSetId = (p.custom_fields as any)?.rhythm_set_id as string | undefined;
+        const [{ data: imgs }, catRes, rsRes] = await Promise.all([
           supabase
             .from("shop_product_images")
             .select("id,image_url,alt_text")
@@ -101,13 +109,49 @@ function ProductPage() {
           p.category_id
             ? supabase.from("shop_categories").select("slug").eq("id", p.category_id).maybeSingle()
             : Promise.resolve({ data: null } as any),
+          rhythmSetId
+            ? supabase.from("rhythm_sets" as any).select("id, requires_info_file, info_file_extension").eq("id", rhythmSetId).maybeSingle()
+            : Promise.resolve({ data: null } as any),
         ]);
         setImages((imgs as ProductImage[]) ?? []);
         setCategorySlug((catRes?.data as any)?.slug ?? null);
+        setLinkedRhythmSet((rsRes?.data as any) ?? null);
       }
       setLoading(false);
     })();
   }, [slug]);
+
+  // Fetch keyboard models for the selector
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("keyboard_models" as any)
+        .select("*, brand:brands(*)")
+        .order("model_name");
+      setKeyboardModels((data as any) ?? []);
+    })();
+  }, []);
+
+  // Resolve the active keyboard model id: context → profile fallback → none
+  const activeModelId = useMemo<string | null>(() => {
+    if (selectedModel?.id) return selectedModel.id;
+    const fromProfile = (profile as any)?.keyboard_model_id as string | null | undefined;
+    if (fromProfile) return fromProfile;
+    return null;
+  }, [selectedModel, profile]);
+
+  const onPickModel = (id: string) => {
+    const m = keyboardModels.find((k) => k.id === id);
+    if (!m) return;
+    const sel: SelectedModel = {
+      id: m.id,
+      brand_id: m.brand_id,
+      model_name: m.model_name,
+      ui_image_url: m.ui_image_url,
+      brand: m.brand ?? null,
+    };
+    setSelectedModel(sel);
+  };
 
   const allImages = product?.main_image
     ? [{ id: "main", image_url: product.main_image, alt_text: product.title }, ...images]
@@ -133,18 +177,20 @@ function ProductPage() {
   const finalPrice = hasSale ? product.sale_price! : product.price;
   const outOfStock = product.manage_stock && product.stock_quantity <= 0;
 
-  // Smart Rhythms detection by category slug
+  // Smart Rhythms detection by category slug — used only to choose the organ preview UI.
   const isSmartRhythm = !!categorySlug && ["BITS", "smart-rhythms", "rhythms", "מקצבים"].includes(categorySlug);
-  // Optional per-button samples from custom_fields.organ_samples (record of button code → URL)
   const organSamples =
     (product.custom_fields && (product.custom_fields as any).organ_samples) as Record<string, string> | undefined;
 
-  const cpiRequired = isSmartRhythm;
+  // File enforcement: strictly derived from the linked rhythm set's requires_info_file flag.
+  // If no linked rhythm set, or the set does not require a file, no pre-checkout dropzone is shown.
+  const cpiRequired = !!linkedRhythmSet?.requires_info_file;
+  const cpiExtension = linkedRhythmSet?.info_file_extension || ".n27";
   const canAddToCart = !outOfStock && (!cpiRequired || !!cpiFile);
 
   const addToCart = () => {
     if (cpiRequired && !cpiFile) {
-      toast.error("חובה להעלות קובץ זיהוי (.n27 / .info) לפני הוספה לסל");
+      toast.error(`חובה להעלות קובץ ${cpiExtension} לפני הוספה לסל`);
       return;
     }
     const cart = JSON.parse(localStorage.getItem("shop_cart") || "[]");
@@ -201,8 +247,33 @@ function ProductPage() {
             )}
 
             {isSmartRhythm ? (
-              <div className="mt-4">
-                <VirtualOrganPreview samples={organSamples} fallbackAudio={product.audio_demo_url} />
+              <div className="mt-4 space-y-3">
+                {/* Manual keyboard model selector — dark/gold theme */}
+                <div
+                  className="rounded-xl border border-amber-500/30 bg-gradient-to-b from-zinc-900 to-black p-3"
+                  dir="rtl"
+                >
+                  <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-amber-300/90">
+                    <Piano className="h-3.5 w-3.5" />
+                    בחר באורגן שלך
+                  </label>
+                  <Select value={activeModelId ?? undefined} onValueChange={onPickModel}>
+                    <SelectTrigger className="w-full border-amber-500/30 bg-zinc-950/60 text-zinc-100 hover:border-amber-400/60">
+                      <SelectValue placeholder="בחר דגם אורגן/קלידים…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {keyboardModels.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.brand?.name ? `${m.brand.name} · ` : ""}{m.model_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1.5 text-[10px] text-zinc-500">
+                    הבחירה מחליפה את עיצוב הנגן בזמן אמת ושומרת את העדפתך.
+                  </p>
+                </div>
+                <VirtualOrganPreview samples={organSamples} fallbackAudio={product.audio_demo_url} modelId={activeModelId} />
               </div>
             ) : (
               (product.audio_demo_url || product.video_demo_url) && (
