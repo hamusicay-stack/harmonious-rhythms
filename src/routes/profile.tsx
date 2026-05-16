@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, ArrowUp,
   Trash2, Plus, CheckCircle2, Clock, XCircle, Bell, Search, Music2, Pencil,
-  Phone, MessageCircle, ShoppingBag, GraduationCap, MessageSquare, Store, Sparkles,
+  Phone, MessageCircle, ShoppingBag, GraduationCap, MessageSquare, Store, Sparkles, Piano,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,8 @@ import { NotificationsList } from "@/components/NotificationsList";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { AffiliateDashboard } from "@/components/affiliate/AffiliateDashboard";
 import { UserBadges } from "@/components/UserBadges";
+import { DashboardHero } from "@/components/dashboard/DashboardHero";
+import { HardwareTab } from "@/components/dashboard/HardwareTab";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireAuth,
@@ -60,48 +62,19 @@ function ProfilePage() {
     );
   }
 
-  const initials = (profile?.display_name || user.email || "?")
-    .split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <SiteLayout>
-      <section className="bg-hero">
-        <div
-          className="relative w-full"
-          style={{
-            minHeight: 160,
-            backgroundImage: profile?.banner_url ? `url(${profile.banner_url})` : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          {!profile?.banner_url && <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/30 to-transparent" />
-        </div>
-        <div className="container mx-auto px-4 pb-10 pt-4 md:px-8">
-          <div className="flex flex-col items-center gap-4 text-center -mt-14">
-            <Avatar className="h-24 w-24 border-4 border-background shadow-gold">
-              <AvatarImage src={profile?.avatar_url ?? undefined} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary-glow text-2xl font-bold text-primary-foreground">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="font-display text-3xl font-bold md:text-4xl flex items-center gap-2 flex-wrap">
-                <span>{profile?.display_name || "הפרופיל שלי"}</span>
-                <UserBadges userId={user.id} size="sm" />
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
-            </div>
-          </div>
-        </div>
+      <section className="container mx-auto max-w-6xl px-4 pt-6 md:px-8">
+        <DashboardHero userId={user.id} email={user.email ?? null} profile={(profile as any) ?? null} />
       </section>
 
-      <section className="container mx-auto max-w-5xl px-4 py-8 md:px-8">
+      <section className="container mx-auto max-w-6xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1"><Bell className="h-4 w-4" />התראות</TabsTrigger>
+            <TabsTrigger value="hardware" className="gap-1"><Piano className="h-4 w-4" />חומרה</TabsTrigger>
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="pro" className="gap-1"><Music2 className="h-4 w-4" />האינדקס שלי</TabsTrigger>
             <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
@@ -117,6 +90,10 @@ function ProfilePage() {
           <TabsContent value="notifications" className="mt-6 space-y-6">
             <NotificationSettings />
             <NotificationsList />
+          </TabsContent>
+
+          <TabsContent value="hardware" className="mt-6">
+            <HardwareTab userId={user.id} />
           </TabsContent>
 
           <TabsContent value="yad2" className="mt-6">
