@@ -226,38 +226,106 @@ function VipMatrixTab() {
   );
 }
 
-function UserUpgradesTable({ tiers }: { tiers: Tier[] }) {
+function UsersOverridesTab() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
 
+  const { data: tiers = [] } = useQuery({
+    queryKey: ["ge-tiers"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("subscription_tiers")
+        .select("id, slug, name, is_vip").order("rank");
+      return (data ?? []) as Tier[];
+    },
+  });
+
   const { data: users = [], isLoading } = useQuery({
-    queryKey: ["ge-users", q],
+    queryKey: ["ge-users-overrides", q],
     queryFn: async () => {
       let query = (supabase as any)
         .from("profiles")
         .select("id, display_name, email, global_subscription_tier_id, subscription_tier")
         .order("created_at", { ascending: false })
         .limit(50);
-      if (q.trim()) {
-        query = query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%`);
-      }
+      if (q.trim()) query = query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%`);
       const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     },
   });
 
+  const userIds = (users as any[]).map((u) => u.id);
+
+  const { data: overrides } = useQuery({
+    queryKey: ["ge-user-overrides", userIds.join(",")],
+    enabled: userIds.length > 0,
+    queryFn: async () => {
+      const [{ data: shortsT }, { data: pros }, { data: biz }] = await Promise.all([
+        (supabase as any).from("shorts_trusted_uploaders").select("user_id").in("user_id", userIds),
+        (supabase as any).from("music_pros").select("user_id, status").in("user_id", userIds),
+        (supabase as any).from("marketplace_business_sellers").select("user_id").in("user_id", userIds),
+      ]);
+      return {
+        shorts: new Set((shortsT ?? []).map((r: any) => r.user_id)),
+        pros: new Set((pros ?? []).filter((r: any) => r.status === "approved").map((r: any) => r.user_id)),
+        business: new Set((biz ?? []).map((r: any) => r.user_id)),
+      };
+    },
+  });
+
   const setTier = useMutation({
     mutationFn: async ({ userId, tierId }: { userId: string; tierId: string | null }) => {
       const { error } = await (supabase as any).from("profiles")
-        .update({ global_subscription_tier_id: tierId })
-        .eq("id", userId);
+        .update({ global_subscription_tier_id: tierId }).eq("id", userId);
       if (error) throw error;
     },
-    onSuccess: () => {
-      toast.success("דרגת המשתמש עודכנה");
-      qc.invalidateQueries({ queryKey: ["ge-users"] });
+    onSuccess: () => { toast.success("דרגה עודכנה"); qc.invalidateQueries({ queryKey: ["ge-users-overrides"] }); },
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
+  const toggleShorts = useMutation({
+    mutationFn: async ({ userId, on }: { userId: string; on: boolean }) => {
+      if (on) {
+        const { error } = await (supabase as any).from("shorts_trusted_uploaders").insert({ user_id: userId });
+        if (error && !`${error.message}`.includes("duplicate")) throw error;
+      } else {
+        const { error } = await (supabase as any).from("shorts_trusted_uploaders").delete().eq("user_id", userId);
+        if (error) throw error;
+      }
     },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ge-user-overrides"] }),
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
+  const togglePro = useMutation({
+    mutationFn: async ({ userId, on }: { userId: string; on: boolean }) => {
+      const next = on ? "approved" : "rejected";
+      const { data: existing } = await (supabase as any).from("music_pros").select("id").eq("user_id", userId).maybeSingle();
+      if (existing) {
+        const { error } = await (supabase as any).from("music_pros").update({ status: next }).eq("user_id", userId);
+        if (error) throw error;
+      } else if (on) {
+        toast.info("המשתמש לא יצר פרופיל מקצועי עדיין"); return;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ge-user-overrides"] }),
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
+  const toggleBusiness = useMutation({
+    mutationFn: async ({ userId, on, email }: { userId: string; on: boolean; email: string | null }) => {
+      if (on) {
+        const { error } = await (supabase as any).from("marketplace_business_sellers").insert({
+          user_id: userId, business_name: "עסק", email,
+        });
+        if (error && !`${error.message}`.includes("duplicate")) throw error;
+      } else {
+        const { error } = await (supabase as any).from("marketplace_business_sellers").delete().eq("user_id", userId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ge-user-overrides"] }),
     onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
   });
 
@@ -265,7 +333,10 @@ function UserUpgradesTable({ tiers }: { tiers: Tier[] }) {
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="flex items-center gap-2"><UsersIcon className="h-5 w-5" /> שדרוג משתמשים</CardTitle>
+          <div>
+            <CardTitle className="flex items-center gap-2"><UsersIcon className="h-5 w-5" /> משתמשים והרשאות</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">שדרג דרגות והפעל/כבה גישות פר משתמש.</p>
+          </div>
           <div className="relative w-full max-w-xs">
             <Search className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="חיפוש לפי שם או אימייל" className="pr-8" />
@@ -283,30 +354,34 @@ function UserUpgradesTable({ tiers }: { tiers: Tier[] }) {
               <TableHeader>
                 <TableRow>
                   <TableHead>משתמש</TableHead>
-                  <TableHead>אימייל</TableHead>
-                  <TableHead>דרגה נוכחית</TableHead>
-                  <TableHead className="text-end">שנה דרגה</TableHead>
+                  <TableHead>דרגה</TableHead>
+                  <TableHead className="text-center">Shorts מהימן</TableHead>
+                  <TableHead className="text-center">פרופיל מקצועי</TableHead>
+                  <TableHead className="text-center">מוכר עסקי</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u: any) => {
+                {(users as any[]).map((u) => {
                   const currentTier = tiers.find((t) => t.id === u.global_subscription_tier_id);
                   return (
                     <TableRow key={u.id}>
-                      <TableCell className="font-medium">{u.display_name ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{u.email ?? "—"}</TableCell>
                       <TableCell>
-                        <Badge variant={currentTier?.is_vip ? "default" : "secondary"}>
-                          {currentTier?.is_vip && <Crown className="ml-1 h-3 w-3" />}
-                          {currentTier?.name ?? u.subscription_tier ?? "חינם"}
-                        </Badge>
+                        <div className="font-medium">{u.display_name ?? "—"}</div>
+                        <div className="text-xs text-muted-foreground">{u.email ?? "—"}</div>
                       </TableCell>
-                      <TableCell className="text-end">
+                      <TableCell>
                         <Select
                           value={u.global_subscription_tier_id ?? "__none__"}
                           onValueChange={(v) => setTier.mutate({ userId: u.id, tierId: v === "__none__" ? null : v })}
                         >
-                          <SelectTrigger className="w-40 ms-auto"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="w-36">
+                            <SelectValue>
+                              <span className="flex items-center gap-1">
+                                {currentTier?.is_vip && <Crown className="h-3 w-3 text-amber-500" />}
+                                {currentTier?.name ?? "ללא"}
+                              </span>
+                            </SelectValue>
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="__none__">ללא</SelectItem>
                             {tiers.map((t) => (
@@ -314,6 +389,24 @@ function UserUpgradesTable({ tiers }: { tiers: Tier[] }) {
                             ))}
                           </SelectContent>
                         </Select>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Switch
+                          checked={!!overrides?.shorts.has(u.id)}
+                          onCheckedChange={(on) => toggleShorts.mutate({ userId: u.id, on })}
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Switch
+                          checked={!!overrides?.pros.has(u.id)}
+                          onCheckedChange={(on) => togglePro.mutate({ userId: u.id, on })}
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Switch
+                          checked={!!overrides?.business.has(u.id)}
+                          onCheckedChange={(on) => toggleBusiness.mutate({ userId: u.id, on, email: u.email })}
+                        />
                       </TableCell>
                     </TableRow>
                   );
