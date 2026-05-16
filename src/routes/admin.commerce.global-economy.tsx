@@ -82,6 +82,7 @@ type Tier = {
   shop_discount_percent: number;
   academy_discount_percent: number;
   marketplace_free_boosts: number;
+  beat_access: boolean;
 };
 
 function VipMatrixTab() {
@@ -91,7 +92,7 @@ function VipMatrixTab() {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("subscription_tiers")
-        .select("id, slug, name, rank, is_vip, shop_discount_percent, academy_discount_percent, marketplace_free_boosts")
+        .select("id, slug, name, rank, is_vip, shop_discount_percent, academy_discount_percent, marketplace_free_boosts, beat_access")
         .order("rank");
       if (error) throw error;
       return (data ?? []) as Tier[];
@@ -112,6 +113,7 @@ function VipMatrixTab() {
           shop_discount_percent: Number(patch.shop_discount_percent ?? 0),
           academy_discount_percent: Number(patch.academy_discount_percent ?? 0),
           marketplace_free_boosts: Number(patch.marketplace_free_boosts ?? 0),
+          beat_access: !!patch.beat_access,
         }).eq("id", id),
       );
       const results = await Promise.all(updates);
@@ -126,8 +128,20 @@ function VipMatrixTab() {
     onError: (e: any) => toast.error(e.message ?? "שמירה נכשלה"),
   });
 
-  const patch = (id: string, key: keyof Tier, val: number) => {
-    setDraft((d) => ({ ...d, [id]: { ...(d[id] ?? {}), [key]: val } }));
+  const patch = (id: string, key: keyof Tier, val: number | boolean) => {
+    const current = tiers.find((t) => t.id === id);
+    setDraft((d) => ({
+      ...d,
+      [id]: {
+        // seed with existing values so partial drafts don't reset other columns
+        beat_access: current?.beat_access,
+        shop_discount_percent: current?.shop_discount_percent,
+        academy_discount_percent: current?.academy_discount_percent,
+        marketplace_free_boosts: current?.marketplace_free_boosts,
+        ...(d[id] ?? {}),
+        [key]: val,
+      },
+    }));
   };
 
   return (
