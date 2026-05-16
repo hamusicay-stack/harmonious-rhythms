@@ -8,13 +8,26 @@ import { supabase } from "@/integrations/supabase/client";
 export async function fetchVipUserIds(userIds: string[]): Promise<Set<string>> {
   const ids = Array.from(new Set(userIds.filter(Boolean)));
   if (ids.length === 0) return new Set();
-  const { data } = await (supabase as any)
+  const { data: profs } = await (supabase as any)
     .from("profiles")
-    .select("id, subscription_tiers!profiles_global_subscription_tier_id_fkey(is_vip)")
+    .select("id, global_subscription_tier_id")
     .in("id", ids);
+  const tierIds = Array.from(new Set(
+    (profs ?? []).map((p: any) => p.global_subscription_tier_id).filter(Boolean),
+  )) as string[];
+  if (tierIds.length === 0) return new Set();
+  const { data: tiers } = await (supabase as any)
+    .from("subscription_tiers")
+    .select("id, is_vip")
+    .in("id", tierIds);
+  const vipTierIds = new Set(
+    (tiers ?? []).filter((t: any) => t.is_vip).map((t: any) => t.id),
+  );
   const out = new Set<string>();
-  for (const row of (data ?? []) as any[]) {
-    if (row?.subscription_tiers?.is_vip) out.add(row.id);
+  for (const p of (profs ?? []) as any[]) {
+    if (p.global_subscription_tier_id && vipTierIds.has(p.global_subscription_tier_id)) {
+      out.add(p.id);
+    }
   }
   return out;
 }
@@ -29,11 +42,18 @@ export async function isUserVip(userId: string | null | undefined): Promise<bool
 /** Get the academy discount % for a user from their global tier (0 if none). */
 export async function fetchAcademyDiscountPercent(userId: string | null | undefined): Promise<number> {
   if (!userId) return 0;
-  const { data } = await (supabase as any)
+  const { data: prof } = await (supabase as any)
     .from("profiles")
-    .select("subscription_tiers!profiles_global_subscription_tier_id_fkey(academy_discount_percent)")
+    .select("global_subscription_tier_id")
     .eq("id", userId)
     .maybeSingle();
-  const pct = data?.subscription_tiers?.academy_discount_percent;
+  const tierId = prof?.global_subscription_tier_id;
+  if (!tierId) return 0;
+  const { data: tier } = await (supabase as any)
+    .from("subscription_tiers")
+    .select("academy_discount_percent")
+    .eq("id", tierId)
+    .maybeSingle();
+  const pct = tier?.academy_discount_percent;
   return typeof pct === "number" ? pct : 0;
 }
