@@ -200,10 +200,10 @@ function CheckoutPage() {
           customer_email: form.customer_email,
           customer_phone: form.customer_phone,
           subtotal,
-          discount_amount: totalDiscount,
+          discount_amount: discountBeforePoints,
           coupon_code: coupon?.code ?? null,
           shipping_amount: shipping,
-          total_amount: total,
+          total_amount: totalBeforePoints,
           shipping_address: hasPhysical ? {
             address_line: form.address_line,
             city: form.city,
@@ -218,6 +218,17 @@ function CheckoutPage() {
         .select("id, order_number")
         .single();
       if (orderErr || !order) throw orderErr ?? new Error("Order failed");
+
+      // Atomically deduct points + lower order total (writes ledger entry)
+      if (pointsToRedeem > 0 && user?.id) {
+        const { error: rdmErr } = await (supabase as any).rpc("redeem_points_for_order", {
+          _order_id: order.id, _points: pointsToRedeem,
+        });
+        if (rdmErr) {
+          console.warn("points redemption failed", rdmErr);
+          toast.warning("נקודות לא נוצלו — הזמנה נקלטה ללא הנחת הנקודות");
+        }
+      }
 
       const orderItems = items.map((it) => ({
         order_id: order.id,
