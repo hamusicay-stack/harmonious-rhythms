@@ -525,21 +525,40 @@ function ShortsPage() {
               })}
             </div>
 
-            {/* Creator info row */}
-            <div className="flex items-center gap-2.5 rounded-full bg-black/40 px-2 py-1 backdrop-blur-md ring-1 ring-white/10">
-              <Avatar className="h-8 w-8 border-2 border-primary/60">
-                <AvatarImage src={activeCreator.creator.avatar || undefined} />
-                <AvatarFallback className="bg-secondary text-[10px] font-bold">
-                  {activeCreator.creator.name.slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-display text-sm font-bold text-white drop-shadow">
-                  {activeCreator.creator.name}
-                </div>
-                <div className="text-[10px] text-white/60">
-                  {activeVideoIdx + 1}/{creatorCount} · {activeCreatorIdx + 1} מתוך {creators.length} יוצרים
-                </div>
+            {/* Creator avatar carousel — Instagram-style */}
+            <div className="flex items-center gap-2 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-md ring-1 ring-white/10">
+              <div
+                className="flex flex-1 items-center gap-2 overflow-x-auto scrollbar-none"
+                style={{ scrollbarWidth: "none" }}
+                dir="ltr"
+              >
+                {creators.map((c, i) => {
+                  const isActive = i === activeCreatorIdx;
+                  return (
+                    <button
+                      key={c.creatorId}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); scrollToFlatIdx(creatorBoundaries[i]); }}
+                      className={cn(
+                        "group relative shrink-0 rounded-full transition-transform active:scale-95",
+                        isActive ? "p-[2px] bg-gradient-to-tr from-primary via-amber-300 to-primary-glow shadow-[0_0_14px_oklch(0.85_0.18_85/0.6)]"
+                                 : "p-[2px] bg-white/15 hover:bg-white/30",
+                      )}
+                      aria-label={c.creator.name}
+                      title={c.creator.name}
+                    >
+                      <Avatar className={cn("h-9 w-9 ring-2 ring-black", isActive && "h-10 w-10")}>
+                        <AvatarImage src={c.creator.avatar || undefined} />
+                        <AvatarFallback className="bg-secondary text-[10px] font-bold">
+                          {c.creator.name.slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isActive && (
+                        <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary shadow-gold" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               {user && user.id !== activeCreator.creatorId && (
                 <FollowButton
@@ -547,7 +566,7 @@ function ShortsPage() {
                   targetId={activeCreator.creatorId}
                   targetName={activeCreator.creator.name}
                   size="sm"
-                  className="h-7 rounded-full px-3 text-[11px]"
+                  className="h-7 shrink-0 rounded-full px-3 text-[11px]"
                 />
               )}
             </div>
