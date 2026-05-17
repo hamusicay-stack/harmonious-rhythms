@@ -344,6 +344,7 @@ function MyListings({ userId }: { userId: string }) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [stats, setStats] = useState<Record<string, { phone: number; whatsapp: number; likes: number }>>({});
   const [loading, setLoading] = useState(true);
+  const [boostId, setBoostId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
