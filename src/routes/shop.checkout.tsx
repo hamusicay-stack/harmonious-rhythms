@@ -73,7 +73,11 @@ function CheckoutPage() {
   }, [user, profile]);
 
   const hasPhysical = useMemo(
-    () => items.some((i) => i.product_type !== "digital" && i.product_type !== "rhythm_set"),
+    () => items.some((i) =>
+      i.product_type !== "digital" &&
+      i.product_type !== "rhythm_set" &&
+      i.product_type !== "marketplace_boost"
+    ),
     [items],
   );
   const needsInfoFile = useMemo(() => items.some((i) => i.requires_info_file), [items]);
@@ -259,6 +263,26 @@ function CheckoutPage() {
 
       // Coupon code is recorded on the order row above; usage-count bump is handled
       // by an admin task / scheduled job to avoid exposing writes via RLS.
+
+      // Fulfill marketplace boost items immediately (virtual service — no shipping).
+      // We treat order creation as "paid" for this mock flow; swap to webhook later.
+      const boostItems = items.filter((it) => it.product_type === "marketplace_boost");
+      if (boostItems.length > 0) {
+        const now = new Date();
+        await Promise.all(boostItems.map(async (it) => {
+          // id shape: "boost:{listingId}:{hours}"
+          const parts = it.id.split(":");
+          const listingId = parts[1];
+          const hours = Number(parts[2]) || 24;
+          if (!listingId) return;
+          const expires = new Date(now.getTime() + hours * 3600 * 1000).toISOString();
+          const { error: bumpErr } = await supabase
+            .from("marketplace_listings")
+            .update({ bumped_at: now.toISOString(), bump_expires_at: expires })
+            .eq("id", listingId);
+          if (bumpErr) console.warn("boost fulfillment failed", listingId, bumpErr);
+        }));
+      }
 
       clear();
       removeCoupon();

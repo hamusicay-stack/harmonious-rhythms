@@ -1,23 +1,25 @@
 import { useState } from "react";
-import { ArrowUp, Crown, Loader2, Sparkles } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowUp, Crown, Loader2, ShoppingCart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
 /**
  * BoostListingDialog
- * Modular boost flow: VIP users boost instantly (quota assumed > 0 for now).
- * Non-VIP users see paid options that currently mock-succeed but are wired
- * to swap into the real ShopCheckout flow later.
+ * VIP users boost instantly (quota assumed > 0 for now).
+ * Non-VIP users add the boost as a CartItem (product_type: "marketplace_boost")
+ * and are redirected to /shop/checkout. Fulfillment happens in checkout submit.
  */
 
 type BoostOption = { hours: 24 | 48; priceNis: number };
 const OPTIONS: BoostOption[] = [
-  { hours: 24, priceNis: 19 },
-  { hours: 48, priceNis: 29 },
+  { hours: 24, priceNis: 20 },
+  { hours: 48, priceNis: 35 },
 ];
 
 async function applyBump(listingId: string, hours: number) {
@@ -44,14 +46,27 @@ export async function vipBumpListing(listingId: string, hours: 24 | 48 = 24): Pr
 
 interface Props {
   listingId: string;
+  listingTitle?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBumped?: () => void;
 }
 
-export function BoostListingDialog({ listingId, open, onOpenChange, onBumped }: Props) {
+export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange, onBumped }: Props) {
   const { isVip, vipTier } = useAuth();
+  const { add } = useCart();
+  const navigate = useNavigate();
   const [processing, setProcessing] = useState<number | null>(null);
+  const [title, setTitle] = useState<string | undefined>(listingTitle);
+
+  const resolveTitle = async (): Promise<string> => {
+    if (title) return title;
+    const { data } = await supabase
+      .from("marketplace_listings").select("title").eq("id", listingId).maybeSingle();
+    const t = (data as { title?: string } | null)?.title ?? "מודעה";
+    setTitle(t);
+    return t;
+  };
 
   const handleVipBoost = async (hours: 24 | 48) => {
     setProcessing(hours);
@@ -62,15 +77,23 @@ export function BoostListingDialog({ listingId, open, onOpenChange, onBumped }: 
 
   const handlePaidBoost = async (opt: BoostOption) => {
     setProcessing(opt.hours);
-    // TODO: integrate ShopCheckout — for now mock the payment.
-    await new Promise((r) => setTimeout(r, 600));
     try {
-      await applyBump(listingId, opt.hours);
-      toast.success(`התשלום בוצע — המודעה הוקפצה ל-${opt.hours} שעות! 🚀`);
-      onBumped?.();
+      const t = await resolveTitle();
+      // Synthetic product id carries listingId + hours so the checkout
+      // fulfillment block can extract them and bump the listing.
+      add({
+        id: `boost:${listingId}:${opt.hours}`,
+        slug: `boost-${listingId}-${opt.hours}h`,
+        title: `הקפצת מודעה: ${t} (${opt.hours} שעות)`,
+        price: opt.priceNis,
+        image: null,
+        product_type: "marketplace_boost",
+      });
+      toast.success("ההקפצה נוספה לסל — מעבירים לתשלום");
       onOpenChange(false);
+      navigate({ to: "/shop/checkout" });
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "שגיאה בהקפצת המודעה");
+      toast.error(e instanceof Error ? e.message : "שגיאה בהוספה לסל");
     } finally {
       setProcessing(null);
     }
@@ -106,8 +129,8 @@ export function BoostListingDialog({ listingId, open, onOpenChange, onBumped }: 
                 </Button>
               ) : (
                 <Button size="sm" onClick={() => handlePaidBoost(opt)} disabled={processing !== null} className="gap-1 shrink-0">
-                  {processing === opt.hours ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                  ₪{opt.priceNis}
+                  {processing === opt.hours ? <Loader2 className="h-3 w-3 animate-spin" /> : <ShoppingCart className="h-3 w-3" />}
+                  ₪{opt.priceNis} · לסל
                 </Button>
               )}
             </div>
