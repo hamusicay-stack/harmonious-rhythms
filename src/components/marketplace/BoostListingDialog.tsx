@@ -129,8 +129,8 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
                 </Button>
               ) : (
                 <Button size="sm" onClick={() => handlePaidBoost(opt)} disabled={processing !== null} className="gap-1 shrink-0">
-                  {processing === opt.hours ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                  ₪{opt.priceNis}
+                  {processing === opt.hours ? <Loader2 className="h-3 w-3 animate-spin" /> : <ShoppingCart className="h-3 w-3" />}
+                  ₪{opt.priceNis} · לסל
                 </Button>
               )}
             </div>
