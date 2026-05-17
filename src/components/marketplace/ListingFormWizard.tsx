@@ -123,6 +123,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     has_samples: !!specs?.has_samples,
     video_url: initial?.video_url ?? "",
   });
+  const [catalogSpecs, setCatalogSpecs] = useState<Record<string, string> | null>(null);
 
   const [vipTier, setVipTier] = useState<string | null>(null);
   const isVip = vipTier && !["free", "basic"].includes(vipTier);
