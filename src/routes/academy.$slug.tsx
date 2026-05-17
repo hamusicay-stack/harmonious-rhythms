@@ -61,6 +61,8 @@ export const Route = createFileRoute("/academy/$slug")({
 function CoursePage() {
   const { course } = Route.useLoaderData();
   const { user, isVip, vipTier } = useAuth();
+  const router = useRouter();
+  const cart = useCart();
   const [modules, setModules] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, any>>({});
@@ -72,6 +74,8 @@ function CoursePage() {
   const [showAutoNext, setShowAutoNext] = useState(false);
   const playerSeekRef = useRef<((sec: number) => void) | null>(null);
   const [academyDiscountPct, setAcademyDiscountPct] = useState<number>(0);
+  // Per-active-lesson signed/resolved media (fetched via secure RPC)
+  const [activeMedia, setActiveMedia] = useState<{ src: string | null; loading: boolean; authorized: boolean }>({ src: null, loading: false, authorized: false });
 
   useEffect(() => {
     if (!user) { setAcademyDiscountPct(0); return; }
