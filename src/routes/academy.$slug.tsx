@@ -272,35 +272,53 @@ function CoursePage() {
             <div className={theater ? "flex h-full w-full flex-col" : "space-y-4"}>
               {/* Player */}
               <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
-                {activeLesson && canWatch && activeLesson.video_url ? (
-                  <SecureVideoPlayer
-                    key={activeLesson.id}
-                    src={activeLesson.video_url}
-                    watermark={user?.email ?? ""}
-                    onSeekReady={(fn) => { playerSeekRef.current = fn; }}
-                    onEnded={() => {
-                      if (course && activeLesson) {
-                        void trackAcademyEvent({ itemType: "lesson", itemId: activeLesson.id, eventType: "complete", courseId: course.id, percent: 100 });
-                      }
-                      if (autoNextOn && canPlayNext) setShowAutoNext(true);
-                    }}
-                    onProgress={async (pos, dur) => {
-                      if (!user || !enrollment) return;
-                      const completed = dur > 0 && pos / dur > 0.9;
-                      await supabase.from("academy_lesson_progress").upsert({
-                        user_id: user.id,
-                        lesson_id: activeLesson.id,
-                        course_id: course.id,
-                        position_seconds: Math.floor(pos),
-                        is_completed: completed,
-                        completed_at: completed ? new Date().toISOString() : null,
-                      }, { onConflict: "user_id,lesson_id" });
-                      if (completed && !progress[activeLesson.id]?.is_completed) {
-                        refresh();
-                        await tryIssueCertificate(course.id, user.id, course.title);
-                      }
-                    }}
-                  />
+                {activeLesson && canWatch ? (
+                  activeMedia.loading ? (
+                    <div className="flex h-full items-center justify-center text-white">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                  ) : activeMedia.src ? (
+                    <SecureVideoPlayer
+                      key={activeLesson.id}
+                      src={activeMedia.src}
+                      watermark={user?.email ?? ""}
+                      initialPosition={progress[activeLesson.id]?.position_seconds ?? 0}
+                      onSeekReady={(fn) => { playerSeekRef.current = fn; }}
+                      onEnded={() => {
+                        if (course && activeLesson) {
+                          void trackAcademyEvent({ itemType: "lesson", itemId: activeLesson.id, eventType: "complete", courseId: course.id, percent: 100 });
+                        }
+                        if (autoNextOn && canPlayNext) setShowAutoNext(true);
+                      }}
+                      onProgress={async ({ position, duration, watchDelta }) => {
+                        if (!user || !enrollment) return;
+                        const prev = progress[activeLesson.id];
+                        const prevWatch = Number(prev?.watch_time_seconds ?? 0);
+                        const nextWatch = prevWatch + Math.max(0, watchDelta);
+                        // Anti-skip-to-end: completion requires cumulative watch time ≥ 90% of duration
+                        const completed = duration > 0 && nextWatch >= duration * 0.9;
+                        await supabase.from("academy_lesson_progress").upsert({
+                          user_id: user.id,
+                          lesson_id: activeLesson.id,
+                          course_id: course.id,
+                          position_seconds: Math.floor(position),
+                          watch_time_seconds: Math.floor(nextWatch),
+                          is_completed: completed,
+                          completed_at: completed ? new Date().toISOString() : null,
+                        }, { onConflict: "user_id,lesson_id" });
+                        setProgress((p) => ({ ...p, [activeLesson.id]: { ...(p[activeLesson.id] ?? {}), position_seconds: Math.floor(position), watch_time_seconds: Math.floor(nextWatch), is_completed: completed } }));
+                        if (completed && !prev?.is_completed) {
+                          refresh();
+                          await tryIssueCertificate(course.id, user.id, course.title);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-white">
+                      <Lock className="h-10 w-10" />
+                      <p>לא ניתן לטעון את הסרטון</p>
+                    </div>
+                  )
                 ) : activeLesson && !canWatch ? (
                   showPremiumLock ? (
                     <PremiumLockOverlay tierName={vipTier?.name ?? null} coursePrice={course.price} courseSlug={course.slug} />
