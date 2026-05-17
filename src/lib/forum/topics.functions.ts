@@ -117,7 +117,8 @@ export const createTopic = createServerFn({ method: "POST" })
       boardSlug: z.string().min(1).max(120),
       title: z.string().trim().min(3).max(200),
       body: z.string().trim().min(5).max(20000),
-      tags: z.array(z.string().min(1).max(40)).max(8).default([]),
+      tags: z.array(z.string().min(1).max(40)).max(5).default([]),
+      tagIds: z.array(z.string().uuid()).max(5).default([]),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
