@@ -9,6 +9,7 @@ import { getBoardBySlug } from "@/lib/forum/boards.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ForumEditor } from "@/components/forum/ForumEditor";
+import { TopicTagManager } from "@/components/forum/TopicTagManager";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Pin, Lock, Plus, ShieldAlert } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -35,6 +36,7 @@ function BoardPage() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [tagIds, setTagIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
 
   const board = useQuery({ queryKey: ["forum", "board", slug], queryFn: () => fetchBoard({ data: { slug } }) });
@@ -51,7 +53,8 @@ function BoardPage() {
     }
     setBusy(true);
     try {
-      const r = await create({ data: { boardSlug: slug, title, body, tags: [] } });
+      const r = await create({ data: { boardSlug: slug, title, body, tags: [], tagIds } });
+      setTagIds([]);
       setOpen(false);
       navigate({ to: "/forum/topic/$slug", params: { slug: r.slug } });
     } catch (e) {
@@ -92,6 +95,7 @@ function BoardPage() {
                 <div className="space-y-3">
                   <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
                   <ForumEditor value={body} onChange={setBody} placeholder="תוכן ההודעה — תוכל לעצב, להוסיף תמונות, אודיו וקישורי יוטיוב" />
+                  <TopicTagManager value={tagIds} onChange={setTagIds} />
                 </div>
                 <DialogFooter>
                   <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>

@@ -2218,28 +2218,45 @@ export type Database = {
         Row: {
           color: string | null
           created_at: string
+          display_order: number
           id: string
+          is_staff_only: boolean
           name: string
+          parent_id: string | null
           slug: string
           use_count: number
         }
         Insert: {
           color?: string | null
           created_at?: string
+          display_order?: number
           id?: string
+          is_staff_only?: boolean
           name: string
+          parent_id?: string | null
           slug: string
           use_count?: number
         }
         Update: {
           color?: string | null
           created_at?: string
+          display_order?: number
           id?: string
+          is_staff_only?: boolean
           name?: string
+          parent_id?: string | null
           slug?: string
           use_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "forum_tags_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "forum_tags"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       forum_topic_tags: {
         Row: {

@@ -117,7 +117,8 @@ export const createTopic = createServerFn({ method: "POST" })
       boardSlug: z.string().min(1).max(120),
       title: z.string().trim().min(3).max(200),
       body: z.string().trim().min(5).max(20000),
-      tags: z.array(z.string().min(1).max(40)).max(8).default([]),
+      tags: z.array(z.string().min(1).max(40)).max(5).default([]),
+      tagIds: z.array(z.string().uuid()).max(5).default([]),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -148,16 +149,23 @@ export const createTopic = createServerFn({ method: "POST" })
       .insert({ topic_id: topic.id, author_id: userId, body_md: data.body, is_op: true });
     if (e2) throw new Error(e2.message);
 
+    // Attach existing tags by UUID (preferred — respects ACL/parents)
+    if (data.tagIds.length) {
+      const rows = data.tagIds.slice(0, 5).map((tag_id) => ({ topic_id: topic.id, tag_id }));
+      await supabase.from("forum_topic_tags").insert(rows);
+    }
+
+    // Legacy free-text fallback: upsert non-staff tags then attach
     if (data.tags.length) {
-      // upsert tags
-      for (const raw of data.tags) {
+      const remaining = Math.max(0, 5 - data.tagIds.length);
+      for (const raw of data.tags.slice(0, remaining)) {
         const tagSlug = slugify(raw);
         const { data: existing } = await supabase.from("forum_tags")
           .select("id").eq("slug", tagSlug).maybeSingle();
         let tagId = existing?.id;
         if (!tagId) {
-          const { data: ins } = await supabase.from("forum_tags")
-            .insert({ slug: tagSlug, name: raw }).select("id").single();
+          const { data: ins } = await (supabase as any).from("forum_tags")
+            .insert({ slug: tagSlug, name: raw, is_staff_only: false }).select("id").single();
           tagId = ins?.id;
         }
         if (tagId) {

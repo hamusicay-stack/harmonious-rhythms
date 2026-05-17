@@ -10,6 +10,8 @@ import { openOrCreateDmThread } from "@/lib/forum/dm.functions";
 import { ForumEditor } from "@/components/forum/ForumEditor";
 import { ForumPostCard, type ForumPostData } from "@/components/forum/ForumPostCard";
 import { ForumReplyTree } from "@/components/forum/ForumReplyTree";
+import { TopicTagStrip } from "@/components/forum/TopicTagManager";
+import { getTopicTags } from "@/lib/forum/tags.functions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -86,6 +88,12 @@ function TopicPage() {
   const sub = useQuery({
     queryKey: ["forum", "sub", topicId],
     queryFn: () => fetchSub({ data: { topicId: topicId! } }),
+    enabled: !!topicId,
+  });
+  const fetchTags = useServerFn(getTopicTags);
+  const topicTags = useQuery({
+    queryKey: ["forum", "topic-tags", topicId],
+    queryFn: () => fetchTags({ data: { topicId: topicId! } }),
     enabled: !!topicId,
   });
 
@@ -200,7 +208,10 @@ function TopicPage() {
             {sub.data?.subscribed ? <><BellOff className="h-4 w-4 ml-1" />הפסק מעקב</> : <><Bell className="h-4 w-4 ml-1" />עקוב אחרי האשכול</>}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mb-6">{posts.length} הודעות · {t.view_count} צפיות</p>
+        <p className="text-xs text-muted-foreground mb-3">{posts.length} הודעות · {t.view_count} צפיות</p>
+        {topicTags.data?.tags && topicTags.data.tags.length > 0 && (
+          <div className="mb-6"><TopicTagStrip tags={topicTags.data.tags} /></div>
+        )}
 
         <div className="space-y-4">
           {opPost && (
