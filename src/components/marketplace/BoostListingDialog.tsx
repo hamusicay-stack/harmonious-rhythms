@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { ArrowUp, Crown, Loader2, Sparkles } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowUp, Crown, Loader2, Sparkles, ShoppingCart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
 /**
  * BoostListingDialog
- * Modular boost flow: VIP users boost instantly (quota assumed > 0 for now).
- * Non-VIP users see paid options that currently mock-succeed but are wired
- * to swap into the real ShopCheckout flow later.
+ * VIP users boost instantly (quota assumed > 0 for now).
+ * Non-VIP users add the boost as a CartItem (product_type: "marketplace_boost")
+ * and are redirected to /shop/checkout. Fulfillment happens in checkout submit.
  */
 
 type BoostOption = { hours: 24 | 48; priceNis: number };
