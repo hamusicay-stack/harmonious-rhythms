@@ -5690,6 +5690,17 @@ export type Database = {
         Returns: number
       }
       generate_ref_code: { Args: never; Returns: string }
+      get_lesson_media: {
+        Args: { _lesson_id: string }
+        Returns: {
+          authorized: boolean
+          duration_seconds: number
+          lesson_id: string
+          video_path: string
+          video_provider: string
+          video_url: string
+        }[]
+      }
       get_listing_contact: {
         Args: { _listing_id: string }
         Returns: {
@@ -5780,6 +5791,7 @@ export type Database = {
         Args: { _event_type: string; _listing_id: string }
         Returns: undefined
       }
+      user_can_access_lesson: { Args: { _lesson_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:
