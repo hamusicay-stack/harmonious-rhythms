@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FollowButton } from "@/components/FollowButton";
 import { CommentsSheet } from "@/components/shorts/CommentsSheet";
 import { HashtagText } from "@/components/shorts/HashtagText";
 import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
@@ -79,9 +80,12 @@ function ShortsPage() {
   const [avSyncOffsetMs, setAvSyncOffsetMs] = useAVSyncOffset();
   const [latency, setLatency] = useState<{ base: number; output: number }>({ base: 0, output: 0 });
 
+  const [currentProgress, setCurrentProgress] = useState(0);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const swipeRef = useRef<{ x: number; y: number; t: number } | null>(null);
 
   /* ---------- Data load ---------- */
   const loadShorts = useCallback(async () => {
@@ -156,7 +160,13 @@ function ShortsPage() {
         };
       });
 
-      setShorts(list);
+      // Regroup by creator so a creator's videos play back-to-back, IG-Reels style.
+      const byCreator = new Map<string, Short[]>();
+      for (const s of list) {
+        if (!byCreator.has(s.creator_id)) byCreator.set(s.creator_id, []);
+        byCreator.get(s.creator_id)!.push(s);
+      }
+      setShorts(Array.from(byCreator.values()).flat());
       setLikedSet(myLikes);
     } catch (e) {
       console.error("Shorts load failed", e);
@@ -312,6 +322,74 @@ function ShortsPage() {
     userId: user?.id ?? null,
   });
 
+  /* ---------- Creator grouping (IG-Reels matrix) ---------- */
+  const { creatorIndexMap, creatorBoundaries, creators } = useMemo(() => {
+    const map: number[] = [];
+    const boundaries: number[] = [];
+    const cs: { creatorId: string; creator: Short["creator"]; count: number }[] = [];
+    let prev: string | null = null;
+    let cIdx = -1;
+    shorts.forEach((s, i) => {
+      if (s.creator_id !== prev) {
+        cIdx++;
+        boundaries.push(i);
+        cs.push({ creatorId: s.creator_id, creator: s.creator, count: 1 });
+        prev = s.creator_id;
+      } else {
+        cs[cIdx].count += 1;
+      }
+      map.push(cIdx);
+    });
+    return { creatorIndexMap: map, creatorBoundaries: boundaries, creators: cs };
+  }, [shorts]);
+
+  const activeCreatorIdx = creatorIndexMap[activeIndex] ?? 0;
+  const activeCreator = creators[activeCreatorIdx];
+  const creatorStart = creatorBoundaries[activeCreatorIdx] ?? 0;
+  const creatorCount = activeCreator?.count ?? 0;
+  const activeVideoIdx = activeIndex - creatorStart;
+
+  /* ---------- Track current video progress for segmented bars ---------- */
+  useEffect(() => {
+    setCurrentProgress(0);
+    const cur = shorts[activeIndex];
+    if (!cur) return;
+    const v = videoRefs.current.get(cur.id);
+    if (!v) return;
+    const onTime = () => {
+      if (v.duration > 0) setCurrentProgress(Math.min(1, v.currentTime / v.duration));
+    };
+    v.addEventListener("timeupdate", onTime);
+    return () => v.removeEventListener("timeupdate", onTime);
+  }, [activeIndex, shorts]);
+
+  /* ---------- Scroll helpers (vertical snap + horizontal creator skip) ---------- */
+  const scrollToFlatIdx = useCallback((idx: number) => {
+    const root = containerRef.current;
+    if (!root) return;
+    const panel = root.querySelector<HTMLElement>(`[data-idx="${idx}"]`);
+    panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const jumpToCreator = useCallback((delta: number) => {
+    const next = Math.max(0, Math.min(creatorBoundaries.length - 1, activeCreatorIdx + delta));
+    if (next === activeCreatorIdx) return;
+    scrollToFlatIdx(creatorBoundaries[next]);
+  }, [activeCreatorIdx, creatorBoundaries, scrollToFlatIdx]);
+
+  const onHeaderPointerDown = (e: React.PointerEvent) => {
+    swipeRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+  };
+  const onHeaderPointerUp = (e: React.PointerEvent) => {
+    const s = swipeRef.current; swipeRef.current = null;
+    if (!s) return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      jumpToCreator(dx < 0 ? 1 : -1);
+    }
+  };
+
   /* ---------- Like ---------- */
   const toggleLike = useCallback(async (id: string) => {
     if (!user) { toast.error("רגע — צריך להיכנס לאולפן כדי לסמן לייק"); return; }
@@ -411,6 +489,70 @@ function ShortsPage() {
           )}
         </div>
       </div>
+
+      {/* IG-Stories overlay: segmented progress + creator + follow + horizontal swipe to skip creator */}
+      {activeCreator && (
+        <div
+          onPointerDown={onHeaderPointerDown}
+          onPointerUp={onHeaderPointerUp}
+          onPointerCancel={() => { swipeRef.current = null; }}
+          className="absolute inset-x-0 z-40 px-3 pointer-events-auto"
+          style={{
+            top: "calc(max(env(safe-area-inset-top), 0.5rem) + 2.75rem)",
+            touchAction: "pan-y",
+          }}
+        >
+          <div className="mx-auto flex w-full max-w-[520px] flex-col gap-2">
+            {/* Segmented progress bars */}
+            <div className="flex items-center gap-1" dir="ltr">
+              {Array.from({ length: Math.max(1, creatorCount) }).map((_, i) => {
+                const fill = i < activeVideoIdx ? 1 : i === activeVideoIdx ? currentProgress : 0;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`סרטון ${i + 1} מתוך ${creatorCount}`}
+                    onClick={(e) => { e.stopPropagation(); scrollToFlatIdx(creatorStart + i); }}
+                    className="group h-[3px] flex-1 overflow-hidden rounded-full bg-white/25 backdrop-blur-md"
+                  >
+                    <span
+                      className="block h-full bg-gradient-to-r from-primary to-primary-glow shadow-[0_0_8px_oklch(0.78_0.14_75/0.7)] transition-[width] duration-150 ease-out"
+                      style={{ width: `${Math.round(fill * 100)}%` }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Creator info row */}
+            <div className="flex items-center gap-2.5 rounded-full bg-black/40 px-2 py-1 backdrop-blur-md ring-1 ring-white/10">
+              <Avatar className="h-8 w-8 border-2 border-primary/60">
+                <AvatarImage src={activeCreator.creator.avatar || undefined} />
+                <AvatarFallback className="bg-secondary text-[10px] font-bold">
+                  {activeCreator.creator.name.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-display text-sm font-bold text-white drop-shadow">
+                  {activeCreator.creator.name}
+                </div>
+                <div className="text-[10px] text-white/60">
+                  {activeVideoIdx + 1}/{creatorCount} · {activeCreatorIdx + 1} מתוך {creators.length} יוצרים
+                </div>
+              </div>
+              {user && user.id !== activeCreator.creatorId && (
+                <FollowButton
+                  targetType="shorts_creator"
+                  targetId={activeCreator.creatorId}
+                  targetName={activeCreator.creator.name}
+                  size="sm"
+                  className="h-7 rounded-full px-3 text-[11px]"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SNAP-SCROLL CONTAINER */}
       <div
