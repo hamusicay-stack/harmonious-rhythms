@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FollowButton } from "@/components/FollowButton";
 import { CommentsSheet } from "@/components/shorts/CommentsSheet";
 import { HashtagText } from "@/components/shorts/HashtagText";
 import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
