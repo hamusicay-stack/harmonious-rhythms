@@ -208,6 +208,60 @@ function ShortsPage() {
     if (current) void supabase.rpc("increment_short_views", { _video_id: current.id });
   }, [activeIndex, shorts, isMuted]);
 
+  /* ---------- Deep link: ?shortsId=X&t=42 ---------- */
+  const deepLinkAppliedRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkAppliedRef.current || !deepLinkId || shorts.length === 0) return;
+    const idx = shorts.findIndex((s) => s.id === deepLinkId);
+    if (idx < 0) return;
+    deepLinkAppliedRef.current = true;
+    setActiveIndex(idx);
+    // Defer to next frame so the panel exists in the DOM.
+    requestAnimationFrame(() => {
+      const root = containerRef.current;
+      const panel = root?.querySelector<HTMLElement>(`[data-idx="${idx}"]`);
+      panel?.scrollIntoView({ behavior: "auto", block: "start" });
+      const t = Number(deepLinkT);
+      if (Number.isFinite(t) && t > 0) {
+        // Wait for video metadata before seeking.
+        const tryStep = (n: number) => {
+          const v = videoRefs.current.get(shorts[idx].id);
+          if (v && v.readyState >= 1) { try { v.currentTime = t; } catch { /* noop */ } }
+          else if (n > 0) setTimeout(() => tryStep(n - 1), 120);
+        };
+        tryStep(20);
+      }
+    });
+  }, [deepLinkId, deepLinkT, shorts]);
+
+  /* ---------- Detach to floating PiP when leaving the feed ---------- */
+  useEffect(() => {
+    return () => {
+      const current = shorts[activeIndex];
+      const v = current ? videoRefs.current.get(current.id) : null;
+      if (current && v && !v.paused && v.currentTime > 1) {
+        detachToPip({
+          id: current.id,
+          videoUrl: current.videoUrl,
+          poster: current.poster,
+          title: current.title,
+          creatorName: current.creator.name,
+          startAt: v.currentTime,
+          muted: v.muted,
+        });
+      }
+    };
+    // We intentionally re-bind to current shorts/activeIndex so the cleanup
+    // sees the latest active video at unmount time.
+  }, [activeIndex, shorts, detachToPip]);
+
+  // If user clicks the PiP "expand" link back to /shorts, jump to that short.
+  useEffect(() => {
+    if (!pinnedShort || shorts.length === 0) return;
+    const idx = shorts.findIndex((s) => s.id === pinnedShort.id);
+    if (idx >= 0) setActiveIndex(idx);
+  }, [pinnedShort, shorts]);
+
   /* ---------- Unlock audio on first interaction ---------- */
   const unlockAudio = useCallback(() => {
     if (audioUnlocked) return;
