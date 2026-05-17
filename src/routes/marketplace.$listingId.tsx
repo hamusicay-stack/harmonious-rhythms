@@ -15,6 +15,7 @@ import { ReportListingDialog } from "@/components/marketplace/ReportListingDialo
 import { ChatThreadDialog } from "@/components/marketplace/ChatThreadDialog";
 import { MakeOfferDialog } from "@/components/marketplace/MakeOfferDialog";
 import { useListingLike } from "@/hooks/useListingLike";
+import { CrossSellRecommendations } from "@/components/shop/CrossSellRecommendations";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   loader: async ({ params }) => {
