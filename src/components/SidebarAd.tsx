@@ -32,7 +32,6 @@ export function SidebarAd({ side, position }: Props) {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (isVip) return;
     if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(STORAGE_KEY(side))) {
       setDismissed(true);
       return;
@@ -40,19 +39,24 @@ export function SidebarAd({ side, position }: Props) {
     let cancelled = false;
     (async () => {
       const now = new Date().toISOString();
-      const { data } = await supabase
+      let query = supabase
         .from("ad_banners")
-        .select("id, title, image_url, target_url")
+        .select("id, title, image_url, target_url, bypass_vip")
         .eq("position", position)
         .eq("is_active", true)
         .lte("starts_at", now)
-        .or(`ends_at.is.null,ends_at.gt.${now}`)
+        .or(`ends_at.is.null,ends_at.gt.${now}`);
+      // VIP users still see sidebar ads when the row is flagged bypass_vip.
+      if (isVip) query = query.eq("bypass_vip", true);
+      const { data } = await query
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
       if (cancelled || !data) return;
-      setBanner(data as Banner);
-      supabase.rpc("track_banner_event" as any, { _banner_id: data.id, _event_type: "view" });
+      const b = data as Banner;
+      if (isVip && !b.bypass_vip) return;
+      setBanner(b);
+      supabase.rpc("track_banner_event" as any, { _banner_id: b.id, _event_type: "view" });
     })();
     return () => { cancelled = true; };
   }, [position, side, isVip]);
