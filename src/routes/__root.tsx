@@ -102,15 +102,18 @@ function RootComponent() {
           <NotificationsProvider>
             <CartProvider>
               <AudioPlayerProvider>
-                <KeyboardSelectionProvider>
-                  <DeviceGuardInner />
-                  <ImpersonationBanner />
-                  <SharedCartHydrator />
-                  <Outlet />
-                  <FloatingAudioPlayer />
-                  <StickyCart />
-                  <Toaster richColors position="top-center" />
-                </KeyboardSelectionProvider>
+                <FloatingShortProvider>
+                  <KeyboardSelectionProvider>
+                    <DeviceGuardInner />
+                    <ImpersonationBanner />
+                    <SharedCartHydrator />
+                    <Outlet />
+                    <FloatingAudioPlayer />
+                    <FloatingShortPlayer />
+                    <StickyCart />
+                    <Toaster richColors position="top-center" />
+                  </KeyboardSelectionProvider>
+                </FloatingShortProvider>
               </AudioPlayerProvider>
             </CartProvider>
           </NotificationsProvider>
