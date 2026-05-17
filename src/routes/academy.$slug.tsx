@@ -577,15 +577,17 @@ function getVimeoId(url: string): string | null {
   return url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1] ?? null;
 }
 
+type ProgressPayload = { position: number; duration: number; watchDelta: number };
 type PlayerProps = {
   src: string;
   watermark: string;
-  onProgress?: (pos: number, dur: number) => void;
+  initialPosition?: number;
+  onProgress?: (p: ProgressPayload) => void;
   onEnded?: () => void;
   onSeekReady?: (seek: (seconds: number) => void) => void;
 };
 
-function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }: PlayerProps) {
+function SecureVideoPlayer({ src, watermark, initialPosition = 0, onProgress, onEnded, onSeekReady }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const [speed, setSpeed] = useState(1);
@@ -593,6 +595,7 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
   const ytId = getYouTubeId(src);
   const vimeoId = getVimeoId(src);
+  const resumedRef = useRef(false);
 
   // Random watermark drift
   useEffect(() => {
@@ -602,20 +605,48 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
     return () => clearInterval(i);
   }, []);
 
-  // Native <video> progress + ended
+  // Resume from saved position when metadata is ready
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || resumedRef.current || ytId || vimeoId) return;
+    const onMeta = () => {
+      if (resumedRef.current) return;
+      if (initialPosition > 1 && initialPosition < (v.duration || Infinity) - 2) {
+        v.currentTime = initialPosition;
+      }
+      resumedRef.current = true;
+    };
+    v.addEventListener("loadedmetadata", onMeta);
+    return () => v.removeEventListener("loadedmetadata", onMeta);
+  }, [initialPosition, ytId, vimeoId]);
+
+  // Native <video> progress: debounced ~12s flush; only counts as watch time
+  // when actually playing (not paused, not buffering) — prevents skip cheating.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    let last = 0;
-    const handle = () => {
-      if (v.currentTime - last < 10 && v.currentTime < v.duration - 1) return;
-      last = v.currentTime;
-      onProgress?.(v.currentTime, v.duration || 0);
+    let lastFlush = 0;
+    let watchAccum = 0;
+    let lastTick = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      const dt = (now - lastTick) / 1000;
+      lastTick = now;
+      if (!v.paused && !v.ended && v.readyState >= 3) {
+        // Cap dt to avoid huge jumps (tab inactive / scrubbing).
+        watchAccum += Math.min(dt, 2);
+      }
+      if (now - lastFlush >= 12000 || (v.duration && v.currentTime >= v.duration - 1)) {
+        lastFlush = now;
+        const delta = watchAccum;
+        watchAccum = 0;
+        onProgress?.({ position: v.currentTime, duration: v.duration || 0, watchDelta: delta });
+      }
     };
+    const id = window.setInterval(tick, 1000);
     const ended = () => onEnded?.();
-    v.addEventListener("timeupdate", handle);
     v.addEventListener("ended", ended);
-    return () => { v.removeEventListener("timeupdate", handle); v.removeEventListener("ended", ended); };
+    return () => { window.clearInterval(id); v.removeEventListener("ended", ended); };
   }, [onProgress, onEnded]);
 
   // Expose seek for native video
