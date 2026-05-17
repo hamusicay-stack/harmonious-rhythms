@@ -36,6 +36,7 @@ function BoardPage() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [tagIds, setTagIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
 
   const board = useQuery({ queryKey: ["forum", "board", slug], queryFn: () => fetchBoard({ data: { slug } }) });
