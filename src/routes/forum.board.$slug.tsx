@@ -53,7 +53,8 @@ function BoardPage() {
     }
     setBusy(true);
     try {
-      const r = await create({ data: { boardSlug: slug, title, body, tags: [] } });
+      const r = await create({ data: { boardSlug: slug, title, body, tags: [], tagIds } });
+      setTagIds([]);
       setOpen(false);
       navigate({ to: "/forum/topic/$slug", params: { slug: r.slug } });
     } catch (e) {
