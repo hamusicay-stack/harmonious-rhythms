@@ -393,7 +393,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
 
     setSubmitting(false);
     const wasAutoApproved = inserted?.status === "approved";
-    if (promoOption !== "none") {
+    const didBump = promoOption !== "none" && isVip;
+    if (didBump) {
       toast.success(`המודעה נשלחה והוקפצה ל-${promoOption === "bump48" ? "48" : "24"} שעות! 🚀`);
     } else if (wasAutoApproved) {
       toast.success("המודעה פורסמה ונראית עכשיו בלוח! 🎉");
