@@ -380,8 +380,9 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     const { data: inserted, error } = await supabase.from("marketplace_listings").insert(insertPayload).select("id, status").single();
     if (error) { setSubmitting(false); toast.error(error.message); return; }
 
-    // Free bump: if user chose a bump option, set bump fields immediately
-    if (inserted && promoOption !== "none") {
+    // Free bump: STRICTLY VIP-only. Free/basic users selecting a bump option
+    // is prevented in the UI; this is a defense-in-depth check.
+    if (inserted && promoOption !== "none" && isVip) {
       const hours = promoOption === "bump48" ? 48 : 24;
       const expires = new Date(Date.now() + hours * 3600 * 1000).toISOString();
       await supabase
