@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Banner = {
   id: string;
@@ -25,10 +26,12 @@ const STORAGE_KEY = (side: string) => `sidebar_ad_dismissed_${side}`;
  * - Clearly tagged "פרסומת" for transparency.
  */
 export function SidebarAd({ side, position }: Props) {
+  const { isVip } = useAuth();
   const [banner, setBanner] = useState<Banner | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    if (isVip) return;
     if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(STORAGE_KEY(side))) {
       setDismissed(true);
       return;
