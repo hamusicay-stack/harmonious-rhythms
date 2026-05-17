@@ -7,6 +7,7 @@ type Banner = {
   title: string;
   image_url: string;
   target_url: string;
+  bypass_vip: boolean;
 };
 
 export function BannerSlot({ position = "home_top", className }: { position?: string; className?: string }) {
@@ -14,27 +15,32 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
   const [banner, setBanner] = useState<Banner | null>(null);
 
   useEffect(() => {
-    if (isVip) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const now = new Date().toISOString();
+      let query = supabase
         .from("ad_banners")
-        .select("id, title, image_url, target_url")
+        .select("id, title, image_url, target_url, bypass_vip")
         .eq("position", position)
         .eq("is_active", true)
-        .lte("starts_at", new Date().toISOString())
-        .or(`ends_at.is.null,ends_at.gt.${new Date().toISOString()}`)
+        .lte("starts_at", now)
+        .or(`ends_at.is.null,ends_at.gt.${now}`);
+      // If the user is VIP, only fetch banners explicitly flagged to bypass VIP suppression.
+      if (isVip) query = query.eq("bypass_vip", true);
+      const { data } = await query
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
       if (cancelled || !data) return;
-      setBanner(data as Banner);
-      supabase.rpc("track_banner_event", { _banner_id: data.id, _event_type: "view" });
+      const b = data as Banner;
+      // Defensive double-check (in case of stale row): VIPs only see bypass ads.
+      if (isVip && !b.bypass_vip) return;
+      setBanner(b);
+      supabase.rpc("track_banner_event", { _banner_id: b.id, _event_type: "view" });
     })();
     return () => { cancelled = true; };
   }, [position, isVip]);
 
-  if (isVip) return null;
   if (!banner) return null;
 
   const handleClick = () => {
