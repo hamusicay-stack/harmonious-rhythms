@@ -127,7 +127,7 @@ function ForumIndexPage() {
             <div className="grid lg:grid-cols-[1fr_300px] gap-6">
               <div className="space-y-5 min-w-0">
                 {categories.map((cat) => (
-                  <CategoryGroup key={cat.id} category={cat as never} />
+                  <ForumCategoryCard key={cat.id} category={cat as never} />
                 ))}
               </div>
 
