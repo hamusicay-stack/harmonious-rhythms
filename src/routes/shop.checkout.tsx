@@ -282,7 +282,19 @@ function CheckoutPage() {
       if (itemsErr) throw itemsErr;
 
       const refCode = getActiveRefCode();
-...
+      if (refCode) {
+        await Promise.all(items.map((it) =>
+          supabase.rpc("record_affiliate_conversion", {
+            _ref_code: refCode,
+            _scope_type: "shop_product",
+            _scope_id: it.id,
+            _order_amount: it.price * it.qty,
+            _user_id: user?.id ?? undefined,
+            _notes: `order:${order.order_number}`,
+            _order_id: order.id,
+          }).then(({ error }) => { if (error) console.warn("affiliate conv error", error); })
+        ));
+      }
       // Coupon code is recorded on the order row above; usage-count bump is handled
       // by an admin task / scheduled job to avoid exposing writes via RLS.
 
