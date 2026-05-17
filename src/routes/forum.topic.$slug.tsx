@@ -8,6 +8,7 @@ import { getTopicBySlug, getTopicMeta, markTopicSolution, setSubscription, isSub
 import { createReply, votePost, getMyVotesForTopic, deletePost, editPost, reportContent } from "@/lib/forum/posts.functions";
 import { openOrCreateDmThread } from "@/lib/forum/dm.functions";
 import { ForumEditor } from "@/components/forum/ForumEditor";
+import { hasForumContent } from "@/lib/forum/utils";
 import { ForumPostCard, type ForumPostData } from "@/components/forum/ForumPostCard";
 import { ForumReplyTree } from "@/components/forum/ForumReplyTree";
 import { TopicTagStrip } from "@/components/forum/TopicTagManager";
@@ -113,8 +114,7 @@ function TopicPage() {
   };
 
   const submitReply = async () => {
-    const trimmed = body.replace(/<[^>]+>/g, "").trim();
-    if (trimmed.length < 1) return;
+    if (!hasForumContent(body)) return;
     try {
       await reply({ data: { topicId: topicId!, body, quotedPostId: quoted ?? undefined, parentPostId: replyParent ?? undefined } });
       setBody(""); setQuoted(null); setReplyParent(null);
@@ -279,7 +279,7 @@ function TopicPage() {
             )}
             <ForumEditor value={body} onChange={setBody} rows={6} placeholder="כתוב תגובה — תומך בעיצוב, תמונות, אודיו ו-YouTube" />
             <div className="mt-2 flex justify-end">
-              <Button onClick={submitReply} disabled={body.replace(/<[^>]+>/g, "").trim().length === 0}>פרסם</Button>
+              <Button onClick={submitReply} disabled={!hasForumContent(body)}>פרסם</Button>
             </div>
           </div>
         )}

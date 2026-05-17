@@ -47,10 +47,21 @@ export function ForumEditor({ value, onChange, placeholder, rows = 6, className 
   const uploadFile = useCallback(
     async (file: File, kind: "image" | "audio"): Promise<string | null> => {
       if (!user) { toast.error("נא להתחבר"); return null; }
-      if (file.size > MAX_BYTES) { toast.error("הקובץ גדול מדי (25MB מקס')"); return null; }
+      // Pre-upload size validation (before any compression / network)
+      if (file.size > MAX_BYTES) {
+        toast.error("הקובץ גדול מ-25MB");
+        return null;
+      }
+      const toastId = toast.loading(kind === "image" ? "מעלה תמונה..." : "מעלה קובץ אודיו...");
       setBusy(true);
       try {
         const finalFile = kind === "image" ? await compressForumImage(file) : file;
+        // Re-check after compression in the rare case it grew
+        if (finalFile.size > MAX_BYTES) {
+          toast.dismiss(toastId);
+          toast.error("הקובץ גדול מ-25MB");
+          return null;
+        }
         const ext = finalFile.name.split(".").pop()?.toLowerCase() ?? "bin";
         const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error } = await supabase.storage.from(BUCKET).upload(path, finalFile, {
@@ -58,9 +69,18 @@ export function ForumEditor({ value, onChange, placeholder, rows = 6, className 
           upsert: false,
         });
         if (error) throw error;
-        return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        const url = supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        toast.dismiss(toastId);
+        toast.success("הקובץ הועלה");
+        return url;
       } catch (e) {
-        toast.error("שגיאה בהעלאה: " + (e as Error).message);
+        toast.dismiss(toastId);
+        const msg = (e as Error)?.message ?? "";
+        if (/failed to fetch|network|fetch/i.test(msg)) {
+          toast.error("שגיאה בהעלאה. בדוק את החיבור או גודל הקובץ ונסה שוב");
+        } else {
+          toast.error("שגיאה בהעלאה: " + (msg || "לא ידוע"));
+        }
         return null;
       } finally {
         setBusy(false);
@@ -146,6 +166,12 @@ export function ForumEditor({ value, onChange, placeholder, rows = 6, className 
     if (editor.getHTML() === incoming) return;
     editor.commands.setContent(incoming, { emitUpdate: false });
   }, [value, editor]);
+
+  // Lock the editor while an upload is in flight to prevent double-submits.
+  useEffect(() => {
+    if (!editor) return;
+    editor.setEditable(!busy);
+  }, [busy, editor]);
 
   const insertYouTube = () => {
     const url = window.prompt("הדבק קישור YouTube:");

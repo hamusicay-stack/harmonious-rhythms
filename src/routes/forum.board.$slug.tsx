@@ -9,6 +9,7 @@ import { getBoardBySlug } from "@/lib/forum/boards.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ForumEditor } from "@/components/forum/ForumEditor";
+import { hasForumContent } from "@/lib/forum/utils";
 import { TopicTagManager } from "@/components/forum/TopicTagManager";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Pin, Lock, Plus, ShieldAlert } from "lucide-react";
@@ -47,8 +48,8 @@ function BoardPage() {
   const canPost = postMin === "user" || roles.includes("admin") || (postMin === "moderator" && (roles as string[]).includes("moderator"));
 
   const submit = async () => {
-    if (title.trim().length < 3 || body.trim().length < 5) {
-      toast.error("נא למלא כותרת וגוף");
+    if (title.trim().length < 3 || !hasForumContent(body)) {
+      toast.error("נא למלא כותרת ותוכן (טקסט או מדיה)");
       return;
     }
     setBusy(true);
@@ -98,7 +99,7 @@ function BoardPage() {
                   <TopicTagManager value={tagIds} onChange={setTagIds} />
                 </div>
                 <DialogFooter>
-                  <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>
+                  <Button onClick={submit} disabled={busy || title.trim().length < 3 || !hasForumContent(body)}>{busy ? "שולח…" : "פרסום"}</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
