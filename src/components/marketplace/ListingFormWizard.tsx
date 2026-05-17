@@ -354,7 +354,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       video_url: s("video_url") || null,
       audio_url: audioFile || null,
       is_urgent: isUrgent,
-      specs: { year: s("year") || null, has_rhythms: !!ff.has_rhythms, has_samples: !!ff.has_samples },
+      specs: { ...(catalogSpecs || {}), year: s("year") || null, has_rhythms: !!ff.has_rhythms, has_samples: !!ff.has_samples },
     };
 
     if (isEdit && initial?.id) {
