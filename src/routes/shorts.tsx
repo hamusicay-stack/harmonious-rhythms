@@ -998,16 +998,15 @@ function ShortPanel({
   );
 }
 
-function RailButton({
-  icon, label, onClick, accent,
-}: {
+const RailButton = React.forwardRef<HTMLButtonElement, {
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
   accent?: "muted" | "live";
-}) {
+}>(function RailButton({ icon, label, onClick, accent }, ref) {
   return (
     <button
+      ref={ref}
       type="button"
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       className={cn(
@@ -1027,19 +1026,30 @@ function RailButton({
       <span className="text-[11px] font-bold drop-shadow">{label}</span>
     </button>
   );
-}
+});
 
-// Keyframes used by the panel (sound wave + heart pop)
+// Keyframes used by the panel
 const SHORTS_KEYFRAMES = `
 @keyframes shortsWave {
   from { transform: scaleY(0.4); }
   to   { transform: scaleY(1.6); }
 }
-@keyframes shortsHeartPop {
-  0%   { transform: scale(0.2); opacity: 0; }
-  30%  { transform: scale(1.25); opacity: 1; }
-  60%  { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.4); opacity: 0; }
+@keyframes shortsPlayPulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  25%  { transform: scale(1.15); opacity: 1; }
+  60%  { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+@keyframes shortsHeartFly {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  20%  { transform: translate(-50%, -50%) scale(1.45); opacity: 1; }
+  45%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+  100% {
+    transform:
+      translate(calc(-50% + var(--fly-tx, 0px)), calc(-50% + var(--fly-ty, 0px)))
+      scale(0.25);
+    opacity: 0;
+  }
 }
 `;
 
