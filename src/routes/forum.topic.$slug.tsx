@@ -10,6 +10,8 @@ import { openOrCreateDmThread } from "@/lib/forum/dm.functions";
 import { ForumEditor } from "@/components/forum/ForumEditor";
 import { ForumPostCard, type ForumPostData } from "@/components/forum/ForumPostCard";
 import { ForumReplyTree } from "@/components/forum/ForumReplyTree";
+import { TopicTagStrip } from "@/components/forum/TopicTagManager";
+import { getTopicTags } from "@/lib/forum/tags.functions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
