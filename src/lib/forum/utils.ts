@@ -16,6 +16,18 @@ export function withRandomSuffix(slug: string): string {
   return `${slug}-${suffix}`;
 }
 
+/**
+ * Returns true if the given HTML body contains meaningful content —
+ * either non-whitespace text OR embedded media (image/audio/video/iframe).
+ * Used so users can submit media-only posts without typing text.
+ */
+export function hasForumContent(html: string): boolean {
+  if (!html) return false;
+  if (/<(img|audio|video|iframe)\b/i.test(html)) return true;
+  const text = html.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
+  return text.length > 0;
+}
+
 export function rankLabel(rank: string): string {
   switch (rank) {
     case "expert": return "מומחה";
