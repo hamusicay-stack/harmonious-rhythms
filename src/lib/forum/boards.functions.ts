@@ -12,9 +12,9 @@ export const listCategoriesWithBoards = createServerFn({ method: "GET" })
       .order("display_order");
     if (e1) throw new Error(e1.message);
 
-    const { data: boards, error: e2 } = await supabase
+    const { data: boards, error: e2 } = await (supabase as any)
       .from("forum_boards")
-      .select("id, category_id, name, slug, description, icon, display_order, topic_count, post_count, last_post_at, last_topic_id")
+      .select("id, category_id, name, slug, description, icon, display_order, topic_count, post_count, last_post_at, last_topic_id, post_min_role")
       .order("display_order");
     if (e2) throw new Error(e2.message);
 
