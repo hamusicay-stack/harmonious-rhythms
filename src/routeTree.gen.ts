@@ -39,6 +39,7 @@ import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
 import { Route as ProsNewRouteImport } from './routes/pros.new'
 import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
+import { Route as MarketplaceWantedRouteImport } from './routes/marketplace.wanted'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
 import { Route as ForumSearchRouteImport } from './routes/forum.search'
@@ -245,6 +246,11 @@ const ProsProIdRoute = ProsProIdRouteImport.update({
   id: '/$proId',
   path: '/$proId',
   getParentRoute: () => ProsRoute,
+} as any)
+const MarketplaceWantedRoute = MarketplaceWantedRouteImport.update({
+  id: '/wanted',
+  path: '/wanted',
+  getParentRoute: () => MarketplaceRoute,
 } as any)
 const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
   id: '/new',
@@ -570,6 +576,7 @@ export interface FileRoutesByFullPath {
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/marketplace/wanted': typeof MarketplaceWantedRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
@@ -651,6 +658,7 @@ export interface FileRoutesByTo {
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/marketplace/wanted': typeof MarketplaceWantedRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
@@ -740,6 +748,7 @@ export interface FileRoutesById {
   '/forum/search': typeof ForumSearchRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
+  '/marketplace/wanted': typeof MarketplaceWantedRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
@@ -830,6 +839,7 @@ export interface FileRouteTypes {
     | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/marketplace/wanted'
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
@@ -911,6 +921,7 @@ export interface FileRouteTypes {
     | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/marketplace/wanted'
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
@@ -999,6 +1010,7 @@ export interface FileRouteTypes {
     | '/forum/search'
     | '/marketplace/$listingId'
     | '/marketplace/new'
+    | '/marketplace/wanted'
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
@@ -1295,6 +1307,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pros/$proId'
       preLoaderRoute: typeof ProsProIdRouteImport
       parentRoute: typeof ProsRoute
+    }
+    '/marketplace/wanted': {
+      id: '/marketplace/wanted'
+      path: '/wanted'
+      fullPath: '/marketplace/wanted'
+      preLoaderRoute: typeof MarketplaceWantedRouteImport
+      parentRoute: typeof MarketplaceRoute
     }
     '/marketplace/new': {
       id: '/marketplace/new'
@@ -1854,6 +1873,7 @@ const MarketplaceListingIdRouteWithChildren =
 interface MarketplaceRouteChildren {
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRouteWithChildren
   MarketplaceNewRoute: typeof MarketplaceNewRoute
+  MarketplaceWantedRoute: typeof MarketplaceWantedRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   MarketplaceCategorySlugRoute: typeof MarketplaceCategorySlugRoute
 }
@@ -1861,6 +1881,7 @@ interface MarketplaceRouteChildren {
 const MarketplaceRouteChildren: MarketplaceRouteChildren = {
   MarketplaceListingIdRoute: MarketplaceListingIdRouteWithChildren,
   MarketplaceNewRoute: MarketplaceNewRoute,
+  MarketplaceWantedRoute: MarketplaceWantedRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   MarketplaceCategorySlugRoute: MarketplaceCategorySlugRoute,
 }
