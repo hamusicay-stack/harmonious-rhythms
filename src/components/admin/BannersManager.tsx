@@ -29,7 +29,15 @@ type Banner = {
   ends_at: string | null;
   views_count: number;
   clicks_count: number;
+  bypass_vip: boolean;
 };
+
+const VIP_BYPASS_DEFAULT_POSITIONS = new Set([
+  "sidebar_left",
+  "sidebar_right",
+  "global_top",
+  "global_bottom",
+]);
 
 const POSITIONS = [
   { value: "global_top", label: "ראש כל הדפים (גלובלי)" },
@@ -175,6 +183,9 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
     is_active: banner?.is_active ?? true,
     starts_at: toLocalInput(banner?.starts_at) || toLocalInput(new Date().toISOString()),
     ends_at: toLocalInput(banner?.ends_at),
+    bypass_vip:
+      banner?.bypass_vip ??
+      VIP_BYPASS_DEFAULT_POSITIONS.has(banner?.position ?? "home_top"),
   });
 
   const handleUpload = async (file: File) => {
@@ -205,6 +216,7 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
       is_active: form.is_active,
       starts_at: new Date(form.starts_at).toISOString(),
       ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+      bypass_vip: form.bypass_vip,
     };
     const { error } = banner
       ? await supabase.from("ad_banners").update(payload).eq("id", banner.id)
@@ -277,6 +289,18 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
           <div className="flex items-center justify-between rounded-md border p-3">
             <Label>פעיל</Label>
             <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex flex-col gap-0.5">
+              <Label>הצג גם למשתמשי VIP (באנר צד/פרימיום)</Label>
+              <span className="text-xs text-muted-foreground">
+                מומלץ לבאנרי סרגל צד וחסויות גלובליות. באנרים בתוך הפיד יישארו מוסתרים ל-VIP.
+              </span>
+            </div>
+            <Switch
+              checked={form.bypass_vip}
+              onCheckedChange={(v) => setForm({ ...form, bypass_vip: v })}
+            />
           </div>
         </div>
         <DialogFooter>
