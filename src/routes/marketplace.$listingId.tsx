@@ -70,6 +70,8 @@ function ListingDetailPage() {
   const { liked: hasLiked, count: likesCount, busy: likeBusy, toggle: toggleLikeShared } = useListingLike(listingId, initialLikesCount);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isVerifiedBuyer, setIsVerifiedBuyer] = useState(false);
+  const [verifiedReviewerIds, setVerifiedReviewerIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     (async () => {
