@@ -31,6 +31,8 @@ export function MyListingsTab({ userId }: { userId: string }) {
   const [stats, setStats] = useState<Record<string, { phone: number; whatsapp: number; likes: number }>>({});
   const [loading, setLoading] = useState(true);
   const [boostId, setBoostId] = useState<string | null>(null);
+  const [soldFor, setSoldFor] = useState<Listing | null>(null);
+  const [pendingSoldIds, setPendingSoldIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
