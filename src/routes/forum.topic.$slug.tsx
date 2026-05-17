@@ -8,14 +8,12 @@ import { getTopicBySlug, getTopicMeta, markTopicSolution, setSubscription, isSub
 import { createReply, votePost, getMyVotesForTopic, deletePost, editPost, reportContent } from "@/lib/forum/posts.functions";
 import { openOrCreateDmThread } from "@/lib/forum/dm.functions";
 import { ForumEditor } from "@/components/forum/ForumEditor";
-import { sanitizeForumHtml } from "@/lib/sanitize";
+import { ForumPostCard, type ForumPostData } from "@/components/forum/ForumPostCard";
+import { ForumReplyTree } from "@/components/forum/ForumReplyTree";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowUp, ArrowDown, Quote, Flag, Pencil, Trash2, MessageCircle, Lock, CheckCircle2, Bell, BellOff, Crown, CornerDownRight, Reply } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { he } from "date-fns/locale";
+import { Lock, CheckCircle2, Bell, BellOff } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/forum/topic/$slug")({
@@ -51,20 +49,6 @@ export const Route = createFileRoute("/forum/topic/$slug")({
   },
   component: TopicPage,
 });
-
-const TIER_LABELS: Record<string, string> = {
-  free: "", basic: "Basic", pro: "Pro", premium: "Premium", vip: "VIP", platinum: "Platinum",
-};
-
-function VipBadge({ tier }: { tier?: string | null }) {
-  if (!tier || tier === "free") return null;
-  const label = TIER_LABELS[tier] ?? tier;
-  return (
-    <Badge variant="secondary" className="gap-1 text-[10px] bg-gradient-to-r from-amber-500/20 to-amber-300/20 border-amber-400/40">
-      <Crown className="h-3 w-3" />{label}
-    </Badge>
-  );
-}
 
 function TopicPage() {
   const { slug } = Route.useParams();
@@ -116,6 +100,10 @@ function TopicPage() {
     return () => { supabase.removeChannel(ch); };
   }, [topicId, slug, qc]);
 
+  const scrollToReplyBox = () => {
+    document.getElementById("forum-reply-box")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const submitReply = async () => {
     const trimmed = body.replace(/<[^>]+>/g, "").trim();
     if (trimmed.length < 1) return;
@@ -166,14 +154,36 @@ function TopicPage() {
     } catch (e) { toast.error((e as Error).message); }
   };
 
+  const handleQuote = (p: ForumPostData) => {
+    setQuoted(p.id);
+    setBody((b) => b + `<blockquote>${(p.body_md || "").slice(0, 200)}</blockquote><p></p>`);
+    scrollToReplyBox();
+  };
+
+  const handleReply = (parentId: string) => {
+    setReplyParent(parentId);
+    setQuoted(null);
+    scrollToReplyBox();
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm("למחוק?")) return;
+    try {
+      await del({ data: { postId } });
+      qc.invalidateQueries({ queryKey: ["forum", "topic", slug] });
+    } catch (e) { toast.error((e as Error).message); }
+  };
+
   if (topic.isLoading) return <SiteLayout><div className="p-8" dir="rtl">טוען…</div></SiteLayout>;
   if (!topic.data?.topic) return <SiteLayout><div className="p-8" dir="rtl">האשכול לא נמצא</div></SiteLayout>;
 
   const t = topic.data.topic;
   const board = topic.data.board;
-  const posts = topic.data.posts;
-  const authors = topic.data.authors;
-  const isOpAuthor = me && me === t.author_id;
+  const posts = topic.data.posts as ForumPostData[];
+  const authors = topic.data.authors as Record<string, any>;
+  const opPost = posts.find((p) => p.is_op) ?? posts[0];
+  const isOpAuthor = !!me && me === t.author_id;
+  const votesData = { scores: votes.data?.scores ?? {}, votes: (votes.data?.votes ?? {}) as Record<string, -1 | 0 | 1> };
 
   return (
     <SiteLayout>
@@ -193,129 +203,58 @@ function TopicPage() {
         <p className="text-xs text-muted-foreground mb-6">{posts.length} הודעות · {t.view_count} צפיות</p>
 
         <div className="space-y-4">
-          {(() => {
-            const VIP_TIERS = new Set(["pro", "premium", "vip", "platinum"]);
-            const childrenByParent = new Map<string, typeof posts>();
-            for (const p of posts) {
-              if (p.parent_post_id) {
-                const arr = childrenByParent.get(p.parent_post_id) ?? [];
-                arr.push(p);
-                childrenByParent.set(p.parent_post_id, arr);
-              }
-            }
-            const renderPost = (p: typeof posts[number], depth: number) => {
-              const a = authors[p.author_id];
-              const score = votes.data?.scores?.[p.id] ?? 0;
-              const myVote = votes.data?.votes?.[p.id] ?? 0;
-              const isMine = me === p.author_id;
-              const isSolution = t.solved_post_id === p.id;
-              const tier = (a as any)?.subscription_tier as string | undefined;
-              const isVip = !!tier && VIP_TIERS.has(tier);
-              const borderClass = isSolution
-                ? "border-emerald-500/50 ring-1 ring-emerald-500/30"
-                : isVip
-                ? "border-amber-400/60 ring-1 ring-amber-400/30 shadow-[0_0_20px_-12px_rgba(251,191,36,0.5)]"
-                : "border-border";
-              return (
-                <div key={p.id} className={depth > 0 ? "mr-4 sm:mr-8 border-r-2 border-border/60 pr-3 sm:pr-4" : ""}>
-                  <div className={`rounded-lg border bg-card p-3 sm:p-4 ${borderClass}`}>
-                    {depth > 0 && (
-                      <div className="mb-2 text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                        <CornerDownRight className="h-3 w-3" />תגובה לתגובה
-                      </div>
-                    )}
-                    {isSolution && (
-                      <div className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
-                        <CheckCircle2 className="h-4 w-4" />פתרון מאושר
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-                      <div className="flex items-center gap-2">
-                        {a?.avatar_url && <img src={a.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />}
-                        <div>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {a?.username ? (
-                              <Link to="/u/$username" params={{ username: a.username }} className="font-medium hover:underline">{a.display_name ?? a.username}</Link>
-                            ) : <span className="font-medium">{a?.display_name ?? "משתמש"}</span>}
-                            <VipBadge tier={tier} />
-                          </div>
-                          <div className="text-xs text-muted-foreground">{a?.forum_rank} · {a?.forum_post_count ?? 0} הודעות · {a?.forum_reputation ?? 0} מוניטין</div>
-                        </div>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: he })}
-                        {p.edited_at && " · עודכן"}
-                      </div>
-                    </div>
+          {opPost && (
+            <ForumPostCard
+              post={opPost}
+              author={authors[opPost.author_id]}
+              parentAuthor={null}
+              depth={0}
+              score={votesData.scores[opPost.id] ?? 0}
+              myVote={(votesData.votes[opPost.id] ?? 0) as -1 | 0 | 1}
+              isSolution={t.solved_post_id === opPost.id}
+              isLocked={!!t.is_locked}
+              isMine={me === opPost.author_id}
+              isOpAuthor={isOpAuthor}
+              editing={editing === opPost.id}
+              editBody={editBody}
+              onEditBodyChange={setEditBody}
+              onSubmitEdit={submitEdit}
+              onCancelEdit={() => setEditing(null)}
+              onStartEdit={() => { setEditing(opPost.id); setEditBody(opPost.body_md); }}
+              onDelete={() => handleDelete(opPost.id)}
+              onVote={(v) => doVote(opPost.id, v)}
+              onReply={() => handleReply(opPost.id)}
+              onQuote={() => handleQuote(opPost)}
+              onReport={() => setReportFor(opPost.id)}
+              onMessage={() => startDm(opPost.author_id)}
+              onToggleSolution={() => toggleSolution(opPost.id)}
+            />
+          )}
 
-                    {p.is_deleted ? (
-                      <p className="text-muted-foreground italic">[הודעה נמחקה]</p>
-                    ) : editing === p.id ? (
-                      <div className="space-y-2">
-                        <ForumEditor value={editBody} onChange={setEditBody} rows={6} />
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={submitEdit}>שמור</Button>
-                          <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>בטל</Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        className="prose prose-sm dark:prose-invert max-w-none break-words"
-                        dangerouslySetInnerHTML={{ __html: sanitizeForumHtml(p.body_md) }}
-                      />
-                    )}
-
-                    {a?.forum_signature && !p.is_deleted && (
-                      <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground italic whitespace-pre-wrap">{a.forum_signature}</div>
-                    )}
-
-                    {!p.is_deleted && (
-                      <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border flex-wrap">
-                        <Button size="sm" variant={myVote === 1 ? "default" : "ghost"} onClick={() => doVote(p.id, myVote === 1 ? 0 : 1)} className="min-h-[40px]">
-                          <ArrowUp className="h-4 w-4" />
-                        </Button>
-                        <span className="text-sm font-medium w-6 text-center">{score}</span>
-                        <Button size="sm" variant={myVote === -1 ? "default" : "ghost"} onClick={() => doVote(p.id, myVote === -1 ? 0 : -1)} className="min-h-[40px]">
-                          <ArrowDown className="h-4 w-4" />
-                        </Button>
-                        {!t.is_locked && depth === 0 && !p.is_op && (
-                          <Button size="sm" variant="ghost" onClick={() => { setReplyParent(p.id); setQuoted(null); document.getElementById("forum-reply-box")?.scrollIntoView({ behavior: "smooth" }); }}>
-                            <Reply className="h-4 w-4 ml-1" />השב
-                          </Button>
-                        )}
-                        {!t.is_locked && !p.is_op && (
-                          <Button size="sm" variant="ghost" onClick={() => { setQuoted(p.id); setBody((b) => b + `<blockquote>${(p.body_md || "").slice(0, 200)}</blockquote><p></p>`); }}>
-                            <Quote className="h-4 w-4 ml-1" />ציטוט
-                          </Button>
-                        )}
-                        {isOpAuthor && !p.is_op && (
-                          <Button size="sm" variant={isSolution ? "default" : "ghost"} onClick={() => toggleSolution(p.id)}>
-                            <CheckCircle2 className="h-4 w-4 ml-1" />{isSolution ? "בטל פתרון" : "סמן כפתרון"}
-                          </Button>
-                        )}
-                        {!isMine && (<>
-                          <Button size="sm" variant="ghost" onClick={() => startDm(p.author_id)}><MessageCircle className="h-4 w-4 ml-1" />הודעה פרטית</Button>
-                          <Button size="sm" variant="ghost" onClick={() => setReportFor(p.id)}><Flag className="h-4 w-4 ml-1" />דווח</Button>
-                        </>)}
-                        {isMine && (<>
-                          <Button size="sm" variant="ghost" onClick={() => { setEditing(p.id); setEditBody(p.body_md); }}><Pencil className="h-4 w-4 ml-1" />ערוך</Button>
-                          <Button size="sm" variant="ghost" onClick={async () => { if (confirm("למחוק?")) { await del({ data: { postId: p.id } }); qc.invalidateQueries({ queryKey: ["forum", "topic", slug] }); } }}>
-                            <Trash2 className="h-4 w-4 ml-1" />מחק
-                          </Button>
-                        </>)}
-                      </div>
-                    )}
-                  </div>
-                  {depth === 0 && (childrenByParent.get(p.id) ?? []).length > 0 && (
-                    <div className="mt-3 space-y-3">
-                      {(childrenByParent.get(p.id) ?? []).map((child) => renderPost(child, depth + 1))}
-                    </div>
-                  )}
-                </div>
-              );
-            };
-            return posts.filter((p) => !p.parent_post_id).map((p) => renderPost(p, 0));
-          })()}
+          <ForumReplyTree
+            posts={posts}
+            authors={authors}
+            handlers={{
+              me,
+              isLocked: !!t.is_locked,
+              isOpAuthorId: t.author_id,
+              solvedPostId: t.solved_post_id ?? null,
+              editingId: editing,
+              editBody,
+              votes: votesData,
+              onEditBodyChange: setEditBody,
+              onSubmitEdit: submitEdit,
+              onCancelEdit: () => setEditing(null),
+              onStartEdit: (postId, b) => { setEditing(postId); setEditBody(b); },
+              onDelete: handleDelete,
+              onVote: doVote,
+              onReply: handleReply,
+              onQuote: handleQuote,
+              onReport: (postId) => setReportFor(postId),
+              onMessage: startDm,
+              onToggleSolution: toggleSolution,
+            }}
+          />
         </div>
 
         {!t.is_locked && (
