@@ -29,7 +29,15 @@ type Banner = {
   ends_at: string | null;
   views_count: number;
   clicks_count: number;
+  bypass_vip: boolean;
 };
+
+const VIP_BYPASS_DEFAULT_POSITIONS = new Set([
+  "sidebar_left",
+  "sidebar_right",
+  "global_top",
+  "global_bottom",
+]);
 
 const POSITIONS = [
   { value: "global_top", label: "ראש כל הדפים (גלובלי)" },
