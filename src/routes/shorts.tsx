@@ -77,7 +77,7 @@ function ShortsPage() {
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
-        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link, is_hi_res, audio_bitrate, lyrics_url, lyrics_offset, hls_playlist_url")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(60);
