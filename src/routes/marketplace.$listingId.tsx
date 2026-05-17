@@ -278,8 +278,15 @@ function ListingDetailPage() {
                 <div className="space-y-3">
                   {reviews.slice(0, 5).map((r) => (
                     <div key={r.id} className="border-b pb-3 last:border-0">
-                      <div className="flex gap-1 mb-1">
-                        {[1,2,3,4,5].map((n) => <Star key={n} className={`h-3 w-3 ${n <= r.rating ? "fill-primary text-primary" : "text-muted"}`} />)}
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="flex gap-1">
+                          {[1,2,3,4,5].map((n) => <Star key={n} className={`h-3 w-3 ${n <= r.rating ? "fill-primary text-primary" : "text-muted"}`} />)}
+                        </div>
+                        {verifiedReviewerIds.has(r.reviewer_id) && (
+                          <Badge className="gap-1 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground text-[10px]">
+                            <BadgeCheck className="h-3 w-3" />רוכש מאומת
+                          </Badge>
+                        )}
                       </div>
                       {r.comment && <p className="text-sm">{r.comment}</p>}
                     </div>
@@ -288,18 +295,29 @@ function ListingDetailPage() {
               )}
 
               {user && user.id !== listing.seller_id && (
-                <div className="mt-4 pt-4 border-t space-y-2">
-                  <div className="text-sm font-medium">דרג את המוכר</div>
-                  <div className="flex gap-1">
-                    {[1,2,3,4,5].map((n) => (
-                      <button key={n} onClick={() => setRating(n)} type="button">
-                        <Star className={`h-6 w-6 ${n <= rating ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                      </button>
-                    ))}
+                isVerifiedBuyer ? (
+                  <div className="mt-4 pt-4 border-t space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <BadgeCheck className="h-4 w-4 text-primary" />
+                      כתוב ביקורת רוכש מאומת
+                    </div>
+                    <div className="flex gap-1">
+                      {[1,2,3,4,5].map((n) => (
+                        <button key={n} onClick={() => setRating(n)} type="button">
+                          <Star className={`h-6 w-6 ${n <= rating ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                        </button>
+                      ))}
+                    </div>
+                    <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="שתף את החוויה שלך עם הכלי" rows={2} />
+                    <Button size="sm" onClick={submitReview} disabled={submittingReview}>שלח ביקורת מאומתת</Button>
                   </div>
-                  <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="תגובה (אופציונלי)" rows={2} />
-                  <Button size="sm" onClick={submitReview} disabled={submittingReview}>שלח דירוג</Button>
-                </div>
+                ) : (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-4 text-center text-sm">
+                      🔒 כתיבת ביקורת מקצועית פתוחה רק למוזיקאים שרכשו את הכלי ואומתו ע"י המוכר.
+                    </div>
+                  </div>
+                )
               )}
             </div>
           </div>
