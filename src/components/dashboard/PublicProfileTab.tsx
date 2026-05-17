@@ -11,10 +11,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { SPECIALTIES } from "@/lib/prosData";
 import { ProfileCompletion } from "./ProfileCompletion";
+import { RankXpBar } from "@/components/gamification/RankBadge";
 
 export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Promise<void> }) {
   const { user, profile } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [points, setPoints] = useState(0);
   const [form, setForm] = useState({
     display_name: "",
     username: "",
@@ -24,6 +26,22 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
     website: "",
     specialties: [] as string[],
   });
+
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("user_points")
+        .select("total_points")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (alive) setPoints((data as { total_points?: number } | null)?.total_points ?? 0);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     if (profile) {
@@ -103,6 +121,7 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
   return (
     <div className="space-y-6" dir="rtl">
       <ProfileCompletion profile={profile as never} />
+      <RankXpBar points={points} />
 
       <form
         onSubmit={handleSave}
