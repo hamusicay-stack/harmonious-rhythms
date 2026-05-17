@@ -43,14 +43,16 @@ export function ShortsManager() {
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         <Tabs defaultValue="queue" dir="rtl">
-          <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-4">
+          <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-5">
             <TabsTrigger value="queue" className="shrink-0 text-xs sm:text-sm">תור אישור</TabsTrigger>
             <TabsTrigger value="upload" className="shrink-0 text-xs sm:text-sm">העלאה מרובה</TabsTrigger>
+            <TabsTrigger value="analytics" className="shrink-0 text-xs sm:text-sm">אנליטיקס</TabsTrigger>
             <TabsTrigger value="trusted" className="shrink-0 text-xs sm:text-sm">מאושרים</TabsTrigger>
             <TabsTrigger value="settings" className="shrink-0 text-xs sm:text-sm">הגדרות</TabsTrigger>
           </TabsList>
           <TabsContent value="queue" className="mt-4"><ApprovalQueue /></TabsContent>
-          <TabsContent value="upload" className="mt-4"><BulkUploader /></TabsContent>
+          <TabsContent value="upload" className="mt-4 space-y-4"><BulkUploader /><WhatsAppIngestConfig /></TabsContent>
+          <TabsContent value="analytics" className="mt-4"><ShortsAnalyticsPanel /></TabsContent>
           <TabsContent value="trusted" className="mt-4"><TrustedUploaders /></TabsContent>
           <TabsContent value="settings" className="mt-4"><ShortsSettings /></TabsContent>
         </Tabs>
