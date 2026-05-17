@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Plus, Crown, Music2,
   AlertTriangle, GraduationCap, Sparkles, ShoppingCart, Guitar, ChevronLeft,
+  Play, Pause,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
