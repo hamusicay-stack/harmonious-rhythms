@@ -195,6 +195,16 @@ export function MyListingsTab({ userId }: { userId: string }) {
           onBumped={load}
         />
       )}
+      {soldFor && (
+        <MarkAsSoldDialog
+          open={!!soldFor}
+          onOpenChange={(o) => { if (!o) setSoldFor(null); }}
+          listingId={soldFor.id}
+          listingTitle={soldFor.title}
+          sellerId={userId}
+          onDone={load}
+        />
+      )}
     </div>
   );
 }
