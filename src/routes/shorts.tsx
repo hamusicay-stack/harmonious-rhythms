@@ -453,6 +453,98 @@ function ShortsPage() {
 }
 
 /* ====================================================================== */
+/*                       CONTEXT-AWARE COMMERCE CTA                       */
+/* ====================================================================== */
+
+function CommerceHotspot({ short }: { short: Short }) {
+  const [productName, setProductName] = useState<string | null>(null);
+  const [listingTitle, setListingTitle] = useState<string | null>(null);
+
+  // Fetch lightweight display labels for the linked product / listing.
+  useEffect(() => {
+    let cancelled = false;
+    if (short.productId) {
+      void supabase.from("shop_products").select("name").eq("id", short.productId).maybeSingle()
+        .then(({ data }) => { if (!cancelled) setProductName((data as { name?: string } | null)?.name ?? null); });
+    } else setProductName(null);
+    if (short.marketplaceListingId) {
+      void supabase.from("marketplace_listings").select("title").eq("id", short.marketplaceListingId).maybeSingle()
+        .then(({ data }) => { if (!cancelled) setListingTitle((data as { title?: string } | null)?.title ?? null); });
+    } else setListingTitle(null);
+    return () => { cancelled = true; };
+  }, [short.productId, short.marketplaceListingId]);
+
+  // Priority: course → product → marketplace listing
+  if (short.courseLink) {
+    const to = short.courseLink.startsWith("/") ? short.courseLink : "/academy";
+    return (
+      <CtaCard
+        to={to}
+        icon={<GraduationCap className="h-4 w-4" />}
+        title="🎓 רכוש את הקורס המלא באקדמיה"
+        subtitle="גישה מלאה לשיעורים, תרגולים וקהילה"
+      />
+    );
+  }
+  if (short.productId) {
+    return (
+      <CtaCard
+        to="/shop/$productId"
+        params={{ productId: short.productId }}
+        icon={<ShoppingCart className="h-4 w-4" />}
+        title="🛒 קנה אביזרים משלימים מהחנות בהנחה"
+        subtitle={productName ?? "אביזר מומלץ — מקצועי, חדש, באחריות"}
+      />
+    );
+  }
+  if (short.marketplaceListingId) {
+    return (
+      <CtaCard
+        to="/marketplace/$listingId"
+        params={{ listingId: short.marketplaceListingId }}
+        icon={<Guitar className="h-4 w-4" />}
+        title="🎸 יש לי כזה למכור! צפה במודעה ביד-2"
+        subtitle={listingTitle ?? "מודעה פעילה — מציאה ליד שנייה"}
+      />
+    );
+  }
+  return null;
+}
+
+type CtaCardProps =
+  | { to: string; params?: undefined; icon: ReactNode; title: string; subtitle: string }
+  | { to: "/shop/$productId"; params: { productId: string }; icon: ReactNode; title: string; subtitle: string }
+  | { to: "/marketplace/$listingId"; params: { listingId: string }; icon: ReactNode; title: string; subtitle: string };
+
+function CtaCard(props: CtaCardProps) {
+  const { to, icon, title, subtitle } = props;
+  const common = (
+    <>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-primary-foreground shadow-gold">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-display text-sm font-bold text-white">{title}</span>
+        <span className="block truncate text-[11px] text-white/70">{subtitle}</span>
+      </span>
+      <ChevronLeft className="h-4 w-4 shrink-0 text-primary" />
+    </>
+  );
+  const className = "mb-3 flex items-center gap-2.5 rounded-2xl bg-black/60 px-3 py-2 ring-1 ring-primary/40 shadow-[0_12px_30px_-12px_oklch(0.78_0.14_75/0.5)] backdrop-blur-xl transition hover:bg-black/75 hover:ring-primary/70";
+
+  if ("params" in props && props.params) {
+    // Typed param links
+    if (to === "/shop/$productId") {
+      return <Link to={to} params={props.params as { productId: string }} className={className}>{common}</Link>;
+    }
+    if (to === "/marketplace/$listingId") {
+      return <Link to={to} params={props.params as { listingId: string }} className={className}>{common}</Link>;
+    }
+  }
+  return <Link to={to} className={className}>{common}</Link>;
+}
+
+/* ====================================================================== */
 /*                              SHORT PANEL                               */
 /* ====================================================================== */
 
