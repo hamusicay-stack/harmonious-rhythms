@@ -13,6 +13,7 @@ import { UploadDialog } from "@/components/shorts/UploadDialog";
 import { KaraokeLyrics } from "@/components/shorts/KaraokeLyrics";
 import { AVSyncControl, useAVSyncOffset } from "@/components/shorts/AVSyncControl";
 import { useCachedVideoUrl } from "@/hooks/useCachedVideoUrl";
+import { useShortsAnalytics } from "@/hooks/useShortsAnalytics";
 import { useFloatingShort } from "@/contexts/FloatingShortContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -301,6 +302,15 @@ function ShortsPage() {
       if (target > 0 && Number.isFinite(target)) v.currentTime = target;
     } catch { /* noop */ }
   }, [activeIndex, shorts, latency, avSyncOffsetMs]);
+
+  /* ---------- Engagement analytics (heatmap + drop-off) ---------- */
+  const currentShortId = shorts[activeIndex]?.id ?? null;
+  const activeVideoEl = currentShortId ? videoRefs.current.get(currentShortId) ?? null : null;
+  useShortsAnalytics({
+    videoId: currentShortId,
+    videoEl: activeVideoEl,
+    userId: user?.id ?? null,
+  });
 
   /* ---------- Like ---------- */
   const toggleLike = useCallback(async (id: string) => {
