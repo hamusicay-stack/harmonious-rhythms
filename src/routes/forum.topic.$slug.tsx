@@ -90,6 +90,12 @@ function TopicPage() {
     queryFn: () => fetchSub({ data: { topicId: topicId! } }),
     enabled: !!topicId,
   });
+  const fetchTags = useServerFn(getTopicTags);
+  const topicTags = useQuery({
+    queryKey: ["forum", "topic-tags", topicId],
+    queryFn: () => fetchTags({ data: { topicId: topicId! } }),
+    enabled: !!topicId,
+  });
 
   useEffect(() => {
     if (!topicId) return;
