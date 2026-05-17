@@ -239,23 +239,31 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
           )}
         </div>
 
-        <div className="border-t p-2 flex gap-2 items-end bg-background">
-          <Input
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            placeholder="כתוב הודעה..."
-            className="flex-1"
-            maxLength={2000}
-          />
-          <Button onClick={send} disabled={sending || !body.trim()} size="icon">
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+        <div className="border-t p-2 bg-background space-y-1">
+          {cooldown > 0 && (
+            <div className="text-[11px] text-amber-600 dark:text-amber-400 px-1">
+              אנטי-ספאם: המתן {cooldown} שניות לפני שליחה נוספת
+            </div>
+          )}
+          <div className="flex gap-2 items-end">
+            <Input
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              placeholder={cooldown > 0 ? `המתן ${cooldown}ש...` : "כתוב הודעה..."}
+              className="flex-1"
+              maxLength={2000}
+              disabled={cooldown > 0}
+            />
+            <Button onClick={send} disabled={sending || !body.trim() || cooldown > 0} size="icon">
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
