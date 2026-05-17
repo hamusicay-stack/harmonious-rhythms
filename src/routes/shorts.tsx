@@ -160,7 +160,13 @@ function ShortsPage() {
         };
       });
 
-      setShorts(list);
+      // Regroup by creator so a creator's videos play back-to-back, IG-Reels style.
+      const byCreator = new Map<string, Short[]>();
+      for (const s of list) {
+        if (!byCreator.has(s.creator_id)) byCreator.set(s.creator_id, []);
+        byCreator.get(s.creator_id)!.push(s);
+      }
+      setShorts(Array.from(byCreator.values()).flat());
       setLikedSet(myLikes);
     } catch (e) {
       console.error("Shorts load failed", e);
