@@ -38,11 +38,23 @@ export function MyListingsTab({ userId }: { userId: string }) {
     setLoading(true);
     const { data } = await supabase
       .from("marketplace_listings")
-      .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand")
+      .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand, is_sold, sold_at")
       .eq("seller_id", userId)
       .order("created_at", { ascending: false });
     const items = (data ?? []) as Listing[];
     setListings(items);
+
+    // Pending deal confirmations awaiting buyer response
+    if (items.length > 0) {
+      const { data: pendings } = await supabase
+        .from("marketplace_deal_confirmations")
+        .select("listing_id")
+        .eq("seller_id", userId)
+        .eq("status", "pending_buyer_confirmation");
+      setPendingSoldIds(new Set((pendings ?? []).map((p: any) => p.listing_id)));
+    } else {
+      setPendingSoldIds(new Set());
+    }
 
     if (items.length > 0) {
       const ids = items.map((l) => l.id);
