@@ -167,6 +167,12 @@ export function ForumEditor({ value, onChange, placeholder, rows = 6, className 
     editor.commands.setContent(incoming, { emitUpdate: false });
   }, [value, editor]);
 
+  // Lock the editor while an upload is in flight to prevent double-submits.
+  useEffect(() => {
+    if (!editor) return;
+    editor.setEditable(!busy);
+  }, [busy, editor]);
+
   const insertYouTube = () => {
     const url = window.prompt("הדבק קישור YouTube:");
     if (!url || !editor) return;
