@@ -80,9 +80,12 @@ function ShortsPage() {
   const [avSyncOffsetMs, setAvSyncOffsetMs] = useAVSyncOffset();
   const [latency, setLatency] = useState<{ base: number; output: number }>({ base: 0, output: 0 });
 
+  const [currentProgress, setCurrentProgress] = useState(0);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const swipeRef = useRef<{ x: number; y: number; t: number } | null>(null);
 
   /* ---------- Data load ---------- */
   const loadShorts = useCallback(async () => {
