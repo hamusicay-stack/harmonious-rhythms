@@ -19,7 +19,7 @@ export const listCategoriesWithBoards = createServerFn({ method: "GET" })
     if (e2) throw new Error(e2.message);
 
     // Enrich with last topic + author info (NodeBB-style "Last Post" snippet)
-    const lastTopicIds = (boards ?? []).map((b) => b.last_topic_id).filter(Boolean) as string[];
+    const lastTopicIds = (boards ?? []).map((b: any) => b.last_topic_id).filter(Boolean) as string[];
     let topicsById = new Map<string, { title: string; slug: string; last_post_user_id: string | null; last_post_at: string | null }>();
     let authorsById = new Map<string, { id: string; username: string | null; display_name: string | null; avatar_url: string | null }>();
     if (lastTopicIds.length > 0) {
