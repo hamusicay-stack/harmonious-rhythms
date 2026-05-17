@@ -72,6 +72,7 @@ function Empty({ icon: Icon, label }: { icon: React.ComponentType<{ className?: 
 function PublicProfilePage() {
   const { username } = Route.useParams();
   const { data } = useSuspenseQuery(profileQO(username));
+  const { user: viewer } = useAuth();
 
   if (!data?.profile) {
     return (
