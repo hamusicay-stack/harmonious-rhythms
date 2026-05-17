@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { CATEGORIES, BRANDS, CITIES, CONDITIONS, CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 import { watermarkImage } from "@/lib/watermark";
 import { EngagementMeter } from "./EngagementMeter";
+import { EquipmentAutoSuggest } from "./EquipmentAutoSuggest";
 
 const MAX_IMAGES = 10;
 
