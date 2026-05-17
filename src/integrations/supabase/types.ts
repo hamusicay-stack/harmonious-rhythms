@@ -1850,6 +1850,7 @@ export type Database = {
           last_topic_id: string | null
           name: string
           post_count: number
+          post_min_role: string
           slug: string
           topic_count: number
         }
@@ -1864,6 +1865,7 @@ export type Database = {
           last_topic_id?: string | null
           name: string
           post_count?: number
+          post_min_role?: string
           slug: string
           topic_count?: number
         }
@@ -1878,6 +1880,7 @@ export type Database = {
           last_topic_id?: string | null
           name?: string
           post_count?: number
+          post_min_role?: string
           slug?: string
           topic_count?: number
         }
