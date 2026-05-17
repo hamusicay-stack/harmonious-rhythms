@@ -3510,6 +3510,33 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_settings: {
+        Row: {
+          id: number
+          local_gateway_enabled: boolean
+          paypal_enabled: boolean
+          stripe_enabled: boolean
+          test_mode: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          local_gateway_enabled?: boolean
+          paypal_enabled?: boolean
+          stripe_enabled?: boolean
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          local_gateway_enabled?: boolean
+          paypal_enabled?: boolean
+          stripe_enabled?: boolean
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       points_ledger: {
         Row: {
           created_at: string
@@ -4131,6 +4158,30 @@ export type Database = {
           id?: string
           permission_key?: string
           role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_pricing: {
+        Row: {
+          is_active: boolean
+          label: string
+          price: number
+          service_key: string
+          updated_at: string
+        }
+        Insert: {
+          is_active?: boolean
+          label: string
+          price?: number
+          service_key: string
+          updated_at?: string
+        }
+        Update: {
+          is_active?: boolean
+          label?: string
+          price?: number
+          service_key?: string
           updated_at?: string
         }
         Relationships: []

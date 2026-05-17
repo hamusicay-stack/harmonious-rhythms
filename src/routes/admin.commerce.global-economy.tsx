@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/routeGuards";
+import { PaymentsTab } from "@/components/admin/global-economy/PaymentsTab";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -51,12 +52,13 @@ function GlobalEconomyPage() {
       </header>
 
       <Tabs defaultValue="vip" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
           <TabsTrigger value="vip" className="gap-1"><Crown className="h-4 w-4" /> מטריצת VIP</TabsTrigger>
           <TabsTrigger value="users" className="gap-1"><UsersIcon className="h-4 w-4" /> משתמשים והרשאות</TabsTrigger>
           <TabsTrigger value="coupons" className="gap-1"><TicketPercent className="h-4 w-4" /> קופונים</TabsTrigger>
           <TabsTrigger value="points" className="gap-1"><Gamepad2 className="h-4 w-4" /> נקודות</TabsTrigger>
           <TabsTrigger value="affiliates" className="gap-1"><Handshake className="h-4 w-4" /> שותפים</TabsTrigger>
+          <TabsTrigger value="payments" className="gap-1">🎛️ תשלומים וסליקה</TabsTrigger>
         </TabsList>
 
         <TabsContent value="vip"><VipMatrixTab /></TabsContent>
@@ -64,6 +66,7 @@ function GlobalEconomyPage() {
         <TabsContent value="coupons"><CouponsTab /></TabsContent>
         <TabsContent value="points"><PointsTab /></TabsContent>
         <TabsContent value="affiliates"><AffiliatesTab /></TabsContent>
+        <TabsContent value="payments"><PaymentsTab /></TabsContent>
       </Tabs>
     </div>
   );

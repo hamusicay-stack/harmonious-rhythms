@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowUp, Crown, Loader2, ShoppingCart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,12 +15,16 @@ import { toast } from "sonner";
  * VIP users boost instantly (quota assumed > 0 for now).
  * Non-VIP users add the boost as a CartItem (product_type: "marketplace_boost")
  * and are redirected to /shop/checkout. Fulfillment happens in checkout submit.
+ *
+ * Pricing is fetched live from `service_pricing` (keys: boost_24h, boost_48h)
+ * so admin price changes take effect immediately for buyers.
  */
 
-type BoostOption = { hours: 24 | 48; priceNis: number };
-const OPTIONS: BoostOption[] = [
-  { hours: 24, priceNis: 20 },
-  { hours: 48, priceNis: 35 },
+type BoostOption = { hours: 24 | 48; priceNis: number; serviceKey: string };
+const HOURS_BY_KEY: Record<string, 24 | 48> = { boost_24h: 24, boost_48h: 48 };
+const FALLBACK_OPTIONS: BoostOption[] = [
+  { hours: 24, priceNis: 20, serviceKey: "boost_24h" },
+  { hours: 48, priceNis: 35, serviceKey: "boost_48h" },
 ];
 
 async function applyBump(listingId: string, hours: number) {
@@ -58,6 +63,28 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
   const navigate = useNavigate();
   const [processing, setProcessing] = useState<number | null>(null);
   const [title, setTitle] = useState<string | undefined>(listingTitle);
+
+  const { data: options = FALLBACK_OPTIONS, isLoading: loadingPrices } = useQuery({
+    queryKey: ["service_pricing", "boost"],
+    queryFn: async (): Promise<BoostOption[]> => {
+      const { data, error } = await (supabase as any)
+        .from("service_pricing")
+        .select("service_key,price,is_active")
+        .in("service_key", ["boost_24h", "boost_48h"]);
+      if (error) throw error;
+      const rows = (data ?? []) as Array<{ service_key: string; price: number; is_active: boolean }>;
+      const mapped = rows
+        .filter((r) => r.is_active && HOURS_BY_KEY[r.service_key])
+        .map<BoostOption>((r) => ({
+          hours: HOURS_BY_KEY[r.service_key],
+          priceNis: Number(r.price),
+          serviceKey: r.service_key,
+        }))
+        .sort((a, b) => a.hours - b.hours);
+      return mapped.length ? mapped : FALLBACK_OPTIONS;
+    },
+    staleTime: 60_000,
+  });
 
   const resolveTitle = async (): Promise<string> => {
     if (title) return title;
@@ -114,7 +141,12 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
         </DialogHeader>
 
         <div className="space-y-2">
-          {OPTIONS.map((opt) => (
+          {loadingPrices && options.length === 0 ? (
+            <div className="flex items-center justify-center text-muted-foreground p-3">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />טוען מחירים…
+            </div>
+          ) : null}
+          {options.map((opt: BoostOption) => (
             <div key={opt.hours} className="rounded-xl border-2 border-border p-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="font-semibold text-sm">הקפצה ל-{opt.hours} שעות</div>
