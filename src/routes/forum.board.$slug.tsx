@@ -40,6 +40,10 @@ function BoardPage() {
   const board = useQuery({ queryKey: ["forum", "board", slug], queryFn: () => fetchBoard({ data: { slug } }) });
   const topics = useQuery({ queryKey: ["forum", "topics", slug], queryFn: () => fetchTopics({ data: { boardSlug: slug, page: 1, pageSize: 30 } }) });
 
+  const roles = useUserRoles() ?? [];
+  const postMin = (((board.data?.board as any)?.post_min_role ?? "user") as "user" | "moderator" | "admin");
+  const canPost = postMin === "user" || roles.includes("admin") || (postMin === "moderator" && (roles as string[]).includes("moderator"));
+
   const submit = async () => {
     if (title.trim().length < 3 || body.trim().length < 5) {
       toast.error("נא למלא כותרת וגוף");
