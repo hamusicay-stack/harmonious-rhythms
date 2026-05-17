@@ -1,0 +1,132 @@
+import { useState } from "react";
+import { ArrowUp, Crown, Loader2, Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+/**
+ * BoostListingDialog
+ * Modular boost flow: VIP users boost instantly (quota assumed > 0 for now).
+ * Non-VIP users see paid options that currently mock-succeed but are wired
+ * to swap into the real ShopCheckout flow later.
+ */
+
+type BoostOption = { hours: 24 | 48; priceNis: number };
+const OPTIONS: BoostOption[] = [
+  { hours: 24, priceNis: 19 },
+  { hours: 48, priceNis: 29 },
+];
+
+async function applyBump(listingId: string, hours: number) {
+  const now = new Date();
+  const expires = new Date(now.getTime() + hours * 3600 * 1000).toISOString();
+  const { error } = await supabase
+    .from("marketplace_listings")
+    .update({ bumped_at: now.toISOString(), bump_expires_at: expires })
+    .eq("id", listingId);
+  if (error) throw error;
+}
+
+/** Direct VIP bump (no dialog) — for quick-action flows. */
+export async function vipBumpListing(listingId: string, hours: 24 | 48 = 24): Promise<boolean> {
+  try {
+    await applyBump(listingId, hours);
+    toast.success(`המודעה הוקפצה ל-${hours} שעות! 🚀`);
+    return true;
+  } catch (e: unknown) {
+    toast.error(e instanceof Error ? e.message : "שגיאה בהקפצת המודעה");
+    return false;
+  }
+}
+
+interface Props {
+  listingId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onBumped?: () => void;
+}
+
+export function BoostListingDialog({ listingId, open, onOpenChange, onBumped }: Props) {
+  const { isVip, vipTier } = useAuth();
+  const [processing, setProcessing] = useState<number | null>(null);
+
+  const handleVipBoost = async (hours: 24 | 48) => {
+    setProcessing(hours);
+    const ok = await vipBumpListing(listingId, hours);
+    setProcessing(null);
+    if (ok) { onBumped?.(); onOpenChange(false); }
+  };
+
+  const handlePaidBoost = async (opt: BoostOption) => {
+    setProcessing(opt.hours);
+    // TODO: integrate ShopCheckout — for now mock the payment.
+    await new Promise((r) => setTimeout(r, 600));
+    try {
+      await applyBump(listingId, opt.hours);
+      toast.success(`התשלום בוצע — המודעה הוקפצה ל-${opt.hours} שעות! 🚀`);
+      onBumped?.();
+      onOpenChange(false);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "שגיאה בהקפצת המודעה");
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl" className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ArrowUp className="h-5 w-5 text-primary" />הקפץ את המודעה
+          </DialogTitle>
+          <DialogDescription>
+            {isVip
+              ? "כחלק מהמינוי שלך – ההקפצה כלולה ללא עלות."
+              : "הקפצה מעלה את המודעה לראש הלוח ומשלשת את כמות הפניות."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-2">
+          {OPTIONS.map((opt) => (
+            <div key={opt.hours} className="rounded-xl border-2 border-border p-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-semibold text-sm">הקפצה ל-{opt.hours} שעות</div>
+                <div className="text-xs text-muted-foreground">
+                  המודעה תופיע בראש הלוח למשך {opt.hours} שעות.
+                </div>
+              </div>
+              {isVip ? (
+                <Button size="sm" onClick={() => handleVipBoost(opt.hours)} disabled={processing !== null} className="gap-1 shrink-0">
+                  {processing === opt.hours ? <Loader2 className="h-3 w-3 animate-spin" /> : <Crown className="h-3 w-3" />}
+                  כלול ב-{(vipTier?.name ?? "VIP")}
+                </Button>
+              ) : (
+                <Button size="sm" onClick={() => handlePaidBoost(opt)} disabled={processing !== null} className="gap-1 shrink-0">
+                  {processing === opt.hours ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                  ₪{opt.priceNis}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {!isVip && (
+          <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground flex items-start gap-2">
+            <Crown className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div>
+              משתמשי VIP מקבלים הקפצות חודשיות ללא עלות. <Badge variant="secondary" className="ml-1">שדרג ל-VIP</Badge>
+            </div>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={processing !== null}>סגור</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
