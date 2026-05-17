@@ -95,6 +95,7 @@ function BoardPage() {
                 <div className="space-y-3">
                   <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
                   <ForumEditor value={body} onChange={setBody} placeholder="תוכן ההודעה — תוכל לעצב, להוסיף תמונות, אודיו וקישורי יוטיוב" />
+                  <TopicTagManager value={tagIds} onChange={setTagIds} />
                 </div>
                 <DialogFooter>
                   <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>
