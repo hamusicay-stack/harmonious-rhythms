@@ -1,17 +1,31 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Instagram, Youtube, Globe } from "lucide-react";
+import { Loader2, Save, Instagram, Youtube, Globe, Sparkles, PenLine } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { SPECIALTIES } from "@/lib/prosData";
 import { ProfileCompletion } from "./ProfileCompletion";
 import { RankXpBar } from "@/components/gamification/RankBadge";
+
+const STATUS_OPTIONS = [
+  { value: "looking_for_band", label: "מחפש/ת הרכב" },
+  { value: "available_for_gigs", label: "פנוי/ה להופעות" },
+  { value: "selling_gear", label: "מוכר/ת ציוד" },
+  { value: "just_browsing", label: "סתם מסתובב/ת" },
+] as const;
+const STATUS_LABEL: Record<string, string> = Object.fromEntries(
+  STATUS_OPTIONS.map((s) => [s.value, s.label]),
+);
+
 
 export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Promise<void> }) {
   const { user, profile } = useAuth();
