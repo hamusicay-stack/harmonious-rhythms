@@ -1,17 +1,31 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Instagram, Youtube, Globe } from "lucide-react";
+import { Loader2, Save, Instagram, Youtube, Globe, Sparkles, PenLine } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { SPECIALTIES } from "@/lib/prosData";
 import { ProfileCompletion } from "./ProfileCompletion";
 import { RankXpBar } from "@/components/gamification/RankBadge";
+
+const STATUS_OPTIONS = [
+  { value: "looking_for_band", label: "מחפש/ת הרכב" },
+  { value: "available_for_gigs", label: "פנוי/ה להופעות" },
+  { value: "selling_gear", label: "מוכר/ת ציוד" },
+  { value: "just_browsing", label: "סתם מסתובב/ת" },
+] as const;
+const STATUS_LABEL: Record<string, string> = Object.fromEntries(
+  STATUS_OPTIONS.map((s) => [s.value, s.label]),
+);
+
 
 export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Promise<void> }) {
   const { user, profile } = useAuth();
@@ -25,7 +39,10 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
     youtube: "",
     website: "",
     specialties: [] as string[],
+    current_status: "",
+    forum_signature: "",
   });
+
 
   useEffect(() => {
     if (!user) return;
@@ -45,17 +62,24 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
 
   useEffect(() => {
     if (profile) {
+      const p = profile as typeof profile & {
+        current_status?: string | null;
+        forum_signature?: string | null;
+      };
       setForm({
-        display_name: profile.display_name ?? "",
-        username: profile.username ?? "",
-        bio: profile.bio ?? "",
-        instagram: profile.instagram ?? "",
-        youtube: profile.youtube ?? "",
-        website: profile.website ?? "",
-        specialties: (profile.specialties as string[] | null) ?? [],
+        display_name: p.display_name ?? "",
+        username: p.username ?? "",
+        bio: p.bio ?? "",
+        instagram: p.instagram ?? "",
+        youtube: p.youtube ?? "",
+        website: p.website ?? "",
+        specialties: (p.specialties as string[] | null) ?? [],
+        current_status: p.current_status ?? "",
+        forum_signature: p.forum_signature ?? "",
       });
     }
   }, [profile]);
+
 
   const toggleSpecialty = (val: string) => {
     setForm((f) => ({
@@ -81,8 +105,11 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
           youtube: form.youtube || null,
           website: form.website || null,
           specialties: form.specialties.length ? form.specialties : null,
+          current_status: form.current_status || null,
+          forum_signature: form.forum_signature || null,
         })
         .eq("id", user.id);
+
       if (error) throw error;
       await refreshProfile();
       toast.success("הפרופיל הציבורי עודכן");
@@ -122,6 +149,16 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
     <div className="space-y-6" dir="rtl">
       <ProfileCompletion profile={profile as never} />
       <RankXpBar points={points} />
+
+      {form.current_status && (
+        <div className="flex justify-center">
+          <Badge className="gap-1.5 border-amber-500/40 bg-gradient-to-r from-amber-500/15 to-amber-600/5 px-3 py-1 text-amber-700 dark:text-amber-300" variant="outline">
+            <Sparkles className="h-3.5 w-3.5" />
+            {STATUS_LABEL[form.current_status] ?? form.current_status}
+          </Badge>
+        </div>
+      )}
+
 
       <form
         onSubmit={handleSave}
@@ -245,6 +282,50 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
               {form.specialties.length} נבחרו
             </Badge>
           )}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="current_status" className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" />
+              סטטוס נוכחי
+            </Label>
+            <Select
+              value={form.current_status || "none"}
+              onValueChange={(v) =>
+                setForm({ ...form, current_status: v === "none" ? "" : v })
+              }
+            >
+              <SelectTrigger id="current_status">
+                <SelectValue placeholder="בחר סטטוס..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">ללא סטטוס</SelectItem>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2 md:row-span-2">
+            <Label htmlFor="forum_signature" className="flex items-center gap-1.5">
+              <PenLine className="h-3.5 w-3.5" />
+              חתימה אישית (פורום)
+            </Label>
+            <Textarea
+              id="forum_signature"
+              value={form.forum_signature}
+              rows={4}
+              maxLength={240}
+              onChange={(e) => setForm({ ...form, forum_signature: e.target.value })}
+              placeholder="חתימה שתופיע בסוף כל הודעה שלך בפורום..."
+            />
+            <p className="text-xs text-muted-foreground">
+              {form.forum_signature.length}/240
+            </p>
+          </div>
         </div>
 
         <div className="space-y-4">

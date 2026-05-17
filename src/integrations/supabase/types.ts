@@ -3796,10 +3796,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address_city: string | null
+          address_street: string | null
+          address_zip: string | null
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
           created_at: string
+          current_status: string | null
           display_name: string | null
           email: string | null
           email_opt_in: boolean
@@ -3830,10 +3834,14 @@ export type Database = {
           youtube: string | null
         }
         Insert: {
+          address_city?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
+          current_status?: string | null
           display_name?: string | null
           email?: string | null
           email_opt_in?: boolean
@@ -3864,10 +3872,14 @@ export type Database = {
           youtube?: string | null
         }
         Update: {
+          address_city?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
+          current_status?: string | null
           display_name?: string | null
           email?: string | null
           email_opt_in?: boolean
