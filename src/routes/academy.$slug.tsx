@@ -15,6 +15,7 @@ import { ChaptersList } from "@/components/academy/ChaptersList";
 import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
 import { trackAcademyEvent } from "@/lib/academyAnalytics";
 import { fetchAcademyDiscountPercent } from "@/lib/tiers";
+import { useCart } from "@/contexts/CartContext";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
@@ -60,6 +61,8 @@ export const Route = createFileRoute("/academy/$slug")({
 function CoursePage() {
   const { course } = Route.useLoaderData();
   const { user, isVip, vipTier } = useAuth();
+  const router = useRouter();
+  const cart = useCart();
   const [modules, setModules] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, any>>({});
@@ -71,6 +74,8 @@ function CoursePage() {
   const [showAutoNext, setShowAutoNext] = useState(false);
   const playerSeekRef = useRef<((sec: number) => void) | null>(null);
   const [academyDiscountPct, setAcademyDiscountPct] = useState<number>(0);
+  // Per-active-lesson signed/resolved media (fetched via secure RPC)
+  const [activeMedia, setActiveMedia] = useState<{ src: string | null; loading: boolean; authorized: boolean }>({ src: null, loading: false, authorized: false });
 
   useEffect(() => {
     if (!user) { setAcademyDiscountPct(0); return; }
@@ -120,9 +125,22 @@ function CoursePage() {
 
   const enroll = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
-    if (course.price > 0) { toast.info("רכישת קורסים תוטמע בקרוב — בינתיים השתמש בקוד גישה"); return; }
+    if (course.price > 0 && !isVip) {
+      // Push course to global cart and redirect to checkout.
+      await cart.add({
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        price: discountedPrice,
+        image: course.cover_url ?? null,
+        product_type: "course",
+      });
+      toast.success("הקורס נוסף לעגלה");
+      router.navigate({ to: "/shop/checkout" });
+      return;
+    }
     const { error } = await supabase.from("academy_enrollments").insert({
-      user_id: user.id, course_id: course.id, source: "free",
+      user_id: user.id, course_id: course.id, source: isVip ? "vip" : "free",
     });
     if (error) toast.error(error.message); else { toast.success("נרשמת!"); refresh(); }
   };
@@ -198,6 +216,32 @@ function CoursePage() {
     }
   }, [activeLesson?.id, canWatch, course?.id]);
 
+  // Securely resolve media for the active lesson (signed URL for Supabase
+  // storage; plain URL otherwise). Server returns NULLs if unauthorized.
+  useEffect(() => {
+    let cancelled = false;
+    if (!activeLesson || !canWatch) { setActiveMedia({ src: null, loading: false, authorized: false }); return; }
+    setActiveMedia({ src: null, loading: true, authorized: false });
+    (async () => {
+      const { data, error } = await (supabase as any).rpc("get_lesson_media", { _lesson_id: activeLesson.id });
+      if (cancelled) return;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (error || !row || !row.authorized) {
+        setActiveMedia({ src: null, loading: false, authorized: false });
+        return;
+      }
+      const provider = (row.video_provider ?? "").toLowerCase();
+      if (provider === "supabase" && row.video_path) {
+        const { data: signed } = await supabase.storage.from("academy").createSignedUrl(row.video_path, 3600);
+        if (cancelled) return;
+        setActiveMedia({ src: signed?.signedUrl ?? null, loading: false, authorized: true });
+      } else {
+        setActiveMedia({ src: row.video_url ?? null, loading: false, authorized: true });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [activeLesson?.id, canWatch]);
+
   return (
     <SiteLayout>
       <section className="container mx-auto px-4 py-6 md:px-8 md:py-8">
@@ -228,35 +272,53 @@ function CoursePage() {
             <div className={theater ? "flex h-full w-full flex-col" : "space-y-4"}>
               {/* Player */}
               <div className={`relative overflow-hidden bg-black ${theater ? "flex-1" : "aspect-video rounded-xl"}`}>
-                {activeLesson && canWatch && activeLesson.video_url ? (
-                  <SecureVideoPlayer
-                    key={activeLesson.id}
-                    src={activeLesson.video_url}
-                    watermark={user?.email ?? ""}
-                    onSeekReady={(fn) => { playerSeekRef.current = fn; }}
-                    onEnded={() => {
-                      if (course && activeLesson) {
-                        void trackAcademyEvent({ itemType: "lesson", itemId: activeLesson.id, eventType: "complete", courseId: course.id, percent: 100 });
-                      }
-                      if (autoNextOn && canPlayNext) setShowAutoNext(true);
-                    }}
-                    onProgress={async (pos, dur) => {
-                      if (!user || !enrollment) return;
-                      const completed = dur > 0 && pos / dur > 0.9;
-                      await supabase.from("academy_lesson_progress").upsert({
-                        user_id: user.id,
-                        lesson_id: activeLesson.id,
-                        course_id: course.id,
-                        position_seconds: Math.floor(pos),
-                        is_completed: completed,
-                        completed_at: completed ? new Date().toISOString() : null,
-                      }, { onConflict: "user_id,lesson_id" });
-                      if (completed && !progress[activeLesson.id]?.is_completed) {
-                        refresh();
-                        await tryIssueCertificate(course.id, user.id, course.title);
-                      }
-                    }}
-                  />
+                {activeLesson && canWatch ? (
+                  activeMedia.loading ? (
+                    <div className="flex h-full items-center justify-center text-white">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                  ) : activeMedia.src ? (
+                    <SecureVideoPlayer
+                      key={activeLesson.id}
+                      src={activeMedia.src}
+                      watermark={user?.email ?? ""}
+                      initialPosition={progress[activeLesson.id]?.position_seconds ?? 0}
+                      onSeekReady={(fn) => { playerSeekRef.current = fn; }}
+                      onEnded={() => {
+                        if (course && activeLesson) {
+                          void trackAcademyEvent({ itemType: "lesson", itemId: activeLesson.id, eventType: "complete", courseId: course.id, percent: 100 });
+                        }
+                        if (autoNextOn && canPlayNext) setShowAutoNext(true);
+                      }}
+                      onProgress={async ({ position, duration, watchDelta }) => {
+                        if (!user || !enrollment) return;
+                        const prev = progress[activeLesson.id];
+                        const prevWatch = Number(prev?.watch_time_seconds ?? 0);
+                        const nextWatch = prevWatch + Math.max(0, watchDelta);
+                        // Anti-skip-to-end: completion requires cumulative watch time ≥ 90% of duration
+                        const completed = duration > 0 && nextWatch >= duration * 0.9;
+                        await supabase.from("academy_lesson_progress").upsert({
+                          user_id: user.id,
+                          lesson_id: activeLesson.id,
+                          course_id: course.id,
+                          position_seconds: Math.floor(position),
+                          watch_time_seconds: Math.floor(nextWatch),
+                          is_completed: completed,
+                          completed_at: completed ? new Date().toISOString() : null,
+                        }, { onConflict: "user_id,lesson_id" });
+                        setProgress((p) => ({ ...p, [activeLesson.id]: { ...(p[activeLesson.id] ?? {}), position_seconds: Math.floor(position), watch_time_seconds: Math.floor(nextWatch), is_completed: completed } }));
+                        if (completed && !prev?.is_completed) {
+                          refresh();
+                          await tryIssueCertificate(course.id, user.id, course.title);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-white">
+                      <Lock className="h-10 w-10" />
+                      <p>לא ניתן לטעון את הסרטון</p>
+                    </div>
+                  )
                 ) : activeLesson && !canWatch ? (
                   showPremiumLock ? (
                     <PremiumLockOverlay tierName={vipTier?.name ?? null} coursePrice={course.price} courseSlug={course.slug} />
@@ -515,15 +577,17 @@ function getVimeoId(url: string): string | null {
   return url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1] ?? null;
 }
 
+type ProgressPayload = { position: number; duration: number; watchDelta: number };
 type PlayerProps = {
   src: string;
   watermark: string;
-  onProgress?: (pos: number, dur: number) => void;
+  initialPosition?: number;
+  onProgress?: (p: ProgressPayload) => void;
   onEnded?: () => void;
   onSeekReady?: (seek: (seconds: number) => void) => void;
 };
 
-function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }: PlayerProps) {
+function SecureVideoPlayer({ src, watermark, initialPosition = 0, onProgress, onEnded, onSeekReady }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const [speed, setSpeed] = useState(1);
@@ -531,6 +595,7 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
   const [wmPos, setWmPos] = useState({ top: "10%", left: "10%" });
   const ytId = getYouTubeId(src);
   const vimeoId = getVimeoId(src);
+  const resumedRef = useRef(false);
 
   // Random watermark drift
   useEffect(() => {
@@ -540,20 +605,48 @@ function SecureVideoPlayer({ src, watermark, onProgress, onEnded, onSeekReady }:
     return () => clearInterval(i);
   }, []);
 
-  // Native <video> progress + ended
+  // Resume from saved position when metadata is ready
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || resumedRef.current || ytId || vimeoId) return;
+    const onMeta = () => {
+      if (resumedRef.current) return;
+      if (initialPosition > 1 && initialPosition < (v.duration || Infinity) - 2) {
+        v.currentTime = initialPosition;
+      }
+      resumedRef.current = true;
+    };
+    v.addEventListener("loadedmetadata", onMeta);
+    return () => v.removeEventListener("loadedmetadata", onMeta);
+  }, [initialPosition, ytId, vimeoId]);
+
+  // Native <video> progress: debounced ~12s flush; only counts as watch time
+  // when actually playing (not paused, not buffering) — prevents skip cheating.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    let last = 0;
-    const handle = () => {
-      if (v.currentTime - last < 10 && v.currentTime < v.duration - 1) return;
-      last = v.currentTime;
-      onProgress?.(v.currentTime, v.duration || 0);
+    let lastFlush = 0;
+    let watchAccum = 0;
+    let lastTick = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      const dt = (now - lastTick) / 1000;
+      lastTick = now;
+      if (!v.paused && !v.ended && v.readyState >= 3) {
+        // Cap dt to avoid huge jumps (tab inactive / scrubbing).
+        watchAccum += Math.min(dt, 2);
+      }
+      if (now - lastFlush >= 12000 || (v.duration && v.currentTime >= v.duration - 1)) {
+        lastFlush = now;
+        const delta = watchAccum;
+        watchAccum = 0;
+        onProgress?.({ position: v.currentTime, duration: v.duration || 0, watchDelta: delta });
+      }
     };
+    const id = window.setInterval(tick, 1000);
     const ended = () => onEnded?.();
-    v.addEventListener("timeupdate", handle);
     v.addEventListener("ended", ended);
-    return () => { v.removeEventListener("timeupdate", handle); v.removeEventListener("ended", ended); };
+    return () => { window.clearInterval(id); v.removeEventListener("ended", ended); };
   }, [onProgress, onEnded]);
 
   // Expose seek for native video
