@@ -279,7 +279,7 @@ function TopicPage() {
             )}
             <ForumEditor value={body} onChange={setBody} rows={6} placeholder="כתוב תגובה — תומך בעיצוב, תמונות, אודיו ו-YouTube" />
             <div className="mt-2 flex justify-end">
-              <Button onClick={submitReply} disabled={body.replace(/<[^>]+>/g, "").trim().length === 0}>פרסם</Button>
+              <Button onClick={submitReply} disabled={!hasForumContent(body)}>פרסם</Button>
             </div>
           </div>
         )}
