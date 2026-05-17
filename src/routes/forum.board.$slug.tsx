@@ -99,7 +99,7 @@ function BoardPage() {
                   <TopicTagManager value={tagIds} onChange={setTagIds} />
                 </div>
                 <DialogFooter>
-                  <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>
+                  <Button onClick={submit} disabled={busy || title.trim().length < 3 || !hasForumContent(body)}>{busy ? "שולח…" : "פרסום"}</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
