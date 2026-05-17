@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 import { he } from "date-fns/locale";
 import {
   ArrowUp,
