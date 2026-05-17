@@ -182,8 +182,8 @@ export function BookmarksTab({ userId }: { userId: string }) {
                 </div>
                 <Button asChild size="sm" variant="ghost">
                   <Link
-                    to="/marketplace/$id"
-                    params={{ id: row.listing_id }}
+                    to="/marketplace/$listingId"
+                    params={{ listingId: row.listing_id }}
                   >
                     פתח <ExternalLink className="mr-1 h-3.5 w-3.5" />
                   </Link>
