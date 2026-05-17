@@ -11,6 +11,7 @@ import { CustomCursor } from "./CustomCursor";
 import { CommandPalette } from "./CommandPalette";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 
 const PAGE_PREFIX: Record<string, string> = {
   "/": "home",
