@@ -125,9 +125,22 @@ function CoursePage() {
 
   const enroll = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
-    if (course.price > 0) { toast.info("רכישת קורסים תוטמע בקרוב — בינתיים השתמש בקוד גישה"); return; }
+    if (course.price > 0 && !isVip) {
+      // Push course to global cart and redirect to checkout.
+      await cart.add({
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        price: discountedPrice,
+        image: course.cover_url ?? null,
+        product_type: "course",
+      });
+      toast.success("הקורס נוסף לעגלה");
+      router.navigate({ to: "/shop/checkout" });
+      return;
+    }
     const { error } = await supabase.from("academy_enrollments").insert({
-      user_id: user.id, course_id: course.id, source: "free",
+      user_id: user.id, course_id: course.id, source: isVip ? "vip" : "free",
     });
     if (error) toast.error(error.message); else { toast.success("נרשמת!"); refresh(); }
   };
