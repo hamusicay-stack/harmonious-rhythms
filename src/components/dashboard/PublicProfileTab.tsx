@@ -284,6 +284,50 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
           )}
         </div>
 
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="current_status" className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" />
+              סטטוס נוכחי
+            </Label>
+            <Select
+              value={form.current_status || "none"}
+              onValueChange={(v) =>
+                setForm({ ...form, current_status: v === "none" ? "" : v })
+              }
+            >
+              <SelectTrigger id="current_status">
+                <SelectValue placeholder="בחר סטטוס..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">ללא סטטוס</SelectItem>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2 md:row-span-2">
+            <Label htmlFor="forum_signature" className="flex items-center gap-1.5">
+              <PenLine className="h-3.5 w-3.5" />
+              חתימה אישית (פורום)
+            </Label>
+            <Textarea
+              id="forum_signature"
+              value={form.forum_signature}
+              rows={4}
+              maxLength={240}
+              onChange={(e) => setForm({ ...form, forum_signature: e.target.value })}
+              placeholder="חתימה שתופיע בסוף כל הודעה שלך בפורום..."
+            />
+            <p className="text-xs text-muted-foreground">
+              {form.forum_signature.length}/240
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-muted-foreground">קישורים חברתיים</h3>
           <div className="grid gap-4 md:grid-cols-2">
