@@ -62,17 +62,24 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
 
   useEffect(() => {
     if (profile) {
+      const p = profile as typeof profile & {
+        current_status?: string | null;
+        forum_signature?: string | null;
+      };
       setForm({
-        display_name: profile.display_name ?? "",
-        username: profile.username ?? "",
-        bio: profile.bio ?? "",
-        instagram: profile.instagram ?? "",
-        youtube: profile.youtube ?? "",
-        website: profile.website ?? "",
-        specialties: (profile.specialties as string[] | null) ?? [],
+        display_name: p.display_name ?? "",
+        username: p.username ?? "",
+        bio: p.bio ?? "",
+        instagram: p.instagram ?? "",
+        youtube: p.youtube ?? "",
+        website: p.website ?? "",
+        specialties: (p.specialties as string[] | null) ?? [],
+        current_status: p.current_status ?? "",
+        forum_signature: p.forum_signature ?? "",
       });
     }
   }, [profile]);
+
 
   const toggleSpecialty = (val: string) => {
     setForm((f) => ({
