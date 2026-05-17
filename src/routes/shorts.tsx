@@ -50,6 +50,8 @@ type Short = {
   views: number;
   isPremium: boolean;
   courseLink: string | null;
+  productId: string | null;
+  marketplaceListingId: string | null;
   isHiRes: boolean;
   audioBitrate: number | null;
   lyricsUrl: string | null;
