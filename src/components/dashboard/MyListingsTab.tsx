@@ -16,6 +16,7 @@ export type Listing = {
   id: string; title: string; price: number; status: string; views_count: number;
   images: string[]; created_at: string; bump_expires_at: string | null;
   category: string; brand: string | null;
+  is_sold?: boolean | null; sold_at?: string | null;
 };
 
 function statusBadge(status: string) {
