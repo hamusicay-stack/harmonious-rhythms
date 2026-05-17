@@ -216,6 +216,7 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
       is_active: form.is_active,
       starts_at: new Date(form.starts_at).toISOString(),
       ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+      bypass_vip: form.bypass_vip,
     };
     const { error } = banner
       ? await supabase.from("ad_banners").update(payload).eq("id", banner.id)
