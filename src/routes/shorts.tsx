@@ -202,12 +202,37 @@ function ShortsPage() {
         || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (Ctor) {
         if (!audioCtxRef.current) audioCtxRef.current = new Ctor();
-        void audioCtxRef.current.resume();
+        const ctx = audioCtxRef.current;
+        void ctx.resume();
+        // Spec: total render delay = baseLatency + outputLatency (seconds).
+        const base = (ctx.baseLatency ?? 0) * 1000;
+        const output = ((ctx as AudioContext & { outputLatency?: number }).outputLatency ?? 0) * 1000;
+        setLatency({ base, output });
       }
     } catch { /* noop */ }
     setIsMuted(false);
     setAudioUnlocked(true);
   }, [audioUnlocked]);
+
+  /* ---------- Apply Bluetooth AV-sync offset to the active video ---------- */
+  useEffect(() => {
+    const current = shorts[activeIndex];
+    if (!current) return;
+    const v = videoRefs.current.get(current.id);
+    if (!v) return;
+    // Spec formula: total system delay = baseLatency + outputLatency.
+    // We compensate by nudging the video presentation timestamp by the
+    // negative of (auto-detected latency + user fine-tune).
+    const autoMs = latency.base + latency.output;
+    const totalSec = (autoMs + avSyncOffsetMs) / 1000;
+    if (Math.abs(totalSec) < 0.02) return;
+    // Clamp safety window so we never seek wildly.
+    const delta = Math.max(-0.4, Math.min(0.4, -totalSec));
+    try {
+      const target = v.currentTime + delta;
+      if (target > 0 && Number.isFinite(target)) v.currentTime = target;
+    } catch { /* noop */ }
+  }, [activeIndex, shorts, latency, avSyncOffsetMs]);
 
   /* ---------- Like ---------- */
   const toggleLike = useCallback(async (id: string) => {
