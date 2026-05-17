@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { CATEGORIES, BRANDS, CITIES, CONDITIONS, CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 import { watermarkImage } from "@/lib/watermark";
 import { EngagementMeter } from "./EngagementMeter";
+import { EquipmentAutoSuggest } from "./EquipmentAutoSuggest";
 
 const MAX_IMAGES = 10;
 
@@ -122,6 +123,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     has_samples: !!specs?.has_samples,
     video_url: initial?.video_url ?? "",
   });
+  const [catalogSpecs, setCatalogSpecs] = useState<Record<string, string> | null>(null);
 
   const [vipTier, setVipTier] = useState<string | null>(null);
   const isVip = vipTier && !["free", "basic"].includes(vipTier);
@@ -352,7 +354,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       video_url: s("video_url") || null,
       audio_url: audioFile || null,
       is_urgent: isUrgent,
-      specs: { year: s("year") || null, has_rhythms: !!ff.has_rhythms, has_samples: !!ff.has_samples },
+      specs: { ...(catalogSpecs || {}), year: s("year") || null, has_rhythms: !!ff.has_rhythms, has_samples: !!ff.has_samples },
     };
 
     if (isEdit && initial?.id) {
@@ -545,25 +547,16 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         {step === 2 && (
           <>
             <h2 className="text-lg font-semibold">פרטים טכניים</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>יצרן <span className="text-destructive">*</span></Label>
-                <Select value={form.brand} onValueChange={(v) => update("brand", v)}>
-                  <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
-                  <SelectContent>{BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>דגם</Label>
-                <Input value={form.model} onChange={(e) => update("model", e.target.value)} placeholder="למשל: Pa1000" />
-              </div>
-            </div>
-            {form.brand === "אחר" && (
-              <div className="space-y-2">
-                <Label>שם היצרן *</Label>
-                <Input value={form.customBrand} onChange={(e) => update("customBrand", e.target.value)} />
-              </div>
-            )}
+            <EquipmentAutoSuggest
+              category={form.category}
+              brand={form.brand}
+              model={form.model}
+              customBrand={form.customBrand}
+              onBrandChange={(v) => update("brand", v)}
+              onModelChange={(v) => update("model", v)}
+              onCustomBrandChange={(v) => update("customBrand", v)}
+              onCatalogMatch={(specs) => setCatalogSpecs(specs)}
+            />
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>שנת ייצור</Label>

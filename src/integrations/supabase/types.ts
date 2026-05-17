@@ -1832,6 +1832,39 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment_catalog: {
+        Row: {
+          brand: string
+          category: string
+          created_at: string
+          id: string
+          image_url: string | null
+          model: string
+          specifications: Json
+          subcategory: string | null
+        }
+        Insert: {
+          brand: string
+          category: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          model: string
+          specifications?: Json
+          subcategory?: string | null
+        }
+        Update: {
+          brand?: string
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          model?: string
+          specifications?: Json
+          subcategory?: string | null
+        }
+        Relationships: []
+      }
       forum_badges: {
         Row: {
           color: string | null

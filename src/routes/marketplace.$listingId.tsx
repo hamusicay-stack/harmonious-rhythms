@@ -15,6 +15,7 @@ import { ReportListingDialog } from "@/components/marketplace/ReportListingDialo
 import { ChatThreadDialog } from "@/components/marketplace/ChatThreadDialog";
 import { MakeOfferDialog } from "@/components/marketplace/MakeOfferDialog";
 import { useListingLike } from "@/hooks/useListingLike";
+import { CrossSellRecommendations } from "@/components/shop/CrossSellRecommendations";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   loader: async ({ params }) => {
@@ -366,6 +367,10 @@ function ListingDetailPage() {
             </div>
           </div>
         )}
+
+        <div className="mt-12 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-5">
+          <CrossSellRecommendations category={listing.category} currentItemId={listing.id} />
+        </div>
       </div>
     </ModulePlaceholder>
   );
