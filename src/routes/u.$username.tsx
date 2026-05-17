@@ -6,9 +6,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Globe, Instagram, Youtube, ShieldCheck, Crown, Star, MessageSquare, Video, Tag, Briefcase } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Globe, Instagram, Youtube, ShieldCheck, Crown, Star, MessageSquare, Video, Tag, Briefcase, Pencil, LogIn, Lock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
+import { useAuth } from "@/contexts/AuthContext";
+import { FollowButton } from "@/components/FollowButton";
 
 const profileQO = (username: string) =>
   queryOptions({
