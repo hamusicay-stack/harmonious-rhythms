@@ -2680,6 +2680,44 @@ export type Database = {
           },
         ]
       }
+      marketplace_deal_confirmations: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          responded_at: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          responded_at?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          responded_at?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_deal_confirmations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_likes: {
         Row: {
           created_at: string
@@ -2748,6 +2786,7 @@ export type Database = {
           brand: string | null
           bump_expires_at: string | null
           bumped_at: string | null
+          buyer_id: string | null
           category: string
           city: string | null
           created_at: string
@@ -2784,6 +2823,7 @@ export type Database = {
           brand?: string | null
           bump_expires_at?: string | null
           bumped_at?: string | null
+          buyer_id?: string | null
           category: string
           city?: string | null
           created_at?: string
@@ -2820,6 +2860,7 @@ export type Database = {
           brand?: string | null
           bump_expires_at?: string | null
           bumped_at?: string | null
+          buyer_id?: string | null
           category?: string
           city?: string | null
           created_at?: string
