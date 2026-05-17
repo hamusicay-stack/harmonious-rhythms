@@ -72,13 +72,14 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-6xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:grid-cols-7 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל ציבורי</TabsTrigger>
             <TabsTrigger value="account" className="gap-1"><Eye className="h-4 w-4" />חשבון</TabsTrigger>
             <TabsTrigger value="subscription" className="gap-1"><Crown className="h-4 w-4" />מנוי VIP</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1"><Bell className="h-4 w-4" />התראות</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1"><GraduationCap className="h-4 w-4" />האקדמיה שלי</TabsTrigger>
             <TabsTrigger value="orders" className="gap-1"><ShoppingBag className="h-4 w-4" />ההזמנות שלי</TabsTrigger>
+            <TabsTrigger value="bookmarks" className="gap-1"><Bookmark className="h-4 w-4" />השמירות שלי</TabsTrigger>
             <TabsTrigger value="points" className="gap-1"><Coins className="h-4 w-4" />הנקודות שלי</TabsTrigger>
             <TabsTrigger value="hardware" className="gap-1"><Piano className="h-4 w-4" />חומרה</TabsTrigger>
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
