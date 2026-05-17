@@ -1580,6 +1580,27 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       customer_interactions: {
         Row: {
           created_at: string
@@ -2806,6 +2827,56 @@ export type Database = {
           },
         ]
       }
+      marketplace_offers: {
+        Row: {
+          buyer_id: string
+          buyer_message: string | null
+          counter_amount: number | null
+          created_at: string
+          id: string
+          listing_id: string
+          offer_amount: number
+          seller_id: string
+          seller_message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          buyer_message?: string | null
+          counter_amount?: number | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          offer_amount: number
+          seller_id: string
+          seller_message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          buyer_message?: string | null
+          counter_amount?: number | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          offer_amount?: number
+          seller_id?: string
+          seller_message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_reports: {
         Row: {
           created_at: string
@@ -2965,6 +3036,54 @@ export type Database = {
           granted_by?: string | null
           id?: string
           reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketplace_wanted: {
+        Row: {
+          brand: string | null
+          budget_max: number | null
+          budget_min: number | null
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          model: string | null
+          status: string
+          subcategory: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          model?: string | null
+          status?: string
+          subcategory?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          model?: string | null
+          status?: string
+          subcategory?: string | null
+          title?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
