@@ -13,6 +13,7 @@ import { UploadDialog } from "@/components/shorts/UploadDialog";
 import { KaraokeLyrics } from "@/components/shorts/KaraokeLyrics";
 import { AVSyncControl, useAVSyncOffset } from "@/components/shorts/AVSyncControl";
 import { useCachedVideoUrl } from "@/hooks/useCachedVideoUrl";
+import { useShortsAnalytics } from "@/hooks/useShortsAnalytics";
 import { useFloatingShort } from "@/contexts/FloatingShortContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
