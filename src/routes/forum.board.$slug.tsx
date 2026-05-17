@@ -9,6 +9,7 @@ import { getBoardBySlug } from "@/lib/forum/boards.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ForumEditor } from "@/components/forum/ForumEditor";
+import { hasForumContent } from "@/lib/forum/utils";
 import { TopicTagManager } from "@/components/forum/TopicTagManager";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Pin, Lock, Plus, ShieldAlert } from "lucide-react";
