@@ -30,6 +30,8 @@ import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
 import { BusinessSellerTab } from "@/components/dashboard/BusinessSellerTab";
 import { SocialActivityTab } from "@/components/dashboard/SocialActivityTab";
 import { SubscriptionTab } from "@/components/dashboard/SubscriptionTab";
+import { PublicProfileTab } from "@/components/dashboard/PublicProfileTab";
+import { AccountSettingsTab } from "@/components/dashboard/AccountSettingsTab";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireAuth,
@@ -69,8 +71,9 @@ function ProfilePage() {
 
       <section className="container mx-auto max-w-6xl px-4 py-8 md:px-8">
         <Tabs value={tab} onValueChange={setTab} dir="rtl">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:grid-cols-11 h-auto">
-            <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 h-auto">
+            <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל ציבורי</TabsTrigger>
+            <TabsTrigger value="account" className="gap-1"><Eye className="h-4 w-4" />חשבון</TabsTrigger>
             <TabsTrigger value="subscription" className="gap-1"><Crown className="h-4 w-4" />מנוי VIP</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1"><Bell className="h-4 w-4" />התראות</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1"><GraduationCap className="h-4 w-4" />האקדמיה שלי</TabsTrigger>
@@ -84,7 +87,11 @@ function ProfilePage() {
           </TabsList>
 
           <TabsContent value="profile" className="mt-6">
-            <ProfileForm refreshProfile={refreshProfile} />
+            <PublicProfileTab refreshProfile={refreshProfile} />
+          </TabsContent>
+
+          <TabsContent value="account" className="mt-6">
+            <AccountSettingsTab refreshProfile={refreshProfile} />
           </TabsContent>
 
           <TabsContent value="subscription" className="mt-6">
@@ -92,7 +99,6 @@ function ProfilePage() {
           </TabsContent>
 
           <TabsContent value="notifications" className="mt-6 space-y-6">
-            <NotificationSettings />
             <NotificationsList />
           </TabsContent>
 
