@@ -8,6 +8,7 @@ import { formatILS } from "@/lib/shopUtils";
 import { encodeSharedCart, isShareableItem } from "@/lib/sharedCart";
 import { toast } from "sonner";
 import { useState } from "react";
+import { CrossSellRecommendations } from "@/components/shop/CrossSellRecommendations";
 
 export function CartDrawer() {
   const { items, count, subtotal, setQty, remove } = useCart();
