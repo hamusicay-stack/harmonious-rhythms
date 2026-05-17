@@ -13,6 +13,7 @@ import { CATEGORY_LABELS, CONDITION_LABELS } from "@/lib/marketplaceData";
 import { ImageLightbox } from "@/components/marketplace/ImageLightbox";
 import { ReportListingDialog } from "@/components/marketplace/ReportListingDialog";
 import { ChatThreadDialog } from "@/components/marketplace/ChatThreadDialog";
+import { MakeOfferDialog } from "@/components/marketplace/MakeOfferDialog";
 import { useListingLike } from "@/hooks/useListingLike";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
@@ -293,8 +294,16 @@ function ListingDetailPage() {
                   <span>לשמירה על פרטיות המוכר, יצירת הקשר נעשית דרך הצ׳אט המאובטח באתר. מספר הטלפון אינו נחשף.</span>
                 </div>
               )}
-              {!isOwner && (
-                <ChatThreadDialog listingId={listing.id} sellerId={listing.seller_id} listingTitle={listing.title} />
+              {!isOwner && !listing.is_sold && (
+                <div className="space-y-2">
+                  <MakeOfferDialog
+                    listingId={listing.id}
+                    sellerId={listing.seller_id}
+                    listingTitle={listing.title}
+                    listingPrice={Number(listing.price)}
+                  />
+                  <ChatThreadDialog listingId={listing.id} sellerId={listing.seller_id} listingTitle={listing.title} />
+                </div>
               )}
               <div className="grid grid-cols-2 gap-2">
                 <Button

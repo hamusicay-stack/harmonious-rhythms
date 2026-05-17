@@ -9,6 +9,7 @@ import {
   CheckCircle2, Clock, XCircle,
 } from "lucide-react";
 import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
+import { OffersReceivedPanel } from "@/components/dashboard/OffersReceivedPanel";
 
 export type Listing = {
   id: string; title: string; price: number; status: string; views_count: number;
@@ -79,6 +80,7 @@ export function MyListingsTab({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-4">
+      <OffersReceivedPanel userId={userId} />
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border bg-card p-4 text-center">
           <div className="text-2xl font-bold text-primary">{listings.length}</div>

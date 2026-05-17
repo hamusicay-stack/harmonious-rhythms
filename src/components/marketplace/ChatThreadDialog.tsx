@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Send, MessageCircle } from "lucide-react";
+import { Loader2, Send, MessageCircle, MoreVertical, ShieldOff } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -22,6 +23,10 @@ interface Props {
   trigger?: React.ReactNode;
 }
 
+// Anti-spam: max 5 messages within a rolling 30s window
+const SPAM_LIMIT = 5;
+const SPAM_WINDOW_MS = 30_000;
+
 export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }: Props) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -30,9 +35,20 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [sendTimes, setSendTimes] = useState<number[]>([]);
+  const [cooldown, setCooldown] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isBuyer = user && user.id !== sellerId;
+  // Other party = seller (buyer's POV is what this dialog handles)
+  const otherUserId = sellerId;
+
+  // Cooldown ticker
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -110,6 +126,18 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
 
   const send = async () => {
     if (!user || !threadId || !body.trim()) return;
+
+    // Anti-spam throttle
+    const now = Date.now();
+    const recent = sendTimes.filter((t) => now - t < SPAM_WINDOW_MS);
+    if (recent.length >= SPAM_LIMIT) {
+      const waitMs = SPAM_WINDOW_MS - (now - recent[0]);
+      const waitSec = Math.ceil(waitMs / 1000);
+      setCooldown(waitSec);
+      toast.error(`אנטי-ספאם: המתן ${waitSec} שניות בין הודעות`);
+      return;
+    }
+
     setSending(true);
     const text = body.trim().slice(0, 2000);
     const { error } = await supabase.from("marketplace_chat_messages").insert({
@@ -119,10 +147,30 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
     });
     setSending(false);
     if (error) {
-      toast.error("שליחה נכשלה");
+      if (error.message?.includes("BLOCKED")) {
+        toast.error("לא ניתן לשלוח — אחד הצדדים חסם את השני");
+      } else {
+        toast.error("שליחה נכשלה");
+      }
       return;
     }
+    setSendTimes([...recent, now]);
     setBody("");
+  };
+
+  const blockOther = async () => {
+    if (!user || !otherUserId) return;
+    if (!confirm("לחסום משתמש זה? לא תקבל ממנו הודעות נוספות.")) return;
+    const { error } = await supabase.from("chat_blocks").insert({
+      blocker_id: user.id,
+      blocked_id: otherUserId,
+    });
+    if (error && !error.message.includes("duplicate")) {
+      toast.error("חסימה נכשלה");
+      return;
+    }
+    toast.success("המשתמש נחסם");
+    setOpen(false);
   };
 
   if (!user) {
@@ -146,7 +194,21 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
       </DialogTrigger>
       <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
-          <DialogTitle className="text-right text-base line-clamp-1">צ'אט עם המוכר · {listingTitle}</DialogTitle>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם המוכר · {listingTitle}</DialogTitle>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={blockOther} className="text-destructive">
+                  <ShieldOff className="h-4 w-4" />חסום משתמש
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </DialogHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-muted/30">
@@ -177,23 +239,31 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
           )}
         </div>
 
-        <div className="border-t p-2 flex gap-2 items-end bg-background">
-          <Input
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            placeholder="כתוב הודעה..."
-            className="flex-1"
-            maxLength={2000}
-          />
-          <Button onClick={send} disabled={sending || !body.trim()} size="icon">
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+        <div className="border-t p-2 bg-background space-y-1">
+          {cooldown > 0 && (
+            <div className="text-[11px] text-amber-600 dark:text-amber-400 px-1">
+              אנטי-ספאם: המתן {cooldown} שניות לפני שליחה נוספת
+            </div>
+          )}
+          <div className="flex gap-2 items-end">
+            <Input
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              placeholder={cooldown > 0 ? `המתן ${cooldown}ש...` : "כתוב הודעה..."}
+              className="flex-1"
+              maxLength={2000}
+              disabled={cooldown > 0}
+            />
+            <Button onClick={send} disabled={sending || !body.trim() || cooldown > 0} size="icon">
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
