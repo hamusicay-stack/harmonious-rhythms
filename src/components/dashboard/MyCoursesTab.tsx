@@ -130,7 +130,11 @@ export function MyCoursesTab({ userId }: { userId: string }) {
                 <Progress value={r.progress_percent} className="h-1.5" />
               </div>
               <Button asChild className="w-full gap-2" variant="default">
-                <Link to="/academy/$slug" params={{ slug: c.slug }}>
+                <Link
+                  to="/academy/$slug"
+                  params={{ slug: c.slug }}
+                  search={r.last_lesson_id ? ({ lesson: r.last_lesson_id } as never) : undefined}
+                >
                   <PlayCircle className="h-4 w-4" />
                   {isDone ? "צפה שוב" : "המשך למידה"}
                 </Link>
