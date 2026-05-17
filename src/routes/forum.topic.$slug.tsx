@@ -208,7 +208,10 @@ function TopicPage() {
             {sub.data?.subscribed ? <><BellOff className="h-4 w-4 ml-1" />הפסק מעקב</> : <><Bell className="h-4 w-4 ml-1" />עקוב אחרי האשכול</>}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mb-6">{posts.length} הודעות · {t.view_count} צפיות</p>
+        <p className="text-xs text-muted-foreground mb-3">{posts.length} הודעות · {t.view_count} צפיות</p>
+        {topicTags.data?.tags && topicTags.data.tags.length > 0 && (
+          <div className="mb-6"><TopicTagStrip tags={topicTags.data.tags} /></div>
+        )}
 
         <div className="space-y-4">
           {opPost && (
