@@ -493,6 +493,10 @@ function ShortPanel({
     return canHls ? short.hlsUrl : short.videoUrl;
   })();
 
+  // IndexedDB-backed offline cache. Returns a blob: URL on revisits.
+  const cachedUrl = useCachedVideoUrl(isActive ? playbackUrl : null);
+  const finalSrc = cachedUrl ?? playbackUrl;
+
   const triggerHeartPop = useCallback((x: number, y: number) => {
     const id = ++popIdRef.current;
     setHeartPops((prev) => [...prev, { id, x, y }]);
