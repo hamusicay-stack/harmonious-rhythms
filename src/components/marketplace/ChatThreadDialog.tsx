@@ -194,7 +194,21 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
       </DialogTrigger>
       <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
-          <DialogTitle className="text-right text-base line-clamp-1">צ'אט עם המוכר · {listingTitle}</DialogTitle>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם המוכר · {listingTitle}</DialogTitle>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={blockOther} className="text-destructive">
+                  <ShieldOff className="h-4 w-4" />חסום משתמש
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </DialogHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-muted/30">
