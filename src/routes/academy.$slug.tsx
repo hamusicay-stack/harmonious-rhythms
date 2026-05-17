@@ -216,6 +216,32 @@ function CoursePage() {
     }
   }, [activeLesson?.id, canWatch, course?.id]);
 
+  // Securely resolve media for the active lesson (signed URL for Supabase
+  // storage; plain URL otherwise). Server returns NULLs if unauthorized.
+  useEffect(() => {
+    let cancelled = false;
+    if (!activeLesson || !canWatch) { setActiveMedia({ src: null, loading: false, authorized: false }); return; }
+    setActiveMedia({ src: null, loading: true, authorized: false });
+    (async () => {
+      const { data, error } = await (supabase as any).rpc("get_lesson_media", { _lesson_id: activeLesson.id });
+      if (cancelled) return;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (error || !row || !row.authorized) {
+        setActiveMedia({ src: null, loading: false, authorized: false });
+        return;
+      }
+      const provider = (row.video_provider ?? "").toLowerCase();
+      if (provider === "supabase" && row.video_path) {
+        const { data: signed } = await supabase.storage.from("academy").createSignedUrl(row.video_path, 3600);
+        if (cancelled) return;
+        setActiveMedia({ src: signed?.signedUrl ?? null, loading: false, authorized: true });
+      } else {
+        setActiveMedia({ src: row.video_url ?? null, loading: false, authorized: true });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [activeLesson?.id, canWatch]);
+
   return (
     <SiteLayout>
       <section className="container mx-auto px-4 py-6 md:px-8 md:py-8">
