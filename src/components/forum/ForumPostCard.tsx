@@ -258,6 +258,7 @@ export function ForumPostCard({
         </div>
       ) : (
         <div
+          ref={bodyRef}
           className="prose prose-sm dark:prose-invert max-w-none break-words"
           dangerouslySetInnerHTML={{ __html: sanitizeForumHtml(p.body_md) }}
         />
