@@ -141,7 +141,12 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
         </DialogHeader>
 
         <div className="space-y-2">
-          {OPTIONS.map((opt) => (
+          {loadingPrices && options.length === 0 ? (
+            <div className="flex items-center justify-center text-muted-foreground p-3">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />טוען מחירים…
+            </div>
+          ) : null}
+          {options.map((opt: BoostOption) => (
             <div key={opt.hours} className="rounded-xl border-2 border-border p-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="font-semibold text-sm">הקפצה ל-{opt.hours} שעות</div>
