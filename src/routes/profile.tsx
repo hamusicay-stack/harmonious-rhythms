@@ -477,6 +477,14 @@ function MyListings({ userId }: { userId: string }) {
           })}
         </div>
       )}
+      {boostId && (
+        <BoostListingDialog
+          listingId={boostId}
+          open={!!boostId}
+          onOpenChange={(o) => { if (!o) setBoostId(null); }}
+          onBumped={load}
+        />
+      )}
     </div>
   );
 }
