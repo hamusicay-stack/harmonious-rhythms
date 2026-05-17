@@ -41,6 +41,7 @@ export function sanitizeForumHtml(input: string): string {
       "src", "alt", "width", "height", "loading",
       "controls", "preload", "type",
       "frameborder", "allow", "allowfullscreen", "referrerpolicy",
+      "data-type", "data-id", "data-label", "data-mention",
     ],
     ALLOWED_URI_REGEXP: /^(https?:\/\/|\/|data:image\/)/i,
     ALLOW_DATA_ATTR: false,
