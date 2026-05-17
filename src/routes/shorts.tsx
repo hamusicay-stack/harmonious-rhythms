@@ -322,6 +322,74 @@ function ShortsPage() {
     userId: user?.id ?? null,
   });
 
+  /* ---------- Creator grouping (IG-Reels matrix) ---------- */
+  const { creatorIndexMap, creatorBoundaries, creators } = useMemo(() => {
+    const map: number[] = [];
+    const boundaries: number[] = [];
+    const cs: { creatorId: string; creator: Short["creator"]; count: number }[] = [];
+    let prev: string | null = null;
+    let cIdx = -1;
+    shorts.forEach((s, i) => {
+      if (s.creator_id !== prev) {
+        cIdx++;
+        boundaries.push(i);
+        cs.push({ creatorId: s.creator_id, creator: s.creator, count: 1 });
+        prev = s.creator_id;
+      } else {
+        cs[cIdx].count += 1;
+      }
+      map.push(cIdx);
+    });
+    return { creatorIndexMap: map, creatorBoundaries: boundaries, creators: cs };
+  }, [shorts]);
+
+  const activeCreatorIdx = creatorIndexMap[activeIndex] ?? 0;
+  const activeCreator = creators[activeCreatorIdx];
+  const creatorStart = creatorBoundaries[activeCreatorIdx] ?? 0;
+  const creatorCount = activeCreator?.count ?? 0;
+  const activeVideoIdx = activeIndex - creatorStart;
+
+  /* ---------- Track current video progress for segmented bars ---------- */
+  useEffect(() => {
+    setCurrentProgress(0);
+    const cur = shorts[activeIndex];
+    if (!cur) return;
+    const v = videoRefs.current.get(cur.id);
+    if (!v) return;
+    const onTime = () => {
+      if (v.duration > 0) setCurrentProgress(Math.min(1, v.currentTime / v.duration));
+    };
+    v.addEventListener("timeupdate", onTime);
+    return () => v.removeEventListener("timeupdate", onTime);
+  }, [activeIndex, shorts]);
+
+  /* ---------- Scroll helpers (vertical snap + horizontal creator skip) ---------- */
+  const scrollToFlatIdx = useCallback((idx: number) => {
+    const root = containerRef.current;
+    if (!root) return;
+    const panel = root.querySelector<HTMLElement>(`[data-idx="${idx}"]`);
+    panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const jumpToCreator = useCallback((delta: number) => {
+    const next = Math.max(0, Math.min(creatorBoundaries.length - 1, activeCreatorIdx + delta));
+    if (next === activeCreatorIdx) return;
+    scrollToFlatIdx(creatorBoundaries[next]);
+  }, [activeCreatorIdx, creatorBoundaries, scrollToFlatIdx]);
+
+  const onHeaderPointerDown = (e: React.PointerEvent) => {
+    swipeRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+  };
+  const onHeaderPointerUp = (e: React.PointerEvent) => {
+    const s = swipeRef.current; swipeRef.current = null;
+    if (!s) return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      jumpToCreator(dx < 0 ? 1 : -1);
+    }
+  };
+
   /* ---------- Like ---------- */
   const toggleLike = useCallback(async (id: string) => {
     if (!user) { toast.error("רגע — צריך להיכנס לאולפן כדי לסמן לייק"); return; }
