@@ -465,8 +465,8 @@ function ShortPanel({
         )}
       >
         <video
-          ref={onRegisterVideo}
-          src={short.videoUrl}
+          ref={(el) => { onRegisterVideo(el); setVideoEl(el); }}
+          src={playbackUrl}
           poster={short.poster ?? undefined}
           className="absolute inset-0 h-full w-full object-cover"
           muted={isMuted}
@@ -478,11 +478,30 @@ function ShortPanel({
 
         {/* Top safe zone — gradient + premium badge */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-black/70 via-black/30 to-transparent" />
-        {short.isPremium && (
-          <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-gold">
-            <Crown className="h-3 w-3" /> PREMIUM
-          </div>
-        )}
+        <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+          {short.isPremium && (
+            <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-gold">
+              <Crown className="h-3 w-3" /> PREMIUM
+            </div>
+          )}
+          {short.isHiRes && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setShowHiResDetails((v) => !v); }}
+              className="group relative flex items-center gap-1 rounded-full bg-gradient-to-br from-amber-400/95 via-yellow-300/95 to-amber-500/95 px-2.5 py-1 text-[10px] font-bold text-black shadow-[0_0_18px_oklch(0.85_0.18_85/0.6)] ring-1 ring-amber-200/60 backdrop-blur-md"
+              aria-label="Hi-Res Audio"
+            >
+              <Sparkles className="h-3 w-3" />
+              Hi-Res Audio ✨🎧
+              <span className="pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-amber-300/40 blur-md" />
+            </button>
+          )}
+          {short.isHiRes && showHiResDetails && (
+            <div className="rounded-md bg-black/70 px-2 py-1 text-[10px] font-mono text-amber-200 backdrop-blur-md ring-1 ring-amber-300/30">
+              {short.audioBitrate ?? 320}kbps · 48kHz · Studio
+            </div>
+          )}
+        </div>
 
         {/* Pulsing sound-on overlay */}
         {showSoundOverlay && (
