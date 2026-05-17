@@ -150,6 +150,16 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
       <ProfileCompletion profile={profile as never} />
       <RankXpBar points={points} />
 
+      {form.current_status && (
+        <div className="flex justify-center">
+          <Badge className="gap-1.5 border-amber-500/40 bg-gradient-to-r from-amber-500/15 to-amber-600/5 px-3 py-1 text-amber-700 dark:text-amber-300" variant="outline">
+            <Sparkles className="h-3.5 w-3.5" />
+            {STATUS_LABEL[form.current_status] ?? form.current_status}
+          </Badge>
+        </div>
+      )}
+
+
       <form
         onSubmit={handleSave}
         className="space-y-6 rounded-3xl border border-border/60 bg-card-elevated p-6 shadow-elegant md:p-8"
