@@ -740,15 +740,19 @@ function ShortPanel({
   short, idx, isActive, isMuted, audioUnlocked, liked,
   onRegisterVideo, onUnlockAudio, onToggleMute, onLike, onOpenComments, onShare, fmt,
 }: PanelProps) {
-  const [heartPops, setHeartPops] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [heartPops, setHeartPops] = useState<{ id: number; tx: number; ty: number }[]>([]);
   const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
-  const [showHiResDetails, setShowHiResDetails] = useState(false);
+  const [playPulse, setPlayPulse] = useState<{ id: number; playing: boolean } | null>(null);
   const lastTapRef = useRef<{ t: number; x: number; y: number } | null>(null);
+  const tapTimerRef = useRef<number | null>(null);
   const popIdRef = useRef(0);
+  const pulseIdRef = useRef(0);
+  const likeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
-  // Prefer HLS manifest if available AND browser supports it natively
-  // (Safari/iOS); otherwise gracefully fall back to the raw storage URL so
-  // playback never breaks while ABR is still being generated.
+  // Strict "Studio Quality Only": always pick the highest fidelity source.
+  // Prefer HLS only when the browser supports it natively (Safari/iOS);
+  // otherwise serve the raw, full-bitrate master so we never downgrade.
   const playbackUrl = (() => {
     if (!short.hlsUrl) return short.videoUrl;
     if (typeof document === "undefined") return short.videoUrl;
@@ -762,11 +766,39 @@ function ShortPanel({
   const finalSrc = cachedUrl ?? playbackUrl;
 
   const triggerHeartPop = useCallback((x: number, y: number) => {
+    const panel = panelRef.current;
+    const likeBtn = likeBtnRef.current;
+    let tx = 0;
+    let ty = 0;
+    if (panel && likeBtn) {
+      const pr = panel.getBoundingClientRect();
+      const lr = likeBtn.getBoundingClientRect();
+      // Vector from tap point to like-button center, relative to panel.
+      tx = (lr.left + lr.width / 2) - (pr.left + x);
+      ty = (lr.top + lr.height / 2) - (pr.top + y);
+    }
     const id = ++popIdRef.current;
-    setHeartPops((prev) => [...prev, { id, x, y }]);
-    setTimeout(() => setHeartPops((prev) => prev.filter((p) => p.id !== id)), 850);
+    setHeartPops((prev) => [...prev, { id, tx, ty }]);
+    setTimeout(() => setHeartPops((prev) => prev.filter((p) => p.id !== id)), 1200);
     if (!liked) onLike();
   }, [liked, onLike]);
+
+  const togglePlayPause = useCallback(() => {
+    const v = videoEl;
+    if (!v) return;
+    if (v.paused) {
+      const p = v.play();
+      if (p && typeof p.catch === "function") p.catch(() => { /* noop */ });
+      setPlayPulse({ id: ++pulseIdRef.current, playing: true });
+    } else {
+      v.pause();
+      setPlayPulse({ id: ++pulseIdRef.current, playing: false });
+    }
+    const myId = pulseIdRef.current;
+    window.setTimeout(() => {
+      setPlayPulse((cur) => (cur && cur.id === myId ? null : cur));
+    }, 520);
+  }, [videoEl]);
 
   const handlePointer = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     // First interaction unlocks audio
@@ -778,12 +810,21 @@ function ShortPanel({
     const y = e.clientY - rect.top;
     const last = lastTapRef.current;
     if (last && now - last.t < 320 && Math.hypot(x - last.x, y - last.y) < 60) {
+      // Second tap → like, cancel pending single-tap toggle.
+      if (tapTimerRef.current) { window.clearTimeout(tapTimerRef.current); tapTimerRef.current = null; }
       triggerHeartPop(x, y);
       lastTapRef.current = null;
     } else {
       lastTapRef.current = { t: now, x, y };
+      // Defer play/pause toggle so we can distinguish double-tap.
+      if (tapTimerRef.current) window.clearTimeout(tapTimerRef.current);
+      tapTimerRef.current = window.setTimeout(() => {
+        tapTimerRef.current = null;
+        // Audio-unlock taps shouldn't also toggle pause.
+        if (audioUnlocked) togglePlayPause();
+      }, 280);
     }
-  }, [audioUnlocked, onUnlockAudio, triggerHeartPop]);
+  }, [audioUnlocked, onUnlockAudio, triggerHeartPop, togglePlayPause]);
 
   const showSoundOverlay = isActive && !audioUnlocked;
 
@@ -794,6 +835,7 @@ function ShortPanel({
     >
       {/* 9:16 frame: full-screen on mobile, centered card on lg+ */}
       <div
+        ref={panelRef}
         onPointerDown={handlePointer}
         className={cn(
           "relative h-full w-full overflow-hidden bg-black",
@@ -804,39 +846,31 @@ function ShortPanel({
           ref={(el) => { onRegisterVideo(el); setVideoEl(el); }}
           src={finalSrc}
           poster={short.poster ?? undefined}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover transform-gpu will-change-transform"
           muted={isMuted}
           playsInline
           autoPlay
           loop
-          preload={isActive ? "auto" : "metadata"}
+          disablePictureInPicture
+          disableRemotePlayback
+          preload="auto"
+          x-webkit-airplay="deny"
         />
 
         {/* Top safe zone — gradient + premium badge */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-black/70 via-black/30 to-transparent" />
-        <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+        <div className="pointer-events-none absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
           {short.isPremium && (
             <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-gold">
               <Crown className="h-3 w-3" /> PREMIUM
             </div>
           )}
-          {short.isHiRes && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setShowHiResDetails((v) => !v); }}
-              className="group relative flex items-center gap-1 rounded-full bg-gradient-to-br from-amber-400/95 via-yellow-300/95 to-amber-500/95 px-2.5 py-1 text-[10px] font-bold text-black shadow-[0_0_18px_oklch(0.85_0.18_85/0.6)] ring-1 ring-amber-200/60 backdrop-blur-md"
-              aria-label="Hi-Res Audio"
-            >
-              <Sparkles className="h-3 w-3" />
-              Hi-Res Audio ✨🎧
-              <span className="pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-amber-300/40 blur-md" />
-            </button>
-          )}
-          {short.isHiRes && showHiResDetails && (
-            <div className="rounded-md bg-black/70 px-2 py-1 text-[10px] font-mono text-amber-200 backdrop-blur-md ring-1 ring-amber-300/30">
-              {short.audioBitrate ?? 320}kbps · 48kHz · Studio
-            </div>
-          )}
+          {/* Static Hi-Res badge — platform-wide Studio Quality Only standard */}
+          <div className="relative flex items-center gap-1 rounded-full bg-gradient-to-br from-amber-400/95 via-yellow-300/95 to-amber-500/95 px-2.5 py-1 text-[10px] font-bold text-black shadow-[0_0_18px_oklch(0.85_0.18_85/0.6)] ring-1 ring-amber-200/60 backdrop-blur-md">
+            <Sparkles className="h-3 w-3" />
+            Hi-Res Audio ✨🎧
+            <span className="pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-amber-300/40 blur-md" />
+          </div>
         </div>
 
         {/* Pulsing sound-on overlay */}
@@ -869,15 +903,30 @@ function ShortPanel({
           </button>
         )}
 
-        {/* Heart-pop animations */}
+        {/* Center Play/Pause pulse — fades out after 500ms */}
+        {playPulse && (
+          <div
+            key={playPulse.id}
+            className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
+          >
+            <div
+              className="flex h-24 w-24 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-md ring-1 ring-white/20"
+              style={{ animation: "shortsPlayPulse 500ms ease-out forwards" }}
+            >
+              {playPulse.playing ? <Play className="h-12 w-12 fill-current" /> : <Pause className="h-12 w-12 fill-current" />}
+            </div>
+          </div>
+        )}
+
+        {/* Fly-to-side heart animations */}
         {heartPops.map((p) => (
           <Heart
             key={p.id}
-            className="pointer-events-none absolute z-30 h-24 w-24 fill-rose-500 text-rose-500 drop-shadow-2xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-30 h-28 w-28 -translate-x-1/2 -translate-y-1/2 fill-rose-500 text-rose-500 drop-shadow-[0_0_24px_oklch(0.7_0.2_15/0.7)] transform-gpu will-change-transform"
             style={{
-              left: p.x - 48,
-              top: p.y - 48,
-              animation: "shortsHeartPop 850ms cubic-bezier(0.22, 1, 0.36, 1) forwards",
+              ["--fly-tx" as string]: `${p.tx}px`,
+              ["--fly-ty" as string]: `${p.ty}px`,
+              animation: "shortsHeartFly 1100ms cubic-bezier(0.22, 1, 0.36, 1) forwards",
             }}
           />
         ))}
@@ -922,6 +971,7 @@ function ShortPanel({
         {/* Right rail — thumb-zone actions */}
         <div className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] right-2 z-10 flex flex-col items-center gap-4">
           <RailButton
+            ref={likeBtnRef}
             icon={<Heart className={cn("h-7 w-7", liked && "fill-rose-500 text-rose-500")} />}
             label={fmt(short.likes)}
             onClick={onLike}
