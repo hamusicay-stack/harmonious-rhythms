@@ -54,7 +54,7 @@ export function SidebarAd({ side, position }: Props) {
       supabase.rpc("track_banner_event" as any, { _banner_id: data.id, _event_type: "view" });
     })();
     return () => { cancelled = true; };
-  }, [position, side]);
+  }, [position, side, isVip]);
 
   const onDismiss = () => {
     setDismissed(true);
@@ -64,6 +64,7 @@ export function SidebarAd({ side, position }: Props) {
     if (banner) supabase.rpc("track_banner_event" as any, { _banner_id: banner.id, _event_type: "click" });
   };
 
+  if (isVip) return null;
   if (!banner || dismissed) return null;
 
   // Position: hidden below xl (1280px), narrow column on the side, vertically centered.
