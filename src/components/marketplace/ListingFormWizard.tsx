@@ -547,25 +547,16 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         {step === 2 && (
           <>
             <h2 className="text-lg font-semibold">פרטים טכניים</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>יצרן <span className="text-destructive">*</span></Label>
-                <Select value={form.brand} onValueChange={(v) => update("brand", v)}>
-                  <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
-                  <SelectContent>{BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>דגם</Label>
-                <Input value={form.model} onChange={(e) => update("model", e.target.value)} placeholder="למשל: Pa1000" />
-              </div>
-            </div>
-            {form.brand === "אחר" && (
-              <div className="space-y-2">
-                <Label>שם היצרן *</Label>
-                <Input value={form.customBrand} onChange={(e) => update("customBrand", e.target.value)} />
-              </div>
-            )}
+            <EquipmentAutoSuggest
+              category={form.category}
+              brand={form.brand}
+              model={form.model}
+              customBrand={form.customBrand}
+              onBrandChange={(v) => update("brand", v)}
+              onModelChange={(v) => update("model", v)}
+              onCustomBrandChange={(v) => update("customBrand", v)}
+              onCatalogMatch={(specs) => setCatalogSpecs(specs)}
+            />
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>שנת ייצור</Label>
