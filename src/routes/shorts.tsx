@@ -138,14 +138,16 @@ function ShortsPage() {
 
     const io = new IntersectionObserver(
       (entries) => {
-        let best: { idx: number; ratio: number } | null = null;
+        let bestIdx = -1;
+        let bestRatio = 0.55;
         entries.forEach((e) => {
           const idx = Number((e.target as HTMLElement).dataset.idx);
-          if (!Number.isNaN(idx) && e.intersectionRatio > (best?.ratio ?? 0.55)) {
-            best = { idx, ratio: e.intersectionRatio };
+          if (!Number.isNaN(idx) && e.intersectionRatio > bestRatio) {
+            bestRatio = e.intersectionRatio;
+            bestIdx = idx;
           }
         });
-        if (best) setActiveIndex(best.idx);
+        if (bestIdx >= 0) setActiveIndex(bestIdx);
       },
       { root, threshold: [0.55, 0.85] }
     );
