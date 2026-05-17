@@ -17,6 +17,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProsRouteImport } from './routes/pros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -133,6 +134,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const MarketplaceRoute = MarketplaceRouteImport.update({
   id: '/marketplace',
   path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForumRoute = ForumRouteImport.update({
@@ -540,6 +546,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
@@ -625,6 +632,7 @@ export interface FileRoutesByTo {
   '/academy': typeof AcademyRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/shorts': typeof ShortsRoute
@@ -708,6 +716,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/profile': typeof ProfileRoute
   '/pros': typeof ProsRouteWithChildren
@@ -797,6 +806,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/forum'
+    | '/leaderboard'
     | '/marketplace'
     | '/profile'
     | '/pros'
@@ -882,6 +892,7 @@ export interface FileRouteTypes {
     | '/academy'
     | '/auth'
     | '/contact'
+    | '/leaderboard'
     | '/profile'
     | '/reset-password'
     | '/shorts'
@@ -964,6 +975,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/forum'
+    | '/leaderboard'
     | '/marketplace'
     | '/profile'
     | '/pros'
@@ -1052,6 +1064,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForumRoute: typeof ForumRouteWithChildren
+  LeaderboardRoute: typeof LeaderboardRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   ProsRoute: typeof ProsRouteWithChildren
@@ -1127,6 +1140,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/marketplace'
       preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forum': {
@@ -1901,6 +1921,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForumRoute: ForumRouteWithChildren,
+  LeaderboardRoute: LeaderboardRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   ProfileRoute: ProfileRoute,
   ProsRoute: ProsRouteWithChildren,

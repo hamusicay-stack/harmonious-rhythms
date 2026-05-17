@@ -23,6 +23,7 @@ import { ForumEditor } from "@/components/forum/ForumEditor";
 import { UserHoverCard } from "@/components/forum/UserHoverCard";
 import { UserBadges, useUserBadges } from "@/components/UserBadges";
 import { sanitizeForumHtml } from "@/lib/sanitize";
+import { RankBadge } from "@/components/gamification/RankBadge";
 
 export type ForumPostAuthor = {
   id?: string;
@@ -209,6 +210,8 @@ export function ForumPostCard({
               )}
               {/* SSoT badges: admin chip + tier (with crown for VIP) + points */}
               <UserBadges userId={p.author_id} size="xs" showPoints={false} />
+              {/* Gamification rank — drives social proof */}
+              <RankBadge points={points} size="xs" />
             </div>
             <div className="mt-1 flex items-center gap-2 flex-wrap text-[11px] text-muted-foreground">
               {a?.forum_rank && (
