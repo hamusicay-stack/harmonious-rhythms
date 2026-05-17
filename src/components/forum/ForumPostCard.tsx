@@ -104,6 +104,37 @@ export function ForumPostCard({
   const tierColor = meta?.tier?.color ?? null;
   const points = meta?.points ?? 0;
 
+  // Intercept inline <audio> elements inside post HTML and route them
+  // through the global SoundCloud-style player.
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const { play } = useAudioPlayer();
+  const authorDisplay = a?.display_name ?? a?.username ?? "Forum Upload";
+  useEffect(() => {
+    const root = bodyRef.current;
+    if (!root) return;
+    const audios = Array.from(root.querySelectorAll("audio"));
+    if (audios.length === 0) return;
+    const cleanups: Array<() => void> = [];
+    audios.forEach((el, idx) => {
+      el.removeAttribute("autoplay");
+      const onPlay = (e: Event) => {
+        e.preventDefault();
+        el.pause();
+        const src = el.currentSrc || el.getAttribute("src") || "";
+        if (!src) return;
+        play({
+          id: `${p.id}-audio-${idx}`,
+          url: src,
+          title: el.getAttribute("title") || "Audio Attached",
+          artist: authorDisplay,
+        });
+      };
+      el.addEventListener("play", onPlay);
+      cleanups.push(() => el.removeEventListener("play", onPlay));
+    });
+    return () => cleanups.forEach((fn) => fn());
+  }, [p.id, p.body_md, play, authorDisplay]);
+
   const borderClass = isSolution
     ? "border-emerald-500/50 ring-1 ring-emerald-500/30"
     : isVip
