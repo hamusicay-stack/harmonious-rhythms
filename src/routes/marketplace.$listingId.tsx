@@ -367,6 +367,10 @@ function ListingDetailPage() {
             </div>
           </div>
         )}
+
+        <div className="mt-12 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-5">
+          <CrossSellRecommendations category={listing.category} currentItemId={listing.id} />
+        </div>
       </div>
     </ModulePlaceholder>
   );
