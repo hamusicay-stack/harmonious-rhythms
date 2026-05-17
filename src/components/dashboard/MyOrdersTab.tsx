@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ShoppingBag, Loader2, ExternalLink } from "lucide-react";
+import { ShoppingBag, Loader2, ExternalLink, RotateCcw, Package } from "lucide-react";
+
+type OrderItem = {
+  id: string;
+  product_title: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  fulfillment_kind: string | null;
+};
 
 type Order = {
   id: string;
@@ -22,6 +24,7 @@ type Order = {
   total_amount: number;
   currency: string;
   created_at: string;
+  shop_order_items: OrderItem[];
 };
 
 const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -37,11 +40,7 @@ const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secon
 
 function fmtDate(s: string) {
   try {
-    return new Date(s).toLocaleDateString("he-IL", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+    return new Date(s).toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit", year: "numeric" });
   } catch {
     return s;
   }
@@ -57,9 +56,7 @@ export function MyOrdersTab({ userId }: { userId: string }) {
       setLoading(true);
       const { data } = await (supabase as any)
         .from("shop_orders")
-        .select(
-          "id, order_number, status, payment_status, total_amount, currency, created_at",
-        )
+        .select("*, shop_order_items(*)")
         .eq("customer_id", userId)
         .order("created_at", { ascending: false });
       if (!alive) return;
@@ -99,60 +96,80 @@ export function MyOrdersTab({ userId }: { userId: string }) {
   }
 
   return (
-    <Card className="overflow-hidden">
-      <div className="overflow-x-auto">
-        <Table dir="rtl">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-right">מספר הזמנה</TableHead>
-              <TableHead className="text-right">תאריך</TableHead>
-              <TableHead className="text-right">סכום</TableHead>
-              <TableHead className="text-right">סטטוס</TableHead>
-              <TableHead className="text-right">תשלום</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((o) => {
-              const s = STATUS_LABELS[o.status] ?? {
-                label: o.status,
-                variant: "outline" as const,
-              };
-              const p = STATUS_LABELS[o.payment_status] ?? {
-                label: o.payment_status,
-                variant: "outline" as const,
-              };
-              return (
-                <TableRow key={o.id}>
-                  <TableCell className="font-mono text-sm">
-                    #{o.order_number}
-                  </TableCell>
-                  <TableCell>{fmtDate(o.created_at)}</TableCell>
-                  <TableCell className="font-semibold">
-                    ₪{Number(o.total_amount).toFixed(2)}
-                  </TableCell>
-                  <TableCell>
+    <div className="space-y-4" dir="rtl">
+      {orders.map((o) => {
+        const s = STATUS_LABELS[o.status] ?? { label: o.status, variant: "outline" as const };
+        const p = STATUS_LABELS[o.payment_status] ?? { label: o.payment_status, variant: "outline" as const };
+        const items = o.shop_order_items ?? [];
+        return (
+          <Card
+            key={o.id}
+            className="overflow-hidden border-amber-500/20 bg-gradient-to-br from-background via-background to-amber-500/5 transition-all hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10"
+          >
+            <CardContent className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-amber-500" />
+                    <span className="font-mono text-sm font-semibold text-amber-600 dark:text-amber-400">
+                      #{o.order_number}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{fmtDate(o.created_at)}</p>
+                </div>
+
+                <div className="flex flex-col items-end gap-2">
+                  <div className="text-xl font-bold text-primary">₪{Number(o.total_amount).toFixed(2)}</div>
+                  <div className="flex gap-2">
                     <Badge variant={s.variant}>{s.label}</Badge>
-                  </TableCell>
-                  <TableCell>
                     <Badge variant={p.variant}>{p.label}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button asChild size="sm" variant="ghost">
-                      <Link
-                        to="/shop/order/$orderId"
-                        params={{ orderId: o.id }}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </Card>
+                  </div>
+                </div>
+              </div>
+
+              {items.length > 0 && (
+                <div className="mt-4 rounded-lg border border-border/50 bg-muted/30 p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    פריטים ({items.length})
+                  </p>
+                  <ul className="space-y-1">
+                    {items.slice(0, 4).map((it) => (
+                      <li key={it.id} className="flex items-center justify-between text-sm">
+                        <span className="truncate">
+                          <span className="text-muted-foreground">·</span> {it.product_title}
+                          {it.quantity > 1 && (
+                            <span className="text-xs text-muted-foreground"> ×{it.quantity}</span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                    {items.length > 4 && (
+                      <li className="text-xs text-muted-foreground">+{items.length - 4} פריטים נוספים</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="default">
+                  <Link to="/shop/order/$orderId" params={{ orderId: o.id }}>
+                    <ExternalLink className="ms-1 h-4 w-4" />
+                    צפה בקבלה
+                  </Link>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => toast("Reorder functionality coming soon")}
+                >
+                  <RotateCcw className="ms-1 h-4 w-4" />
+                  הזמן שוב
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 }
