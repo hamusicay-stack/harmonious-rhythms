@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowUp, Crown, Loader2, ShoppingCart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,12 +15,16 @@ import { toast } from "sonner";
  * VIP users boost instantly (quota assumed > 0 for now).
  * Non-VIP users add the boost as a CartItem (product_type: "marketplace_boost")
  * and are redirected to /shop/checkout. Fulfillment happens in checkout submit.
+ *
+ * Pricing is fetched live from `service_pricing` (keys: boost_24h, boost_48h)
+ * so admin price changes take effect immediately for buyers.
  */
 
-type BoostOption = { hours: 24 | 48; priceNis: number };
-const OPTIONS: BoostOption[] = [
-  { hours: 24, priceNis: 20 },
-  { hours: 48, priceNis: 35 },
+type BoostOption = { hours: 24 | 48; priceNis: number; serviceKey: string };
+const HOURS_BY_KEY: Record<string, 24 | 48> = { boost_24h: 24, boost_48h: 48 };
+const FALLBACK_OPTIONS: BoostOption[] = [
+  { hours: 24, priceNis: 20, serviceKey: "boost_24h" },
+  { hours: 48, priceNis: 35, serviceKey: "boost_48h" },
 ];
 
 async function applyBump(listingId: string, hours: number) {
