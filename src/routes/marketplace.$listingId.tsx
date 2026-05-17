@@ -93,6 +93,31 @@ function ListingDetailPage() {
       setSellerListingsCount(count ?? 0);
       setSimilar(sim ?? []);
       setInitialLikesCount(likesC ?? 0);
+
+      // Verified-buyer gating: anyone with a confirmed deal for this listing's model+brand
+      // (so a buyer who bought one Stratocaster can review another Stratocaster listing)
+      const modelKey = [l.brand, l.model].filter(Boolean).join(" ").trim();
+      let confirmedBuyerIds = new Set<string>();
+      if (modelKey) {
+        const { data: confirmedListings } = await supabase
+          .from("marketplace_listings")
+          .select("id")
+          .eq("brand", l.brand)
+          .eq("model", l.model)
+          .not("buyer_id", "is", null);
+        const cIds = (confirmedListings ?? []).map((x: any) => x.id);
+        if (cIds.length) {
+          const { data: confs } = await supabase
+            .from("marketplace_deal_confirmations")
+            .select("buyer_id")
+            .in("listing_id", cIds)
+            .eq("status", "confirmed");
+          (confs ?? []).forEach((c: any) => confirmedBuyerIds.add(c.buyer_id));
+        }
+      }
+      setVerifiedReviewerIds(confirmedBuyerIds);
+      setIsVerifiedBuyer(!!user && confirmedBuyerIds.has(user.id));
+
       setLoading(false);
     })();
   }, [listingId, user]);
