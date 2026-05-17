@@ -35,6 +35,7 @@ type Short = {
   creator_id: string;
   creator: { name: string; avatar: string | null };
   videoUrl: string;
+  hlsUrl: string | null;
   poster: string | null;
   title: string;
   description: string;
@@ -43,6 +44,10 @@ type Short = {
   views: number;
   isPremium: boolean;
   courseLink: string | null;
+  isHiRes: boolean;
+  audioBitrate: number | null;
+  lyricsUrl: string | null;
+  lyricsOffset: number;
 };
 
 function ShortsPage() {
