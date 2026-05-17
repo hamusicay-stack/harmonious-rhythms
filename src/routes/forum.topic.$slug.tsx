@@ -12,6 +12,7 @@ import { hasForumContent } from "@/lib/forum/utils";
 import { ForumPostCard, type ForumPostData } from "@/components/forum/ForumPostCard";
 import { ForumReplyTree } from "@/components/forum/ForumReplyTree";
 import { TopicTagStrip } from "@/components/forum/TopicTagManager";
+import { BannerSlot } from "@/components/BannerSlot";
 import { getTopicTags } from "@/lib/forum/tags.functions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -241,6 +242,8 @@ function TopicPage() {
               onToggleSolution={() => toggleSolution(opPost.id)}
             />
           )}
+
+          <BannerSlot position="forum_topic_mid" />
 
           <ForumReplyTree
             posts={posts}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Banner = {
   id: string;
@@ -9,9 +10,11 @@ type Banner = {
 };
 
 export function BannerSlot({ position = "home_top", className }: { position?: string; className?: string }) {
+  const { isVip } = useAuth();
   const [banner, setBanner] = useState<Banner | null>(null);
 
   useEffect(() => {
+    if (isVip) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -29,8 +32,9 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
       supabase.rpc("track_banner_event", { _banner_id: data.id, _event_type: "view" });
     })();
     return () => { cancelled = true; };
-  }, [position]);
+  }, [position, isVip]);
 
+  if (isVip) return null;
   if (!banner) return null;
 
   const handleClick = () => {
@@ -38,15 +42,20 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
   };
 
   return (
-    <a
-      href={banner.target_url}
-      target="_blank"
-      rel="noopener noreferrer sponsored"
-      onClick={handleClick}
-      className={`block overflow-hidden rounded-xl border border-border/40 transition-smooth hover:opacity-95 ${className ?? ""}`}
-      aria-label={banner.title}
-    >
-      <img src={banner.image_url} alt={banner.title} className="h-auto w-full object-cover" loading="lazy" />
-    </a>
+    <div className={`relative block w-full overflow-hidden my-4 rounded-lg border border-border/40 bg-muted/30 ${className ?? ""}`}>
+      <span className="absolute right-2 top-2 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground backdrop-blur">
+        פרסומת
+      </span>
+      <a
+        href={banner.target_url}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        onClick={handleClick}
+        className="block transition-smooth hover:opacity-95"
+        aria-label={banner.title}
+      >
+        <img src={banner.image_url} alt={banner.title} className="h-auto w-full object-cover" loading="lazy" />
+      </a>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Banner = {
   id: string;
@@ -25,10 +26,12 @@ const STORAGE_KEY = (side: string) => `sidebar_ad_dismissed_${side}`;
  * - Clearly tagged "פרסומת" for transparency.
  */
 export function SidebarAd({ side, position }: Props) {
+  const { isVip } = useAuth();
   const [banner, setBanner] = useState<Banner | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    if (isVip) return;
     if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(STORAGE_KEY(side))) {
       setDismissed(true);
       return;
@@ -51,7 +54,7 @@ export function SidebarAd({ side, position }: Props) {
       supabase.rpc("track_banner_event" as any, { _banner_id: data.id, _event_type: "view" });
     })();
     return () => { cancelled = true; };
-  }, [position, side]);
+  }, [position, side, isVip]);
 
   const onDismiss = () => {
     setDismissed(true);
@@ -61,6 +64,7 @@ export function SidebarAd({ side, position }: Props) {
     if (banner) supabase.rpc("track_banner_event" as any, { _banner_id: banner.id, _event_type: "click" });
   };
 
+  if (isVip) return null;
   if (!banner || dismissed) return null;
 
   // Position: hidden below xl (1280px), narrow column on the side, vertically centered.

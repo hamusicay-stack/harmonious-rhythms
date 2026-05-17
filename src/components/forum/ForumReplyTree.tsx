@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { ForumPostCard, type ForumPostData, type ForumPostAuthor } from "./ForumPostCard";
+import { BannerSlot } from "@/components/BannerSlot";
 
 export type ForumReplyTreeHandlers = {
   me: string | null;
@@ -55,17 +56,26 @@ export function ForumReplyTree({
 
   return (
     <div className="space-y-3">
-      {topLevel.map((p) => (
-        <RecursiveNode
-          key={p.id}
-          post={p}
-          depth={0}
-          childrenByParent={childrenByParent}
-          postById={postById}
-          authors={authors}
-          handlers={handlers}
-        />
-      ))}
+      {topLevel.map((p, index) => {
+        const showAd = index === 0 || (index > 0 && index % 5 === 0);
+        return (
+          <Fragment key={p.id}>
+            <RecursiveNode
+              post={p}
+              depth={0}
+              childrenByParent={childrenByParent}
+              postById={postById}
+              authors={authors}
+              handlers={handlers}
+            />
+            {showAd && (
+              <div className="w-full my-4">
+                <BannerSlot position="forum_in_feed" />
+              </div>
+            )}
+          </Fragment>
+        );
+      })}
     </div>
   );
 }
