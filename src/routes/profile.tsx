@@ -12,7 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, Bell,
-  Music2, Pencil, ShoppingBag, GraduationCap, Sparkles, Piano, Crown, Coins,
+  Music2, Pencil, ShoppingBag, GraduationCap, Sparkles, Piano, Crown, Coins, Bookmark,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
