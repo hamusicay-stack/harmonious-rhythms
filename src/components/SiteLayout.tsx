@@ -11,6 +11,7 @@ import { CustomCursor } from "./CustomCursor";
 import { CommandPalette } from "./CommandPalette";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
+import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
 
 const PAGE_PREFIX: Record<string, string> = {
   "/": "home",
@@ -41,9 +42,11 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const lang = (i18n.resolvedLanguage || i18n.language || "he") as Lang;
   const dir = LANG_DIR[lang] ?? "rtl";
   const align = dir === "rtl" ? "text-right" : "text-left";
+  const { current: currentTrack } = useAudioPlayer();
+  const playerPad = currentTrack ? "pb-24 md:pb-28" : "";
 
   return (
-    <div dir={dir} className={`relative flex min-h-screen flex-col ${align}`}>
+    <div dir={dir} className={`relative flex min-h-screen flex-col ${align} ${playerPad}`}>
       <BackgroundMesh />
       <CustomCursor />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
