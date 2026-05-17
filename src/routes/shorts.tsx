@@ -303,6 +303,15 @@ function ShortsPage() {
     } catch { /* noop */ }
   }, [activeIndex, shorts, latency, avSyncOffsetMs]);
 
+  /* ---------- Engagement analytics (heatmap + drop-off) ---------- */
+  const currentShortId = shorts[activeIndex]?.id ?? null;
+  const activeVideoEl = currentShortId ? videoRefs.current.get(currentShortId) ?? null : null;
+  useShortsAnalytics({
+    videoId: currentShortId,
+    videoEl: activeVideoEl,
+    userId: user?.id ?? null,
+  });
+
   /* ---------- Like ---------- */
   const toggleLike = useCallback(async (id: string) => {
     if (!user) { toast.error("רגע — צריך להיכנס לאולפן כדי לסמן לייק"); return; }
