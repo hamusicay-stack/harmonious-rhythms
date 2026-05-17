@@ -32,6 +32,7 @@ import { SocialActivityTab } from "@/components/dashboard/SocialActivityTab";
 import { SubscriptionTab } from "@/components/dashboard/SubscriptionTab";
 import { PublicProfileTab } from "@/components/dashboard/PublicProfileTab";
 import { AccountSettingsTab } from "@/components/dashboard/AccountSettingsTab";
+import { BookmarksTab } from "@/components/dashboard/BookmarksTab";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: requireAuth,
