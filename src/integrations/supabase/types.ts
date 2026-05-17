@@ -944,6 +944,7 @@ export type Database = {
       }
       ad_banners: {
         Row: {
+          bypass_vip: boolean
           clicks_count: number
           created_at: string
           created_by: string | null
@@ -959,6 +960,7 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          bypass_vip?: boolean
           clicks_count?: number
           created_at?: string
           created_by?: string | null
@@ -974,6 +976,7 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          bypass_vip?: boolean
           clicks_count?: number
           created_at?: string
           created_by?: string | null
