@@ -312,6 +312,12 @@ function ShortsPage() {
           <span className="font-display text-sm font-bold text-white">שורטס</span>
         </Link>
         <div className="pointer-events-auto flex items-center gap-2">
+          <AVSyncControl
+            offsetMs={avSyncOffsetMs}
+            onChange={setAvSyncOffsetMs}
+            baseLatencyMs={latency.base}
+            outputLatencyMs={latency.output}
+          />
           {user ? (
             <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} onUploaded={loadShorts}>
               <button
