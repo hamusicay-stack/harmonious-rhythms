@@ -385,16 +385,8 @@ function MyListings({ userId }: { userId: string }) {
   const totalViews = listings.reduce((sum, l) => sum + (l.views_count || 0), 0);
   const activeCount = listings.filter((l) => l.status === "approved").length;
 
-  const bump = async (id: string) => {
-    const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
-    const { error } = await supabase
-      .from("marketplace_listings")
-      .update({ bumped_at: new Date().toISOString(), bump_expires_at: expires })
-      .eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("המודעה הוקפצה ל-24 שעות!");
-    load();
-  };
+  // Bump is now handled by <BoostListingDialog /> which gates on VIP / paid flow.
+
 
   const remove = async (id: string) => {
     if (!confirm("למחוק את המודעה?")) return;
