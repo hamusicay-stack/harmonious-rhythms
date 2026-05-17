@@ -183,6 +183,9 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
     is_active: banner?.is_active ?? true,
     starts_at: toLocalInput(banner?.starts_at) || toLocalInput(new Date().toISOString()),
     ends_at: toLocalInput(banner?.ends_at),
+    bypass_vip:
+      banner?.bypass_vip ??
+      VIP_BYPASS_DEFAULT_POSITIONS.has(banner?.position ?? "home_top"),
   });
 
   const handleUpload = async (file: File) => {
