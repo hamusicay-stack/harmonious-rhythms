@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Plus, Crown, Music2,
-  AlertTriangle, GraduationCap, Sparkles,
+  AlertTriangle, GraduationCap, Sparkles, ShoppingCart, Guitar, ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +12,8 @@ import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { UploadDialog } from "@/components/shorts/UploadDialog";
 import { KaraokeLyrics } from "@/components/shorts/KaraokeLyrics";
 import { AVSyncControl, useAVSyncOffset } from "@/components/shorts/AVSyncControl";
+import { useCachedVideoUrl } from "@/hooks/useCachedVideoUrl";
+import { useFloatingShort } from "@/contexts/FloatingShortContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
