@@ -36,7 +36,7 @@ export function MyCoursesTab({ userId }: { userId: string }) {
       const { data } = await (supabase as any)
         .from("academy_enrollments")
         .select(
-          "id, progress_percent, last_accessed_at, completed_at, course:academy_courses(id, slug, title, subtitle, cover_url, instructor_name, total_lessons, duration_minutes)",
+          "id, progress_percent, last_accessed_at, completed_at, last_lesson_id, course:academy_courses(id, slug, title, subtitle, cover_url, instructor_name, total_lessons, duration_minutes)",
         )
         .eq("user_id", userId)
         .eq("status", "active")
