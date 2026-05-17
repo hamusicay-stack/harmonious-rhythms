@@ -64,6 +64,28 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
   const [processing, setProcessing] = useState<number | null>(null);
   const [title, setTitle] = useState<string | undefined>(listingTitle);
 
+  const { data: options = FALLBACK_OPTIONS, isLoading: loadingPrices } = useQuery({
+    queryKey: ["service_pricing", "boost"],
+    queryFn: async (): Promise<BoostOption[]> => {
+      const { data, error } = await (supabase as any)
+        .from("service_pricing")
+        .select("service_key,price,is_active")
+        .in("service_key", ["boost_24h", "boost_48h"]);
+      if (error) throw error;
+      const rows = (data ?? []) as Array<{ service_key: string; price: number; is_active: boolean }>;
+      const mapped = rows
+        .filter((r) => r.is_active && HOURS_BY_KEY[r.service_key])
+        .map<BoostOption>((r) => ({
+          hours: HOURS_BY_KEY[r.service_key],
+          priceNis: Number(r.price),
+          serviceKey: r.service_key,
+        }))
+        .sort((a, b) => a.hours - b.hours);
+      return mapped.length ? mapped : FALLBACK_OPTIONS;
+    },
+    staleTime: 60_000,
+  });
+
   const resolveTitle = async (): Promise<string> => {
     if (title) return title;
     const { data } = await supabase
