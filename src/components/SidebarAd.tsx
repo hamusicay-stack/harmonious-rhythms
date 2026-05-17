@@ -8,6 +8,7 @@ type Banner = {
   title: string;
   image_url: string;
   target_url: string;
+  bypass_vip: boolean;
 };
 
 interface Props {
