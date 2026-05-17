@@ -5372,6 +5372,48 @@ export type Database = {
           },
         ]
       }
+      shorts_analytics_logs: {
+        Row: {
+          buffered_seconds: number | null
+          created_at: string | null
+          device_type: string | null
+          id: string
+          is_completed: boolean | null
+          max_seconds_reached: number
+          rewatch_count: number | null
+          seconds_watched: number
+          session_id: string
+          user_id: string | null
+          video_id: string
+        }
+        Insert: {
+          buffered_seconds?: number | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          is_completed?: boolean | null
+          max_seconds_reached?: number
+          rewatch_count?: number | null
+          seconds_watched?: number
+          session_id: string
+          user_id?: string | null
+          video_id: string
+        }
+        Update: {
+          buffered_seconds?: number | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          is_completed?: boolean | null
+          max_seconds_reached?: number
+          rewatch_count?: number | null
+          seconds_watched?: number
+          session_id?: string
+          user_id?: string | null
+          video_id?: string
+        }
+        Relationships: []
+      }
       shorts_comments: {
         Row: {
           author_id: string
@@ -5476,13 +5518,21 @@ export type Database = {
       shorts_videos: {
         Row: {
           admin_notes: string | null
+          audio_bitrate: number | null
           course_link: string | null
           created_at: string
           creator_id: string
           description: string | null
           duration_seconds: number | null
+          external_streaming_links: Json | null
+          hls_playlist_url: string | null
           id: string
+          is_hi_res: boolean | null
           is_premium: boolean
+          lyrics_offset: number | null
+          lyrics_url: string | null
+          marketplace_listing_id: string | null
+          product_id: string | null
           published_at: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -5494,17 +5544,27 @@ export type Database = {
           title: string
           updated_at: string
           video_url: string
+          video_url_360p: string | null
+          video_url_720p: string | null
           views_count: number
         }
         Insert: {
           admin_notes?: string | null
+          audio_bitrate?: number | null
           course_link?: string | null
           created_at?: string
           creator_id: string
           description?: string | null
           duration_seconds?: number | null
+          external_streaming_links?: Json | null
+          hls_playlist_url?: string | null
           id?: string
+          is_hi_res?: boolean | null
           is_premium?: boolean
+          lyrics_offset?: number | null
+          lyrics_url?: string | null
+          marketplace_listing_id?: string | null
+          product_id?: string | null
           published_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -5516,17 +5576,27 @@ export type Database = {
           title: string
           updated_at?: string
           video_url: string
+          video_url_360p?: string | null
+          video_url_720p?: string | null
           views_count?: number
         }
         Update: {
           admin_notes?: string | null
+          audio_bitrate?: number | null
           course_link?: string | null
           created_at?: string
           creator_id?: string
           description?: string | null
           duration_seconds?: number | null
+          external_streaming_links?: Json | null
+          hls_playlist_url?: string | null
           id?: string
+          is_hi_res?: boolean | null
           is_premium?: boolean
+          lyrics_offset?: number | null
+          lyrics_url?: string | null
+          marketplace_listing_id?: string | null
+          product_id?: string | null
           published_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -5538,9 +5608,19 @@ export type Database = {
           title?: string
           updated_at?: string
           video_url?: string
+          video_url_360p?: string | null
+          video_url_720p?: string | null
           views_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "shorts_videos_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_tiers: {
         Row: {
