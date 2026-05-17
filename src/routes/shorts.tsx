@@ -579,6 +579,14 @@ function ShortPanel({
           </div>
         </div>
 
+        {/* Word-level karaoke lyrics */}
+        <KaraokeLyrics
+          lyricsUrl={short.lyricsUrl}
+          videoEl={videoEl}
+          offsetSec={short.lyricsOffset}
+          active={isActive}
+        />
+
         {/* Right rail — thumb-zone actions */}
         <div className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] right-2 z-10 flex flex-col items-center gap-4">
           <RailButton
