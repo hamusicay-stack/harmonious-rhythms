@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Plus, Crown, Music2,
-  AlertTriangle, GraduationCap,
+  AlertTriangle, GraduationCap, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,6 +10,8 @@ import { CommentsSheet } from "@/components/shorts/CommentsSheet";
 import { HashtagText } from "@/components/shorts/HashtagText";
 import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { UploadDialog } from "@/components/shorts/UploadDialog";
+import { KaraokeLyrics } from "@/components/shorts/KaraokeLyrics";
+import { AVSyncControl, useAVSyncOffset } from "@/components/shorts/AVSyncControl";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
@@ -33,6 +35,7 @@ type Short = {
   creator_id: string;
   creator: { name: string; avatar: string | null };
   videoUrl: string;
+  hlsUrl: string | null;
   poster: string | null;
   title: string;
   description: string;
@@ -41,6 +44,10 @@ type Short = {
   views: number;
   isPremium: boolean;
   courseLink: string | null;
+  isHiRes: boolean;
+  audioBitrate: number | null;
+  lyricsUrl: string | null;
+  lyricsOffset: number;
 };
 
 function ShortsPage() {
@@ -58,6 +65,8 @@ function ShortsPage() {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [commentsOpenFor, setCommentsOpenFor] = useState<string | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [avSyncOffsetMs, setAvSyncOffsetMs] = useAVSyncOffset();
+  const [latency, setLatency] = useState<{ base: number; output: number }>({ base: 0, output: 0 });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
@@ -70,7 +79,7 @@ function ShortsPage() {
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
-        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link, is_hi_res, audio_bitrate, lyrics_url, lyrics_offset, hls_playlist_url")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(60);
@@ -103,11 +112,20 @@ function ShortsPage() {
 
       const list: Short[] = rows.map((r) => {
         const p = pmap.get(r.creator_id);
+        const rx = r as typeof r & {
+          course_link?: string | null;
+          is_hi_res?: boolean | null;
+          audio_bitrate?: number | null;
+          lyrics_url?: string | null;
+          lyrics_offset?: number | null;
+          hls_playlist_url?: string | null;
+        };
         return {
           id: r.id,
           creator_id: r.creator_id,
           creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null },
           videoUrl: r.video_url,
+          hlsUrl: rx.hls_playlist_url ?? null,
           poster: r.thumbnail_url,
           title: r.title ?? "",
           description: r.description ?? "",
@@ -115,7 +133,11 @@ function ShortsPage() {
           comments: cmtCounts.get(r.id) ?? 0,
           views: r.views_count ?? 0,
           isPremium: r.is_premium,
-          courseLink: (r as { course_link?: string | null }).course_link ?? null,
+          courseLink: rx.course_link ?? null,
+          isHiRes: rx.is_hi_res ?? false,
+          audioBitrate: rx.audio_bitrate ?? null,
+          lyricsUrl: rx.lyrics_url ?? null,
+          lyricsOffset: Number(rx.lyrics_offset ?? 0),
         };
       });
 
@@ -180,12 +202,37 @@ function ShortsPage() {
         || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (Ctor) {
         if (!audioCtxRef.current) audioCtxRef.current = new Ctor();
-        void audioCtxRef.current.resume();
+        const ctx = audioCtxRef.current;
+        void ctx.resume();
+        // Spec: total render delay = baseLatency + outputLatency (seconds).
+        const base = (ctx.baseLatency ?? 0) * 1000;
+        const output = ((ctx as AudioContext & { outputLatency?: number }).outputLatency ?? 0) * 1000;
+        setLatency({ base, output });
       }
     } catch { /* noop */ }
     setIsMuted(false);
     setAudioUnlocked(true);
   }, [audioUnlocked]);
+
+  /* ---------- Apply Bluetooth AV-sync offset to the active video ---------- */
+  useEffect(() => {
+    const current = shorts[activeIndex];
+    if (!current) return;
+    const v = videoRefs.current.get(current.id);
+    if (!v) return;
+    // Spec formula: total system delay = baseLatency + outputLatency.
+    // We compensate by nudging the video presentation timestamp by the
+    // negative of (auto-detected latency + user fine-tune).
+    const autoMs = latency.base + latency.output;
+    const totalSec = (autoMs + avSyncOffsetMs) / 1000;
+    if (Math.abs(totalSec) < 0.02) return;
+    // Clamp safety window so we never seek wildly.
+    const delta = Math.max(-0.4, Math.min(0.4, -totalSec));
+    try {
+      const target = v.currentTime + delta;
+      if (target > 0 && Number.isFinite(target)) v.currentTime = target;
+    } catch { /* noop */ }
+  }, [activeIndex, shorts, latency, avSyncOffsetMs]);
 
   /* ---------- Like ---------- */
   const toggleLike = useCallback(async (id: string) => {
@@ -265,6 +312,12 @@ function ShortsPage() {
           <span className="font-display text-sm font-bold text-white">שורטס</span>
         </Link>
         <div className="pointer-events-auto flex items-center gap-2">
+          <AVSyncControl
+            offsetMs={avSyncOffsetMs}
+            onChange={setAvSyncOffsetMs}
+            baseLatencyMs={latency.base}
+            outputLatencyMs={latency.output}
+          />
           {user ? (
             <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} onUploaded={loadShorts}>
               <button
@@ -356,8 +409,21 @@ function ShortPanel({
   onRegisterVideo, onUnlockAudio, onToggleMute, onLike, onOpenComments, onShare, fmt,
 }: PanelProps) {
   const [heartPops, setHeartPops] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
+  const [showHiResDetails, setShowHiResDetails] = useState(false);
   const lastTapRef = useRef<{ t: number; x: number; y: number } | null>(null);
   const popIdRef = useRef(0);
+
+  // Prefer HLS manifest if available AND browser supports it natively
+  // (Safari/iOS); otherwise gracefully fall back to the raw storage URL so
+  // playback never breaks while ABR is still being generated.
+  const playbackUrl = (() => {
+    if (!short.hlsUrl) return short.videoUrl;
+    if (typeof document === "undefined") return short.videoUrl;
+    const probe = document.createElement("video");
+    const canHls = probe.canPlayType("application/vnd.apple.mpegurl");
+    return canHls ? short.hlsUrl : short.videoUrl;
+  })();
 
   const triggerHeartPop = useCallback((x: number, y: number) => {
     const id = ++popIdRef.current;
@@ -399,8 +465,8 @@ function ShortPanel({
         )}
       >
         <video
-          ref={onRegisterVideo}
-          src={short.videoUrl}
+          ref={(el) => { onRegisterVideo(el); setVideoEl(el); }}
+          src={playbackUrl}
           poster={short.poster ?? undefined}
           className="absolute inset-0 h-full w-full object-cover"
           muted={isMuted}
@@ -412,11 +478,30 @@ function ShortPanel({
 
         {/* Top safe zone — gradient + premium badge */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-black/70 via-black/30 to-transparent" />
-        {short.isPremium && (
-          <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-gold">
-            <Crown className="h-3 w-3" /> PREMIUM
-          </div>
-        )}
+        <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+          {short.isPremium && (
+            <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-gold">
+              <Crown className="h-3 w-3" /> PREMIUM
+            </div>
+          )}
+          {short.isHiRes && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setShowHiResDetails((v) => !v); }}
+              className="group relative flex items-center gap-1 rounded-full bg-gradient-to-br from-amber-400/95 via-yellow-300/95 to-amber-500/95 px-2.5 py-1 text-[10px] font-bold text-black shadow-[0_0_18px_oklch(0.85_0.18_85/0.6)] ring-1 ring-amber-200/60 backdrop-blur-md"
+              aria-label="Hi-Res Audio"
+            >
+              <Sparkles className="h-3 w-3" />
+              Hi-Res Audio ✨🎧
+              <span className="pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-amber-300/40 blur-md" />
+            </button>
+          )}
+          {short.isHiRes && showHiResDetails && (
+            <div className="rounded-md bg-black/70 px-2 py-1 text-[10px] font-mono text-amber-200 backdrop-blur-md ring-1 ring-amber-300/30">
+              {short.audioBitrate ?? 320}kbps · 48kHz · Studio
+            </div>
+          )}
+        </div>
 
         {/* Pulsing sound-on overlay */}
         {showSoundOverlay && (
@@ -493,6 +578,14 @@ function ShortPanel({
             )}
           </div>
         </div>
+
+        {/* Word-level karaoke lyrics */}
+        <KaraokeLyrics
+          lyricsUrl={short.lyricsUrl}
+          videoEl={videoEl}
+          offsetSec={short.lyricsOffset}
+          active={isActive}
+        />
 
         {/* Right rail — thumb-zone actions */}
         <div className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] right-2 z-10 flex flex-col items-center gap-4">
