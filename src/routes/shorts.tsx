@@ -409,8 +409,21 @@ function ShortPanel({
   onRegisterVideo, onUnlockAudio, onToggleMute, onLike, onOpenComments, onShare, fmt,
 }: PanelProps) {
   const [heartPops, setHeartPops] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
+  const [showHiResDetails, setShowHiResDetails] = useState(false);
   const lastTapRef = useRef<{ t: number; x: number; y: number } | null>(null);
   const popIdRef = useRef(0);
+
+  // Prefer HLS manifest if available AND browser supports it natively
+  // (Safari/iOS); otherwise gracefully fall back to the raw storage URL so
+  // playback never breaks while ABR is still being generated.
+  const playbackUrl = (() => {
+    if (!short.hlsUrl) return short.videoUrl;
+    if (typeof document === "undefined") return short.videoUrl;
+    const probe = document.createElement("video");
+    const canHls = probe.canPlayType("application/vnd.apple.mpegurl");
+    return canHls ? short.hlsUrl : short.videoUrl;
+  })();
 
   const triggerHeartPop = useCallback((x: number, y: number) => {
     const id = ++popIdRef.current;
