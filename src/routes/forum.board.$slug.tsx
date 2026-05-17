@@ -48,8 +48,8 @@ function BoardPage() {
   const canPost = postMin === "user" || roles.includes("admin") || (postMin === "moderator" && (roles as string[]).includes("moderator"));
 
   const submit = async () => {
-    if (title.trim().length < 3 || body.trim().length < 5) {
-      toast.error("נא למלא כותרת וגוף");
+    if (title.trim().length < 3 || !hasForumContent(body)) {
+      toast.error("נא למלא כותרת ותוכן (טקסט או מדיה)");
       return;
     }
     setBusy(true);
