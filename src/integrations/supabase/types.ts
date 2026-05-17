@@ -4526,6 +4526,8 @@ export type Database = {
       shop_order_items: {
         Row: {
           created_at: string
+          fulfillment_kind: string | null
+          fulfillment_ref_id: string | null
           id: string
           order_id: string
           product_id: string | null
@@ -4538,6 +4540,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          fulfillment_kind?: string | null
+          fulfillment_ref_id?: string | null
           id?: string
           order_id: string
           product_id?: string | null
@@ -4550,6 +4554,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          fulfillment_kind?: string | null
+          fulfillment_ref_id?: string | null
           id?: string
           order_id?: string
           product_id?: string | null
@@ -5743,6 +5749,10 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      process_order_fulfillment: {
+        Args: { _order_id: string }
+        Returns: undefined
       }
       publish_scheduled_shorts: { Args: never; Returns: number }
       read_email_batch: {
