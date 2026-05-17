@@ -6,9 +6,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Globe, Instagram, Youtube, ShieldCheck, Crown, Star, MessageSquare, Video, Tag, Briefcase } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Globe, Instagram, Youtube, ShieldCheck, Crown, Star, MessageSquare, Video, Tag, Briefcase, Pencil, LogIn, Lock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
+import { useAuth } from "@/contexts/AuthContext";
+import { FollowButton } from "@/components/FollowButton";
 
 const profileQO = (username: string) =>
   queryOptions({
@@ -69,6 +72,7 @@ function Empty({ icon: Icon, label }: { icon: React.ComponentType<{ className?: 
 function PublicProfilePage() {
   const { username } = Route.useParams();
   const { data } = useSuspenseQuery(profileQO(username));
+  const { user: viewer } = useAuth();
 
   if (!data?.profile) {
     return (
@@ -94,6 +98,9 @@ function PublicProfilePage() {
   }
 
   const initials = (p.display_name ?? p.username ?? "?").slice(0, 2).toUpperCase();
+  const isOwner = !!viewer && viewer.id === p.id;
+  const isAnonymous = !viewer;
+  const displayName = p.display_name ?? p.username ?? "";
 
   return (
     <SiteLayout>
@@ -109,12 +116,12 @@ function PublicProfilePage() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-end">
                 <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-background ring-2 ring-primary/30">
-                  <AvatarImage src={p.avatar_url ?? undefined} alt={p.display_name ?? p.username ?? ""} />
+                  <AvatarImage src={p.avatar_url ?? undefined} alt={displayName} />
                   <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl sm:text-3xl font-bold truncate">{p.display_name ?? p.username}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold truncate">{displayName}</h1>
                     <StatusBadge status={p.global_status} />
                     {tier?.is_vip && (
                       <Badge variant="outline" className="gap-1 bg-purple-500/15 text-purple-300 border-purple-500/30">
@@ -124,22 +131,62 @@ function PublicProfilePage() {
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">@{p.username}</p>
                   {p.bio && <p className="mt-3 text-sm sm:text-base whitespace-pre-wrap">{p.bio}</p>}
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    {p.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{p.location}</span>}
-                    {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Globe className="h-3 w-3" />אתר</a>}
-                    {p.instagram && <a href={`https://instagram.com/${p.instagram.replace("@","")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Instagram className="h-3 w-3" />Instagram</a>}
-                    {p.youtube && <a href={p.youtube} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Youtube className="h-3 w-3" />YouTube</a>}
-                    <span>הצטרף {formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: he })}</span>
-                  </div>
+                  {!isAnonymous && (
+                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {p.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{p.location}</span>}
+                      {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Globe className="h-3 w-3" />אתר</a>}
+                      {p.instagram && <a href={`https://instagram.com/${p.instagram.replace("@","")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Instagram className="h-3 w-3" />Instagram</a>}
+                      {p.youtube && <a href={p.youtube} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground"><Youtube className="h-3 w-3" />YouTube</a>}
+                      <span>הצטרף {formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: he })}</span>
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Badge variant="secondary" className="gap-1"><Star className="h-3 w-3" />{p.forum_reputation} מוניטין</Badge>
                     <Badge variant="secondary" className="gap-1"><MessageSquare className="h-3 w-3" />{p.forum_post_count} הודעות</Badge>
                     <Badge variant="outline">{p.forum_rank}</Badge>
                   </div>
+
+                  {/* Viewer-aware CTAs */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {isOwner && (
+                      <Link to="/profile">
+                        <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
+                          <Pencil className="ml-1 h-4 w-4" />ערוך פרופיל
+                        </Button>
+                      </Link>
+                    )}
+                    {!isOwner && !isAnonymous && (
+                      <FollowButton targetType="user" targetId={p.id} targetName={displayName} />
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Anonymous CTA banner */}
+          {isAnonymous && (
+            <Card className="mt-4 overflow-hidden border-amber-500/40 bg-gradient-to-l from-amber-500/10 via-amber-500/5 to-background">
+              <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-600">
+                    <Lock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">צפייה מוגבלת</h3>
+                    <p className="text-sm text-muted-foreground">
+                      התחבר או הירשם כדי לראות את הפרופיל המלא וליצור קשר עם {displayName}.
+                    </p>
+                  </div>
+                </div>
+                <Link to="/auth">
+                  <Button size="lg" className="bg-gradient-to-r from-amber-500 to-amber-600 text-amber-950 hover:from-amber-600 hover:to-amber-700">
+                    <LogIn className="ml-1 h-4 w-4" />התחבר / הירשם
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Tabs */}
           <Tabs defaultValue="forum" className="mt-6">
