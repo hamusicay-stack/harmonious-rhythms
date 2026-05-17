@@ -95,15 +95,13 @@ function ListingDetailPage() {
       setInitialLikesCount(likesC ?? 0);
 
       // Verified-buyer gating: anyone with a confirmed deal for this listing's model+brand
-      // (so a buyer who bought one Stratocaster can review another Stratocaster listing)
-      const modelKey = [l.brand, l.model].filter(Boolean).join(" ").trim();
-      let confirmedBuyerIds = new Set<string>();
-      if (modelKey) {
+      const confirmedBuyerIds = new Set<string>();
+      if (l.brand && l.model) {
         const { data: confirmedListings } = await supabase
           .from("marketplace_listings")
           .select("id")
-          .eq("brand", l.brand)
-          .eq("model", l.model)
+          .eq("brand", l.brand as string)
+          .eq("model", l.model as string)
           .not("buyer_id", "is", null);
         const cIds = (confirmedListings ?? []).map((x: any) => x.id);
         if (cIds.length) {
