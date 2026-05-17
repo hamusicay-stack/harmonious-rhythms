@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
+import { CategoryGroup } from "@/components/forum/CategoryGroup";
 
 export const Route = createFileRoute("/forum/")({
   head: () => ({
