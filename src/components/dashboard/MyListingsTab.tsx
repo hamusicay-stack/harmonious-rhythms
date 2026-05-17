@@ -143,7 +143,12 @@ export function MyListingsTab({ userId }: { userId: string }) {
                       {l.title}
                     </Link>
                     <div className="flex flex-wrap gap-1">
-                      {statusBadge(l.status)}
+                      {l.is_sold
+                        ? <Badge className="gap-1 bg-primary"><PackageCheck className="h-3 w-3" />נמכר</Badge>
+                        : statusBadge(l.status)}
+                      {pendingSoldIds.has(l.id) && !l.is_sold && (
+                        <Badge variant="outline" className="gap-1 border-primary/50 text-primary"><Clock className="h-3 w-3" />ממתין לאישור הקונה</Badge>
+                      )}
                       {bumped && <Badge className="gap-1"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>}
                     </div>
                   </div>
