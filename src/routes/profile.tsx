@@ -459,8 +459,8 @@ function MyListings({ userId }: { userId: string }) {
                   </div>
                   <div className="flex gap-2 flex-wrap pt-1">
                     {l.status === "approved" && !bumped && (
-                      <Button size="sm" variant="outline" onClick={() => bump(l.id)}>
-                        <ArrowUp className="h-3 w-3" />הקפץ ל-24ש
+                      <Button size="sm" variant="outline" onClick={() => setBoostId(l.id)}>
+                        <ArrowUp className="h-3 w-3" />הקפץ מודעה
                       </Button>
                     )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
