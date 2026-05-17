@@ -39,7 +39,10 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
     youtube: "",
     website: "",
     specialties: [] as string[],
+    current_status: "",
+    forum_signature: "",
   });
+
 
   useEffect(() => {
     if (!user) return;
