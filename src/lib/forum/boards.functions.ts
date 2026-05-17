@@ -67,9 +67,9 @@ export const getBoardBySlug = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: board, error } = await supabase
+    const { data: board, error } = await (supabase as any)
       .from("forum_boards")
-      .select("id, category_id, name, slug, description, icon, topic_count, post_count")
+      .select("id, category_id, name, slug, description, icon, topic_count, post_count, post_min_role")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
