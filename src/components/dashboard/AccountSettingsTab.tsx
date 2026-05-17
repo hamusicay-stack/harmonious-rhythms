@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Mail, Lock } from "lucide-react";
+import {
+  Loader2, Save, Mail, Lock, ShieldCheck, KeyRound, Smartphone,
+  Download, Trash2, Palette,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { AddressBook } from "./AddressBook";
+import { ThemeToggle } from "./ThemeToggle";
+
 
 export function AccountSettingsTab({ refreshProfile }: { refreshProfile: () => Promise<void> }) {
   const { user, profile } = useAuth();
