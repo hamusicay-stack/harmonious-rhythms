@@ -61,7 +61,9 @@ type Short = {
 function ShortsPage() {
   const { user } = useAuth();
   const { stop: stopFloatingAudio } = useAudioPlayer();
-  useEffect(() => { stopFloatingAudio(); }, [stopFloatingAudio]);
+  const { short: pinnedShort, detach: detachToPip, dismiss: dismissPip } = useFloatingShort();
+  const { shortsId: deepLinkId, t: deepLinkT } = Route.useSearch();
+  useEffect(() => { stopFloatingAudio(); dismissPip(); }, [stopFloatingAudio, dismissPip]);
 
   const [shorts, setShorts] = useState<Short[]>([]);
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
