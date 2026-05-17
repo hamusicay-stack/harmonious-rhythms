@@ -73,7 +73,11 @@ function CheckoutPage() {
   }, [user, profile]);
 
   const hasPhysical = useMemo(
-    () => items.some((i) => i.product_type !== "digital" && i.product_type !== "rhythm_set"),
+    () => items.some((i) =>
+      i.product_type !== "digital" &&
+      i.product_type !== "rhythm_set" &&
+      i.product_type !== "marketplace_boost"
+    ),
     [items],
   );
   const needsInfoFile = useMemo(() => items.some((i) => i.requires_info_file), [items]);
