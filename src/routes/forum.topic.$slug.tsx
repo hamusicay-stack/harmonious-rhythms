@@ -8,6 +8,7 @@ import { getTopicBySlug, getTopicMeta, markTopicSolution, setSubscription, isSub
 import { createReply, votePost, getMyVotesForTopic, deletePost, editPost, reportContent } from "@/lib/forum/posts.functions";
 import { openOrCreateDmThread } from "@/lib/forum/dm.functions";
 import { ForumEditor } from "@/components/forum/ForumEditor";
+import { hasForumContent } from "@/lib/forum/utils";
 import { ForumPostCard, type ForumPostData } from "@/components/forum/ForumPostCard";
 import { ForumReplyTree } from "@/components/forum/ForumReplyTree";
 import { TopicTagStrip } from "@/components/forum/TopicTagManager";
