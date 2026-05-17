@@ -234,55 +234,64 @@ function CheckoutPage() {
         }
       }
 
-      const orderItems = items.map((it) => ({
-        order_id: order.id,
-        product_id: it.id,
-        product_title: it.title,
-        product_type: it.product_type as any,
-        quantity: it.qty,
-        unit_price: it.price,
-        total_price: it.price * it.qty,
-      }));
-      const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems);
-      if (itemsErr) throw itemsErr;
+      // Map cart product_type → (a) the restrictive shop_product_type enum
+      // (physical|digital|hybrid) and (b) the new fulfillment_kind/ref_id pair
+      // that the server-side process_order_fulfillment RPC consumes once the
+      // order's payment_status flips to 'paid'.
+      const orderItems = items.map((it) => {
+        let dbProductType: "physical" | "digital" | "hybrid" = "digital";
+        if (it.product_type === "physical") dbProductType = "physical";
+        else if (it.product_type === "hybrid") dbProductType = "hybrid";
 
-      const refCode = getActiveRefCode();
-      if (refCode) {
-        await Promise.all(items.map((it) =>
-          supabase.rpc("record_affiliate_conversion", {
-            _ref_code: refCode,
-            _scope_type: "shop_product",
-            _scope_id: it.id,
-            _order_amount: it.price * it.qty,
-            _user_id: user?.id ?? undefined,
-            _notes: `order:${order.order_number}`,
-            _order_id: order.id,
-          }).then(({ error }) => { if (error) console.warn("affiliate conv error", error); })
-        ));
-      }
-
-      // Coupon code is recorded on the order row above; usage-count bump is handled
-      // by an admin task / scheduled job to avoid exposing writes via RLS.
-
-      // Fulfill marketplace boost items immediately (virtual service — no shipping).
-      // We treat order creation as "paid" for this mock flow; swap to webhook later.
-      const boostItems = items.filter((it) => it.product_type === "marketplace_boost");
-      if (boostItems.length > 0) {
-        const now = new Date();
-        await Promise.all(boostItems.map(async (it) => {
-          // id shape: "boost:{listingId}:{hours}"
+        let fulfillment_kind: string | null = null;
+        let fulfillment_ref_id: string | null = null;
+        if (it.product_type === "course") {
+          fulfillment_kind = "course";
+          fulfillment_ref_id = it.id;
+        } else if (it.product_type === "vip_tier") {
+          fulfillment_kind = "vip_tier";
+          fulfillment_ref_id = it.id;
+        } else if (it.product_type === "rhythm_set") {
+          fulfillment_kind = "rhythm_set";
+          fulfillment_ref_id = it.id;
+        } else if (it.product_type === "marketplace_boost") {
+          // Cart id shape: "boost:{listingId}:{hours}" — store
+          // "{listingId}:{hours}" so the RPC can parse + apply the bump.
           const parts = it.id.split(":");
           const listingId = parts[1];
           const hours = Number(parts[2]) || 24;
-          if (!listingId) return;
-          const expires = new Date(now.getTime() + hours * 3600 * 1000).toISOString();
-          const { error: bumpErr } = await supabase
-            .from("marketplace_listings")
-            .update({ bumped_at: now.toISOString(), bump_expires_at: expires })
-            .eq("id", listingId);
-          if (bumpErr) console.warn("boost fulfillment failed", listingId, bumpErr);
-        }));
-      }
+          if (listingId) {
+            fulfillment_kind = "marketplace_boost";
+            fulfillment_ref_id = `${listingId}:${hours}`;
+          }
+        }
+
+        return {
+          order_id: order.id,
+          product_id: it.id,
+          product_title: it.title,
+          product_type: dbProductType,
+          quantity: it.qty,
+          unit_price: it.price,
+          total_price: it.price * it.qty,
+          fulfillment_kind,
+          fulfillment_ref_id,
+        };
+      });
+      const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems as any);
+      if (itemsErr) throw itemsErr;
+
+      const refCode = getActiveRefCode();
+...
+      // Coupon code is recorded on the order row above; usage-count bump is handled
+      // by an admin task / scheduled job to avoid exposing writes via RLS.
+
+      // NOTE: No client-side digital fulfillment. Marketplace boosts, course
+      // enrollments and VIP tier grants are all executed server-side by the
+      // process_order_fulfillment RPC, triggered automatically when
+      // shop_orders.payment_status transitions to 'paid' via the payment
+      // gateway webhook. Zero-trust model — the client only creates a
+      // pending order, never grants entitlements.
 
       clear();
       removeCoupon();
