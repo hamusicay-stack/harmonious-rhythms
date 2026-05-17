@@ -13,6 +13,7 @@ type Banner = {
 export function BannerSlot({ position = "home_top", className }: { position?: string; className?: string }) {
   const { isVip } = useAuth();
   const [banner, setBanner] = useState<Banner | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,7 +26,6 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
         .eq("is_active", true)
         .lte("starts_at", now)
         .or(`ends_at.is.null,ends_at.gt.${now}`);
-      // If the user is VIP, only fetch banners explicitly flagged to bypass VIP suppression.
       if (isVip) query = query.eq("bypass_vip", true);
       const { data } = await query
         .order("created_at", { ascending: false })
@@ -33,7 +33,6 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
         .maybeSingle();
       if (cancelled || !data) return;
       const b = data as Banner;
-      // Defensive double-check (in case of stale row): VIPs only see bypass ads.
       if (isVip && !b.bypass_vip) return;
       setBanner(b);
       supabase.rpc("track_banner_event", { _banner_id: b.id, _event_type: "view" });
@@ -48,7 +47,9 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
   };
 
   return (
-    <div className={`relative block w-full overflow-hidden my-4 rounded-lg border border-border/40 bg-muted/30 ${className ?? ""}`}>
+    <div
+      className={`relative w-full h-fit flex justify-center items-center overflow-hidden my-4 rounded-lg bg-muted/30 transition-all duration-300 ${loaded ? "opacity-100" : "opacity-0"} ${className ?? ""}`}
+    >
       <span className="absolute right-2 top-2 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground backdrop-blur">
         פרסומת
       </span>
@@ -57,10 +58,16 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
         target="_blank"
         rel="noopener noreferrer sponsored"
         onClick={handleClick}
-        className="block transition-smooth hover:opacity-95"
+        className="block w-full transition-smooth hover:opacity-95"
         aria-label={banner.title}
       >
-        <img src={banner.image_url} alt={banner.title} className="h-auto w-full object-cover" loading="lazy" />
+        <img
+          src={banner.image_url}
+          alt={banner.title}
+          onLoad={() => setLoaded(true)}
+          className="w-full max-w-full h-auto object-contain rounded-lg mx-auto"
+          loading="lazy"
+        />
       </a>
     </div>
   );

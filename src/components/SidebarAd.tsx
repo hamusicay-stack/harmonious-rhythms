@@ -30,6 +30,7 @@ export function SidebarAd({ side, position }: Props) {
   const { isVip } = useAuth();
   const [banner, setBanner] = useState<Banner | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(STORAGE_KEY(side))) {
@@ -82,7 +83,9 @@ export function SidebarAd({ side, position }: Props) {
       className={`pointer-events-none fixed top-1/2 z-30 hidden -translate-y-1/2 xl:block ${sideClass}`}
       aria-label="פרסומת"
     >
-      <div className="pointer-events-auto group relative w-[160px] overflow-hidden rounded-xl border border-border/50 bg-card/80 backdrop-blur shadow-soft">
+      <div
+        className={`pointer-events-auto group relative w-fit h-fit max-w-[200px] flex flex-col items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-card/80 backdrop-blur shadow-soft transition-all duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+      >
         {/* Sponsored badge */}
         <span className="absolute right-1.5 top-1.5 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
           פרסומת
@@ -101,13 +104,14 @@ export function SidebarAd({ side, position }: Props) {
           target="_blank"
           rel="noopener noreferrer sponsored"
           onClick={onClick}
-          className="block transition hover:opacity-90"
+          className="block w-full transition hover:opacity-90"
           aria-label={banner.title}
         >
           <img
             src={banner.image_url}
             alt={banner.title}
-            className="h-auto w-full object-cover"
+            onLoad={() => setLoaded(true)}
+            className="w-full h-auto object-contain"
             loading="lazy"
           />
           <div className="border-t border-border/40 px-2 py-1.5 text-[10px] text-muted-foreground line-clamp-2">
