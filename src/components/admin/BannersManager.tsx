@@ -290,6 +290,18 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
             <Label>פעיל</Label>
             <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
           </div>
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <div className="flex flex-col gap-0.5">
+              <Label>הצג גם למשתמשי VIP (באנר צד/פרימיום)</Label>
+              <span className="text-xs text-muted-foreground">
+                מומלץ לבאנרי סרגל צד וחסויות גלובליות. באנרים בתוך הפיד יישארו מוסתרים ל-VIP.
+              </span>
+            </div>
+            <Switch
+              checked={form.bypass_vip}
+              onCheckedChange={(v) => setForm({ ...form, bypass_vip: v })}
+            />
+          </div>
         </div>
         <DialogFooter>
           <Button onClick={handleSave} disabled={saving || uploading}>
