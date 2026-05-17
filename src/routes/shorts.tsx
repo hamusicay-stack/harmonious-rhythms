@@ -621,6 +621,10 @@ function ShortPanel({
         {/* Bottom safe zone — metadata */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-12">
           <div className="pointer-events-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pr-20">
+
+            {/* Commerce hotspot CTA — sits above author block */}
+            <CommerceHotspot short={short} />
+
             <div className="flex items-center gap-2.5">
               <Avatar className="h-9 w-9 border-2 border-white/40">
                 <AvatarImage src={short.creator.avatar || undefined} />
@@ -639,14 +643,6 @@ function ShortPanel({
               <p className="mt-1 text-xs text-white/85 drop-shadow line-clamp-2">
                 <HashtagText text={short.description} />
               </p>
-            )}
-            {short.courseLink && (
-              <Link
-                to={short.courseLink.startsWith("/") ? short.courseLink : "/academy"}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-gold"
-              >
-                <GraduationCap className="h-3.5 w-3.5" />לשיעור המלא
-              </Link>
             )}
           </div>
         </div>
