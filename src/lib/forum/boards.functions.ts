@@ -18,10 +18,46 @@ export const listCategoriesWithBoards = createServerFn({ method: "GET" })
       .order("display_order");
     if (e2) throw new Error(e2.message);
 
+    // Enrich with last topic + author info (NodeBB-style "Last Post" snippet)
+    const lastTopicIds = (boards ?? []).map((b) => b.last_topic_id).filter(Boolean) as string[];
+    let topicsById = new Map<string, { title: string; slug: string; last_post_user_id: string | null; last_post_at: string | null }>();
+    let authorsById = new Map<string, { id: string; username: string | null; display_name: string | null; avatar_url: string | null }>();
+    if (lastTopicIds.length > 0) {
+      const { data: topics } = await supabase
+        .from("forum_topics")
+        .select("id, title, slug, last_post_user_id, last_post_at")
+        .in("id", lastTopicIds);
+      (topics ?? []).forEach((t) => topicsById.set(t.id, t));
+      const authorIds = Array.from(new Set((topics ?? []).map((t) => t.last_post_user_id).filter(Boolean))) as string[];
+      if (authorIds.length > 0) {
+        const { data: profs } = await (supabase as any)
+          .from("profiles")
+          .select("id, username, display_name, avatar_url")
+          .in("id", authorIds);
+        (profs ?? []).forEach((p: any) => authorsById.set(p.id, p));
+      }
+    }
+
     return {
       categories: (cats ?? []).map((c) => ({
         ...c,
-        boards: (boards ?? []).filter((b) => b.category_id === c.id),
+        boards: (boards ?? [])
+          .filter((b) => b.category_id === c.id)
+          .map((b) => {
+            const t = b.last_topic_id ? topicsById.get(b.last_topic_id) : null;
+            const a = t?.last_post_user_id ? authorsById.get(t.last_post_user_id) : null;
+            return {
+              ...b,
+              last_topic: t
+                ? {
+                    title: t.title,
+                    slug: t.slug,
+                    last_post_at: t.last_post_at,
+                    author: a ?? null,
+                  }
+                : null,
+            };
+          }),
       })),
     };
   });
