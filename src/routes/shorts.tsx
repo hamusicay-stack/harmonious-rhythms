@@ -110,11 +110,20 @@ function ShortsPage() {
 
       const list: Short[] = rows.map((r) => {
         const p = pmap.get(r.creator_id);
+        const rx = r as typeof r & {
+          course_link?: string | null;
+          is_hi_res?: boolean | null;
+          audio_bitrate?: number | null;
+          lyrics_url?: string | null;
+          lyrics_offset?: number | null;
+          hls_playlist_url?: string | null;
+        };
         return {
           id: r.id,
           creator_id: r.creator_id,
           creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null },
           videoUrl: r.video_url,
+          hlsUrl: rx.hls_playlist_url ?? null,
           poster: r.thumbnail_url,
           title: r.title ?? "",
           description: r.description ?? "",
@@ -122,7 +131,11 @@ function ShortsPage() {
           comments: cmtCounts.get(r.id) ?? 0,
           views: r.views_count ?? 0,
           isPremium: r.is_premium,
-          courseLink: (r as { course_link?: string | null }).course_link ?? null,
+          courseLink: rx.course_link ?? null,
+          isHiRes: rx.is_hi_res ?? false,
+          audioBitrate: rx.audio_bitrate ?? null,
+          lyricsUrl: rx.lyrics_url ?? null,
+          lyricsOffset: Number(rx.lyrics_offset ?? 0),
         };
       });
 
