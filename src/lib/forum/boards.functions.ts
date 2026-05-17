@@ -42,8 +42,8 @@ export const listCategoriesWithBoards = createServerFn({ method: "GET" })
       categories: (cats ?? []).map((c) => ({
         ...c,
         boards: (boards ?? [])
-          .filter((b) => b.category_id === c.id)
-          .map((b) => {
+          .filter((b: any) => b.category_id === c.id)
+          .map((b: any) => {
             const t = b.last_topic_id ? topicsById.get(b.last_topic_id) : null;
             const a = t?.last_post_user_id ? authorsById.get(t.last_post_user_id) : null;
             return {
