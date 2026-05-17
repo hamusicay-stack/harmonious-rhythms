@@ -112,6 +112,10 @@ function ProfilePage() {
             <MyOrdersTab userId={user.id} />
           </TabsContent>
 
+          <TabsContent value="bookmarks" className="mt-6">
+            <BookmarksTab userId={user.id} />
+          </TabsContent>
+
           <TabsContent value="points" className="mt-6">
             <MyPointsTab userId={user.id} />
           </TabsContent>
