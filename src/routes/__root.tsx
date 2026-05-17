@@ -17,6 +17,8 @@ import { useDeviceGuard } from "@/hooks/useDeviceGuard";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 import { SharedCartHydrator } from "@/components/cart/SharedCartHydrator";
+import { FloatingShortProvider } from "@/contexts/FloatingShortContext";
+import { FloatingShortPlayer } from "@/components/shorts/FloatingShortPlayer";
 
 import appCss from "../styles.css?url";
 
