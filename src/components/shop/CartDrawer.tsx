@@ -114,6 +114,10 @@ export function CartDrawer() {
                   </li>
                 ))}
               </ul>
+
+              <div className="mt-5 border-t pt-4">
+                <CrossSellRecommendations variant="compact" />
+              </div>
             </div>
 
             <SheetFooter className="border-t pt-4">
