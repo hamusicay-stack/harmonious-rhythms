@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Crown, Sparkles, Coins, ShoppingBag, GraduationCap, Tags, ArrowUpRight, HelpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { TierInfo } from "@/components/UserBadges";
+import { RankBadge, RankXpBar } from "@/components/gamification/RankBadge";
 
 type Profile = {
   display_name?: string | null;
@@ -135,6 +136,9 @@ export function DashboardHero({ userId, email, profile }: Props) {
             <p className="mt-0.5 text-sm text-zinc-400">
               {profile?.username ? `@${profile.username}` : email}
             </p>
+            <div className="mt-2">
+              <RankBadge points={points} size="sm" />
+            </div>
           </div>
         </div>
 
@@ -196,6 +200,11 @@ export function DashboardHero({ userId, email, profile }: Props) {
             {isVip ? "גישה מלאה להטבות פרימיום" : "שדרג כדי לפתוח הנחות והטבות"}
           </div>
         </div>
+      </div>
+
+      {/* XP / Rank progress */}
+      <div className="relative mt-6">
+        <RankXpBar points={points} />
       </div>
 
       {/* KPI strip */}
