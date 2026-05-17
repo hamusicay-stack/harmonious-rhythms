@@ -160,9 +160,18 @@ export function MyListingsTab({ userId }: { userId: string }) {
                     <span className="flex items-center gap-1 text-rose-500" title="לייקים"><Heart className="h-3 w-3" />{stats[l.id]?.likes ?? 0}</span>
                   </div>
                   <div className="flex gap-2 flex-wrap pt-1">
-                    {l.status === "approved" && !bumped && (
+                    {l.status === "approved" && !bumped && !l.is_sold && (
                       <Button size="sm" variant="outline" onClick={() => setBoostId(l.id)}>
                         <ArrowUp className="h-3 w-3" />הקפץ מודעה
+                      </Button>
+                    )}
+                    {l.status === "approved" && !l.is_sold && !pendingSoldIds.has(l.id) && (
+                      <Button
+                        size="sm"
+                        onClick={() => setSoldFor(l)}
+                        className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
+                      >
+                        <PackageCheck className="h-3 w-3" />סמן כנמכר
                       </Button>
                     )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
