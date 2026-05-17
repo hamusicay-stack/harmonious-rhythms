@@ -28,6 +28,7 @@ import { HardwareTab } from "@/components/dashboard/HardwareTab";
 import { MyCoursesTab } from "@/components/dashboard/MyCoursesTab";
 import { MyOrdersTab } from "@/components/dashboard/MyOrdersTab";
 import { MyPointsTab } from "@/components/dashboard/MyPointsTab";
+import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
 import { Coins } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -344,6 +345,7 @@ function MyListings({ userId }: { userId: string }) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [stats, setStats] = useState<Record<string, { phone: number; whatsapp: number; likes: number }>>({});
   const [loading, setLoading] = useState(true);
+  const [boostId, setBoostId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -384,16 +386,8 @@ function MyListings({ userId }: { userId: string }) {
   const totalViews = listings.reduce((sum, l) => sum + (l.views_count || 0), 0);
   const activeCount = listings.filter((l) => l.status === "approved").length;
 
-  const bump = async (id: string) => {
-    const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
-    const { error } = await supabase
-      .from("marketplace_listings")
-      .update({ bumped_at: new Date().toISOString(), bump_expires_at: expires })
-      .eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("המודעה הוקפצה ל-24 שעות!");
-    load();
-  };
+  // Bump is now handled by <BoostListingDialog /> which gates on VIP / paid flow.
+
 
   const remove = async (id: string) => {
     if (!confirm("למחוק את המודעה?")) return;
@@ -466,8 +460,8 @@ function MyListings({ userId }: { userId: string }) {
                   </div>
                   <div className="flex gap-2 flex-wrap pt-1">
                     {l.status === "approved" && !bumped && (
-                      <Button size="sm" variant="outline" onClick={() => bump(l.id)}>
-                        <ArrowUp className="h-3 w-3" />הקפץ ל-24ש
+                      <Button size="sm" variant="outline" onClick={() => setBoostId(l.id)}>
+                        <ArrowUp className="h-3 w-3" />הקפץ מודעה
                       </Button>
                     )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
@@ -482,6 +476,14 @@ function MyListings({ userId }: { userId: string }) {
             );
           })}
         </div>
+      )}
+      {boostId && (
+        <BoostListingDialog
+          listingId={boostId}
+          open={!!boostId}
+          onOpenChange={(o) => { if (!o) setBoostId(null); }}
+          onBumped={load}
+        />
       )}
     </div>
   );

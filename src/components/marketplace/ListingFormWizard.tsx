@@ -380,8 +380,9 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     const { data: inserted, error } = await supabase.from("marketplace_listings").insert(insertPayload).select("id, status").single();
     if (error) { setSubmitting(false); toast.error(error.message); return; }
 
-    // Free bump: if user chose a bump option, set bump fields immediately
-    if (inserted && promoOption !== "none") {
+    // Free bump: STRICTLY VIP-only. Free/basic users selecting a bump option
+    // is prevented in the UI; this is a defense-in-depth check.
+    if (inserted && promoOption !== "none" && isVip) {
       const hours = promoOption === "bump48" ? 48 : 24;
       const expires = new Date(Date.now() + hours * 3600 * 1000).toISOString();
       await supabase
@@ -392,7 +393,8 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
 
     setSubmitting(false);
     const wasAutoApproved = inserted?.status === "approved";
-    if (promoOption !== "none") {
+    const didBump = promoOption !== "none" && isVip;
+    if (didBump) {
       toast.success(`המודעה נשלחה והוקפצה ל-${promoOption === "bump48" ? "48" : "24"} שעות! 🚀`);
     } else if (wasAutoApproved) {
       toast.success("המודעה פורסמה ונראית עכשיו בלוח! 🎉");
@@ -724,22 +726,41 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <Label>שדרג את החשיפה (אופציונלי)</Label>
                 <div className="space-y-2">
                   {[
-                    { value: "none", title: "פרסום רגיל", desc: "המודעה תופיע ברשימה לפי תאריך פרסום", badge: "חינם" },
-                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "חינם" },
-                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "חינם" },
-                  ].map((opt) => (
-                    <button key={opt.value} type="button" onClick={() => setPromoOption(opt.value as "none" | "bump24" | "bump48")}
-                      className={`w-full relative rounded-lg border-2 p-3 text-right transition ${promoOption === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-medium text-sm">{opt.title}</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">{opt.desc}</div>
+                    { value: "none", title: "פרסום רגיל", desc: "המודעה תופיע ברשימה לפי תאריך פרסום", badge: "חינם", locked: false },
+                    { value: "bump24", title: "הקפצה ל-24 שעות", desc: "המודעה תופיע בראש הלוח למשך יממה", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "בתשלום", locked: !isVip },
+                    { value: "bump48", title: "הקפצה ל-48 שעות", desc: "המודעה תופיע בראש הלוח ליומיים", badge: isVip ? `כלול ב-${vipTier?.toUpperCase()}` : "בתשלום", locked: !isVip },
+                  ].map((opt) => {
+                    const disabled = opt.locked;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => !disabled && setPromoOption(opt.value as "none" | "bump24" | "bump48")}
+                        className={`w-full relative rounded-lg border-2 p-3 text-right transition ${
+                          disabled
+                            ? "border-border opacity-60 cursor-not-allowed"
+                            : promoOption === opt.value
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium text-sm">{opt.title}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{opt.desc}</div>
+                          </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${opt.locked ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"}`}>{opt.badge}</span>
                         </div>
-                        <span className="text-xs bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">{opt.badge}</span>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
+                {!isVip && (
+                  <p className="text-xs text-muted-foreground">
+                    הקפצה כלולה ללא עלות במינוי VIP. תוכל גם לרכוש הקפצה למודעה לאחר פרסום מאזור "המודעות שלי".
+                  </p>
+                )}
               </div>
             )}
 
