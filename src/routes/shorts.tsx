@@ -65,6 +65,8 @@ function ShortsPage() {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [commentsOpenFor, setCommentsOpenFor] = useState<string | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [avSyncOffsetMs, setAvSyncOffsetMs] = useAVSyncOffset();
+  const [latency, setLatency] = useState<{ base: number; output: number }>({ base: 0, output: 0 });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
