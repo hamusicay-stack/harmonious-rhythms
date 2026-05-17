@@ -6,15 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Tags, Eye, ArrowUp, Trash2, Phone, MessageCircle, Heart,
-  CheckCircle2, Clock, XCircle,
+  CheckCircle2, Clock, XCircle, PackageCheck,
 } from "lucide-react";
 import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
+import { MarkAsSoldDialog } from "@/components/marketplace/MarkAsSoldDialog";
 import { OffersReceivedPanel } from "@/components/dashboard/OffersReceivedPanel";
 
 export type Listing = {
   id: string; title: string; price: number; status: string; views_count: number;
   images: string[]; created_at: string; bump_expires_at: string | null;
   category: string; brand: string | null;
+  is_sold?: boolean | null; sold_at?: string | null;
 };
 
 function statusBadge(status: string) {
@@ -29,16 +31,30 @@ export function MyListingsTab({ userId }: { userId: string }) {
   const [stats, setStats] = useState<Record<string, { phone: number; whatsapp: number; likes: number }>>({});
   const [loading, setLoading] = useState(true);
   const [boostId, setBoostId] = useState<string | null>(null);
+  const [soldFor, setSoldFor] = useState<Listing | null>(null);
+  const [pendingSoldIds, setPendingSoldIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("marketplace_listings")
-      .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand")
+      .select("id, title, price, status, views_count, images, created_at, bump_expires_at, category, brand, is_sold, sold_at")
       .eq("seller_id", userId)
       .order("created_at", { ascending: false });
     const items = (data ?? []) as Listing[];
     setListings(items);
+
+    // Pending deal confirmations awaiting buyer response
+    if (items.length > 0) {
+      const { data: pendings } = await supabase
+        .from("marketplace_deal_confirmations")
+        .select("listing_id")
+        .eq("seller_id", userId)
+        .eq("status", "pending_buyer_confirmation");
+      setPendingSoldIds(new Set((pendings ?? []).map((p: any) => p.listing_id)));
+    } else {
+      setPendingSoldIds(new Set());
+    }
 
     if (items.length > 0) {
       const ids = items.map((l) => l.id);
@@ -127,7 +143,12 @@ export function MyListingsTab({ userId }: { userId: string }) {
                       {l.title}
                     </Link>
                     <div className="flex flex-wrap gap-1">
-                      {statusBadge(l.status)}
+                      {l.is_sold
+                        ? <Badge className="gap-1 bg-primary"><PackageCheck className="h-3 w-3" />נמכר</Badge>
+                        : statusBadge(l.status)}
+                      {pendingSoldIds.has(l.id) && !l.is_sold && (
+                        <Badge variant="outline" className="gap-1 border-primary/50 text-primary"><Clock className="h-3 w-3" />ממתין לאישור הקונה</Badge>
+                      )}
                       {bumped && <Badge className="gap-1"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>}
                     </div>
                   </div>
@@ -139,9 +160,18 @@ export function MyListingsTab({ userId }: { userId: string }) {
                     <span className="flex items-center gap-1 text-rose-500" title="לייקים"><Heart className="h-3 w-3" />{stats[l.id]?.likes ?? 0}</span>
                   </div>
                   <div className="flex gap-2 flex-wrap pt-1">
-                    {l.status === "approved" && !bumped && (
+                    {l.status === "approved" && !bumped && !l.is_sold && (
                       <Button size="sm" variant="outline" onClick={() => setBoostId(l.id)}>
                         <ArrowUp className="h-3 w-3" />הקפץ מודעה
+                      </Button>
+                    )}
+                    {l.status === "approved" && !l.is_sold && !pendingSoldIds.has(l.id) && (
+                      <Button
+                        size="sm"
+                        onClick={() => setSoldFor(l)}
+                        className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
+                      >
+                        <PackageCheck className="h-3 w-3" />סמן כנמכר
                       </Button>
                     )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
@@ -163,6 +193,16 @@ export function MyListingsTab({ userId }: { userId: string }) {
           open={!!boostId}
           onOpenChange={(o) => { if (!o) setBoostId(null); }}
           onBumped={load}
+        />
+      )}
+      {soldFor && (
+        <MarkAsSoldDialog
+          open={!!soldFor}
+          onOpenChange={(o) => { if (!o) setSoldFor(null); }}
+          listingId={soldFor.id}
+          listingTitle={soldFor.title}
+          sellerId={userId}
+          onDone={load}
         />
       )}
     </div>

@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { DealConfirmationPrompt } from "./DealConfirmationPrompt";
 
 type Message = {
   id: string;
@@ -210,6 +211,10 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
             </DropdownMenu>
           </div>
         </DialogHeader>
+
+        <div className="px-3 pt-3">
+          <DealConfirmationPrompt listingId={listingId} />
+        </div>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-muted/30">
           {loading ? (
