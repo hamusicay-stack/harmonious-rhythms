@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Tags, Eye, ArrowUp, Trash2, Phone, MessageCircle, Heart,
-  CheckCircle2, Clock, XCircle,
+  CheckCircle2, Clock, XCircle, PackageCheck,
 } from "lucide-react";
 import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
+import { MarkAsSoldDialog } from "@/components/marketplace/MarkAsSoldDialog";
 import { OffersReceivedPanel } from "@/components/dashboard/OffersReceivedPanel";
 
 export type Listing = {
