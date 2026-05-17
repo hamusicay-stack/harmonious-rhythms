@@ -28,6 +28,7 @@ import { HardwareTab } from "@/components/dashboard/HardwareTab";
 import { MyCoursesTab } from "@/components/dashboard/MyCoursesTab";
 import { MyOrdersTab } from "@/components/dashboard/MyOrdersTab";
 import { MyPointsTab } from "@/components/dashboard/MyPointsTab";
+import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
 import { Coins } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
