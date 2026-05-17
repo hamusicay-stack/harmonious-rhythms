@@ -490,6 +490,70 @@ function ShortsPage() {
         </div>
       </div>
 
+      {/* IG-Stories overlay: segmented progress + creator + follow + horizontal swipe to skip creator */}
+      {activeCreator && (
+        <div
+          onPointerDown={onHeaderPointerDown}
+          onPointerUp={onHeaderPointerUp}
+          onPointerCancel={() => { swipeRef.current = null; }}
+          className="absolute inset-x-0 z-40 px-3 pointer-events-auto"
+          style={{
+            top: "calc(max(env(safe-area-inset-top), 0.5rem) + 2.75rem)",
+            touchAction: "pan-y",
+          }}
+        >
+          <div className="mx-auto flex w-full max-w-[520px] flex-col gap-2">
+            {/* Segmented progress bars */}
+            <div className="flex items-center gap-1" dir="ltr">
+              {Array.from({ length: Math.max(1, creatorCount) }).map((_, i) => {
+                const fill = i < activeVideoIdx ? 1 : i === activeVideoIdx ? currentProgress : 0;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`סרטון ${i + 1} מתוך ${creatorCount}`}
+                    onClick={(e) => { e.stopPropagation(); scrollToFlatIdx(creatorStart + i); }}
+                    className="group h-[3px] flex-1 overflow-hidden rounded-full bg-white/25 backdrop-blur-md"
+                  >
+                    <span
+                      className="block h-full bg-gradient-to-r from-primary to-primary-glow shadow-[0_0_8px_oklch(0.78_0.14_75/0.7)] transition-[width] duration-150 ease-out"
+                      style={{ width: `${Math.round(fill * 100)}%` }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Creator info row */}
+            <div className="flex items-center gap-2.5 rounded-full bg-black/40 px-2 py-1 backdrop-blur-md ring-1 ring-white/10">
+              <Avatar className="h-8 w-8 border-2 border-primary/60">
+                <AvatarImage src={activeCreator.creator.avatar || undefined} />
+                <AvatarFallback className="bg-secondary text-[10px] font-bold">
+                  {activeCreator.creator.name.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-display text-sm font-bold text-white drop-shadow">
+                  {activeCreator.creator.name}
+                </div>
+                <div className="text-[10px] text-white/60">
+                  {activeVideoIdx + 1}/{creatorCount} · {activeCreatorIdx + 1} מתוך {creators.length} יוצרים
+                </div>
+              </div>
+              {user && user.id !== activeCreator.creatorId && (
+                <FollowButton
+                  targetType="shorts_creator"
+                  targetId={activeCreator.creatorId}
+                  targetName={activeCreator.creator.name}
+                  size="sm"
+                  className="h-7 rounded-full px-3 text-[11px]"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* SNAP-SCROLL CONTAINER */}
       <div
         ref={containerRef}
