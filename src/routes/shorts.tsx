@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Heart, MessageCircle, Share2, Volume2, VolumeX, Plus, Crown, Music2,
-  AlertTriangle, GraduationCap, Sparkles,
+  AlertTriangle, GraduationCap, Sparkles, ShoppingCart, Guitar, ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +12,8 @@ import { ShortsSkeleton } from "@/components/shorts/ShortsSkeleton";
 import { UploadDialog } from "@/components/shorts/UploadDialog";
 import { KaraokeLyrics } from "@/components/shorts/KaraokeLyrics";
 import { AVSyncControl, useAVSyncOffset } from "@/components/shorts/AVSyncControl";
+import { useCachedVideoUrl } from "@/hooks/useCachedVideoUrl";
+import { useFloatingShort } from "@/contexts/FloatingShortContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudioPlayer } from "@/contexts/AudioPlayerContext";
@@ -19,6 +21,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shorts")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    shortsId: typeof s.shortsId === "string" ? s.shortsId : undefined,
+    t: typeof s.t === "string" ? Number(s.t) : typeof s.t === "number" ? s.t : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "המוזיקאי שורטס — סרטוני מוזיקה קצרים" },
@@ -44,6 +50,8 @@ type Short = {
   views: number;
   isPremium: boolean;
   courseLink: string | null;
+  productId: string | null;
+  marketplaceListingId: string | null;
   isHiRes: boolean;
   audioBitrate: number | null;
   lyricsUrl: string | null;
@@ -53,7 +61,9 @@ type Short = {
 function ShortsPage() {
   const { user } = useAuth();
   const { stop: stopFloatingAudio } = useAudioPlayer();
-  useEffect(() => { stopFloatingAudio(); }, [stopFloatingAudio]);
+  const { short: pinnedShort, detach: detachToPip, dismiss: dismissPip } = useFloatingShort();
+  const { shortsId: deepLinkId, t: deepLinkT } = Route.useSearch();
+  useEffect(() => { stopFloatingAudio(); dismissPip(); }, [stopFloatingAudio, dismissPip]);
 
   const [shorts, setShorts] = useState<Short[]>([]);
   const [likedSet, setLikedSet] = useState<Set<string>>(new Set());
@@ -79,7 +89,7 @@ function ShortsPage() {
     try {
       const { data, error } = await supabase
         .from("shorts_videos")
-        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link, is_hi_res, audio_bitrate, lyrics_url, lyrics_offset, hls_playlist_url")
+        .select("id, creator_id, title, description, video_url, thumbnail_url, is_premium, views_count, created_at, course_link, is_hi_res, audio_bitrate, lyrics_url, lyrics_offset, hls_playlist_url, product_id, marketplace_listing_id")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(60);
@@ -119,6 +129,8 @@ function ShortsPage() {
           lyrics_url?: string | null;
           lyrics_offset?: number | null;
           hls_playlist_url?: string | null;
+          product_id?: string | null;
+          marketplace_listing_id?: string | null;
         };
         return {
           id: r.id,
@@ -134,6 +146,8 @@ function ShortsPage() {
           views: r.views_count ?? 0,
           isPremium: r.is_premium,
           courseLink: rx.course_link ?? null,
+          productId: rx.product_id ?? null,
+          marketplaceListingId: rx.marketplace_listing_id ?? null,
           isHiRes: rx.is_hi_res ?? false,
           audioBitrate: rx.audio_bitrate ?? null,
           lyricsUrl: rx.lyrics_url ?? null,
@@ -193,6 +207,60 @@ function ShortsPage() {
     });
     if (current) void supabase.rpc("increment_short_views", { _video_id: current.id });
   }, [activeIndex, shorts, isMuted]);
+
+  /* ---------- Deep link: ?shortsId=X&t=42 ---------- */
+  const deepLinkAppliedRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkAppliedRef.current || !deepLinkId || shorts.length === 0) return;
+    const idx = shorts.findIndex((s) => s.id === deepLinkId);
+    if (idx < 0) return;
+    deepLinkAppliedRef.current = true;
+    setActiveIndex(idx);
+    // Defer to next frame so the panel exists in the DOM.
+    requestAnimationFrame(() => {
+      const root = containerRef.current;
+      const panel = root?.querySelector<HTMLElement>(`[data-idx="${idx}"]`);
+      panel?.scrollIntoView({ behavior: "auto", block: "start" });
+      const t = Number(deepLinkT);
+      if (Number.isFinite(t) && t > 0) {
+        // Wait for video metadata before seeking.
+        const tryStep = (n: number) => {
+          const v = videoRefs.current.get(shorts[idx].id);
+          if (v && v.readyState >= 1) { try { v.currentTime = t; } catch { /* noop */ } }
+          else if (n > 0) setTimeout(() => tryStep(n - 1), 120);
+        };
+        tryStep(20);
+      }
+    });
+  }, [deepLinkId, deepLinkT, shorts]);
+
+  /* ---------- Detach to floating PiP when leaving the feed ---------- */
+  useEffect(() => {
+    return () => {
+      const current = shorts[activeIndex];
+      const v = current ? videoRefs.current.get(current.id) : null;
+      if (current && v && !v.paused && v.currentTime > 1) {
+        detachToPip({
+          id: current.id,
+          videoUrl: current.videoUrl,
+          poster: current.poster,
+          title: current.title,
+          creatorName: current.creator.name,
+          startAt: v.currentTime,
+          muted: v.muted,
+        });
+      }
+    };
+    // We intentionally re-bind to current shorts/activeIndex so the cleanup
+    // sees the latest active video at unmount time.
+  }, [activeIndex, shorts, detachToPip]);
+
+  // If user clicks the PiP "expand" link back to /shorts, jump to that short.
+  useEffect(() => {
+    if (!pinnedShort || shorts.length === 0) return;
+    const idx = shorts.findIndex((s) => s.id === pinnedShort.id);
+    if (idx >= 0) setActiveIndex(idx);
+  }, [pinnedShort, shorts]);
 
   /* ---------- Unlock audio on first interaction ---------- */
   const unlockAudio = useCallback(() => {
@@ -385,6 +453,98 @@ function ShortsPage() {
 }
 
 /* ====================================================================== */
+/*                       CONTEXT-AWARE COMMERCE CTA                       */
+/* ====================================================================== */
+
+function CommerceHotspot({ short }: { short: Short }) {
+  const [productName, setProductName] = useState<string | null>(null);
+  const [listingTitle, setListingTitle] = useState<string | null>(null);
+
+  // Fetch lightweight display labels for the linked product / listing.
+  useEffect(() => {
+    let cancelled = false;
+    if (short.productId) {
+      void supabase.from("shop_products").select("name").eq("id", short.productId).maybeSingle()
+        .then(({ data }) => { if (!cancelled) setProductName((data as { name?: string } | null)?.name ?? null); });
+    } else setProductName(null);
+    if (short.marketplaceListingId) {
+      void supabase.from("marketplace_listings").select("title").eq("id", short.marketplaceListingId).maybeSingle()
+        .then(({ data }) => { if (!cancelled) setListingTitle((data as { title?: string } | null)?.title ?? null); });
+    } else setListingTitle(null);
+    return () => { cancelled = true; };
+  }, [short.productId, short.marketplaceListingId]);
+
+  // Priority: course → product → marketplace listing
+  if (short.courseLink) {
+    const to = short.courseLink.startsWith("/") ? short.courseLink : "/academy";
+    return (
+      <CtaCard
+        to={to}
+        icon={<GraduationCap className="h-4 w-4" />}
+        title="🎓 רכוש את הקורס המלא באקדמיה"
+        subtitle="גישה מלאה לשיעורים, תרגולים וקהילה"
+      />
+    );
+  }
+  if (short.productId) {
+    return (
+      <CtaCard
+        to="/shop/$productId"
+        params={{ productId: short.productId }}
+        icon={<ShoppingCart className="h-4 w-4" />}
+        title="🛒 קנה אביזרים משלימים מהחנות בהנחה"
+        subtitle={productName ?? "אביזר מומלץ — מקצועי, חדש, באחריות"}
+      />
+    );
+  }
+  if (short.marketplaceListingId) {
+    return (
+      <CtaCard
+        to="/marketplace/$listingId"
+        params={{ listingId: short.marketplaceListingId }}
+        icon={<Guitar className="h-4 w-4" />}
+        title="🎸 יש לי כזה למכור! צפה במודעה ביד-2"
+        subtitle={listingTitle ?? "מודעה פעילה — מציאה ליד שנייה"}
+      />
+    );
+  }
+  return null;
+}
+
+type CtaCardProps =
+  | { to: string; params?: undefined; icon: ReactNode; title: string; subtitle: string }
+  | { to: "/shop/$productId"; params: { productId: string }; icon: ReactNode; title: string; subtitle: string }
+  | { to: "/marketplace/$listingId"; params: { listingId: string }; icon: ReactNode; title: string; subtitle: string };
+
+function CtaCard(props: CtaCardProps) {
+  const { to, icon, title, subtitle } = props;
+  const common = (
+    <>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-primary-foreground shadow-gold">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-display text-sm font-bold text-white">{title}</span>
+        <span className="block truncate text-[11px] text-white/70">{subtitle}</span>
+      </span>
+      <ChevronLeft className="h-4 w-4 shrink-0 text-primary" />
+    </>
+  );
+  const className = "mb-3 flex items-center gap-2.5 rounded-2xl bg-black/60 px-3 py-2 ring-1 ring-primary/40 shadow-[0_12px_30px_-12px_oklch(0.78_0.14_75/0.5)] backdrop-blur-xl transition hover:bg-black/75 hover:ring-primary/70";
+
+  if ("params" in props && props.params) {
+    // Typed param links
+    if (to === "/shop/$productId") {
+      return <Link to={to} params={props.params as { productId: string }} className={className}>{common}</Link>;
+    }
+    if (to === "/marketplace/$listingId") {
+      return <Link to={to} params={props.params as { listingId: string }} className={className}>{common}</Link>;
+    }
+  }
+  return <Link to={to} className={className}>{common}</Link>;
+}
+
+/* ====================================================================== */
 /*                              SHORT PANEL                               */
 /* ====================================================================== */
 
@@ -424,6 +584,10 @@ function ShortPanel({
     const canHls = probe.canPlayType("application/vnd.apple.mpegurl");
     return canHls ? short.hlsUrl : short.videoUrl;
   })();
+
+  // IndexedDB-backed offline cache. Returns a blob: URL on revisits.
+  const cachedUrl = useCachedVideoUrl(isActive ? playbackUrl : null);
+  const finalSrc = cachedUrl ?? playbackUrl;
 
   const triggerHeartPop = useCallback((x: number, y: number) => {
     const id = ++popIdRef.current;
@@ -466,7 +630,7 @@ function ShortPanel({
       >
         <video
           ref={(el) => { onRegisterVideo(el); setVideoEl(el); }}
-          src={playbackUrl}
+          src={finalSrc}
           poster={short.poster ?? undefined}
           className="absolute inset-0 h-full w-full object-cover"
           muted={isMuted}
@@ -549,6 +713,10 @@ function ShortPanel({
         {/* Bottom safe zone — metadata */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-12">
           <div className="pointer-events-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pr-20">
+
+            {/* Commerce hotspot CTA — sits above author block */}
+            <CommerceHotspot short={short} />
+
             <div className="flex items-center gap-2.5">
               <Avatar className="h-9 w-9 border-2 border-white/40">
                 <AvatarImage src={short.creator.avatar || undefined} />
@@ -567,14 +735,6 @@ function ShortPanel({
               <p className="mt-1 text-xs text-white/85 drop-shadow line-clamp-2">
                 <HashtagText text={short.description} />
               </p>
-            )}
-            {short.courseLink && (
-              <Link
-                to={short.courseLink.startsWith("/") ? short.courseLink : "/academy"}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-primary-glow px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-gold"
-              >
-                <GraduationCap className="h-3.5 w-3.5" />לשיעור המלא
-              </Link>
             )}
           </div>
         </div>

@@ -17,6 +17,8 @@ import { useDeviceGuard } from "@/hooks/useDeviceGuard";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 import { SharedCartHydrator } from "@/components/cart/SharedCartHydrator";
+import { FloatingShortProvider } from "@/contexts/FloatingShortContext";
+import { FloatingShortPlayer } from "@/components/shorts/FloatingShortPlayer";
 
 import appCss from "../styles.css?url";
 
@@ -100,15 +102,18 @@ function RootComponent() {
           <NotificationsProvider>
             <CartProvider>
               <AudioPlayerProvider>
-                <KeyboardSelectionProvider>
-                  <DeviceGuardInner />
-                  <ImpersonationBanner />
-                  <SharedCartHydrator />
-                  <Outlet />
-                  <FloatingAudioPlayer />
-                  <StickyCart />
-                  <Toaster richColors position="top-center" />
-                </KeyboardSelectionProvider>
+                <FloatingShortProvider>
+                  <KeyboardSelectionProvider>
+                    <DeviceGuardInner />
+                    <ImpersonationBanner />
+                    <SharedCartHydrator />
+                    <Outlet />
+                    <FloatingAudioPlayer />
+                    <FloatingShortPlayer />
+                    <StickyCart />
+                    <Toaster richColors position="top-center" />
+                  </KeyboardSelectionProvider>
+                </FloatingShortProvider>
               </AudioPlayerProvider>
             </CartProvider>
           </NotificationsProvider>
