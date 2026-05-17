@@ -114,8 +114,7 @@ function TopicPage() {
   };
 
   const submitReply = async () => {
-    const trimmed = body.replace(/<[^>]+>/g, "").trim();
-    if (trimmed.length < 1) return;
+    if (!hasForumContent(body)) return;
     try {
       await reply({ data: { topicId: topicId!, body, quotedPostId: quoted ?? undefined, parentPostId: replyParent ?? undefined } });
       setBody(""); setQuoted(null); setReplyParent(null);
