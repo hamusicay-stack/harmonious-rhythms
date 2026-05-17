@@ -538,7 +538,7 @@ function ShortPanel({
       >
         <video
           ref={(el) => { onRegisterVideo(el); setVideoEl(el); }}
-          src={playbackUrl}
+          src={finalSrc}
           poster={short.poster ?? undefined}
           className="absolute inset-0 h-full w-full object-cover"
           muted={isMuted}
