@@ -12,6 +12,7 @@ type CourseRow = {
   progress_percent: number;
   last_accessed_at: string | null;
   completed_at: string | null;
+  last_lesson_id: string | null;
   course: {
     id: string;
     slug: string;
