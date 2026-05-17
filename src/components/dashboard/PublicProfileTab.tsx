@@ -105,8 +105,11 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
           youtube: form.youtube || null,
           website: form.website || null,
           specialties: form.specialties.length ? form.specialties : null,
+          current_status: form.current_status || null,
+          forum_signature: form.forum_signature || null,
         })
         .eq("id", user.id);
+
       if (error) throw error;
       await refreshProfile();
       toast.success("הפרופיל הציבורי עודכן");
