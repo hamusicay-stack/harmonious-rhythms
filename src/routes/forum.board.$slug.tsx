@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ForumEditor } from "@/components/forum/ForumEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Pin, Lock, Plus } from "lucide-react";
+import { Pin, Lock, Plus, ShieldAlert } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useUserRoles } from "@/hooks/usePermission";
 import { formatDistanceToNow } from "date-fns";
 import { he } from "date-fns/locale";
 import { toast } from "sonner";
@@ -38,6 +40,10 @@ function BoardPage() {
   const board = useQuery({ queryKey: ["forum", "board", slug], queryFn: () => fetchBoard({ data: { slug } }) });
   const topics = useQuery({ queryKey: ["forum", "topics", slug], queryFn: () => fetchTopics({ data: { boardSlug: slug, page: 1, pageSize: 30 } }) });
 
+  const roles = useUserRoles() ?? [];
+  const postMin = (((board.data?.board as any)?.post_min_role ?? "user") as "user" | "moderator" | "admin");
+  const canPost = postMin === "user" || roles.includes("admin") || (postMin === "moderator" && (roles as string[]).includes("moderator"));
+
   const submit = async () => {
     if (title.trim().length < 3 || body.trim().length < 5) {
       toast.error("נא למלא כותרת וגוף");
@@ -64,21 +70,35 @@ function BoardPage() {
             <h1 className="text-2xl font-bold">{board.data?.board?.name ?? "טוען…"}</h1>
             {board.data?.board?.description && <p className="text-sm text-muted-foreground">{board.data.board.description}</p>}
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 ml-1" />אשכול חדש</Button>
-            </DialogTrigger>
-            <DialogContent dir="rtl" className="max-w-2xl">
-              <DialogHeader><DialogTitle>פתיחת אשכול חדש</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
-                <ForumEditor value={body} onChange={setBody} placeholder="תוכן ההודעה — תוכל לעצב, להוסיף תמונות, אודיו וקישורי יוטיוב" />
-              </div>
-              <DialogFooter>
-                <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          {!canPost ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-400 cursor-not-allowed">
+                    <ShieldAlert className="h-4 w-4" />
+                    אזור זה סגור לכתיבה על ידי ההנהלה בלבד
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent dir="rtl">קריאה בלבד — רק {postMin === "admin" ? "מנהלי המערכת" : "מנהלי הלוח"} יכולים לפתוח אשכולות חדשים כאן.</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button><Plus className="h-4 w-4 ml-1" />אשכול חדש</Button>
+              </DialogTrigger>
+              <DialogContent dir="rtl" className="max-w-2xl">
+                <DialogHeader><DialogTitle>פתיחת אשכול חדש</DialogTitle></DialogHeader>
+                <div className="space-y-3">
+                  <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />
+                  <ForumEditor value={body} onChange={setBody} placeholder="תוכן ההודעה — תוכל לעצב, להוסיף תמונות, אודיו וקישורי יוטיוב" />
+                </div>
+                <DialogFooter>
+                  <Button onClick={submit} disabled={busy}>{busy ? "שולח…" : "פרסום"}</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </header>
 
         <div className="rounded-lg border border-border bg-card divide-y divide-border">

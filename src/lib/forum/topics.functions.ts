@@ -122,9 +122,18 @@ export const createTopic = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: board } = await supabase.from("forum_boards")
-      .select("id").eq("slug", data.boardSlug).maybeSingle();
+    const { data: board } = await (supabase as any).from("forum_boards")
+      .select("id, post_min_role").eq("slug", data.boardSlug).maybeSingle();
     if (!board) throw new Error("הלוח לא נמצא");
+
+    // Board-level ACL: only admins/mods can post in restricted boards
+    const required: string = (board as any).post_min_role ?? "user";
+    if (required !== "user") {
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+      const roleSet = new Set(((roles ?? []) as { role: string }[]).map((r) => r.role));
+      const ok = roleSet.has("admin") || (required === "moderator" && roleSet.has("moderator"));
+      if (!ok) throw new Error("אזור זה סגור לכתיבה על ידי ההנהלה בלבד");
+    }
 
     const slug = withRandomSuffix(slugify(data.title));
     const { data: topic, error: e1 } = await supabase

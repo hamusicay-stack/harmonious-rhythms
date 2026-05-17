@@ -12,14 +12,14 @@ export const listCategoriesWithBoards = createServerFn({ method: "GET" })
       .order("display_order");
     if (e1) throw new Error(e1.message);
 
-    const { data: boards, error: e2 } = await supabase
+    const { data: boards, error: e2 } = await (supabase as any)
       .from("forum_boards")
-      .select("id, category_id, name, slug, description, icon, display_order, topic_count, post_count, last_post_at, last_topic_id")
+      .select("id, category_id, name, slug, description, icon, display_order, topic_count, post_count, last_post_at, last_topic_id, post_min_role")
       .order("display_order");
     if (e2) throw new Error(e2.message);
 
     // Enrich with last topic + author info (NodeBB-style "Last Post" snippet)
-    const lastTopicIds = (boards ?? []).map((b) => b.last_topic_id).filter(Boolean) as string[];
+    const lastTopicIds = (boards ?? []).map((b: any) => b.last_topic_id).filter(Boolean) as string[];
     let topicsById = new Map<string, { title: string; slug: string; last_post_user_id: string | null; last_post_at: string | null }>();
     let authorsById = new Map<string, { id: string; username: string | null; display_name: string | null; avatar_url: string | null }>();
     if (lastTopicIds.length > 0) {
@@ -42,8 +42,8 @@ export const listCategoriesWithBoards = createServerFn({ method: "GET" })
       categories: (cats ?? []).map((c) => ({
         ...c,
         boards: (boards ?? [])
-          .filter((b) => b.category_id === c.id)
-          .map((b) => {
+          .filter((b: any) => b.category_id === c.id)
+          .map((b: any) => {
             const t = b.last_topic_id ? topicsById.get(b.last_topic_id) : null;
             const a = t?.last_post_user_id ? authorsById.get(t.last_post_user_id) : null;
             return {
@@ -67,9 +67,9 @@ export const getBoardBySlug = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: board, error } = await supabase
+    const { data: board, error } = await (supabase as any)
       .from("forum_boards")
-      .select("id, category_id, name, slug, description, icon, topic_count, post_count")
+      .select("id, category_id, name, slug, description, icon, topic_count, post_count, post_min_role")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
