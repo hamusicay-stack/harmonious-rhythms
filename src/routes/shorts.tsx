@@ -127,6 +127,8 @@ function ShortsPage() {
           lyrics_url?: string | null;
           lyrics_offset?: number | null;
           hls_playlist_url?: string | null;
+          product_id?: string | null;
+          marketplace_listing_id?: string | null;
         };
         return {
           id: r.id,
@@ -142,6 +144,8 @@ function ShortsPage() {
           views: r.views_count ?? 0,
           isPremium: r.is_premium,
           courseLink: rx.course_link ?? null,
+          productId: rx.product_id ?? null,
+          marketplaceListingId: rx.marketplace_listing_id ?? null,
           isHiRes: rx.is_hi_res ?? false,
           audioBitrate: rx.audio_bitrate ?? null,
           lyricsUrl: rx.lyrics_url ?? null,
