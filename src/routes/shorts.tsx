@@ -21,6 +21,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shorts")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    shortsId: typeof s.shortsId === "string" ? s.shortsId : undefined,
+    t: typeof s.t === "string" ? Number(s.t) : typeof s.t === "number" ? s.t : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "המוזיקאי שורטס — סרטוני מוזיקה קצרים" },
