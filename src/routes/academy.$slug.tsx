@@ -15,6 +15,7 @@ import { ChaptersList } from "@/components/academy/ChaptersList";
 import { AutoNextOverlay } from "@/components/academy/AutoNextOverlay";
 import { trackAcademyEvent } from "@/lib/academyAnalytics";
 import { fetchAcademyDiscountPercent } from "@/lib/tiers";
+import { useCart } from "@/contexts/CartContext";
 
 export const Route = createFileRoute("/academy/$slug")({
   loader: async ({ params }) => {
