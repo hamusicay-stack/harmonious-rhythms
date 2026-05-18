@@ -117,6 +117,53 @@ function WikiArticlePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const incrementedRef = useRef(false);
 
+  // Edit existing article
+  const [openEdit, setOpenEdit] = useState(false);
+  const [eTitle, setETitle] = useState("");
+  const [eSummary, setESummary] = useState("");
+  const [eContent, setEContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEditDialog = () => {
+    if (!article) return;
+    setETitle(article.title);
+    setESummary(article.summary ?? "");
+    setEContent(article.content);
+    setOpenEdit(true);
+  };
+
+  const saveEditArticle = async () => {
+    if (!article) return;
+    if (!userId) {
+      toast.error("שגיאה בשמירה. ודא שאתה מחובר למערכת.");
+      return;
+    }
+    if (!eTitle.trim() || eContent.trim().length < 20) {
+      toast.error("נא למלא כותרת ותוכן");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { error } = await (supabase as any)
+        .from("wiki_articles")
+        .update({
+          title: eTitle.trim(),
+          summary: eSummary.trim() || null,
+          content: eContent.trim(),
+          last_edited_by: userId,
+        })
+        .eq("id", article.id);
+      if (error) throw error;
+      toast.success("נשמר בהצלחה! ✅");
+      setArticle({ ...article, title: eTitle.trim(), summary: eSummary.trim() || null, content: eContent.trim(), last_edited_by: userId });
+      setOpenEdit(false);
+    } catch (e: any) {
+      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
   }, []);
