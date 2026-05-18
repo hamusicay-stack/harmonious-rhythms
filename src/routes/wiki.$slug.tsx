@@ -3,6 +3,7 @@ import { sanitizeHtml } from "@/lib/sanitize";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BookOpen, Edit3, Eye, ShoppingBag, Tag, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SiteLayout } from "@/components/SiteLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,11 @@ import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/wiki/$slug")({
-  component: WikiArticlePage,
+  component: () => (
+    <SiteLayout>
+      <WikiArticlePage />
+    </SiteLayout>
+  ),
 });
 
 type WikiArticle = {
