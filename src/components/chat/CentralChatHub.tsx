@@ -18,9 +18,15 @@ import {
   type ConversationThread,
 } from "./shared/ConversationListItem";
 
+type Source = "core" | "marketplace" | "pro";
+
 type Thread = ConversationThread & {
+  source: Source;
   otherUserId: string;
-  iAmUserA: boolean;
+  iAmUserA: boolean; // for "core" only — which side am I
+  // for marketplace/pro we also need context info
+  rawListingId?: string;
+  rawProId?: string;
 };
 
 type Message = {
@@ -28,7 +34,19 @@ type Message = {
   sender_id: string;
   body: string;
   created_at: string;
-  read_at: string | null;
+  read_at?: string | null;
+};
+
+const MSG_TABLE: Record<Source, "core_chat_messages" | "marketplace_chat_messages" | "pro_chat_messages"> = {
+  core: "core_chat_messages",
+  marketplace: "marketplace_chat_messages",
+  pro: "pro_chat_messages",
+};
+
+const THREAD_TABLE: Record<Source, "core_chat_threads" | "marketplace_chat_threads" | "pro_chat_threads"> = {
+  core: "core_chat_threads",
+  marketplace: "marketplace_chat_threads",
+  pro: "pro_chat_threads",
 };
 
 export function CentralChatHub() {
@@ -50,32 +68,100 @@ export function CentralChatHub() {
     if (!user) return;
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("core_chat_threads")
-      .select(
-        "id, context_type, context_id, user_a, user_b, last_message_at, last_message_preview, unread_a, unread_b",
-      )
-      .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
-      .order("last_message_at", { ascending: false })
-      .limit(200);
+    const [coreRes, mkRes, proRes] = await Promise.all([
+      supabase
+        .from("core_chat_threads")
+        .select(
+          "id, context_type, context_id, user_a, user_b, last_message_at, last_message_preview, unread_a, unread_b",
+        )
+        .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
+        .order("last_message_at", { ascending: false })
+        .limit(100),
+      supabase
+        .from("marketplace_chat_threads")
+        .select(
+          "id, listing_id, buyer_id, seller_id, last_message_at, last_message_preview, buyer_unread, seller_unread",
+        )
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+        .order("last_message_at", { ascending: false })
+        .limit(100),
+      supabase
+        .from("pro_chat_threads")
+        .select(
+          "id, pro_id, sender_id, pro_user_id, last_message_at, last_message_preview, sender_unread, pro_unread",
+        )
+        .or(`sender_id.eq.${user.id},pro_user_id.eq.${user.id}`)
+        .order("last_message_at", { ascending: false })
+        .limit(100),
+    ]);
 
-    if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      return;
-    }
+    if (coreRes.error) console.error("core threads", coreRes.error);
+    if (mkRes.error) console.error("marketplace threads", mkRes.error);
+    if (proRes.error) console.error("pro threads", proRes.error);
 
-    const rows = (data ?? []) as any[];
-    const otherIds = Array.from(
-      new Set(rows.map((t) => (t.user_a === user.id ? t.user_b : t.user_a))),
-    );
+    const list: Thread[] = [];
+    const allOtherIds = new Set<string>();
 
-    const profMap = new Map<string, Thread["otherProfile"]>();
-    if (otherIds.length) {
+    (coreRes.data ?? []).forEach((t: any) => {
+      const iAmUserA = t.user_a === user.id;
+      const otherUserId = iAmUserA ? t.user_b : t.user_a;
+      allOtherIds.add(otherUserId);
+      list.push({
+        id: `core:${t.id}`,
+        source: "core",
+        contextType: (t.context_type as ContextType) ?? "DIRECT",
+        otherUserId,
+        iAmUserA,
+        otherProfile: null,
+        lastMessageAt: t.last_message_at,
+        lastPreview: t.last_message_preview,
+        unread: iAmUserA ? t.unread_a : t.unread_b,
+      });
+    });
+
+    (mkRes.data ?? []).forEach((t: any) => {
+      const iAmBuyer = t.buyer_id === user.id;
+      const otherUserId = iAmBuyer ? t.seller_id : t.buyer_id;
+      allOtherIds.add(otherUserId);
+      list.push({
+        id: `marketplace:${t.id}`,
+        source: "marketplace",
+        contextType: "MARKETPLACE",
+        otherUserId,
+        iAmUserA: iAmBuyer,
+        otherProfile: null,
+        lastMessageAt: t.last_message_at ?? new Date(0).toISOString(),
+        lastPreview: t.last_message_preview,
+        unread: iAmBuyer ? (t.buyer_unread ?? 0) : (t.seller_unread ?? 0),
+        rawListingId: t.listing_id,
+      });
+    });
+
+    (proRes.data ?? []).forEach((t: any) => {
+      const iAmSender = t.sender_id === user.id;
+      const otherUserId = iAmSender ? t.pro_user_id : t.sender_id;
+      allOtherIds.add(otherUserId);
+      list.push({
+        id: `pro:${t.id}`,
+        source: "pro",
+        contextType: "PRO",
+        otherUserId,
+        iAmUserA: iAmSender,
+        otherProfile: null,
+        lastMessageAt: t.last_message_at ?? new Date(0).toISOString(),
+        lastPreview: t.last_message_preview,
+        unread: iAmSender ? (t.sender_unread ?? 0) : (t.pro_unread ?? 0),
+        rawProId: t.pro_id,
+      });
+    });
+
+    // Hydrate other-party profiles
+    if (allOtherIds.size) {
       const { data: profs } = await supabase
         .from("profiles")
         .select("id, display_name, username, avatar_url")
-        .in("id", otherIds);
+        .in("id", Array.from(allOtherIds));
+      const profMap = new Map<string, ConversationThread["otherProfile"]>();
       (profs ?? []).forEach((p: any) =>
         profMap.set(p.id, {
           display_name: p.display_name,
@@ -83,22 +169,15 @@ export function CentralChatHub() {
           avatar_url: p.avatar_url,
         }),
       );
+      list.forEach((t) => {
+        t.otherProfile = profMap.get(t.otherUserId) ?? null;
+      });
     }
 
-    const list: Thread[] = rows.map((t) => {
-      const iAmUserA = t.user_a === user.id;
-      const otherUserId = iAmUserA ? t.user_b : t.user_a;
-      return {
-        id: t.id,
-        contextType: t.context_type as ContextType,
-        otherUserId,
-        iAmUserA,
-        otherProfile: profMap.get(otherUserId) ?? null,
-        lastMessageAt: t.last_message_at,
-        lastPreview: t.last_message_preview,
-        unread: iAmUserA ? t.unread_a : t.unread_b,
-      };
-    });
+    list.sort(
+      (a, b) =>
+        new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime(),
+    );
 
     setThreads(list);
     setLoading(false);
@@ -108,21 +187,17 @@ export function CentralChatHub() {
     loadThreads();
   }, [loadThreads]);
 
-  // Realtime: refresh on new messages or thread updates
+  // Realtime: refresh list on any thread/message change for the three sources
   useEffect(() => {
     if (!user) return;
     const ch = supabase
-      .channel(`core-chat-${user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "core_chat_threads" },
-        () => loadThreads(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "core_chat_messages" },
-        () => loadThreads(),
-      )
+      .channel(`hub-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "core_chat_threads" }, () => loadThreads())
+      .on("postgres_changes", { event: "*", schema: "public", table: "marketplace_chat_threads" }, () => loadThreads())
+      .on("postgres_changes", { event: "*", schema: "public", table: "pro_chat_threads" }, () => loadThreads())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "core_chat_messages" }, () => loadThreads())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "marketplace_chat_messages" }, () => loadThreads())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pro_chat_messages" }, () => loadThreads())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -136,43 +211,60 @@ export function CentralChatHub() {
       return;
     }
     let cancelled = false;
+    const [, rawId] = active.id.split(":");
     (async () => {
       setMsgLoading(true);
-      const { data } = await supabase
-        .from("core_chat_messages")
-        .select("id, sender_id, body, created_at, read_at")
-        .eq("thread_id", active.id)
+      const { data, error } = await supabase
+        .from(MSG_TABLE[active.source])
+        .select("id, sender_id, body, created_at")
+        .eq("thread_id", rawId)
         .order("created_at");
       if (cancelled) return;
+      if (error) {
+        console.error("load messages", error);
+        toast.error(error.message);
+      }
       setMessages((data as Message[]) ?? []);
       setMsgLoading(false);
 
-      // Reset unread counter for this side
-      const patch = active.iAmUserA ? { unread_a: 0 } : { unread_b: 0 };
-      await supabase
-        .from("core_chat_threads")
-        .update(patch)
-        .eq("id", active.id);
+      // Mark thread read for this side
+      let patch: Record<string, number> | null = null;
+      if (active.source === "core") {
+        patch = active.iAmUserA ? { unread_a: 0 } : { unread_b: 0 };
+      } else if (active.source === "marketplace") {
+        patch = active.iAmUserA ? { buyer_unread: 0 } : { seller_unread: 0 };
+      } else if (active.source === "pro") {
+        patch = active.iAmUserA ? { sender_unread: 0 } : { pro_unread: 0 };
+      }
+      if (patch) {
+        await supabase.from(THREAD_TABLE[active.source]).update(patch).eq("id", rawId);
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, [active?.id]); // eslint-disable-line
 
-  // Realtime per-thread
+  // Realtime per-thread INSERT
   useEffect(() => {
     if (!active) return;
+    const [, rawId] = active.id.split(":");
     const ch = supabase
-      .channel(`core-thread-${active.id}`)
+      .channel(`hub-thread-${active.id}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
-          table: "core_chat_messages",
-          filter: `thread_id=eq.${active.id}`,
+          table: MSG_TABLE[active.source],
+          filter: `thread_id=eq.${rawId}`,
         },
-        (p) => setMessages((m) => [...m, p.new as Message]),
+        (p) =>
+          setMessages((m) => {
+            const next = p.new as Message;
+            if (m.some((x) => x.id === next.id)) return m;
+            return [...m, next];
+          }),
       )
       .subscribe();
     return () => {
@@ -200,12 +292,16 @@ export function CentralChatHub() {
 
   const send = async (text: string) => {
     if (!active || !user) return;
-    const { error } = await supabase.from("core_chat_messages").insert({
-      thread_id: active.id,
+    const [, rawId] = active.id.split(":");
+    const { error } = await supabase.from(MSG_TABLE[active.source]).insert({
+      thread_id: rawId,
       sender_id: user.id,
       body: text,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("send", error);
+      throw new Error(error.message);
+    }
   };
 
   if (!user)
