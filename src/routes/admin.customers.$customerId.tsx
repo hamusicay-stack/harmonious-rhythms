@@ -131,6 +131,9 @@ function CustomerProfilePage() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [listingsCount, setListingsCount] = useState(0);
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const [proInquiries, setProInquiries] = useState<any[]>([]);
+  const [customerDeals, setCustomerDeals] = useState<any[]>([]);
+  const [customerLeads, setCustomerLeads] = useState<any[]>([]);
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("default");
 
