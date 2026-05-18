@@ -171,6 +171,16 @@ function WikiIndexPage() {
             />
           </div>
 
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={() => setOpenCreate(true)}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+            >
+              <FileText className="h-4 w-4 ml-1" />
+              📄 הצע ערך חדש
+            </Button>
+          </div>
+
           {/* Alphabet selector */}
           <div className="mt-6 flex flex-wrap justify-center gap-1.5">
             <Button
