@@ -180,18 +180,20 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
             <Label className="text-sm">
               קטגוריה <span className="text-gold">*</span>
             </Label>
-            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
-              <SelectTrigger className="mt-1.5 bg-background/60 border-gold/20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              list="news-category-options"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              maxLength={60}
+              placeholder="בחר או הקלד קטגוריה חדשה"
+              className="mt-1.5 bg-background/60 border-gold/20 focus-visible:ring-gold/40"
+              required
+            />
+            <datalist id="news-category-options">
+              {existingCategories.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
           </div>
 
           <div>
