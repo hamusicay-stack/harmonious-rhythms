@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Loader2, Search, ArrowRight, MessageCircle } from "lucide-react";
+import { Loader2, Search, ArrowRight, MessageCircle, Calendar } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
