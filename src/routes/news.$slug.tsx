@@ -5,9 +5,14 @@ import { ArrowRight, Calendar, Eye, Play, ShoppingBag, User as UserIcon } from "
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { MarketplaceListingCard, type CardListing } from "@/components/marketplace/MarketplaceListingCard";
+import { SiteLayout } from "@/components/SiteLayout";
 
 export const Route = createFileRoute("/news/$slug")({
-  component: NewsArticlePage,
+  component: () => (
+    <SiteLayout>
+      <NewsArticlePage />
+    </SiteLayout>
+  ),
 });
 
 type Article = {
