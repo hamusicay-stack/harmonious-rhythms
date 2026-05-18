@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Send, MessageCircle, MoreVertical, ShieldOff } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Loader2, Send, MessageCircle, MoreVertical, ShieldOff, UserCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
