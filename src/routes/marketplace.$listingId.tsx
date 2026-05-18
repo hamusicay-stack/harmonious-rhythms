@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { ArrowRight, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Flame, Images, BadgeCheck } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
