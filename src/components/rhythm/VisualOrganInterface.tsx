@@ -761,6 +761,12 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
                 <>
                   <div className="font-semibold">{activeSet.set_name}</div>
                   <div className="text-[0.7rem] opacity-70 mt-1">{activeSet.creator_name}</div>
+                  {activeBtn && (
+                    <div className="mt-2 flex items-center gap-1.5 text-[0.7rem]" style={{ color: "var(--sr-led-amber)", textShadow: "0 0 6px var(--sr-led-amber)" }}>
+                      <span className="sr-led-dot sr-blink" style={{ background: "var(--sr-led-amber)", boxShadow: "0 0 6px var(--sr-led-amber)" }} />
+                      ▶ {activeBtn.replace("_", " ")}
+                    </div>
+                  )}
                 </>
               ) : (
                 <span className="opacity-70">— NO SET SELECTED —</span>
