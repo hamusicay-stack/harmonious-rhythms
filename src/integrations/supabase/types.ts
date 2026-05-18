@@ -6036,6 +6036,7 @@ export type Database = {
       }
       wiki_articles: {
         Row: {
+          approval_status: string
           category: string
           content: string
           created_at: string | null
@@ -6053,6 +6054,7 @@ export type Database = {
           views_count: number | null
         }
         Insert: {
+          approval_status?: string
           category: string
           content: string
           created_at?: string | null
@@ -6070,6 +6072,7 @@ export type Database = {
           views_count?: number | null
         }
         Update: {
+          approval_status?: string
           category?: string
           content?: string
           created_at?: string | null
@@ -6106,6 +6109,67 @@ export type Database = {
             columns: ["related_product_id"]
             isOneToOne: false
             referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wiki_revisions: {
+        Row: {
+          article_id: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_by: string | null
+          suggested_html: string
+          suggested_summary: string | null
+          suggested_title: string | null
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by?: string | null
+          suggested_html: string
+          suggested_summary?: string | null
+          suggested_title?: string | null
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by?: string | null
+          suggested_html?: string
+          suggested_summary?: string | null
+          suggested_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wiki_revisions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "wiki_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wiki_revisions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wiki_revisions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
