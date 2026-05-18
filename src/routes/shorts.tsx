@@ -1003,6 +1003,40 @@ function ShortPanel({
   );
 }
 
+function ExpandableDescription({ text }: { text: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  // Heuristic: show toggle if text is long enough to plausibly clamp past 2 lines.
+  const canExpand = text.length > 80 || text.includes("\n");
+  return (
+    <div
+      className="pointer-events-auto mt-1"
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      <p
+        className={cn(
+          "text-xs text-white/90 drop-shadow whitespace-pre-wrap break-words",
+          !isExpanded && "line-clamp-2",
+        )}
+      >
+        <HashtagText text={text} />
+      </p>
+      {canExpand && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded((v) => !v);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="mt-1 text-[12px] font-bold text-primary drop-shadow hover:underline"
+        >
+          {isExpanded ? "הצג פחות" : "קריאה מלאה..."}
+        </button>
+      )}
+    </div>
+  );
+}
+
 const RailButton = React.forwardRef<HTMLButtonElement, {
   icon: React.ReactNode;
   label: string;
