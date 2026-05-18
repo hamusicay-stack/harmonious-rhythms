@@ -36,6 +36,7 @@ import { AccountSettingsTab } from "@/components/dashboard/AccountSettingsTab";
 import { BookmarksTab } from "@/components/dashboard/BookmarksTab";
 import { MyPurchasesTab } from "@/components/dashboard/MyPurchasesTab";
 import { SubmitNewsTab } from "@/components/dashboard/SubmitNewsTab";
+import { CentralChatHub } from "@/components/chat/CentralChatHub";
 import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
