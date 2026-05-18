@@ -50,18 +50,26 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function ArticleCard({
   article,
+  mode,
   onPreview,
   onEdit,
   onApprove,
   onReject,
+  onUnpublish,
+  onDelete,
   approving,
+  busy,
 }: {
   article: Article;
+  mode: "pending" | "published";
   onPreview: () => void;
   onEdit: () => void;
-  onApprove: () => void;
-  onReject: () => void;
-  approving: boolean;
+  onApprove?: () => void;
+  onReject?: () => void;
+  onUnpublish?: () => void;
+  onDelete?: () => void;
+  approving?: boolean;
+  busy?: boolean;
 }) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 rounded-xl border border-gold/15 bg-card/60 p-4 backdrop-blur-sm hover:border-gold/40 transition-colors">
@@ -90,6 +98,17 @@ function ArticleCard({
         )}
         <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-muted-foreground">
           <span>{new Date(article.created_at).toLocaleString("he-IL")}</span>
+          {typeof article.views_count === "number" && (
+            <span>· {article.views_count} צפיות</span>
+          )}
+          {article.is_automated && (
+            <Badge className="bg-purple-500/15 text-purple-300 border-purple-500/40 text-[10px]">
+              <Bot className="h-3 w-3 ml-1" />AI
+            </Badge>
+          )}
+          {article.submitted_by_pr && (
+            <Badge className="bg-blue-500/15 text-blue-300 border-blue-500/40 text-[10px]">PR</Badge>
+          )}
           {article.source_url && (
             <a
               href={article.source_url}
@@ -119,30 +138,64 @@ function ArticleCard({
             className="border-gold/30 hover:bg-gold/10 hover:text-gold"
           >
             <Pencil className="h-3.5 w-3.5 ml-1" />
-            ערוך טקסט
+            ערוך
           </Button>
-          <Button
-            size="sm"
-            onClick={onApprove}
-            disabled={approving}
-            className="bg-gold text-gold-foreground hover:bg-gold/90"
-          >
-            {approving ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin ml-1" />
-            ) : (
-              <Check className="h-3.5 w-3.5 ml-1" />
-            )}
-            אשר לפרסום
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onReject}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <X className="h-3.5 w-3.5 ml-1" />
-            דחה
-          </Button>
+
+          {mode === "pending" && onApprove && (
+            <Button
+              size="sm"
+              onClick={onApprove}
+              disabled={approving}
+              className="bg-gold text-gold-foreground hover:bg-gold/90"
+            >
+              {approving ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin ml-1" />
+              ) : (
+                <Check className="h-3.5 w-3.5 ml-1" />
+              )}
+              אשר לפרסום
+            </Button>
+          )}
+          {mode === "pending" && onReject && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onReject}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              <X className="h-3.5 w-3.5 ml-1" />
+              דחה
+            </Button>
+          )}
+
+          {mode === "published" && onUnpublish && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onUnpublish}
+              disabled={busy}
+              className="border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
+            >
+              <EyeOff className="h-3.5 w-3.5 ml-1" />
+              הסר מפרסום
+            </Button>
+          )}
+          {mode === "published" && onDelete && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onDelete}
+              disabled={busy}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              {busy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin ml-1" />
+              ) : (
+                <Trash2 className="h-3.5 w-3.5 ml-1" />
+              )}
+              מחק לצמיתות
+            </Button>
+          )}
         </div>
       </div>
     </div>
