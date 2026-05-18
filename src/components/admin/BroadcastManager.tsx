@@ -78,7 +78,7 @@ export function BroadcastManager() {
       const { data, error } = await supabase.rpc("admin_broadcast_notification", {
         p_title: title.trim(),
         p_message: message.trim(),
-        p_link: link.trim() || undefined,
+        p_link: link.trim() || "",
         p_target_group: target,
       });
       if (error) throw error;
