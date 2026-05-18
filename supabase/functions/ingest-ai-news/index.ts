@@ -104,7 +104,7 @@ function parseFeed(xml: string): RssItem[] {
     const entryBlocks = xml.match(/<entry[\s\S]*?<\/entry>/gi) ?? [];
     for (const block of entryBlocks) {
       const linkMatch = block.match(/<link[^>]*href=["']([^"']+)["']/i);
-      const rawDesc = pick("summary", block) || pick("content", block);
+      const rawDesc = pick("content", block) || pick("summary", block);
       items.push({
         title: stripTags(pick("title", block)),
         link: linkMatch ? linkMatch[1] : "",
@@ -130,6 +130,7 @@ async function rewriteWithOpenAI(item: RssItem): Promise<AiOutput> {
       model: OPENAI_MODEL,
       response_format: { type: "json_object" },
       temperature: 0.7,
+      max_tokens: 2500,
       messages: [
         {
           role: "system",
