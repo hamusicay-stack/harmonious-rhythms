@@ -110,7 +110,7 @@ export function MusicianCalendarHub() {
     if (!user || !proId) { toast.error("יש להגדיר פרופיל מוזיקאי תחילה"); return; }
     if (!form.title.trim()) { toast.error("הזן כותרת לאירוע"); return; }
     setSaving(true);
-    const { error } = await supabase.from("music_pro_calendar_events" as never).insert({
+    const payload = {
       pro_id: proId,
       pro_user_id: user.id,
       event_date: addingDate,
@@ -121,7 +121,11 @@ export function MusicianCalendarHub() {
       event_type: form.event_type,
       is_external: true,
       source: "manual",
-    });
+    };
+    // Calendar table is new — supabase generated types lag behind
+    const { error } = await (supabase.from("music_pro_calendar_events" as never) as unknown as {
+      insert: (p: typeof payload) => Promise<{ error: { message: string } | null }>;
+    }).insert(payload);
     setSaving(false);
     if (error) { toast.error(friendlyError(error)); return; }
     toast.success("האירוע נוסף ליומן הפרטי שלך");
