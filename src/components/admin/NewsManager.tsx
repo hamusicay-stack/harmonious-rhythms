@@ -160,6 +160,66 @@ export function NewsManager() {
   const [editContent, setEditContent] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Create new article (admin instant publish)
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newCategory, setNewCategory] = useState<string>("singles");
+  const [newSummary, setNewSummary] = useState("");
+  const [newContent, setNewContent] = useState("");
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const slugify = (t: string) => {
+    const base = t.toLowerCase().replace(/[^a-z0-9\u0590-\u05FF\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
+    return `${base || "article"}-${Math.random().toString(36).slice(2, 8)}`;
+  };
+
+  const resetCreate = () => {
+    setNewTitle(""); setNewCategory("singles"); setNewSummary(""); setNewContent(""); setNewImageUrl("");
+  };
+
+  const createArticle = async () => {
+    if (!newTitle.trim() || newTitle.trim().length < 3) {
+      toast.error("כותרת חייבת לפחות 3 תווים");
+      return;
+    }
+    if (!newContent.trim() || newContent.trim().length < 20) {
+      toast.error("התוכן קצר מדי");
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) {
+        toast.error("יש להתחבר למערכת");
+        setCreating(false);
+        return;
+      }
+      const { error } = await (supabase as any).from("music_news").insert({
+        title: newTitle.trim(),
+        slug: slugify(newTitle),
+        category: newCategory,
+        summary: newSummary.trim() || null,
+        content: newContent.trim(),
+        image_url: newImageUrl.trim() || null,
+        author_id: uid,
+        approval_status: "approved",
+        is_automated: false,
+        submitted_by_pr: false,
+      });
+      if (error) throw error;
+      toast.success("נשמר בהצלחה! ✅");
+      resetCreate();
+      setCreateOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const load = async () => {
     setLoading(true);
     const { data } = await (supabase as any)
