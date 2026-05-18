@@ -224,27 +224,30 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               )}
             </div>
 
-            {/* Quick actions - bottom (always on mobile, hover on desktop) */}
-            <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
-              <div onClick={stop}>
-                <ChatThreadDialog
-                  listingId={listing.id}
-                  sellerId={listing.seller_id}
-                  listingTitle={listing.title}
-                  trigger={
-                    <button type="button" className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition" title="צ'אט עם המוכר">
-                      <MessageSquare className="h-4 w-4" />
-                    </button>
-                  }
-                />
+            {/* Quick actions - bottom (always on mobile, hover on desktop) — hidden when sold */}
+            {!listing.is_sold && (
+              <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+                <div onClick={stop}>
+                  <ChatThreadDialog
+                    listingId={listing.id}
+                    sellerId={listing.seller_id}
+                    listingTitle={listing.title}
+                    trigger={
+                      <button type="button" className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition" title="צ'אט עם המוכר">
+                        <MessageSquare className="h-4 w-4" />
+                      </button>
+                    }
+                  />
+                </div>
+                <button type="button" onClick={toggleLike} className={`h-8 w-8 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition ${liked ? "bg-rose-500 text-white" : "bg-background/90 backdrop-blur"}`} title="מועדפים">
+                  <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
+                </button>
+                <button type="button" onClick={openQuickView} className="h-8 w-8 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center hover:scale-110 transition" title="צפייה מהירה">
+                  <Eye className="h-4 w-4" />
+                </button>
               </div>
-              <button type="button" onClick={toggleLike} className={`h-8 w-8 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition ${liked ? "bg-rose-500 text-white" : "bg-background/90 backdrop-blur"}`} title="מועדפים">
-                <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-              </button>
-              <button type="button" onClick={openQuickView} className="h-8 w-8 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center hover:scale-110 transition" title="צפייה מהירה">
-                <Eye className="h-4 w-4" />
-              </button>
-            </div>
+            )}
+            {listing.is_sold && <SoldOverlay />}
           </div>
 
           {/* Content */}
