@@ -326,6 +326,7 @@ export function NewsManager() {
     toast.success("הכתבה אושרה ופורסמה למגזין ✨");
     setPrArticles((p) => p.filter((x) => x.id !== a.id));
     setAiArticles((p) => p.filter((x) => x.id !== a.id));
+    setPublishedArticles((p) => [{ ...a, approval_status: "approved" }, ...p]);
   };
 
   const reject = async (a: Article) => {
@@ -342,47 +343,113 @@ export function NewsManager() {
     setAiArticles((p) => p.filter((x) => x.id !== a.id));
   };
 
+  const unpublish = async (a: Article) => {
+    if (!confirm(`להסיר את הכתבה "${a.title}" מהפרסום? היא תחזור לתור הממתינים.`)) return;
+    setRowBusyId(a.id);
+    const { error } = await (supabase as any)
+      .from("music_news")
+      .update({ approval_status: "pending_review" })
+      .eq("id", a.id);
+    setRowBusyId(null);
+    if (error) {
+      toast.error(friendlyError(error, "ההסרה נכשלה"));
+      return;
+    }
+    toast.success("הכתבה הוסרה מהפרסום וחזרה לתור");
+    setPublishedArticles((p) => p.filter((x) => x.id !== a.id));
+    const updated = { ...a, approval_status: "pending_review" } as Article;
+    if (a.submitted_by_pr) setPrArticles((p) => [updated, ...p]);
+    if (a.is_automated) setAiArticles((p) => [updated, ...p]);
+  };
+
+  const remove = async (a: Article) => {
+    if (!confirm(`למחוק לצמיתות את הכתבה "${a.title}"? פעולה זו אינה הפיכה.`)) return;
+    setRowBusyId(a.id);
+    const { error } = await (supabase as any).from("music_news").delete().eq("id", a.id);
+    setRowBusyId(null);
+    if (error) {
+      toast.error(friendlyError(error, "המחיקה נכשלה"));
+      return;
+    }
+    toast.success("הכתבה נמחקה לצמיתות 🗑️");
+    setPublishedArticles((p) => p.filter((x) => x.id !== a.id));
+    setPrArticles((p) => p.filter((x) => x.id !== a.id));
+    setAiArticles((p) => p.filter((x) => x.id !== a.id));
+  };
+
   const openEdit = (a: Article) => {
     setEditing(a);
     setEditTitle(a.title);
     setEditSummary(a.summary ?? "");
     setEditContent(a.content);
+    setEditCategory(a.category ?? "");
+    setEditImageUrl(a.image_url ?? "");
   };
 
   const saveEdit = async () => {
     if (!editing) return;
     setSavingEdit(true);
+    const newCat = editCategory.trim() || editing.category;
+    const newImg = editImageUrl.trim() || null;
     const { error } = await (supabase as any)
       .from("music_news")
       .update({
         title: editTitle,
         summary: editSummary || null,
         content: editContent,
+        category: newCat,
+        image_url: newImg,
       })
       .eq("id", editing.id);
     setSavingEdit(false);
     if (error) {
-      toast.error("שמירה נכשלה");
+      toast.error(friendlyError(error, "שמירה נכשלה"));
       return;
     }
     toast.success("הטקסט עודכן");
     const patch = (arr: Article[]) =>
       arr.map((a) =>
-        a.id === editing.id ? { ...a, title: editTitle, summary: editSummary, content: editContent } : a,
+        a.id === editing.id
+          ? { ...a, title: editTitle, summary: editSummary, content: editContent, category: newCat, image_url: newImg }
+          : a,
       );
     setPrArticles(patch);
     setAiArticles(patch);
+    setPublishedArticles(patch);
     setEditing(null);
   };
+
+  const knownCategories = Array.from(
+    new Set(
+      [...publishedArticles, ...prArticles, ...aiArticles]
+        .map((a) => a.category)
+        .filter(Boolean),
+    ),
+  ) as string[];
+
+  const filteredPublished = publishedArticles.filter((a) => {
+    if (publishedCategory !== "all" && a.category !== publishedCategory) return false;
+    if (publishedSearch.trim()) {
+      const q = publishedSearch.trim().toLowerCase();
+      if (!a.title.toLowerCase().includes(q) && !(a.summary ?? "").toLowerCase().includes(q)) {
+        return false;
+      }
+    }
+    return true;
+  });
 
   const Section = ({
     items,
     emptyText,
+    isLoading,
+    mode,
   }: {
     items: Article[];
     emptyText: string;
+    isLoading: boolean;
+    mode: "pending" | "published";
   }) =>
-    loading ? (
+    isLoading ? (
       <div className="space-y-3">
         {[1, 2].map((i) => (
           <div key={i} className="h-32 rounded-xl bg-card/60 animate-pulse" />
@@ -396,11 +463,15 @@ export function NewsManager() {
           <ArticleCard
             key={a.id}
             article={a}
+            mode={mode}
             onPreview={() => setPreviewing(a)}
             onEdit={() => openEdit(a)}
             onApprove={() => approve(a)}
             onReject={() => reject(a)}
+            onUnpublish={() => unpublish(a)}
+            onDelete={() => remove(a)}
             approving={approvingId === a.id}
+            busy={rowBusyId === a.id}
           />
         ))}
       </div>
