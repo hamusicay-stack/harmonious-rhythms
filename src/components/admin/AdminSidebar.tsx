@@ -53,6 +53,7 @@ const MARKETING: NavItem[] = [
   { to: "/admin/commerce/newsletter", title: "ניוזלטר", icon: Mail },
   { to: "/admin/automations", title: "אוטומציות", icon: Zap },
   { to: "/admin/commerce/banners", title: "פרסומות", icon: Megaphone },
+  { to: "/admin/notifications", title: "התראות ודיוור", icon: Mail },
   { to: "/admin/commerce/ai", title: "עוזרי AI", icon: Bot },
 ];
 
