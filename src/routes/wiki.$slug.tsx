@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/wiki/$slug")({
   component: WikiArticlePage,
