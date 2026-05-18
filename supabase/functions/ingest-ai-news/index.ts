@@ -89,7 +89,8 @@ function parseFeed(xml: string): RssItem[] {
 
   const itemBlocks = xml.match(/<item[\s\S]*?<\/item>/gi) ?? [];
   for (const block of itemBlocks) {
-    const rawDesc = pick("description", block) || pick("content:encoded", block);
+    // Prefer full content over short description snippet
+    const rawDesc = pick("content:encoded", block) || pick("content", block) || pick("description", block);
     items.push({
       title: stripTags(pick("title", block)),
       link: stripTags(pick("link", block)),
