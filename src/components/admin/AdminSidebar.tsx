@@ -18,6 +18,7 @@ const MAIN: NavItem[] = [
 ];
 
 const CRM: NavItem[] = [
+  { to: "/admin/users", title: "משתמשים", icon: Users },
   { to: "/admin/crm/customers", title: "לקוחות", icon: Users },
   { to: "/admin/crm/leads", title: "לידים", icon: ClipboardList },
   { to: "/admin/crm/deals", title: "עסקאות", icon: DollarSign },
