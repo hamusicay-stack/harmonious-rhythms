@@ -3377,6 +3377,56 @@ export type Database = {
           },
         ]
       }
+      music_pro_calendar_events: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          event_date: string
+          id: string
+          notes: string | null
+          pro_id: string
+          source: string
+          source_ref_id: string | null
+          start_time: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          event_date: string
+          id?: string
+          notes?: string | null
+          pro_id: string
+          source?: string
+          source_ref_id?: string | null
+          start_time?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          event_date?: string
+          id?: string
+          notes?: string | null
+          pro_id?: string
+          source?: string
+          source_ref_id?: string | null
+          start_time?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_pro_calendar_events_pro_id_fkey"
+            columns: ["pro_id"]
+            isOneToOne: false
+            referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       music_pro_inquiries: {
         Row: {
           budget: number | null

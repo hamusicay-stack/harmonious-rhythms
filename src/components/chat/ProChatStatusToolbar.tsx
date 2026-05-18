@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,6 +30,8 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
   const [ownerChecked, setOwnerChecked] = useState(false);
   const [inquiryId, setInquiryId] = useState<string | null>(null);
   const [status, setStatus] = useState<InquiryStatus | null>(null);
+  const [eventDate, setEventDate] = useState<string | null>(null);
+  const [conflict, setConflict] = useState<{ title: string | null; start_time: string | null; end_time: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<InquiryStatus | null>(null);
 
@@ -58,7 +60,7 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
       setLoading(true);
       const { data, error } = await supabase
         .from("music_pro_inquiries")
-        .select("id, status")
+        .select("id, status, event_date")
         .eq("pro_id", proId)
         .eq("sender_id", clientUserId)
         .order("created_at", { ascending: false })
@@ -68,6 +70,7 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
       if (error) console.error("inquiry lookup", error);
       setInquiryId(data?.id ?? null);
       setStatus((data?.status as InquiryStatus) ?? null);
+      setEventDate((data?.event_date as string | null) ?? null);
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -86,6 +89,27 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [inquiryId]);
+
+  // PRIVATE conflict check — runs ONLY for the owning pro. Client never sees this.
+  useEffect(() => {
+    if (!isOwner || !eventDate || !proId) { setConflict(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("music_pro_calendar_events" as never)
+        .select("title, start_time, end_time, source_ref_id")
+        .eq("pro_id", proId)
+        .eq("event_date", eventDate)
+        .limit(5);
+      if (cancelled) return;
+      if (error) { console.error("calendar conflict lookup", error); setConflict(null); return; }
+      const rows = (data ?? []) as Array<{ title: string | null; start_time: string | null; end_time: string | null; source_ref_id: string | null }>;
+      // ignore an entry that points back to this same inquiry (avoid self-conflict)
+      const real = rows.find((r) => r.source_ref_id !== inquiryId);
+      setConflict(real ? { title: real.title, start_time: real.start_time, end_time: real.end_time } : null);
+    })();
+    return () => { cancelled = true; };
+  }, [isOwner, eventDate, proId, inquiryId]);
 
   if (!enabled || !ownerChecked || !isOwner) return null;
   if (!loading && !inquiryId) return null;
@@ -119,6 +143,27 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
         </span>
         {loading && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
       </div>
+      {conflict && (
+        <div
+          dir="rtl"
+          className="mb-2 flex items-start gap-2 rounded-lg border border-rose-500/40 bg-gradient-to-l from-rose-500/15 via-rose-500/5 to-transparent px-3 py-2 shadow-[0_0_18px_rgba(244,63,94,0.25)]"
+          role="alert"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
+          <div className="text-[11.5px] leading-relaxed text-rose-100">
+            <div className="font-semibold text-rose-200">⚠️ התראה פנימית מהיומן שלך</div>
+            <div className="opacity-90">
+              שים לב שיש לך כבר אירוע רשום ביומן בתאריך זה
+              {conflict.title ? ` (${conflict.title})` : ""}
+              {conflict.start_time ? ` בשעה ${conflict.start_time.slice(0, 5)}` : ""}.
+              ודא שאין חפיפת שעות לפני שינוי סטטוס העסקה.
+            </div>
+            <div className="mt-0.5 text-[10px] uppercase tracking-wider text-rose-300/70">
+              גלוי רק לך · הלקוח אינו רואה הודעה זו
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap gap-1.5">
         {OPTIONS.map((opt) => {
           const isActive = status === opt.value;
