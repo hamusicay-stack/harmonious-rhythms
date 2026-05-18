@@ -33,6 +33,7 @@ import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index
 import { Route as ForumIndexRouteImport } from './routes/forum.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as WikiSlugRouteImport } from './routes/wiki.$slug'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
@@ -220,6 +221,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const WikiSlugRoute = WikiSlugRouteImport.update({
+  id: '/wiki/$slug',
+  path: '/wiki/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/verify/$code',
@@ -610,6 +616,7 @@ export interface FileRoutesByFullPath {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/wiki/$slug': typeof WikiSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
@@ -696,6 +703,7 @@ export interface FileRoutesByTo {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/wiki/$slug': typeof WikiSlugRoute
   '/admin': typeof AdminIndexRoute
   '/beat': typeof BeatIndexRoute
   '/forum': typeof ForumIndexRoute
@@ -790,6 +798,7 @@ export interface FileRoutesById {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/wiki/$slug': typeof WikiSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
@@ -885,6 +894,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/wiki/$slug'
     | '/admin/'
     | '/beat/'
     | '/forum/'
@@ -971,6 +981,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/wiki/$slug'
     | '/admin'
     | '/beat'
     | '/forum'
@@ -1064,6 +1075,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/wiki/$slug'
     | '/admin/'
     | '/beat/'
     | '/forum/'
@@ -1138,6 +1150,7 @@ export interface RootRouteChildren {
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   UUsernameRoute: typeof UUsernameRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
+  WikiSlugRoute: typeof WikiSlugRoute
   BeatIndexRoute: typeof BeatIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
   WikiIndexRoute: typeof WikiIndexRoute
@@ -1316,6 +1329,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/wiki/$slug': {
+      id: '/wiki/$slug'
+      path: '/wiki/$slug'
+      fullPath: '/wiki/$slug'
+      preLoaderRoute: typeof WikiSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/verify/$code': {
       id: '/verify/$code'
@@ -2037,6 +2057,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerSellerIdRoute: SellerSellerIdRoute,
   UUsernameRoute: UUsernameRoute,
   VerifyCodeRoute: VerifyCodeRoute,
+  WikiSlugRoute: WikiSlugRoute,
   BeatIndexRoute: BeatIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
   WikiIndexRoute: WikiIndexRoute,
