@@ -4,6 +4,7 @@ import { Search, BookOpen, Music2, Sliders, User, Library, TrendingUp, Eye, File
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
 import { supabase } from "@/integrations/supabase/client";
+import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +26,11 @@ export const Route = createFileRoute("/wiki/")({
       { property: "og:description", content: "חפש מושג, כלי או אמן. הכל במקום אחד." },
     ],
   }),
-  component: WikiIndexPage,
+  component: () => (
+    <SiteLayout>
+      <WikiIndexPage />
+    </SiteLayout>
+  ),
 });
 
 type WikiRow = {
@@ -101,9 +106,10 @@ function WikiIndexPage() {
         created_by: userId,
         last_edited_by: userId,
         is_verified: false,
+        approval_status: "pending_review",
       });
       if (error) throw error;
-      toast.success("נשמר בהצלחה! ✅ הערך יעלה לאחר בדיקת מערכת");
+      toast.success("הערך נשלח לבדיקת המערכת!");
       setOpenCreate(false);
       setNTitle(""); setNSummary(""); setNContent(""); setNCategory("instruments");
     } catch (e: any) {

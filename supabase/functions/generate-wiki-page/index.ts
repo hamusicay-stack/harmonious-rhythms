@@ -121,6 +121,7 @@ Deno.serve(async (req) => {
         summary,
         content: contentHtml,
         is_verified: true,
+        approval_status: "approved",
       })
       .select("id, slug, title")
       .single();

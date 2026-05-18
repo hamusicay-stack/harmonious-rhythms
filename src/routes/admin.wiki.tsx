@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { WikiGenerator } from "@/components/admin/WikiGenerator";
+import { WikiManager } from "@/components/admin/WikiManager";
 
 export const Route = createFileRoute("/admin/wiki")({
-  component: () => <WikiGenerator />,
+  component: () => <WikiManager />,
 });
