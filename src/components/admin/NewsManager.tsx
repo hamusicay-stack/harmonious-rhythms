@@ -684,14 +684,14 @@ export function NewsManager() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setEditing(null)} className="w-full sm:w-auto">
               ביטול
             </Button>
             <Button
               onClick={saveEdit}
               disabled={savingEdit}
-              className="bg-gold text-gold-foreground hover:bg-gold/90"
+              className="bg-gold text-gold-foreground hover:bg-gold/90 w-full sm:w-auto"
             >
               {savingEdit ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
               שמור שינויים
