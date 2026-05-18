@@ -367,7 +367,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         .select("id")
         .maybeSingle();
       setSubmitting(false);
-      if (error) { toast.error(`שגיאה בעדכון: ${error.message}`); return; }
+      if (error) { toast.error(friendlyError(error, "שגיאה בעדכון")); return; }
       if (!updated) { toast.error("העדכון נכשל - אין הרשאה או שהמודעה לא נמצאה"); return; }
       toast.success("המודעה עודכנה בהצלחה!");
       navigate({ to: "/marketplace/$listingId", params: { listingId: initial.id } });
