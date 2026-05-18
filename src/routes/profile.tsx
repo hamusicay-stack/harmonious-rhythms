@@ -50,7 +50,16 @@ export const Route = createFileRoute("/profile")({
 function ProfilePage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState("profile");
+  const initialQuery = (() => {
+    if (typeof window === "undefined") return { tab: "profile", subTab: null as string | null, openReview: null as string | null };
+    const sp = new URLSearchParams(window.location.search);
+    return {
+      tab: sp.get("tab") || "profile",
+      subTab: sp.get("subTab"),
+      openReview: sp.get("openReview"),
+    };
+  })();
+  const [tab, setTab] = useState(initialQuery.tab);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
