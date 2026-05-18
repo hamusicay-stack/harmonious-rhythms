@@ -106,7 +106,7 @@ function ShortsPage() {
 
       const creatorIds = Array.from(new Set(rows.map((r) => r.creator_id)));
       const { data: profs } = await supabase
-        .from("profiles").select("id, display_name, avatar_url").in("id", creatorIds);
+        .from("profiles").select("id, display_name, avatar_url, username").in("id", creatorIds);
       const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
 
       const ids = rows.map((r) => r.id);
