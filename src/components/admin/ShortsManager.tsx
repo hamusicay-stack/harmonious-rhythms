@@ -13,6 +13,7 @@ import {
 import { Loader2, CheckCircle2, XCircle, Trash2, Crown, ShieldCheck, Plus, Eye, Play, Upload, Calendar, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ShortsAnalyticsPanel } from "@/components/admin/ShortsAnalyticsPanel";
+import { AiShortsManager } from "@/components/admin/AiShortsManager";
 import { WhatsAppIngestConfig } from "@/components/admin/WhatsAppIngestConfig";
 import { toast } from "sonner";
 
