@@ -147,6 +147,25 @@ export function DealsKanban() {
       }
       setLoading(false);
     })();
+
+    // Live-sync the Kanban when deals change anywhere (e.g. pro updates status from chat)
+    const ch = supabase
+      .channel("admin-deals-kanban")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "deals" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setDeals((d) => [payload.new as Deal, ...d]);
+          } else if (payload.eventType === "UPDATE") {
+            setDeals((d) => d.map((x) => (x.id === (payload.new as Deal).id ? { ...x, ...(payload.new as Deal) } : x)));
+          } else if (payload.eventType === "DELETE") {
+            setDeals((d) => d.filter((x) => x.id !== (payload.old as Deal).id));
+          }
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, []);
 
   const grouped = useMemo(() => {
