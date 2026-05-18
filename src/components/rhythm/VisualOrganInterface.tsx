@@ -58,7 +58,7 @@ const ENDINGS: ButtonDef[] = [
   { code: "Ending_3", label: "Ending III", led: "red" },
 ];
 
-export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
+export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => void; presetSetId?: string }) {
   const { selectedModel } = useSmartRhythms();
   const { user } = useAuth();
   const { add } = useCart();
@@ -69,10 +69,14 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const [items, setItems] = useState<Item[]>([]);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [history, setHistory] = useState<{ key: string; label: string; setName: string; ts: number }[]>([]);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const presetAppliedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!selectedModel) return;
