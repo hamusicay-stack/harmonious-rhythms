@@ -3527,6 +3527,39 @@ export type Database = {
         }
         Relationships: []
       }
+      musician_shorts: {
+        Row: {
+          approval_status: string
+          channel_name: string | null
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          views_count: number
+          youtube_video_id: string
+        }
+        Insert: {
+          approval_status?: string
+          channel_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          views_count?: number
+          youtube_video_id: string
+        }
+        Update: {
+          approval_status?: string
+          channel_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          views_count?: number
+          youtube_video_id?: string
+        }
+        Relationships: []
+      }
       news_sources: {
         Row: {
           created_at: string
@@ -5557,6 +5590,30 @@ export type Database = {
           id?: number
           require_approval?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      shorts_sources: {
+        Row: {
+          channel_id: string
+          channel_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          channel_id: string
+          channel_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          channel_id?: string
+          channel_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
         }
         Relationships: []
       }
