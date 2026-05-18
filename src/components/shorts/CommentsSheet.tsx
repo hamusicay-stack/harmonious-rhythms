@@ -43,6 +43,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
   const [posting, setPosting] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   const load = useCallback(async () => {
@@ -88,10 +89,19 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
     ta.style.height = Math.min(ta.scrollHeight, 140) + "px";
   }, [text]);
 
+  // Cooldown countdown (3s anti-spam window after a successful post)
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
+    if (posting || cooldown > 0) return;
     const content = text.trim();
     if (!content || !videoId) return;
+    if (content.length > MAX) { toast.error("התגובה ארוכה מדי"); return; }
     setPosting(true);
 
     // Optimistic
@@ -119,6 +129,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
       return;
     }
     setComments((prev) => prev.map((c) => c.id === tempId ? { ...c, id: data.id, created_at: data.created_at, pending: false } : c));
+    setCooldown(3);
   };
 
   const remove = async (id: string) => {
@@ -227,12 +238,12 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
               </div>
               <Button
                 onClick={submit}
-                disabled={posting || !text.trim()}
+                disabled={posting || cooldown > 0 || !text.trim()}
                 size="icon"
-                className="shrink-0 rounded-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground"
+                className="shrink-0 rounded-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground disabled:opacity-50"
                 aria-label="שלח"
               >
-                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 -scale-x-100" />}
+                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : cooldown > 0 ? <span className="text-[10px] font-semibold">{cooldown}</span> : <Send className="h-4 w-4 -scale-x-100" />}
               </Button>
             </div>
           </div>

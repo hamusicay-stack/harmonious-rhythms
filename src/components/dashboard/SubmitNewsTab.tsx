@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Newspaper, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -52,6 +52,13 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const onPickCover = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -76,6 +83,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting || cooldown > 0) return;
     const parsed = schema.safeParse({
       title,
       category,
@@ -119,6 +127,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
 
       toast.success("הכתבה נשלחה למערכת ותעלה לאחר אישור עורך קצר! 📄");
       reset();
+      setCooldown(3);
     } catch (err: any) {
       console.error(err);
       toast.error(err?.message ?? "שגיאה בשליחת הכתבה");
@@ -255,14 +264,16 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
           </Button>
           <Button
             type="submit"
-            disabled={submitting}
-            className="bg-gold text-gold-foreground hover:bg-gold/90 min-w-[140px]"
+            disabled={submitting || cooldown > 0}
+            className="bg-gold text-gold-foreground hover:bg-gold/90 min-w-[140px] disabled:opacity-60"
           >
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin ml-2" />
                 שולח...
               </>
+            ) : cooldown > 0 ? (
+              `המתן ${cooldown}s...`
             ) : (
               "שלח לאישור"
             )}
