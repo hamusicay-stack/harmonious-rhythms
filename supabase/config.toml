@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-wiki-page]
 verify_jwt = false
+
+[functions.ingest-ai-shorts]
+verify_jwt = false

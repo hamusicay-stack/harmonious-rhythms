@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YtShortsRouteImport } from './routes/yt-shorts'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as ShortsRouteImport } from './routes/shorts'
@@ -103,6 +104,11 @@ import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
 import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/public/marketplace.auto-bump'
 
+const YtShortsRoute = YtShortsRouteImport.update({
+  id: '/yt-shorts',
+  path: '/yt-shorts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
@@ -597,6 +603,7 @@ export interface FileRoutesByFullPath {
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
   '/tools': typeof ToolsRoute
+  '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
@@ -687,6 +694,7 @@ export interface FileRoutesByTo {
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
   '/tools': typeof ToolsRoute
+  '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
@@ -781,6 +789,7 @@ export interface FileRoutesById {
   '/shorts': typeof ShortsRoute
   '/store': typeof StoreRoute
   '/tools': typeof ToolsRoute
+  '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
   '/admin/automations': typeof AdminAutomationsRoute
@@ -878,6 +887,7 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/store'
     | '/tools'
+    | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
@@ -968,6 +978,7 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/store'
     | '/tools'
+    | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
@@ -1061,6 +1072,7 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/store'
     | '/tools'
+    | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
     | '/admin/automations'
@@ -1157,6 +1169,7 @@ export interface RootRouteChildren {
   ShortsRoute: typeof ShortsRoute
   StoreRoute: typeof StoreRoute
   ToolsRoute: typeof ToolsRoute
+  YtShortsRoute: typeof YtShortsRoute
   BeatSetIdRoute: typeof BeatSetIdRoute
   NewsSlugRoute: typeof NewsSlugRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
@@ -1174,6 +1187,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yt-shorts': {
+      id: '/yt-shorts'
+      path: '/yt-shorts'
+      fullPath: '/yt-shorts'
+      preLoaderRoute: typeof YtShortsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools': {
       id: '/tools'
       path: '/tools'
@@ -2073,6 +2093,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShortsRoute: ShortsRoute,
   StoreRoute: StoreRoute,
   ToolsRoute: ToolsRoute,
+  YtShortsRoute: YtShortsRoute,
   BeatSetIdRoute: BeatSetIdRoute,
   NewsSlugRoute: NewsSlugRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
