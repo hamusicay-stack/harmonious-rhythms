@@ -205,14 +205,21 @@ function ArticleCard({
 export function NewsManager() {
   const [prArticles, setPrArticles] = useState<Article[]>([]);
   const [aiArticles, setAiArticles] = useState<Article[]>([]);
+  const [publishedArticles, setPublishedArticles] = useState<Article[]>([]);
+  const [publishedSearch, setPublishedSearch] = useState("");
+  const [publishedCategory, setPublishedCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const [loadingPublished, setLoadingPublished] = useState(true);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rowBusyId, setRowBusyId] = useState<string | null>(null);
 
   const [previewing, setPreviewing] = useState<Article | null>(null);
   const [editing, setEditing] = useState<Article | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editSummary, setEditSummary] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
   // Create new article (admin instant publish)
