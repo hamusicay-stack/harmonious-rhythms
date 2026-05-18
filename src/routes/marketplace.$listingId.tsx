@@ -376,23 +376,53 @@ function ListingDetailPage() {
             </div>
 
             {seller && (
-              <Link to="/seller/$sellerId" params={{ sellerId: listing.seller_id }} className="block rounded-2xl border bg-card p-5 space-y-3 hover:border-primary/50 transition">
+              <div className="rounded-2xl border bg-card p-5 space-y-3">
                 <div className="flex items-center gap-3">
-                  {seller.avatar_url ? <img src={seller.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover" /> : <div className="h-12 w-12 rounded-full bg-muted" />}
-                  <div className="flex-1">
-                    <div className="font-semibold flex items-center gap-1">
-                      {seller.display_name || "מוכר"}
-                      {trusted && <ShieldCheck className="h-4 w-4 text-primary" />}
+                  {seller.username ? (
+                    <Link
+                      to="/u/$username"
+                      params={{ username: seller.username }}
+                      className="flex items-center gap-3 flex-1 min-h-[44px] hover:opacity-90 transition"
+                      aria-label={`פרופיל ציבורי של ${seller.display_name || seller.username}`}
+                    >
+                      {seller.avatar_url ? <img src={seller.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/30" /> : <div className="h-12 w-12 rounded-full bg-muted ring-2 ring-primary/30" />}
+                      <div className="flex-1">
+                        <div className="font-semibold flex items-center gap-1 hover:text-primary transition">
+                          {seller.display_name || seller.username}
+                          {trusted && <ShieldCheck className="h-4 w-4 text-primary" />}
+                        </div>
+                        <div className="text-xs text-muted-foreground">@{seller.username}</div>
+                        {trusted && <Badge variant="secondary" className="mt-1 gap-1"><ShieldCheck className="h-3 w-3" />נבחרת המוזיקאי</Badge>}
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3 flex-1">
+                      {seller.avatar_url ? <img src={seller.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover" /> : <div className="h-12 w-12 rounded-full bg-muted" />}
+                      <div className="flex-1">
+                        <div className="font-semibold flex items-center gap-1">
+                          {seller.display_name || "מוכר"}
+                          {trusted && <ShieldCheck className="h-4 w-4 text-primary" />}
+                        </div>
+                        {trusted && <Badge variant="secondary" className="mt-1 gap-1"><ShieldCheck className="h-3 w-3" />נבחרת המוזיקאי</Badge>}
+                      </div>
                     </div>
-                    {trusted && <Badge variant="secondary" className="mt-1 gap-1"><ShieldCheck className="h-3 w-3" />נבחרת המוזיקאי</Badge>}
-                  </div>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground space-y-1">
                   <div>{sellerListingsCount} מודעות פעילות</div>
                   {avgRating > 0 && <div className="flex items-center gap-1"><Star className="h-3 w-3 fill-primary text-primary" />דירוג: {avgRating.toFixed(1)} ({reviews.length})</div>}
                 </div>
-                <div className="text-xs text-primary font-medium">צפה בכל המודעות של המוכר ←</div>
-              </Link>
+                <div className="flex flex-col gap-1.5">
+                  {seller.username && (
+                    <Link to="/u/$username" params={{ username: seller.username }} className="text-xs text-primary font-medium hover:underline">
+                      צפה בפרופיל הציבורי של המוכר ←
+                    </Link>
+                  )}
+                  <Link to="/seller/$sellerId" params={{ sellerId: listing.seller_id }} className="text-xs text-primary font-medium hover:underline">
+                    כל המודעות של המוכר ←
+                  </Link>
+                </div>
+              </div>
             )}
           </aside>
         </div>
