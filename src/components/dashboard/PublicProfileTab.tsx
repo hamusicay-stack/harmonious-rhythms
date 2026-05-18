@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Loader2, Save, Instagram, Youtube, Globe, Sparkles, PenLine } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -138,7 +139,7 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
       .update(kind === "avatar" ? { avatar_url: pub.publicUrl } : { banner_url: pub.publicUrl })
       .eq("id", user.id);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     await refreshProfile();

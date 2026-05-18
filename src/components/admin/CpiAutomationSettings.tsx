@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,7 @@ export function CpiAutomationSettings() {
       const { data, error } = await supabase
         .from("rhythm_automation_settings" as any)
         .select("*").eq("id", 1).maybeSingle();
-      if (error) toast.error(error.message);
+      if (error) toast.error(friendlyError(error));
       else if (data) {
         const r = data as any;
         setUrl(r.webhook_url ?? "");
@@ -39,7 +40,7 @@ export function CpiAutomationSettings() {
       .update({ webhook_url: url.trim() || null, webhook_secret: secret.trim() || null, enabled, updated_at: new Date().toISOString() } as any)
       .eq("id", 1);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נשמר");
   };
 

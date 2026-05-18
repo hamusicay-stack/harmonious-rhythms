@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -553,7 +554,7 @@ function NewSeriesDialog({ onCreated }: { onCreated: () => void }) {
       title: form.title, description: form.description || null,
       host_name: form.host_name || null, cover_url: form.cover_url || null,
     } as any);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("סדרה נוצרה");
     setOpen(false);
     setForm({ title: "", description: "", host_name: "", cover_url: "" });
@@ -594,7 +595,7 @@ function NewEpisodeDialog({ seriesList, onCreated, userId }: { seriesList: Serie
       series_id: form.series_id === "none" ? null : form.series_id,
       created_by: userId,
     } as any);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("הפרק נוסף");
     setOpen(false);
     setForm({ title: "", description: "", kind: "youtube", source_url: "", thumbnail_url: "", series_id: "none" });
@@ -668,7 +669,7 @@ function SeriesAdminControls({ series, onChange }: { series: Series; onChange: (
   const removeSeries = async () => {
     if (!confirm("למחוק את הסדרה ואת כל הפרקים שבתוכה?")) return;
     const { error } = await supabase.from("academy_podcast_series").delete().eq("id", series.id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("הסדרה וכל הפרקים נמחקו");
     onChange();
   };

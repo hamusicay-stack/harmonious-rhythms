@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +56,7 @@ export function AdminOrderManager() {
       return toast.error("אין קובץ זיהוי להורדה");
     }
     const { data, error } = await supabase.storage.from("rhythm-files").createSignedUrl(o.info_file_path, 300);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     window.open(data.signedUrl, "_blank");
   };
 

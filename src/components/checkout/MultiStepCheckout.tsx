@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -202,7 +203,7 @@ function AuthStep() {
       : supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
     const { error } = await fn;
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success(mode === "login" ? "התחברת!" : "נשלח אימייל אימות");
   };
 

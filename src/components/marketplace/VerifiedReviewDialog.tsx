@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Star, ShieldCheck, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -39,7 +40,7 @@ export function VerifiedReviewDialog({ open, onOpenChange, listingId, sellerId, 
       is_verified_purchase: true,
     } as never);
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("חוות הדעת המאומתת נשלחה ✨");
     setComment(""); setRating(5);
     onOpenChange(false);

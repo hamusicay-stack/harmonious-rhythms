@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -69,14 +70,14 @@ function Applications() {
 
   const approve = async (id: string) => {
     const { error } = await supabase.rpc("affiliate_approve_application", { _app_id: id });
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("השותף אושר!"); load();
   };
   const reject = async (id: string) => {
     const reason = prompt("סיבת דחייה (אופציונלי):") ?? "";
     const { error } = await supabase.from("affiliate_applications")
       .update({ status: "rejected", admin_notes: reason || null, reviewed_at: new Date().toISOString() }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נדחה"); load();
   };
 
@@ -133,12 +134,12 @@ function Affiliates() {
     const v = pct === "" ? null : Number(pct);
     if (v !== null && (isNaN(v) || v < 0 || v > 100)) return toast.error("0-100 בלבד");
     const { error } = await supabase.from("affiliates").update({ commission_percent: v }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נשמר"); load();
   };
   const toggle = async (id: string, active: boolean) => {
     const { error } = await supabase.from("affiliates").update({ is_active: active }).eq("id", id);
-    if (error) return toast.error(error.message); load();
+    if (error) return toast.error(friendlyError(error)); load();
   };
 
   if (loading) return <Loader2 className="mx-auto my-8 h-5 w-5 animate-spin" />;
@@ -203,7 +204,7 @@ function Conversions() {
     if (newStatus === "approved") patch.approved_at = new Date().toISOString();
     if (newStatus === "paid") patch.paid_at = new Date().toISOString();
     const { error } = await supabase.from("affiliate_conversions").update(patch).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("עודכן"); load();
   };
 
@@ -252,12 +253,12 @@ function Overrides() {
     const { error } = await supabase.from("affiliate_commission_overrides")
       .upsert({ scope_type: scopeType, scope_id: scopeId.trim(), commission_percent: Number(pct) },
         { onConflict: "scope_type,scope_id" });
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נוסף"); setScopeId(""); setPct(""); load();
   };
   const remove = async (id: string) => {
     const { error } = await supabase.from("affiliate_commission_overrides").delete().eq("id", id);
-    if (error) return toast.error(error.message); load();
+    if (error) return toast.error(friendlyError(error)); load();
   };
 
   return (
@@ -314,7 +315,7 @@ function Settings() {
     const { error } = await supabase.from("affiliate_settings").update({
       default_commission_percent: pct, cookie_days: days, updated_at: new Date().toISOString(),
     }).eq("id", 1);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נשמר");
   };
 

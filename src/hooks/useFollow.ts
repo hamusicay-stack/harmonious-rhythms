@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/errors";
 
 export type FollowTargetType = "user" | "marketplace_seller" | "music_pro" | "shorts_creator";
 
@@ -29,12 +30,12 @@ export function useFollow(targetType: FollowTargetType, targetId: string | undef
       const { error } = await supabase.from("user_follows").delete()
         .eq("follower_id", user.id).eq("target_type", targetType).eq("target_id", targetId);
       if (!error) { setFollowing(false); toast.success("הוסר מעקב"); }
-      else toast.error(error.message);
+      else toast.error(friendlyError(error));
     } else {
       const { error } = await supabase.from("user_follows")
         .insert({ follower_id: user.id, target_type: targetType, target_id: targetId });
       if (!error) { setFollowing(true); toast.success("עוקב!"); }
-      else if (!error.message.includes("duplicate")) toast.error(error.message);
+      else if (!error.message?.includes("duplicate")) toast.error(friendlyError(error));
     }
     setLoading(false);
   }, [user, targetType, targetId, following]);

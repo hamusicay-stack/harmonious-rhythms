@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Loader2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,7 @@ export function LessonQA({ lessonId, courseId }: { lessonId: string; courseId: s
       lesson_id: lessonId, course_id: courseId, user_id: user.id,
       body: body.trim(), is_instructor: !!isAdmin,
     });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else { setBody(""); load(); }
   };
 

@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,7 @@ export function MarketplaceSettings() {
       .update({ followup_days: days, followup_enabled: enabled, auto_approve_listings: autoApprove, updated_at: new Date().toISOString() } as any)
       .eq("id", 1);
     setSaving(false);
-    if (error) return toast.error("שגיאה בשמירה: " + error.message);
+    if (error) return toast.error(friendlyError(error, "שגיאה בשמירה"));
     toast.success("ההגדרות נשמרו");
   };
 

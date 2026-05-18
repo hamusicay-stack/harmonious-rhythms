@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,7 @@ export function HardwareTab({ userId }: Props) {
       .eq("id", userId);
     setSaving(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     setCurrentId(pickedId);

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { ArrowRight, Share2, MapPin, ShieldCheck, Star, Loader2, Heart, Flame, Images, BadgeCheck } from "lucide-react";
 import { ModulePlaceholder } from "@/components/ModulePlaceholder";
@@ -161,7 +162,7 @@ function ListingDetailPage() {
       seller_id: listing.seller_id, reviewer_id: user.id, listing_id: listing.id, rating, comment: comment.trim() || null,
     });
     setSubmittingReview(false);
-    if (error) { toast.error(error.message.includes("duplicate") ? "כבר דירגת מוכר זה במודעה הזו" : error.message); return; }
+    if (error) { toast.error(error.message?.includes("duplicate") ? "כבר דירגת מוכר זה במודעה הזו" : friendlyError(error)); return; }
     toast.success("תודה על הדירוג!");
     setComment("");
     const { data: revs } = await supabase.from("marketplace_reviews").select("id, rating, comment, created_at, reviewer_id").eq("seller_id", listing.seller_id).order("created_at", { ascending: false });

@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,7 +49,7 @@ export function MyListingsTab({ userId }: { userId: string }) {
       .update({ status: "archived" })
       .eq("id", takeDownFor.id);
     setTakingDown(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     // Optimistic client update — no full refresh
     setListings((prev) => prev.map((l) => l.id === takeDownFor.id ? { ...l, status: "archived" } : l));
     setTakeDownFor(null);
@@ -108,7 +109,7 @@ export function MyListingsTab({ userId }: { userId: string }) {
   const remove = async (id: string) => {
     if (!confirm("למחוק את המודעה?")) return;
     const { error } = await supabase.from("marketplace_listings").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     load();
   };

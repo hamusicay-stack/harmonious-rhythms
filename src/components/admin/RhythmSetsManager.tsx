@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -85,7 +86,7 @@ function BrandsSection() {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("brands" as any).select("*").order("name");
-    if (error) toast.error(error.message); else setRows((data ?? []) as unknown as Brand[]);
+    if (error) toast.error(friendlyError(error)); else setRows((data ?? []) as unknown as Brand[]);
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
@@ -95,14 +96,14 @@ function BrandsSection() {
     setSaving(true);
     const { error } = await supabase.from("brands" as any).insert({ name: name.trim(), logo_url: logo.trim() || null } as any);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נוסף"); setName(""); setLogo(""); setOpen(false); void load();
   };
 
   const del = async (id: string) => {
     if (!confirm("למחוק מותג? פעולה זו תמחק גם דגמים וסטים תלויים.")) return;
     const { error } = await supabase.from("brands" as any).delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נמחק"); void load();
   };
 
@@ -172,14 +173,14 @@ function ModelsSection() {
     setSaving(true);
     const { error } = await supabase.from("keyboard_models" as any).insert({ brand_id: brandId, model_name: modelName.trim(), ui_image_url: img.trim() || null } as any);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נוסף"); setBrandId(""); setModelName(""); setImg(""); setOpen(false); void load();
   };
 
   const del = async (id: string) => {
     if (!confirm("למחוק דגם?")) return;
     const { error } = await supabase.from("keyboard_models" as any).delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נמחק"); void load();
   };
 
@@ -293,7 +294,7 @@ function SetsSection() {
     const path = `videos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await supabase.storage.from("beat-video").upload(path, file, { cacheControl: "3600", upsert: false });
     setUploadingVideo(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     const { data } = supabase.storage.from("beat-video").getPublicUrl(path);
     setForm((f) => ({ ...f, video_url: data.publicUrl, video_source_type: "direct" }));
     toast.success("הווידאו הועלה");
@@ -305,7 +306,7 @@ function SetsSection() {
     const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await supabase.storage.from("beat-video").upload(path, file, { cacheControl: "3600", upsert: false });
     setUploadingCover(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     const { data } = supabase.storage.from("beat-video").getPublicUrl(path);
     setForm((f) => ({ ...f, cover_image_url: data.publicUrl }));
     toast.success("תמונת השער הועלתה");
@@ -332,7 +333,7 @@ function SetsSection() {
       ? await supabase.from("rhythm_sets" as any).update(payload as any).eq("id", editingId)
       : await supabase.from("rhythm_sets" as any).insert(payload as any);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success(editingId ? "עודכן" : "נוסף");
     setForm(emptyForm);
     setEditingId(null);
@@ -342,7 +343,7 @@ function SetsSection() {
   const del = async (id: string) => {
     if (!confirm("למחוק סט? כל הדגימות יימחקו.")) return;
     const { error } = await supabase.from("rhythm_sets" as any).delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נמחק"); void load();
   };
 
@@ -482,7 +483,7 @@ function SamplesSection() {
     const path = `samples/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await supabase.storage.from("beat-audio").upload(path, file, { cacheControl: "3600", upsert: false });
     setUploading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     const { data } = supabase.storage.from("beat-audio").getPublicUrl(path);
     setAudioUrl(data.publicUrl);
     toast.success("קובץ הועלה");
@@ -533,7 +534,7 @@ function SamplesSection() {
       audio_url: normalized,
     } as any);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success(existingIds.length > 0 ? "הוחלף" : "נוסף");
     setSetId(""); setFolderId(""); setItemId(""); setButtonType(""); setAudioUrl(""); setOpen(false); void load();
   };
@@ -541,7 +542,7 @@ function SamplesSection() {
   const del = async (id: string) => {
     if (!confirm("למחוק דגימה?")) return;
     const { error } = await supabase.from("set_audio_samples" as any).delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נמחק"); void load();
   };
 
@@ -653,14 +654,14 @@ function FoldersItemsSection() {
   const addFolder = async () => {
     if (!setId || !newFolder.trim()) return;
     const { error } = await supabase.from("rhythm_folders" as any).insert({ set_id: setId, name: newFolder.trim(), sort_order: folders.length } as any);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     setNewFolder(""); loadSet(setId);
   };
 
   const delFolder = async (id: string) => {
     if (!confirm("למחוק תיקייה? כל הפריטים שלה יימחקו.")) return;
     const { error } = await supabase.from("rhythm_folders" as any).delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     loadSet(setId);
   };
 
@@ -670,7 +671,7 @@ function FoldersItemsSection() {
     const { error } = await supabase.from("rhythm_items" as any).insert({
       folder_id: newItem.folder_id, name: newItem.name.trim(), sort_order: folderItems.length,
     } as any);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     setNewItem({ folder_id: newItem.folder_id, name: "" });
     loadSet(setId);
   };
@@ -678,7 +679,7 @@ function FoldersItemsSection() {
   const delItem = async (id: string) => {
     if (!confirm("למחוק פריט מקצב?")) return;
     const { error } = await supabase.from("rhythm_items" as any).delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     loadSet(setId);
   };
 

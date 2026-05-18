@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -337,7 +338,7 @@ function SavedSearches({ userId }: { userId: string }) {
       .from("marketplace_saved_searches")
       .update({ notify_email: !current })
       .eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(!current ? "התראות הופעלו" : "התראות בוטלו");
     load();
   };
@@ -345,7 +346,7 @@ function SavedSearches({ userId }: { userId: string }) {
   const remove = async (id: string) => {
     if (!confirm("למחוק את החיפוש השמור?")) return;
     const { error } = await supabase.from("marketplace_saved_searches").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     load();
   };

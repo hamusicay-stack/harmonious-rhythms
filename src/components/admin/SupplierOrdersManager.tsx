@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -207,7 +208,7 @@ function SupplierOrderDialog({
       ? await supabase.from("supplier_orders").update(payload).eq("id", order.id)
       : await supabase.from("supplier_orders").insert(payload);
     setSaving(false);
-    if (error) return toast.error("שגיאה בשמירה: " + error.message);
+    if (error) return toast.error(friendlyError(error, "שגיאה בשמירה"));
     toast.success(order ? "ההזמנה עודכנה" : "ההזמנה נוצרה");
     setOpen(false);
     onSaved();

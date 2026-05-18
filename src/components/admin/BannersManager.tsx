@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -222,7 +223,7 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
       ? await supabase.from("ad_banners").update(payload).eq("id", banner.id)
       : await supabase.from("ad_banners").insert(payload);
     setSaving(false);
-    if (error) return toast.error("שגיאה בשמירה: " + error.message);
+    if (error) return toast.error(friendlyError(error, "שגיאה בשמירה"));
     toast.success(banner ? "הבאנר עודכן" : "הבאנר נוסף");
     setOpen(false);
     onSaved();

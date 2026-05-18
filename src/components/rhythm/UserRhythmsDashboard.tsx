@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +33,7 @@ export function UserRhythmsDashboard() {
       .select("*, rhythm_set:rhythm_sets(set_name, creator_name, description)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else setOrders((data ?? []) as unknown as Order[]);
     setLoading(false);
   };
@@ -52,7 +53,7 @@ export function UserRhythmsDashboard() {
       return;
     }
     const { data, error } = await supabase.storage.from("rhythm-files").createSignedUrl(order.cpi_file_path, 300);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     window.open(data.signedUrl, "_blank");
   };
 

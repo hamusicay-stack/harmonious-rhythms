@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -116,7 +117,7 @@ function WantedBoardPage() {
       budget_max: parsed.data.budget_max ?? null,
     });
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הבקשה פורסמה");
     setOpen(false);
     setForm({ title: "", description: "", category: "", brand: "", model: "", budget_min: "", budget_max: "" });

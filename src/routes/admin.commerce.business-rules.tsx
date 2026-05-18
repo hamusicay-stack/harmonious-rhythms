@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +53,7 @@ function BusinessRulesPage() {
         allowed: next.allowed, discount_percent: next.discount_percent,
       }, { onConflict: "tier_id,product_type_id" })
       .select().maybeSingle();
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     if (data) { const m2 = new Map(map); m2.set(k, data as Rule); setRules(m2); }
   };
 

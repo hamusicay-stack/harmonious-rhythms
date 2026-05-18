@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import {
   Loader2, Save, Mail, Lock, ShieldCheck, KeyRound, Smartphone,
@@ -54,7 +55,7 @@ export function AccountSettingsTab({ refreshProfile }: { refreshProfile: () => P
       await refreshProfile();
       toast.success("ההגדרות נשמרו");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "שגיאה בשמירה");
+      toast.error(friendlyError(err, "שגיאה בשמירה"));
     } finally {
       setSaving(false);
     }
@@ -177,7 +178,7 @@ function SecuritySection({ email }: { email: string | null }) {
         description: `בדוק את ${email} כדי להמשיך`,
       });
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "שגיאה בשליחת המייל");
+      toast.error(friendlyError(err, "שגיאה בשליחת המייל"));
     } finally {
       setSending(false);
     }
@@ -290,7 +291,7 @@ function DataPrivacySection({ userId }: { userId: string | null }) {
       URL.revokeObjectURL(url);
       toast.success("הנתונים שלך הורדו");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "שגיאה בייצוא");
+      toast.error(friendlyError(err, "שגיאה בייצוא"));
     }
   };
 

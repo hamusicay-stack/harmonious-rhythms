@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ export function SaveSearchDialog({ filters, trigger }: Props) {
       user_id: user.id, name: name.trim(), filters, notify_email: notify,
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("החיפוש נשמר! נעדכן אותך כשיופיע מוצר תואם");
     setOpen(false);
     setName("");

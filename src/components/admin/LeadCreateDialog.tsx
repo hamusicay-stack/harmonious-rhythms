@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,7 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
     });
     setSaving(false);
     if (error) {
-      toast.error("שגיאה בשמירה: " + error.message);
+      toast.error(friendlyError(error, "שגיאה בשמירה"));
       return;
     }
     toast.success("הליד נוסף בהצלחה");

@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -67,7 +68,7 @@ function ResetPasswordPage() {
       toast.success("הסיסמה הוחלפה — ניתן להתחבר");
       navigate({ to: "/auth" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "שגיאה");
+      toast.error(friendlyError(err, "שגיאה"));
     } finally {
       setLoading(false);
     }

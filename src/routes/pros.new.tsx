@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -124,7 +125,7 @@ function NewProPage() {
       status: "pending",
     }).select("id").maybeSingle();
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הפרופיל נשלח לאישור ✨");
     if (data) navigate({ to: "/pros/$proId", params: { proId: data.id } });
   };

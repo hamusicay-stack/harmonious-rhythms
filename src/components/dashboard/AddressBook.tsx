@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Loader2, Save, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -47,7 +48,7 @@ export function AddressBook({ refreshProfile }: { refreshProfile: () => Promise<
       await refreshProfile();
       toast.success("פנקס הכתובות נשמר");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "שגיאה בשמירה");
+      toast.error(friendlyError(err, "שגיאה בשמירה"));
     } finally {
       setSaving(false);
     }

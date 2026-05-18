@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import {
   Dialog,
@@ -86,7 +87,7 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
 
     setSaving(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("הבקשה נשלחה — המוזיקאי יחזור אליך בהקדם");

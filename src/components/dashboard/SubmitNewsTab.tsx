@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Newspaper, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -130,7 +131,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
       setCooldown(3);
     } catch (err: any) {
       console.error(err);
-      toast.error(err?.message ?? "שגיאה בשליחת הכתבה");
+      toast.error(friendlyError(err, "שגיאה בשליחת הכתבה"));
     } finally {
       setSubmitting(false);
     }

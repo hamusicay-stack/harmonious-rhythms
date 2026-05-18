@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, ShieldQuestion, X, Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
@@ -65,7 +66,7 @@ export function DealConfirmationPrompt({ listingId, onResolved, variant = "inlin
       .update({ status, responded_at: new Date().toISOString() })
       .eq("id", it.id);
     setBusyId(null);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     setItems((arr) => arr.filter((i) => i.id !== it.id));
     if (status === "confirmed") {
       toast.success("העסקה אומתה ✓");

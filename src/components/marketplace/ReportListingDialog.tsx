@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Flag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export function ReportListingDialog({ listingId, variant = "ghost", size = "sm" 
       details: details.trim() || null,
     });
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הדיווח נשלח לבדיקה. תודה!");
     setOpen(false);
     setDetails("");

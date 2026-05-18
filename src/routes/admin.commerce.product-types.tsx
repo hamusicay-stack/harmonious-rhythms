@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,7 +49,7 @@ function ProductTypesPage() {
       .from("product_types" as never)
       .select("*")
       .order("sort_order", { ascending: true });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     setList(((data ?? []) as ProductType[]).map(p => ({ ...p, attribute_schema: Array.isArray(p.attribute_schema) ? p.attribute_schema : [] })));
     setLoading(false);
   };
@@ -71,7 +72,7 @@ function ProductTypesPage() {
     const q = editing.id ? tbl.update(payload).eq("id", editing.id) : tbl.insert(payload);
     const { error } = await q;
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נשמר");
     setEditing(null);
     await load();
@@ -80,7 +81,7 @@ function ProductTypesPage() {
   const remove = async (id: string) => {
     if (!confirm("למחוק סוג מוצר?")) return;
     const { error } = await supabase.from("product_types" as never).delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     await load();
   };

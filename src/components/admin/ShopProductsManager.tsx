@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -147,7 +148,7 @@ export function ShopProductsManager() {
       : await supabase.from("shop_products").insert(payload);
 
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success(editing.id ? "המוצר עודכן" : "המוצר נוסף");
     setOpen(false);
     setEditing(null);
@@ -157,7 +158,7 @@ export function ShopProductsManager() {
   const remove = async (id: string) => {
     if (!confirm("למחוק את המוצר?")) return;
     const { error } = await supabase.from("shop_products").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נמחק");
     load();
   };
@@ -174,7 +175,7 @@ export function ShopProductsManager() {
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await supabase.storage.from("shop-products").upload(path, file);
-    if (error) { setUploading(false); return toast.error(error.message); }
+    if (error) { setUploading(false); return toast.error(friendlyError(error)); }
     const { data } = supabase.storage.from("shop-products").getPublicUrl(path);
     setEditing({ ...editing, main_image: data.publicUrl });
     setUploading(false);
@@ -187,7 +188,7 @@ export function ShopProductsManager() {
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await supabase.storage.from("shop-digital").upload(path, file);
-    if (error) { setUploading(false); return toast.error(error.message); }
+    if (error) { setUploading(false); return toast.error(friendlyError(error)); }
     setEditing({ ...editing, digital_file_url: path, digital_file_name: file.name });
     setUploading(false);
     toast.success("הקובץ הועלה");

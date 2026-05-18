@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -50,7 +51,7 @@ export function BusinessSellerTab({ userId, email }: { userId: string; email: st
       ? await supabase.from("marketplace_business_sellers").update(payload).eq("user_id", userId)
       : await supabase.from("marketplace_business_sellers").insert(payload);
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(account ? "פרטי העסק עודכנו" : "נרשמת כמוכר עסקי!");
     load();
   };

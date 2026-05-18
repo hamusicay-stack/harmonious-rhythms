@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
@@ -216,7 +217,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       subscription_status: "active",
     });
     setRegisteringBusiness(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     setHasBusinessAccount(true);
     toast.success("נרשמת כמוכר עסקי!");
   };
@@ -240,7 +241,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
           contentType: file.type || "image/jpeg",
           upsert: false,
         });
-        if (error) { toast.error(error.message); continue; }
+        if (error) { toast.error(friendlyError(error)); continue; }
         const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
         urls.push(data.publicUrl);
       }
@@ -259,7 +260,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     try {
       const path = `${user.id}/video-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
       const { error } = await supabase.storage.from("marketplace").upload(path, file);
-      if (error) { toast.error(error.message); return; }
+      if (error) { toast.error(friendlyError(error)); return; }
       const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
       setVideoFile(data.publicUrl);
       update("video_url", data.publicUrl);
@@ -276,7 +277,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
     try {
       const path = `${user.id}/audio-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
       const { error } = await supabase.storage.from("marketplace").upload(path, file, { contentType: file.type || "audio/mpeg" });
-      if (error) { toast.error(error.message); return; }
+      if (error) { toast.error(friendlyError(error)); return; }
       const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
       setAudioFile(data.publicUrl);
       toast.success("האודיו הועלה");
@@ -297,7 +298,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         const path = `${user.id}/rec-${Date.now()}.webm`;
         const { error } = await supabase.storage.from("marketplace").upload(path, blob);
         setUploading(false);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(friendlyError(error)); return; }
         const { data } = supabase.storage.from("marketplace").getPublicUrl(path);
         setVideoFile(data.publicUrl);
         update("video_url", data.publicUrl);
@@ -366,7 +367,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
         .select("id")
         .maybeSingle();
       setSubmitting(false);
-      if (error) { toast.error(`שגיאה בעדכון: ${error.message}`); return; }
+      if (error) { toast.error(friendlyError(error, "שגיאה בעדכון")); return; }
       if (!updated) { toast.error("העדכון נכשל - אין הרשאה או שהמודעה לא נמצאה"); return; }
       toast.success("המודעה עודכנה בהצלחה!");
       navigate({ to: "/marketplace/$listingId", params: { listingId: initial.id } });
@@ -380,7 +381,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
       status: "pending" as const,
     };
     const { data: inserted, error } = await supabase.from("marketplace_listings").insert(insertPayload).select("id, status").single();
-    if (error) { setSubmitting(false); toast.error(error.message); return; }
+    if (error) { setSubmitting(false); toast.error(friendlyError(error)); return; }
 
     // Free bump: STRICTLY VIP-only. Free/basic users selecting a bump option
     // is prevented in the UI; this is a defense-in-depth check.

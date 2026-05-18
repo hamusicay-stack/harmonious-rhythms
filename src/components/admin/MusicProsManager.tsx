@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Loader2, ShieldCheck, Crown, Trash2, Check, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +40,7 @@ export function MusicProsManager() {
 
   const update = async (id: string, patch: Partial<Pro>) => {
     const { error } = await supabase.from("music_pros").update(patch).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("עודכן");
     load();
   };
@@ -47,7 +48,7 @@ export function MusicProsManager() {
   const remove = async (id: string) => {
     if (!confirm("למחוק פרופיל זה?")) return;
     const { error } = await supabase.from("music_pros").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     load();
   };

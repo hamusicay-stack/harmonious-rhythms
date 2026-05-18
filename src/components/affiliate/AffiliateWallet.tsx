@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback } from "react";
 import { Wallet, Loader2, CheckCircle2, Clock, XCircle, Banknote, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,7 @@ export function AffiliateWallet({
       .order("requested_at", { ascending: false });
     if (error) {
       console.error("Failed to load payouts", error);
-      toast.error(error.message);
+      toast.error(friendlyError(error));
     } else {
       setPayouts((data ?? []) as Payout[]);
     }

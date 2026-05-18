@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { GraduationCap, Loader2, PlayCircle, CheckCircle2, Award, Search, Mic, Headphones, Play, ArrowLeft, FolderOpen, Eye, Heart, Users } from "lucide-react";
@@ -194,7 +195,7 @@ function AcademyPage() {
     setRedeeming(true);
     const { error } = await supabase.rpc("redeem_academy_access_code", { _code: code.trim() });
     setRedeeming(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else {
       toast.success("הגישה אושרה!");
       setCode("");

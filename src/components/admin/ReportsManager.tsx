@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Loader2, Flag, Check, X, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export function ReportsManager() {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("marketplace_reports").update({ status, reviewed_at: new Date().toISOString() }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הדיווח עודכן");
     load();
   };
@@ -67,7 +68,7 @@ export function ReportsManager() {
   const removeListing = async (listingId: string) => {
     if (!confirm("למחוק את המודעה הזו לצמיתות?")) return;
     const { error } = await supabase.from("marketplace_listings").delete().eq("id", listingId);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("המודעה נמחקה");
     load();
   };
