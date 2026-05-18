@@ -321,6 +321,76 @@ function WikiIndexPage() {
           )}
         </section>
       </div>
+
+      {/* Create new wiki article dialog */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-amber-300">הצעת ערך חדש לוויזיקאי</DialogTitle>
+            <DialogDescription>
+              הערך יישלח לבדיקת מערכת לפני שיופיע בפומבי באנציקלופדיה.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">כותרת *</Label>
+              <Input
+                value={nTitle}
+                onChange={(e) => setNTitle(e.target.value)}
+                maxLength={180}
+                placeholder="לדוגמה: Korg Pa5X"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">קטגוריה *</Label>
+              <Select value={nCategory} onValueChange={(v) => setNCategory(v as WikiRow["category"])}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c.key} value={c.key}>{c.emoji} {c.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm">תקציר</Label>
+              <Textarea
+                value={nSummary}
+                onChange={(e) => setNSummary(e.target.value)}
+                rows={2}
+                maxLength={500}
+                placeholder="משפט-שניים שמסכמים את הערך"
+                className="mt-1 resize-none"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תוכן הערך *</Label>
+              <Textarea
+                value={nContent}
+                onChange={(e) => setNContent(e.target.value)}
+                rows={12}
+                maxLength={50000}
+                placeholder="ניתן להשתמש ב-Markdown (## כותרת) או HTML בסיסי"
+                className="mt-1 font-mono text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenCreate(false)}>ביטול</Button>
+            <Button
+              onClick={submitNew}
+              disabled={submitting || !userId}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+            >
+              {submitting ? "שולח..." : "שלח לבדיקה"}
+            </Button>
+          </DialogFooter>
+          {!userId && (
+            <p className="text-xs text-muted-foreground text-center">יש להתחבר כדי להציע ערך חדש.</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
