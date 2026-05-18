@@ -162,7 +162,7 @@ function CustomerProfilePage() {
 
   const load = async () => {
     setLoading(true);
-    const [p, t, i, o, so, en, ml, ci] = await Promise.all([
+    const [p, t, i, o, so, en, ml, ci, pi, dl, ld] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", customerId).maybeSingle(),
       supabase.from("customer_tags").select("*").eq("customer_id", customerId).order("created_at"),
       supabase.from("customer_interactions").select("*").eq("customer_id", customerId).order("occurred_at", { ascending: false }),
@@ -171,6 +171,9 @@ function CustomerProfilePage() {
       supabase.from("academy_enrollments").select("id, course_id, progress_percent, status, last_accessed_at, academy_courses(title)").eq("user_id", customerId),
       supabase.from("marketplace_listings").select("id", { count: "exact", head: true }).eq("seller_id", customerId).eq("status", "approved"),
       supabase.from("cart_items").select("*").eq("user_id", customerId).order("added_at", { ascending: false }),
+      supabase.from("music_pro_inquiries").select("id, pro_id, event_type, event_date, status, budget, created_at, music_pros(display_name)").eq("sender_id", customerId).order("created_at", { ascending: false }),
+      supabase.from("deals").select("id, title, customer_name, value, status, source_type, source_ref_id, created_at").eq("customer_id", customerId).order("created_at", { ascending: false }),
+      supabase.from("leads").select("id, name, source, status, created_at, notes").eq("customer_id", customerId).order("created_at", { ascending: false }),
     ]);
     setProfile(p.data as Profile | null);
     setTags((t.data as CustomerTag[]) ?? []);
@@ -180,6 +183,9 @@ function CustomerProfilePage() {
     setEnrollments(en.data ?? []);
     setListingsCount(ml.count ?? 0);
     setCartItems(ci.data ?? []);
+    setProInquiries(pi.data ?? []);
+    setCustomerDeals(dl.data ?? []);
+    setCustomerLeads(ld.data ?? []);
     setLoading(false);
   };
 
