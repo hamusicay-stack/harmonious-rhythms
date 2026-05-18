@@ -53,7 +53,7 @@ function formatDate(iso: string) {
 function NewsIndexPage() {
   const [rows, setRows] = useState<NewsRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<NewsRow["category"] | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   useEffect(() => {
     let cancelled = false;
