@@ -141,7 +141,7 @@ function ShortsPage() {
         return {
           id: r.id,
           creator_id: r.creator_id,
-          creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null },
+          creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null, username: p?.username ?? null },
           videoUrl: r.video_url,
           hlsUrl: rx.hls_playlist_url ?? null,
           poster: r.thumbnail_url,
