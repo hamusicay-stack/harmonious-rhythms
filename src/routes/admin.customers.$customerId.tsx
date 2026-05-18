@@ -579,11 +579,11 @@ function StatCard({ icon: Icon, label, value, tone }: { icon: React.ComponentTyp
   );
 }
 
-function DetailField({ label, value, dir, multiline }: { label: string; value: string | null; dir?: string; multiline?: boolean }) {
+function DetailField({ label, value, multiline }: { label: string; value: string | null; dir?: string; multiline?: boolean }) {
   return (
     <div>
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={`mt-1 ${multiline ? "whitespace-pre-wrap" : "truncate"}`} dir={dir}>{value || "—"}</div>
+      <div className={`mt-1 ${multiline ? "whitespace-pre-wrap" : "truncate"}`}>{value || "—"}</div>
     </div>
   );
 }
