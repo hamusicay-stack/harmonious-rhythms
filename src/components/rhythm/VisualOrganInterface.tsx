@@ -225,7 +225,7 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
     ? `${(sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase()} / ${(folders.find((f) => f.id === activeFolderId)?.name ?? "").toUpperCase()}`
     : (sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase();
 
-  const playSample = (btn: ButtonDef) => {
+  const playSample = useCallback((btn: ButtonDef) => {
     if (!activeSet) {
       toast.info("בחר ערכת קצב");
       return;
@@ -246,7 +246,45 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
       artist: activeSet.creator_name,
       loop: true,
     });
-  };
+    setHistory((prev) => {
+      const key = `${activeSet.id}:${btn.code}`;
+      const next = [{ key, label: btn.label, setName: activeSet.set_name, ts: Date.now() }, ...prev.filter((h) => h.key !== key)];
+      return next.slice(0, 10);
+    });
+  }, [activeSet, activeBtn, sampleMap, playGlobal]);
+
+  // Apply preset set id once when sets are loaded (e.g. ?set=<id> deep link)
+  useEffect(() => {
+    if (!presetSetId || presetAppliedRef.current === presetSetId) return;
+    if (!sets.length) return;
+    const match = sets.find((s) => s.id === presetSetId);
+    if (match) {
+      presetAppliedRef.current = presetSetId;
+      setActiveSetId(match.id);
+      setActiveFolderId(null);
+      setActiveItemId(null);
+    }
+  }, [presetSetId, sets]);
+
+  // Keyboard shortcuts: 1-4 → Main A-D, Q/W/E → Intro, A/S/D/F → Fill, Z/X/C → Ending, Space → Stop
+  useEffect(() => {
+    const SHORTCUTS: Record<string, ButtonDef> = {
+      "1": MAINS[0], "2": MAINS[1], "3": MAINS[2], "4": MAINS[3],
+      "q": INTROS[0], "w": INTROS[1], "e": INTROS[2],
+      "a": FILLS[0], "s": FILLS[1], "d": FILLS[2], "f": FILLS[3],
+      "z": ENDINGS[0], "x": ENDINGS[1], "c": ENDINGS[2],
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement | null)?.isContentEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.code === "Space") { e.preventDefault(); stopGlobal(); return; }
+      const btn = SHORTCUTS[e.key.toLowerCase()];
+      if (btn) { e.preventDefault(); playSample(btn); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [playSample, stopGlobal]);
 
   useEffect(() => () => { stopGlobal(); }, [stopGlobal]);
   useEffect(() => { stopGlobal(); }, [activeItemId, activeSetId, stopGlobal]);
