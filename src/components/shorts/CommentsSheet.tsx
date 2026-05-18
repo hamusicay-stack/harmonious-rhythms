@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -125,7 +126,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
     if (error) {
       setComments((prev) => prev.filter((c) => c.id !== tempId));
       onCountChange?.(comments.length);
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     setComments((prev) => prev.map((c) => c.id === tempId ? { ...c, id: data.id, created_at: data.created_at, pending: false } : c));
@@ -140,7 +141,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
     if (error) {
       setComments(prev);
       onCountChange?.(prev.length);
-      toast.error(error.message);
+      toast.error(friendlyError(error));
     }
   };
 
