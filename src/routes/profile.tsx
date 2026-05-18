@@ -91,6 +91,7 @@ function ProfilePage() {
             <TabsTrigger value="account" className="gap-1"><Eye className="h-4 w-4" />חשבון</TabsTrigger>
             <TabsTrigger value="subscription" className="gap-1"><Crown className="h-4 w-4" />מנוי VIP</TabsTrigger>
             <TabsTrigger value="notifications" className="gap-1"><Bell className="h-4 w-4" />התראות</TabsTrigger>
+            <TabsTrigger value="messages" className="gap-1"><MessageCircle className="h-4 w-4" />צ'אט והודעות</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1"><GraduationCap className="h-4 w-4" />האקדמיה שלי</TabsTrigger>
             <TabsTrigger value="orders" className="gap-1"><ShoppingBag className="h-4 w-4" />ההזמנות שלי</TabsTrigger>
             <TabsTrigger value="bookmarks" className="gap-1"><Bookmark className="h-4 w-4" />השמירות שלי</TabsTrigger>
