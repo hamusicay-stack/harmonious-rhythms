@@ -23,7 +23,21 @@ export type CardListing = {
   bump_expires_at: string | null;
   is_urgent?: boolean;
   audio_url?: string | null;
+  is_sold?: boolean | null;
 };
+
+// Elegant translucent overlay + gold "SOLD" ribbon for finalized listings
+function SoldOverlay() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[1px]">
+      <div className="relative w-[140%] -rotate-12 select-none">
+        <div className="text-center font-display font-black tracking-[0.35em] text-2xl sm:text-3xl py-2 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 text-black shadow-2xl ring-1 ring-amber-200/60">
+          נמכר · SOLD
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   listing: CardListing;
