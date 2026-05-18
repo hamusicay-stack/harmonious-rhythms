@@ -479,14 +479,14 @@ export function NewsManager() {
 
   return (
     <div dir="rtl" className="space-y-6">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
+      <div className="w-full flex flex-row flex-nowrap items-center gap-3 overflow-x-auto touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30 shrink-0">
             <Newspaper className="h-5 w-5 text-gold" />
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-gradient-gold">ניהול חדשות</h1>
-            <p className="text-sm text-muted-foreground">
+          <div className="shrink-0">
+            <h1 className="font-display text-2xl font-bold text-gradient-gold whitespace-nowrap">ניהול חדשות</h1>
+            <p className="text-sm text-muted-foreground whitespace-nowrap">
               סקירה ואישור של כתבות PR מהקהילה וכתבות אוטומטיות מהעולם
             </p>
           </div>
@@ -494,7 +494,7 @@ export function NewsManager() {
         <Button
           onClick={() => setCreateOpen(true)}
           size="lg"
-          className="bg-gold text-gold-foreground hover:bg-gold/90 shadow-lg shadow-gold/20 font-semibold"
+          className="bg-gold text-gold-foreground hover:bg-gold/90 shadow-lg shadow-gold/20 font-semibold shrink-0 whitespace-nowrap"
         >
           <Plus className="h-5 w-5 ml-1" />
           ➕ הוסף כתבה חדשה ידנית
