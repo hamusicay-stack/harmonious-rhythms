@@ -544,7 +544,7 @@ export function NewsManager() {
               />
             </div>
             <Select value={publishedCategory} onValueChange={setPublishedCategory}>
-              <SelectTrigger className="sm:w-56 bg-background/60 border-gold/20">
+              <SelectTrigger className="w-56 shrink-0 bg-background/60 border-gold/20">
                 <SelectValue placeholder="כל הקטגוריות" />
               </SelectTrigger>
               <SelectContent>
@@ -556,7 +556,7 @@ export function NewsManager() {
                 ))}
               </SelectContent>
             </Select>
-            <div className="text-xs text-muted-foreground sm:whitespace-nowrap">
+            <div className="text-xs text-muted-foreground whitespace-nowrap shrink-0">
               {filteredPublished.length} מתוך {publishedArticles.length}
             </div>
           </div>
