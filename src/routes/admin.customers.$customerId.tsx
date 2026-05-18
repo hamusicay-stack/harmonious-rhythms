@@ -410,8 +410,73 @@ function CustomerProfilePage() {
               <TabsTrigger value="courses"><BookOpen className="ml-2 h-4 w-4" />קורסים ({enrollments.length})</TabsTrigger>
               <TabsTrigger value="marketplace"><Store className="ml-2 h-4 w-4" />יד שנייה ({listingsCount})</TabsTrigger>
               <TabsTrigger value="cart"><ShoppingBag className="ml-2 h-4 w-4" />עגלה ({cartItems.length})</TabsTrigger>
+              <TabsTrigger value="crm"><Sparkles className="ml-2 h-4 w-4" />CRM ({proInquiries.length + customerDeals.length})</TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="crm" className="mt-6 space-y-4">
+            <Card>
+              <CardHeader><CardTitle>פניות למוזיקאים ({proInquiries.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {proInquiries.length === 0 && <p className="text-sm text-muted-foreground">אין פניות.</p>}
+                {proInquiries.map((iq: any) => (
+                  <div key={iq.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold">
+                        {iq.music_pros?.display_name || "—"} · {iq.event_type}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(iq.created_at).toLocaleDateString("he-IL")}
+                        {iq.event_date && ` · אירוע: ${new Date(iq.event_date).toLocaleDateString("he-IL")}`}
+                        {iq.budget && ` · ₪${iq.budget}`}
+                      </div>
+                    </div>
+                    <Badge variant="outline">{iq.status}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle>עסקאות ({customerDeals.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {customerDeals.length === 0 && <p className="text-sm text-muted-foreground">אין עסקאות.</p>}
+                {customerDeals.map((d: any) => (
+                  <div key={d.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold">{d.title || d.customer_name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(d.created_at).toLocaleDateString("he-IL")} · ₪{Number(d.value || 0)}
+                        {d.source_type === "music_pro_inquiry" && " · מקור: פנייה למוזיקאי"}
+                      </div>
+                    </div>
+                    <Badge>{d.status}</Badge>
+                  </div>
+                ))}
+                <Button asChild variant="outline" size="sm" className="mt-2">
+                  <Link to="/admin/crm/deals">לקאנבן העסקאות</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle>לידים ({customerLeads.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {customerLeads.length === 0 && <p className="text-sm text-muted-foreground">אין לידים.</p>}
+                {customerLeads.map((l: any) => (
+                  <div key={l.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold">{l.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(l.created_at).toLocaleDateString("he-IL")} · מקור: {l.source}
+                      </div>
+                    </div>
+                    <Badge>{l.status}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="timeline" className="mt-6 space-y-4">
             <AddInteractionCard customerId={customerId} userId={user.id} onAdded={load} />
