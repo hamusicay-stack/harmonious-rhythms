@@ -213,7 +213,7 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
         </DialogHeader>
 
         <div className="px-3 pt-3">
-          <DealConfirmationPrompt listingId={listingId} />
+          <DealConfirmationPrompt listingId={listingId} variant="chat" />
         </div>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-muted/30">

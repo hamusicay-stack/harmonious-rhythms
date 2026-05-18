@@ -3000,6 +3000,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          is_verified_purchase: boolean
           listing_id: string | null
           rating: number
           reviewer_id: string
@@ -3009,6 +3010,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          is_verified_purchase?: boolean
           listing_id?: string | null
           rating: number
           reviewer_id: string
@@ -3018,6 +3020,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          is_verified_purchase?: boolean
           listing_id?: string | null
           rating?: number
           reviewer_id?: string

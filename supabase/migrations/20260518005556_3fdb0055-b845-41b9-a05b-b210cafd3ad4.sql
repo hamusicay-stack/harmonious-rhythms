@@ -1,0 +1,2 @@
+ALTER TABLE public.marketplace_reviews ADD COLUMN IF NOT EXISTS is_verified_purchase boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS idx_marketplace_reviews_verified ON public.marketplace_reviews (listing_id, is_verified_purchase);
