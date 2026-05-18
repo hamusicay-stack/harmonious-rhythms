@@ -23,19 +23,21 @@ type NewsRow = {
   slug: string;
   summary: string | null;
   image_url: string | null;
-  category: "singles" | "albums" | "events" | "gear_reviews" | "interviews";
+  category: string;
   is_featured: boolean | null;
   views_count: number | null;
   created_at: string;
 };
 
-const CATEGORY_LABELS: Record<NewsRow["category"], string> = {
+const CATEGORY_LABELS: Record<string, string> = {
   singles: "סינגלים חדשים",
   albums: "השקות אלבומים",
   events: "אירועים",
   gear_reviews: "סיקורי ציוד",
   interviews: "ראיונות",
 };
+
+const labelFor = (c: string) => CATEGORY_LABELS[c] ?? c;
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1600&q=70";
