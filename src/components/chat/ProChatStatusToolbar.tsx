@@ -33,9 +33,26 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<InquiryStatus | null>(null);
 
+  // Verify the current user actually owns this music_pros row (only the pro sees the toolbar)
+  useEffect(() => {
+    if (!enabled || !user || !proId) { setIsOwner(false); setOwnerChecked(true); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("music_pros")
+        .select("user_id")
+        .eq("id", proId)
+        .maybeSingle();
+      if (cancelled) return;
+      setIsOwner(!!data && data.user_id === user.id);
+      setOwnerChecked(true);
+    })();
+    return () => { cancelled = true; };
+  }, [enabled, user, proId]);
+
   // Load the most recent inquiry between this client and pro
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !isOwner) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -54,7 +71,7 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [proId, clientUserId, enabled]);
+  }, [proId, clientUserId, enabled, isOwner]);
 
   // Realtime: keep the active status synced if updated elsewhere (admin etc.)
   useEffect(() => {
@@ -70,7 +87,8 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
     return () => { supabase.removeChannel(ch); };
   }, [inquiryId]);
 
-  if (!enabled || (loading === false && !inquiryId)) return null;
+  if (!enabled || !ownerChecked || !isOwner) return null;
+  if (!loading && !inquiryId) return null;
 
   const setNewStatus = async (next: InquiryStatus) => {
     if (!inquiryId || saving || next === status) return;
