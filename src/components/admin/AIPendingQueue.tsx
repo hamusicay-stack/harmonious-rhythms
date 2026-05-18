@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Bot, Check, Pencil, X, Loader2, ExternalLink, Sparkles } from "lucide-react";
+import { Bot, Check, Pencil, X, Loader2, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { friendlyError } from "@/lib/errors";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -35,6 +35,27 @@ export function AIPendingQueue() {
   const [items, setItems] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const runSync = async () => {
+    setIsSyncing(true);
+    toast.info("מתחיל סריקה ותרגום AI (זה עשוי לקחת כדקה)... 🤖");
+    try {
+      const { data, error } = await supabase.functions.invoke("ingest-ai-news", { method: "POST" });
+      if (error) throw error;
+      const inserted = (data as any)?.inserted ?? 0;
+      toast.success(
+        inserted > 0
+          ? `הסריקה הושלמה! ${inserted} כתבות חדשות ממתינות לאישור. ✨`
+          : "הסריקה הושלמה! לא נמצאו כתבות חדשות. ✨",
+      );
+      await load();
+    } catch (e) {
+      toast.error(friendlyError(e, "הסריקה נכשלה"));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const [editing, setEditing] = useState<Article | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -136,9 +157,23 @@ export function AIPendingQueue() {
             </p>
           </div>
         </div>
-        {items.length > 0 && (
-          <Badge className="bg-gold/15 text-gold border border-gold/40">{items.length} ממתינות</Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {items.length > 0 && (
+            <Badge className="bg-gold/15 text-gold border border-gold/40">{items.length} ממתינות</Badge>
+          )}
+          <Button
+            onClick={runSync}
+            disabled={isSyncing}
+            className="bg-gradient-to-r from-gold to-amber-400 text-gold-foreground hover:from-gold/90 hover:to-amber-400/90 shadow-[0_0_20px_-5px_hsl(var(--gold)/0.5)]"
+          >
+            {isSyncing ? (
+              <Loader2 className="h-4 w-4 animate-spin ml-2" />
+            ) : (
+              <RefreshCw className="h-4 w-4 ml-2" />
+            )}
+            🔄 סרוק מקורות עכשיו
+          </Button>
+        </div>
       </div>
 
       {loading ? (
