@@ -22,7 +22,7 @@ const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-4o-mini";
 const MAX_ITEMS_PER_FEED = 2;
 
-type RssItem = { title: string; link: string; description: string };
+type RssItem = { title: string; link: string; description: string; video_url: string | null; image_url: string | null };
 type AiOutput = { title: string; html_content: string };
 
 // --- Minimal RSS / Atom parser (regex-based, no DOM dep) ----------------------
@@ -47,28 +47,69 @@ function pick(tag: string, block: string): string {
   return m ? decodeEntities(m[1]).trim() : "";
 }
 
+// Extract first video URL from a feed item block (description, content, media:content, enclosure, iframe).
+function extractVideoUrl(block: string, rawDescription: string): string | null {
+  const haystack = block + " " + rawDescription;
+  const yt = haystack.match(
+    /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i,
+  );
+  if (yt) return `https://www.youtube.com/watch?v=${yt[1]}`;
+
+  const vimeo = haystack.match(/https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/i);
+  if (vimeo) return `https://vimeo.com/${vimeo[1]}`;
+
+  const media = block.match(/<media:content[^>]*url=["']([^"']+)["'][^>]*(?:medium=["']video["']|type=["']video\/)/i);
+  if (media) return media[1];
+
+  const enc = block.match(/<enclosure[^>]*url=["']([^"']+)["'][^>]*type=["']video\//i);
+  if (enc) return enc[1];
+
+  const iframe = haystack.match(/<iframe[^>]*src=["']([^"']+)["']/i);
+  if (iframe) return iframe[1];
+
+  const direct = haystack.match(/https?:\/\/[^\s"'<>]+\.(?:mp4|webm|mov)(?:\?[^\s"'<>]*)?/i);
+  if (direct) return direct[0];
+
+  return null;
+}
+
+function extractImageUrl(block: string, rawDescription: string): string | null {
+  const mediaImg = block.match(/<media:content[^>]*url=["']([^"']+)["'][^>]*(?:medium=["']image["']|type=["']image\/)/i)
+    || block.match(/<media:thumbnail[^>]*url=["']([^"']+)["']/i);
+  if (mediaImg) return mediaImg[1];
+  const encImg = block.match(/<enclosure[^>]*url=["']([^"']+)["'][^>]*type=["']image\//i);
+  if (encImg) return encImg[1];
+  const img = rawDescription.match(/<img[^>]*src=["']([^"']+)["']/i);
+  if (img) return img[1];
+  return null;
+}
+
 function parseFeed(xml: string): RssItem[] {
   const items: RssItem[] = [];
 
-  // RSS 2.0 <item>
   const itemBlocks = xml.match(/<item[\s\S]*?<\/item>/gi) ?? [];
   for (const block of itemBlocks) {
+    const rawDesc = pick("description", block) || pick("content:encoded", block);
     items.push({
       title: stripTags(pick("title", block)),
       link: stripTags(pick("link", block)),
-      description: stripTags(pick("description", block)) || stripTags(pick("content:encoded", block)),
+      description: stripTags(rawDesc),
+      video_url: extractVideoUrl(block, rawDesc),
+      image_url: extractImageUrl(block, rawDesc),
     });
   }
 
   if (items.length === 0) {
-    // Atom <entry>
     const entryBlocks = xml.match(/<entry[\s\S]*?<\/entry>/gi) ?? [];
     for (const block of entryBlocks) {
       const linkMatch = block.match(/<link[^>]*href=["']([^"']+)["']/i);
+      const rawDesc = pick("summary", block) || pick("content", block);
       items.push({
         title: stripTags(pick("title", block)),
         link: linkMatch ? linkMatch[1] : "",
-        description: stripTags(pick("summary", block)) || stripTags(pick("content", block)),
+        description: stripTags(rawDesc),
+        video_url: extractVideoUrl(block, rawDesc),
+        image_url: extractImageUrl(block, rawDesc),
       });
     }
   }
