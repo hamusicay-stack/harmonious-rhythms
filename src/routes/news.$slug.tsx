@@ -17,6 +17,7 @@ type Article = {
   summary: string | null;
   content: string;
   image_url: string | null;
+  video_url: string | null;
   category: "singles" | "albums" | "events" | "gear_reviews" | "interviews";
   author_id: string | null;
   short_video_id: string | null;
@@ -46,6 +47,17 @@ function formatDate(iso: string) {
   }
 }
 
+function resolveEmbed(url: string): { kind: "iframe" | "video"; src: string } | null {
+  if (!url) return null;
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+  if (yt) return { kind: "iframe", src: `https://www.youtube.com/embed/${yt[1]}` };
+  const vimeo = url.match(/vimeo\.com\/(\d+)/i);
+  if (vimeo) return { kind: "iframe", src: `https://player.vimeo.com/video/${vimeo[1]}` };
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(url)) return { kind: "video", src: url };
+  if (/^https?:\/\/.+\/embed\//i.test(url)) return { kind: "iframe", src: url };
+  return null;
+}
+
 function NewsArticlePage() {
   const { slug } = useParams({ from: "/news/$slug" });
   const [article, setArticle] = useState<Article | null>(null);
@@ -70,7 +82,7 @@ function NewsArticlePage() {
       setLoading(true);
       const { data } = await (supabase as any)
         .from("music_news")
-        .select("id,title,slug,summary,content,image_url,category,author_id,short_video_id,views_count,created_at")
+        .select("id,title,slug,summary,content,image_url,video_url,category,author_id,short_video_id,views_count,created_at")
         .eq("slug", slug)
         .eq("approval_status", "approved")
         .maybeSingle();
@@ -258,6 +270,30 @@ function NewsArticlePage() {
             </div>
           </Link>
         )}
+
+        {/* Source product video */}
+        {article.video_url && (() => {
+          const embed = resolveEmbed(article.video_url);
+          if (!embed) return null;
+          return (
+            <div className="mb-8 overflow-hidden rounded-xl ring-1 ring-gold/30 bg-black shadow-gold">
+              <div className="aspect-video w-full">
+                {embed.kind === "iframe" ? (
+                  <iframe
+                    src={embed.src}
+                    title={article.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-full w-full"
+                  />
+                ) : (
+                  <video src={embed.src} controls className="h-full w-full" preload="metadata" />
+                )}
+              </div>
+              <div className="px-4 py-2 text-xs text-gold/80 bg-black/40">🎬 סרטון המוצר מהמקור</div>
+            </div>
+          );
+        })()}
 
         {/* Content */}
         <div
