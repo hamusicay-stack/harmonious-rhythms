@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -241,7 +242,7 @@ function RuleEditDialog({ rule, onSaved }: { rule?: Rule; onSaved: () => void })
       ? await supabase.from("automation_rules").update(payload).eq("id", rule.id)
       : await supabase.from("automation_rules").insert(payload);
     setSaving(false);
-    if (error) return toast.error("שגיאה בשמירה: " + error.message);
+    if (error) return toast.error(friendlyError(error, "שגיאה בשמירה"));
     toast.success(rule ? "האוטומציה עודכנה" : "האוטומציה נוצרה");
     setOpen(false);
     onSaved();

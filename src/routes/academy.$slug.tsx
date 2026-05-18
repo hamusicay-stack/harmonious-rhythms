@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { ArrowRight, CheckCircle2, Loader2, PlayCircle, Lock, Award, Clock, Maximize2, Minimize2, X, Headphones, Video as VideoIcon, ChevronDown, Crown, Sparkles } from "lucide-react";
@@ -142,7 +143,7 @@ function CoursePage() {
     const { error } = await supabase.from("academy_enrollments").insert({
       user_id: user.id, course_id: course.id, source: isVip ? "vip" : "free",
     });
-    if (error) toast.error(error.message); else { toast.success("נרשמת!"); refresh(); }
+    if (error) toast.error(friendlyError(error)); else { toast.success("נרשמת!"); refresh(); }
   };
 
   // Auto-enroll VIPs into premium courses so progress + points persist
@@ -171,7 +172,7 @@ function CoursePage() {
         is_completed: true,
         completed_at: new Date().toISOString(),
       }, { onConflict: "user_id,lesson_id" });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     if (!wasCompleted) {
       toast.success("🎉 כל הכבוד! +5 נקודות נוספו לחשבונך", { duration: 4000 });
     } else {

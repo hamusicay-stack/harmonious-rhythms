@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { requireAdmin } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -151,7 +152,7 @@ function CustomerProfilePage() {
       .update({ global_subscription_tier_id: tierId === "__none__" ? null : tierId })
       .eq("id", customerId);
     setTierSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("רמת ה-VIP הגלובלית עודכנה — חל מיד בכל המערכת");
     load();
   };
@@ -192,7 +193,7 @@ function CustomerProfilePage() {
       color: newTagColor,
       created_by: user?.id,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     setNewTag("");
     setNewTagColor("default");
     load();
@@ -200,7 +201,7 @@ function CustomerProfilePage() {
 
   const removeTag = async (id: string) => {
     const { error } = await supabase.from("customer_tags").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     load();
   };
 
@@ -630,7 +631,7 @@ function AddInteractionCard({ customerId, userId, onAdded }: { customerId: strin
       created_by: userId,
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("האינטראקציה נוספה");
     setTitle(""); setDescription(""); setType("note");
     onAdded();

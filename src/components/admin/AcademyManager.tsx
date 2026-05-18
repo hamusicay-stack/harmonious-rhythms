@@ -615,8 +615,8 @@ function PodcastsManager() {
       supabase.from("academy_podcasts").select("*").order("series_id", { nullsFirst: false }).order("episode_number", { nullsFirst: false }).order("created_at", { ascending: false }),
       supabase.from("academy_podcast_series").select("*").order("sort_order").order("created_at", { ascending: false }),
     ]);
-    if (podcastsRes.error) toast.error(podcastsRes.error.message); else setItems(podcastsRes.data ?? []);
-    if (seriesRes.error) toast.error(seriesRes.error.message); else setSeries(seriesRes.data ?? []);
+    if (podcastsRes.error) toast.error(friendlyError(podcastsRes.error)); else setItems(podcastsRes.data ?? []);
+    if (seriesRes.error) toast.error(friendlyError(seriesRes.error)); else setSeries(seriesRes.data ?? []);
     setLoading(false);
   }, []);
   useEffect(() => { load(); }, [load]);

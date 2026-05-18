@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -105,13 +106,13 @@ function StructureTab() {
     const res = c.id
       ? await supabase.from("forum_categories").update(payload as any).eq("id", c.id)
       : await supabase.from("forum_categories").insert(payload as any);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("נשמר"); setCatDialog(null); load();
   };
   const delCat = async (id: string) => {
     if (!confirm("למחוק קטגוריה? כל הלוחות שתחתיה יימחקו אם הוגדר cascade.")) return;
     const res = await supabase.from("forum_categories").delete().eq("id", id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("נמחק"); load();
   };
 
@@ -128,13 +129,13 @@ function StructureTab() {
     const res = b.id
       ? await supabase.from("forum_boards").update(payload as any).eq("id", b.id)
       : await supabase.from("forum_boards").insert(payload as any);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("נשמר"); setBoardDialog(null); load();
   };
   const delBoard = async (id: string) => {
     if (!confirm("למחוק לוח?")) return;
     const res = await supabase.from("forum_boards").delete().eq("id", id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("נמחק"); load();
   };
 
@@ -288,13 +289,13 @@ function ThreadsTab() {
 
   const toggle = async (t: Topic, field: "is_pinned" | "is_locked" | "is_deleted") => {
     const res = await supabase.from("forum_topics").update({ [field]: !t[field] } as any).eq("id", t.id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("עודכן"); load();
   };
   const remove = async (t: Topic) => {
     if (!confirm("למחוק לצמיתות?")) return;
     const res = await supabase.from("forum_topics").delete().eq("id", t.id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("נמחק"); load();
   };
 
@@ -382,7 +383,7 @@ function ReportsTab() {
     const res = await supabase.from("forum_reports").update({
       status, reviewed_at: new Date().toISOString(),
     }).eq("id", r.id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     toast.success("עודכן"); load();
   };
 
@@ -390,7 +391,7 @@ function ReportsTab() {
     if (!confirm("למחוק את התוכן המדווח?")) return;
     const table = r.target_type === "topic" ? "forum_topics" : "forum_posts";
     const res = await supabase.from(table).update({ is_deleted: true }).eq("id", r.target_id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     await setStatus(r, "resolved");
   };
 
@@ -460,7 +461,7 @@ function PointsTab() {
 
   const update = async (r: PointsRule, patch: Partial<PointsRule>) => {
     const res = await supabase.from("points_rules").update(patch as any).eq("id", r.id);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) return toast.error(friendlyError(res.error));
     setRules((prev) => prev.map((x) => (x.id === r.id ? { ...x, ...patch } : x)));
   };
 
