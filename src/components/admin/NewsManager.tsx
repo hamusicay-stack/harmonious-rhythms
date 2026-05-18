@@ -533,8 +533,8 @@ export function NewsManager() {
         </TabsList>
 
         <TabsContent value="published" className="mt-5 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-            <div className="relative flex-1">
+          <div className="w-full flex flex-row flex-nowrap items-center gap-3 overflow-x-auto touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="relative shrink-0 min-w-[220px]">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={publishedSearch}
