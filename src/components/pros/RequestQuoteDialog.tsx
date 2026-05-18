@@ -12,12 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, CheckCircle2, MessageCircle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { EVENT_TYPES } from "@/lib/prosData";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 const schema = z.object({
   sender_name: z.string().trim().min(2, "שם חובה").max(100),
@@ -39,7 +40,9 @@ type Props = {
 
 export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props) {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [form, setForm] = useState({
     sender_name: profile?.display_name ?? "",
     contact_phone: "",
@@ -75,85 +78,135 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
       message: form.message.trim() || null,
     });
 
-    // Best-effort lead in CRM (will be ignored if RLS blocks)
-    await supabase.from("leads").insert({
-      name: form.sender_name.trim(),
-      email: form.contact_email.trim() || null,
-      phone: form.contact_phone.trim(),
-      source: "website",
-      status: "new",
-      notes: `בקשה למוזיקאי: ${proName}\nסוג אירוע: ${form.event_type}\n${form.message}`,
-    });
-
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error(friendlyError(error));
       return;
     }
-    toast.success("הבקשה נשלחה — המוזיקאי יחזור אליך בהקדם");
-    onOpenChange(false);
+
+    // Locate the auto-created PRO chat thread for this user + pro
+    const { data: pro } = await supabase
+      .from("music_pros")
+      .select("user_id")
+      .eq("id", proId)
+      .maybeSingle();
+
+    let threadId: string | null = null;
+    if (pro?.user_id && pro.user_id !== user.id) {
+      const [a, b] = [user.id, pro.user_id].sort();
+      const { data: t } = await supabase
+        .from("core_chat_threads")
+        .select("id")
+        .eq("context_type", "PRO")
+        .eq("user_a", a)
+        .eq("user_b", b)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      threadId = t?.id ?? null;
+    }
+
+    setSaving(false);
+    setSuccess(true);
+    toast.success("הבקשה נשלחה — נפתח שיחה ישירה עם המוזיקאי");
+
+    // Redirect to the central chat with the new thread pre-selected
+    setTimeout(() => {
+      onOpenChange(false);
+      setSuccess(false);
+      navigate({
+        to: "/profile",
+        search: {
+          tab: "messages",
+          ...(threadId ? { thread: `core:${threadId}` } : {}),
+        } as never,
+      });
+    }, 1600);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>בקשת הצעת מחיר — {proName}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>שם מלא *</Label>
-              <Input value={form.sender_name} onChange={(e) => setForm({ ...form, sender_name: e.target.value })} />
+    <Dialog open={open} onOpenChange={(v) => { if (!saving && !success) onOpenChange(v); }}>
+      <DialogContent className="max-w-lg" dir="rtl">
+        {success ? (
+          <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+            <div className="relative">
+              <div className="absolute inset-0 animate-ping rounded-full bg-emerald-500/30" />
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-xl">
+                <CheckCircle2 className="h-10 w-10 text-white" strokeWidth={2.5} />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>טלפון *</Label>
-              <Input value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} />
+            <div>
+              <h3 className="font-display text-xl font-bold">הבקשה נשלחה!</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                פותח/ת לך שיחה חיה עם {proName}…
+              </p>
             </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label>אימייל</Label>
-            <Input type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} />
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>סוג אירוע *</Label>
-              <Select value={form.event_type} onValueChange={(v) => setForm({ ...form, event_type: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {EVENT_TYPES.map((e) => (
-                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>תאריך</Label>
-              <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
+            <div className="flex items-center gap-2 text-sm text-primary">
+              <MessageCircle className="h-4 w-4 animate-pulse" />
+              מעביר/ה לצ׳אט
             </div>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>מיקום</Label>
-              <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-right">בקשת הצעת מחיר — {proName}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 text-right">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label>שם מלא *</Label>
+                  <Input value={form.sender_name} onChange={(e) => setForm({ ...form, sender_name: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>טלפון *</Label>
+                  <Input value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>אימייל</Label>
+                <Input type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} />
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label>סוג אירוע *</Label>
+                  <Select value={form.event_type} onValueChange={(v) => setForm({ ...form, event_type: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {EVENT_TYPES.map((e) => (
+                        <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>תאריך</Label>
+                  <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label>מיקום</Label>
+                  <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>תקציב משוער (₪)</Label>
+                  <Input type="number" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>הודעה</Label>
+                <Textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>תקציב משוער (₪)</Label>
-              <Input type="number" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label>הודעה</Label>
-            <Textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>ביטול</Button>
-          <Button onClick={submit} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Send className="ml-2 h-4 w-4" />}
-            שלח בקשה
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>ביטול</Button>
+              <Button onClick={submit} disabled={saving}>
+                {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Send className="ml-2 h-4 w-4" />}
+                שלח בקשה ופתח שיחה
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
