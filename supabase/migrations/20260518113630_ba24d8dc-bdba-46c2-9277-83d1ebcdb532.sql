@@ -1,0 +1,1 @@
+ALTER TABLE public.music_news DROP CONSTRAINT IF EXISTS music_news_category_check;
