@@ -502,7 +502,7 @@ export function NewsManager() {
       </div>
 
       <Tabs defaultValue="published" dir="rtl">
-        <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-2 sm:grid-cols-4 gap-1">
+        <TabsList className="flex w-full flex-row flex-nowrap justify-start gap-1">
           <TabsTrigger value="published" className="gap-2">
             <Globe className="h-4 w-4" />
             כתבות מפורסמות
