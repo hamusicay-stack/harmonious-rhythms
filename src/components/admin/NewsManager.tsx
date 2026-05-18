@@ -623,7 +623,7 @@ export function NewsManager() {
 
       {/* Edit dialog */}
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent dir="rtl" className="max-w-3xl">
+        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">עריכת כתבה</DialogTitle>
           </DialogHeader>
