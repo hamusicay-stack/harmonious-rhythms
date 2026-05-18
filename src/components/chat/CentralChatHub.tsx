@@ -237,7 +237,7 @@ export function CentralChatHub() {
         patch = active.iAmUserA ? { sender_unread: 0 } : { pro_unread: 0 };
       }
       if (patch) {
-        await supabase.from(THREAD_TABLE[active.source]).update(patch).eq("id", rawId);
+        await supabase.from(THREAD_TABLE[active.source]).update(patch as any).eq("id", rawId);
       }
     })();
     return () => {
