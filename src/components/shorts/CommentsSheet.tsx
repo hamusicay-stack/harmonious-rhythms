@@ -98,8 +98,10 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
 
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
+    if (posting || cooldown > 0) return;
     const content = text.trim();
     if (!content || !videoId) return;
+    if (content.length > MAX) { toast.error("התגובה ארוכה מדי"); return; }
     setPosting(true);
 
     // Optimistic
@@ -127,6 +129,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
       return;
     }
     setComments((prev) => prev.map((c) => c.id === tempId ? { ...c, id: data.id, created_at: data.created_at, pending: false } : c));
+    setCooldown(3);
   };
 
   const remove = async (id: string) => {
