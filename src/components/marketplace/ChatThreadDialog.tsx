@@ -41,10 +41,26 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
   const [sendTimes, setSendTimes] = useState<number[]>([]);
   const [cooldown, setCooldown] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [partner, setPartner] = useState<{ username: string | null; display_name: string | null; avatar_url: string | null } | null>(null);
 
   const isBuyer = user && user.id !== sellerId;
   // Other party = seller (buyer's POV is what this dialog handles)
   const otherUserId = sellerId;
+
+  // Fetch partner (seller) profile when dialog opens
+  useEffect(() => {
+    if (!open || !otherUserId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, display_name, avatar_url")
+        .eq("id", otherUserId)
+        .maybeSingle();
+      if (!cancelled) setPartner(data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, otherUserId]);
 
   // Cooldown ticker
   useEffect(() => {
