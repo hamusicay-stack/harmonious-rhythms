@@ -30,6 +30,8 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
   const [ownerChecked, setOwnerChecked] = useState(false);
   const [inquiryId, setInquiryId] = useState<string | null>(null);
   const [status, setStatus] = useState<InquiryStatus | null>(null);
+  const [eventDate, setEventDate] = useState<string | null>(null);
+  const [conflict, setConflict] = useState<{ title: string | null; start_time: string | null; end_time: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<InquiryStatus | null>(null);
 
