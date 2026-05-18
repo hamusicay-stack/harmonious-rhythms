@@ -517,6 +517,59 @@ function WikiArticlePage() {
           </aside>
         )}
       </div>
+
+      {/* Edit article dialog */}
+      <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-amber-300">עריכת ערך — {article.title}</DialogTitle>
+            <DialogDescription>
+              השינויים יישמרו מיידית. ניתן לערוך כותרת, תקציר ותוכן.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">כותרת *</Label>
+              <Input
+                value={eTitle}
+                onChange={(e) => setETitle(e.target.value)}
+                maxLength={180}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תקציר</Label>
+              <Textarea
+                value={eSummary}
+                onChange={(e) => setESummary(e.target.value)}
+                rows={2}
+                maxLength={500}
+                className="mt-1 resize-none"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תוכן *</Label>
+              <Textarea
+                value={eContent}
+                onChange={(e) => setEContent(e.target.value)}
+                rows={16}
+                maxLength={50000}
+                className="mt-1 font-mono text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenEdit(false)}>ביטול</Button>
+            <Button
+              onClick={saveEditArticle}
+              disabled={savingEdit}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+            >
+              {savingEdit ? "שומר..." : "שמור שינויים"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
