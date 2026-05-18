@@ -64,7 +64,7 @@ type Short = {
 function ShortsPage() {
   const { user } = useAuth();
   const { stop: stopFloatingAudio } = useAudioPlayer();
-  const { short: pinnedShort, detach: detachToPip, dismiss: dismissPip } = useFloatingShort();
+  const { short: pinnedShort, dismiss: dismissPip } = useFloatingShort();
   const { shortsId: deepLinkId, t: deepLinkT } = Route.useSearch();
   useEffect(() => { stopFloatingAudio(); dismissPip(); }, [stopFloatingAudio, dismissPip]);
 
@@ -246,26 +246,18 @@ function ShortsPage() {
     });
   }, [deepLinkId, deepLinkT, shorts]);
 
-  /* ---------- Detach to floating PiP when leaving the feed ---------- */
+  /* ---------- Stop playback completely when leaving the feed ---------- */
   useEffect(() => {
     return () => {
-      const current = shorts[activeIndex];
-      const v = current ? videoRefs.current.get(current.id) : null;
-      if (current && v && !v.paused && v.currentTime > 1) {
-        detachToPip({
-          id: current.id,
-          videoUrl: current.videoUrl,
-          poster: current.poster,
-          title: current.title,
-          creatorName: current.creator.name,
-          startAt: v.currentTime,
-          muted: v.muted,
-        });
-      }
+      // Pause every video element we own
+      videoRefs.current.forEach((v) => {
+        try { v.pause(); v.muted = true; } catch { /* noop */ }
+      });
+      // Make sure the floating PiP player is dismissed too
+      dismissPip();
     };
-    // We intentionally re-bind to current shorts/activeIndex so the cleanup
-    // sees the latest active video at unmount time.
-  }, [activeIndex, shorts, detachToPip]);
+  }, [dismissPip]);
+
 
   // If user clicks the PiP "expand" link back to /shorts, jump to that short.
   useEffect(() => {
