@@ -157,9 +157,23 @@ export function AIPendingQueue() {
             </p>
           </div>
         </div>
-        {items.length > 0 && (
-          <Badge className="bg-gold/15 text-gold border border-gold/40">{items.length} ממתינות</Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {items.length > 0 && (
+            <Badge className="bg-gold/15 text-gold border border-gold/40">{items.length} ממתינות</Badge>
+          )}
+          <Button
+            onClick={runSync}
+            disabled={isSyncing}
+            className="bg-gradient-to-r from-gold to-amber-400 text-gold-foreground hover:from-gold/90 hover:to-amber-400/90 shadow-[0_0_20px_-5px_hsl(var(--gold)/0.5)]"
+          >
+            {isSyncing ? (
+              <Loader2 className="h-4 w-4 animate-spin ml-2" />
+            ) : (
+              <RefreshCw className="h-4 w-4 ml-2" />
+            )}
+            🔄 סרוק מקורות עכשיו
+          </Button>
+        </div>
       </div>
 
       {loading ? (
