@@ -7,9 +7,11 @@ import en from "./locales/en.json";
 export const SUPPORTED_LANGS = ["he", "en"] as const;
 export type Lang = (typeof SUPPORTED_LANGS)[number];
 
-export const LANG_DIR: Record<Lang, "rtl" | "ltr"> = {
+// Direction is permanently locked to RTL at the document root.
+// Do not switch document.dir based on language.
+export const LANG_DIR: Record<Lang, "rtl"> = {
   he: "rtl",
-  en: "ltr",
+  en: "rtl",
 };
 
 if (!i18n.isInitialized) {
@@ -32,12 +34,12 @@ if (!i18n.isInitialized) {
     });
 }
 
-export function applyDocumentDir(lang: string) {
+// No-op kept for backwards compatibility with any lingering imports.
+// The app is locked to RTL via <html dir="rtl"> in __root.tsx.
+export function applyDocumentDir(_lang?: string) {
   if (typeof document === "undefined") return;
-  const l = (SUPPORTED_LANGS as readonly string[]).includes(lang) ? (lang as Lang) : "he";
-  const dir = LANG_DIR[l];
-  document.documentElement.lang = l;
-  document.documentElement.dir = dir;
+  document.documentElement.dir = "rtl";
+  document.documentElement.lang = "he";
 }
 
 export default i18n;
