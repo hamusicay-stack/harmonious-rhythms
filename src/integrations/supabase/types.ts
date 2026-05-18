@@ -1491,6 +1491,39 @@ export type Database = {
         }
         Relationships: []
       }
+      broadcast_history: {
+        Row: {
+          admin_id: string | null
+          id: string
+          link: string | null
+          message: string
+          recipient_count: number
+          sent_at: string
+          target_group: string
+          title: string
+        }
+        Insert: {
+          admin_id?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          recipient_count?: number
+          sent_at?: string
+          target_group: string
+          title: string
+        }
+        Update: {
+          admin_id?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          recipient_count?: number
+          sent_at?: string
+          target_group?: string
+          title?: string
+        }
+        Relationships: []
+      }
       business_rules: {
         Row: {
           allowed: boolean
@@ -6329,6 +6362,18 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: string
+      }
+      admin_broadcast_notification: {
+        Args: {
+          p_link: string
+          p_message: string
+          p_target_group: string
+          p_title: string
+        }
+        Returns: {
+          broadcast_id: string
+          recipient_count: number
+        }[]
       }
       admin_grant_course_access_by_email: {
         Args: { _course_id: string; _email: string }
