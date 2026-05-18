@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Calendar, Eye, Play, ShoppingBag, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
