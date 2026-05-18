@@ -37,6 +37,7 @@ const COMMERCE: NavItem[] = [
   { to: "/admin/commerce/marketplace", title: "יד 2", icon: Tags },
   { to: "/admin/commerce/shorts", title: "שורטס", icon: Play },
   { to: "/admin/commerce/news", title: "חדשות", icon: Newspaper },
+  { to: "/admin/wiki", title: "ויזיקאי AI", icon: BookOpen },
   { to: "/admin/commerce/music-pros", title: "מוזיקאים", icon: Music2 },
   { to: "/admin/commerce/academy", title: "אקדמיה", icon: GraduationCap },
   { to: "/admin/commerce/academy-analytics", title: "אנליטיקת אקדמיה", icon: Activity },
