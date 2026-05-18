@@ -114,7 +114,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
       .from("organ_ui_themes" as any)
       .upsert({ model_id: modelId, theme: theme as any }, { onConflict: "model_id" });
     setSaving(false);
-    if (error) { toast.error("שמירה נכשלה: " + error.message); return; }
+    if (error) { toast.error(friendlyError(error, "שמירה נכשלה")); return; }
     clearOrganThemeCache(modelId);
     toast.success("העיצוב נשמר");
   };
