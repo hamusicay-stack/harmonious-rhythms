@@ -4978,6 +4978,47 @@ export type Database = {
           },
         ]
       }
+      shop_order_history: {
+        Row: {
+          action: string
+          admin_id: string | null
+          amount: number | null
+          created_at: string
+          id: string
+          metadata: Json
+          order_id: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          amount?: number | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          order_id: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          amount?: number | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          order_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_order_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_order_items: {
         Row: {
           created_at: string
@@ -6402,6 +6443,23 @@ export type Database = {
           subscription_tier: string
           username: string
         }[]
+      }
+      admin_refund_shop_order: {
+        Args: {
+          p_amount?: number
+          p_full_refund?: boolean
+          p_order_id: string
+          p_reason: string
+        }
+        Returns: Json
+      }
+      admin_retrigger_cpi_webhook: {
+        Args: { p_rhythm_order_id: string }
+        Returns: Json
+      }
+      admin_set_affiliate_conversion_status: {
+        Args: { p_conversion_id: string; p_status: string }
+        Returns: undefined
       }
       admin_set_user_ban: {
         Args: { _banned: boolean; _reason?: string; _user_id: string }
