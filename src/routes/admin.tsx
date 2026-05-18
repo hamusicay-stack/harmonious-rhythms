@@ -56,7 +56,7 @@ function AdminLayout() {
   return (
     <SiteLayout>
       <SidebarProvider defaultOpen>
-        <div dir="rtl" className="flex min-h-[calc(100vh-4rem)] w-full text-right">
+        <div className="flex min-h-[calc(100vh-4rem)] w-full text-right">
           <AdminSidebar />
           <div className="flex-1 flex flex-col min-w-0">
             <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b border-border/40 bg-background/95 backdrop-blur px-4">

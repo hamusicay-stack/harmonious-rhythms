@@ -25,7 +25,7 @@ export function AffiliatesManager() {
         <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />ניהול שותפים (Affiliates)</CardTitle>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
-        <Tabs defaultValue="apps" dir="rtl">
+        <Tabs defaultValue="apps">
           <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
             <TabsTrigger value="apps" className="shrink-0 text-xs sm:text-sm">בקשות</TabsTrigger>
             <TabsTrigger value="affs" className="shrink-0 text-xs sm:text-sm">שותפים</TabsTrigger>
@@ -282,7 +282,7 @@ function Overrides() {
           {items.map((o) => (
             <div key={o.id} className="flex items-center gap-2 rounded border p-2 text-sm">
               <Badge variant="outline" className="text-[10px]">{o.scope_type}</Badge>
-              <span className="font-mono text-xs flex-1 truncate" dir="ltr">{o.scope_id}</span>
+              <span className="font-mono text-xs flex-1 truncate">{o.scope_id}</span>
               <span className="font-bold text-primary">{o.commission_percent}%</span>
               <Button size="sm" variant="ghost" onClick={() => remove(o.id)} className="text-destructive">
                 <Trash2 className="h-3 w-3" />

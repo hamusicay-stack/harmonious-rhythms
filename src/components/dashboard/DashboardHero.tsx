@@ -91,7 +91,6 @@ export function DashboardHero({ userId, email, profile }: Props) {
 
   return (
     <section
-      dir="rtl"
       className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-6 shadow-2xl md:p-8"
     >
       {/* Decorative glow */}

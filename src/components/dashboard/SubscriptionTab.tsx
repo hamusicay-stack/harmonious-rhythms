@@ -89,7 +89,7 @@ export function SubscriptionTab() {
             </div>
             <div className="rounded-xl border border-border/60 bg-card p-4">
               <div className="text-xs text-muted-foreground">מזהה מנוי</div>
-              <div className="mt-1 font-mono text-xs text-muted-foreground" dir="ltr">
+              <div className="mt-1 font-mono text-xs text-muted-foreground">
                 {tierId ? `${tierId.slice(0, 8)}…` : "—"}
               </div>
             </div>

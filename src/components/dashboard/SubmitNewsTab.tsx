@@ -146,7 +146,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
   };
 
   return (
-    <div dir="rtl" className="rounded-xl border border-gold/20 bg-card/60 p-5 sm:p-7 backdrop-blur-sm">
+    <div className="rounded-xl border border-gold/20 bg-card/60 p-5 sm:p-7 backdrop-blur-sm">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
           <Newspaper className="h-5 w-5 text-gold" />

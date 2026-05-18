@@ -42,7 +42,7 @@ function ModerationPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← פורום</Link>
         <h1 className="text-2xl font-bold my-4 flex items-center gap-2"><Shield className="h-6 w-6" />ניהול ודיווחים</h1>
 

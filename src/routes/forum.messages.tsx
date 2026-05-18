@@ -23,7 +23,7 @@ function MessagesPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-6 max-w-3xl">
+      <div className="container mx-auto px-4 py-6 max-w-3xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← פורום</Link>
         <h1 className="text-2xl font-bold my-4 flex items-center gap-2"><Mail className="h-6 w-6" />הודעות פרטיות</h1>
 

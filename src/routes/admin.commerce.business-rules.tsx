@@ -65,7 +65,7 @@ function BusinessRulesPage() {
   }, [tiers, types, rules]);
 
   return (
-    <div dir="rtl">
+    <div>
       <Card>
         <CardHeader className="flex flex-row items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-primary" />

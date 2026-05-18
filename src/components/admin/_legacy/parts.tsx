@@ -67,13 +67,13 @@ export function CustomerEditDialog({ customer, onSaved }: { customer: Customer; 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button size="sm" variant="outline">עריכה</Button></DialogTrigger>
-      <DialogContent dir="rtl">
+      <DialogContent>
         <DialogHeader><DialogTitle>עריכת לקוח</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2"><Label>שם מלא</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-2"><Label>אימייל</Label><Input dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-            <div className="space-y-2"><Label>טלפון</Label><Input dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+            <div className="space-y-2"><Label>אימייל</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+            <div className="space-y-2"><Label>טלפון</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-2">
@@ -189,7 +189,7 @@ export function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier;
           ? <Button size="sm" variant="outline">עריכה</Button>
           : <Button size="sm"><Plus className="ml-2 h-4 w-4" />ספק חדש</Button>}
       </DialogTrigger>
-      <DialogContent dir="rtl">
+      <DialogContent>
         <DialogHeader><DialogTitle>{supplier ? "עריכת ספק" : "ספק חדש"}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2"><Label>שם חברה *</Label><Input value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} /></div>
@@ -219,8 +219,8 @@ export function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier;
             </div>
           )}
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-2"><Label>אימייל</Label><Input dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-            <div className="space-y-2"><Label>טלפון</Label><Input dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+            <div className="space-y-2"><Label>אימייל</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+            <div className="space-y-2"><Label>טלפון</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
           </div>
           <div className="space-y-2"><Label>הערות תשלום</Label><Textarea rows={3} value={form.payment_notes} onChange={(e) => setForm({ ...form, payment_notes: e.target.value })} /></div>
         </div>
@@ -264,7 +264,7 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button size="sm"><Plus className="ml-2 h-4 w-4" />משימה חדשה</Button></DialogTrigger>
-      <DialogContent dir="rtl">
+      <DialogContent>
         <DialogHeader><DialogTitle>משימה חדשה</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2"><Label>כותרת *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
@@ -282,7 +282,7 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2"><Label>תאריך יעד</Label><Input type="date" dir="ltr" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} /></div>
+            <div className="space-y-2"><Label>תאריך יעד</Label><Input type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} /></div>
           </div>
           <div className="space-y-2">
             <Label>שייך ללקוח</Label>

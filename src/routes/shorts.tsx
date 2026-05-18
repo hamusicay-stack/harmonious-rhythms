@@ -497,7 +497,7 @@ function ShortsPage() {
         >
           <div className="mx-auto flex w-full max-w-[520px] flex-col gap-2">
             {/* Segmented progress bars */}
-            <div className="flex items-center gap-1" dir="ltr">
+            <div className="flex items-center gap-1">
               {Array.from({ length: Math.max(1, creatorCount) }).map((_, i) => {
                 const fill = i < activeVideoIdx ? 1 : i === activeVideoIdx ? currentProgress : 0;
                 return (
@@ -522,7 +522,6 @@ function ShortsPage() {
               <div
                 className="flex flex-1 items-center gap-2 overflow-x-auto scrollbar-none"
                 style={{ scrollbarWidth: "none" }}
-                dir="ltr"
               >
                 {creators.map((c, i) => {
                   const isActive = i === activeCreatorIdx;

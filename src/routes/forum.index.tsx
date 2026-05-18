@@ -63,7 +63,7 @@ function ForumIndexPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+      <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <header className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>

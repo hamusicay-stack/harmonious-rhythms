@@ -69,7 +69,6 @@ export function AdminsManager() {
           </p>
           <div className="flex gap-2">
             <Input
-              dir="ltr"
               type="email"
               placeholder="email@example.com"
               value={email}
@@ -99,7 +98,7 @@ export function AdminsManager() {
               <TableBody>
                 {admins.map((a) => (
                   <TableRow key={a.user_id}>
-                    <TableCell dir="ltr">{a.email}</TableCell>
+                    <TableCell>{a.email}</TableCell>
                     <TableCell>{new Date(a.granted_at).toLocaleDateString("he-IL")}</TableCell>
                     <TableCell className="text-end">
                       {a.user_id === user?.id ? (

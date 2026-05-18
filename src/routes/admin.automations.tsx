@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/automations")({
 
 function AutomationsPage() {
   return (
-    <div dir="rtl" className="space-y-4">
+    <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center gap-2">
           <Zap className="h-5 w-5 text-primary" />

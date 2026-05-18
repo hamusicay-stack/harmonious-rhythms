@@ -183,8 +183,8 @@ function TopicPage() {
     } catch (e) { toast.error((e as Error).message); }
   };
 
-  if (topic.isLoading) return <SiteLayout><div className="p-8" dir="rtl">טוען…</div></SiteLayout>;
-  if (!topic.data?.topic) return <SiteLayout><div className="p-8" dir="rtl">האשכול לא נמצא</div></SiteLayout>;
+  if (topic.isLoading) return <SiteLayout><div className="p-8">טוען…</div></SiteLayout>;
+  if (!topic.data?.topic) return <SiteLayout><div className="p-8">האשכול לא נמצא</div></SiteLayout>;
 
   const t = topic.data.topic;
   const board = topic.data.board;
@@ -196,7 +196,7 @@ function TopicPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-3 sm:px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-3 sm:px-4 py-6 max-w-4xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← פורום</Link>
         {board && (<>{" / "}<Link to="/forum/board/$slug" params={{ slug: board.slug }} className="text-sm text-muted-foreground hover:underline">{board.name}</Link></>)}
         <div className="mt-3 mb-1 flex flex-wrap items-center justify-between gap-3">
@@ -288,7 +288,7 @@ function TopicPage() {
         )}
 
         <Dialog open={!!reportFor} onOpenChange={(o) => !o && setReportFor(null)}>
-          <DialogContent dir="rtl">
+          <DialogContent>
             <DialogHeader><DialogTitle>דיווח על הודעה</DialogTitle></DialogHeader>
             <Textarea placeholder="סיבת הדיווח" value={reportReason} onChange={(e) => setReportReason(e.target.value)} rows={4} />
             <DialogFooter><Button onClick={submitReport}>שלח דיווח</Button></DialogFooter>

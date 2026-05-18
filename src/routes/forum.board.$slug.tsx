@@ -67,7 +67,7 @@ function BoardPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-6 max-w-5xl">
+      <div className="container mx-auto px-4 py-6 max-w-5xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← חזרה לפורום</Link>
         <header className="flex items-center justify-between gap-4 my-4">
           <div>
@@ -83,7 +83,7 @@ function BoardPage() {
                     אזור זה סגור לכתיבה על ידי ההנהלה בלבד
                   </span>
                 </TooltipTrigger>
-                <TooltipContent dir="rtl">קריאה בלבד — רק {postMin === "admin" ? "מנהלי המערכת" : "מנהלי הלוח"} יכולים לפתוח אשכולות חדשים כאן.</TooltipContent>
+                <TooltipContent>קריאה בלבד — רק {postMin === "admin" ? "מנהלי המערכת" : "מנהלי הלוח"} יכולים לפתוח אשכולות חדשים כאן.</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : (
@@ -91,7 +91,7 @@ function BoardPage() {
               <DialogTrigger asChild>
                 <Button><Plus className="h-4 w-4 ml-1" />אשכול חדש</Button>
               </DialogTrigger>
-              <DialogContent dir="rtl" className="max-w-2xl">
+              <DialogContent className="max-w-2xl">
                 <DialogHeader><DialogTitle>פתיחת אשכול חדש</DialogTitle></DialogHeader>
                 <div className="space-y-3">
                   <Input placeholder="כותרת" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />

@@ -423,7 +423,7 @@ function SavedSearches({ userId }: { userId: string }) {
 export function SocialActivityTab({ userId }: { userId: string }) {
   const [sub, setSub] = useState<"liked" | "following" | "searches">("liked");
   return (
-    <Tabs value={sub} onValueChange={(v) => setSub(v as typeof sub)} dir="rtl">
+    <Tabs value={sub} onValueChange={(v) => setSub(v as typeof sub)}>
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="liked" className="gap-1"><Heart className="h-4 w-4" />שאהבתי</TabsTrigger>
         <TabsTrigger value="following" className="gap-1"><UserIcon className="h-4 w-4" />עוקב אחרי</TabsTrigger>

@@ -147,7 +147,7 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       <ProfileCompletion profile={profile as never} />
       <RankXpBar points={points} />
 
@@ -234,7 +234,6 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
             <Input
               id="username"
               value={form.username}
-              dir="ltr"
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -340,7 +339,6 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
               <Input
                 id="instagram"
                 value={form.instagram}
-                dir="ltr"
                 onChange={(e) => setForm({ ...form, instagram: e.target.value })}
                 placeholder="@username"
               />
@@ -353,7 +351,6 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
               <Input
                 id="youtube"
                 value={form.youtube}
-                dir="ltr"
                 onChange={(e) => setForm({ ...form, youtube: e.target.value })}
                 placeholder="https://youtube.com/@..."
               />
@@ -366,7 +363,6 @@ export function PublicProfileTab({ refreshProfile }: { refreshProfile: () => Pro
               <Input
                 id="website"
                 value={form.website}
-                dir="ltr"
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
                 placeholder="https://..."
               />

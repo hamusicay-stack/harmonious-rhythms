@@ -257,7 +257,7 @@ function RuleEditDialog({ rule, onSaved }: { rule?: Rule; onSaved: () => void })
           <Button size="sm"><Plus className="ml-2 h-4 w-4" />אוטומציה חדשה</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg text-right" dir="rtl">
+      <DialogContent className="max-w-lg text-right">
         <DialogHeader>
           <DialogTitle>{rule ? "עריכת אוטומציה" : "אוטומציה חדשה"}</DialogTitle>
         </DialogHeader>

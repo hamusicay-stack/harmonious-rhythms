@@ -74,7 +74,7 @@ export function HardwareTab({ userId }: Props) {
   };
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div className="space-y-6">
       <div className="rounded-2xl border border-border/60 bg-card-elevated p-5 shadow-elegant">
         <div className="flex items-start gap-3">
           <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400">

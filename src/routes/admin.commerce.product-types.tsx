@@ -102,7 +102,7 @@ function ProductTypesPage() {
   };
 
   return (
-    <div dir="rtl" className="space-y-4">
+    <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>סוגי מוצרים — מנוע דינמי</CardTitle>

@@ -158,13 +158,13 @@ function ProductPage() {
     : images;
 
   if (loading) {
-    return <SiteLayout><div className="container mx-auto px-4 py-8" dir="rtl"><Skeleton className="h-96 w-full" /></div></SiteLayout>;
+    return <SiteLayout><div className="container mx-auto px-4 py-8"><Skeleton className="h-96 w-full" /></div></SiteLayout>;
   }
 
   if (!product) {
     return (
       <SiteLayout>
-        <div className="container mx-auto px-4 py-16 text-center" dir="rtl">
+        <div className="container mx-auto px-4 py-16 text-center">
           <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <h1 className="text-2xl font-bold">המוצר לא נמצא</h1>
           <Link to="/shop"><Button className="mt-4">חזרה לחנות</Button></Link>
@@ -217,7 +217,7 @@ function ProductPage() {
 
   return (
     <SiteLayout>
-      <div className="container mx-auto px-4 py-6 md:px-8" dir="rtl">
+      <div className="container mx-auto px-4 py-6 md:px-8">
         <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowRight className="h-4 w-4" /> חזרה לחנות
         </Link>
@@ -251,7 +251,6 @@ function ProductPage() {
                 {/* Manual keyboard model selector — dark/gold theme */}
                 <div
                   className="rounded-xl border border-amber-500/30 bg-gradient-to-b from-zinc-900 to-black p-3"
-                  dir="rtl"
                 >
                   <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-amber-300/90">
                     <Piano className="h-3.5 w-3.5" />
@@ -344,7 +343,6 @@ function ProductPage() {
                 {/^\s*<\w+/.test(product.description) ? (
                   <div
                     className="prose prose-sm max-w-none text-sm leading-relaxed [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_ul]:list-disc [&_ul]:pr-5 [&_ol]:list-decimal [&_ol]:pr-5 [&_a]:text-primary [&_a]:underline"
-                    dir="rtl"
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
                   />
                 ) : (

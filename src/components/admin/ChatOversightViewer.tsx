@@ -23,7 +23,7 @@ function formatDate(d: string) {
 
 export function ChatOversightViewer() {
   return (
-    <div dir="rtl" className="space-y-4">
+    <div className="space-y-4">
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-muted-foreground">
         <strong className="text-amber-600 dark:text-amber-400">צפייה שקטה:</strong> הצדדים בשיחה לא יודעים שצופים בהם, וההודעות לא מסומנות כנקראות בשמם.
       </div>
@@ -236,7 +236,7 @@ function ThreadViewer({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg p-0 flex flex-col h-[80vh] sm:h-[600px]" dir="rtl">
+      <DialogContent className="max-w-lg p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
           <DialogTitle className="flex items-center gap-2 text-right text-base">
             <MessageCircle className="h-4 w-4" /> {title}

@@ -151,7 +151,7 @@ function WikiIndexPage() {
   }, [rows, query, letter]);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Hero */}
       <section className="relative border-b border-amber-500/20 bg-gradient-to-b from-amber-500/5 via-background to-background">
         <div className="container mx-auto px-4 py-14 md:py-20 text-center">
@@ -330,7 +330,7 @@ function WikiIndexPage() {
 
       {/* Create new wiki article dialog */}
       <Dialog open={openCreate} onOpenChange={setOpenCreate}>
-        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-amber-500/30 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-amber-300">הצעת ערך חדש לוויזיקאי</DialogTitle>
             <DialogDescription>

@@ -44,7 +44,7 @@ export function AVSyncControl({
         align="end"
         className="w-72 border-primary/25 bg-zinc-950/95 text-white backdrop-blur-xl"
       >
-        <div className="space-y-3 text-right" dir="rtl">
+        <div className="space-y-3 text-right">
           <div className="flex items-center gap-2">
             <Headphones className="h-4 w-4 text-primary" />
             <h4 className="font-display text-sm font-bold">סנכרון שמע ואזניות</h4>

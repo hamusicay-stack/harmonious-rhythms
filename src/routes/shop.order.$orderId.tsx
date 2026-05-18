@@ -115,7 +115,7 @@ function OrderConfirmationPage() {
   if (loading) {
     return (
       <SiteLayout>
-        <div className="container mx-auto flex items-center justify-center py-24" dir="rtl">
+        <div className="container mx-auto flex items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </SiteLayout>
@@ -125,7 +125,7 @@ function OrderConfirmationPage() {
   if (!order) {
     return (
       <SiteLayout>
-        <div className="container mx-auto px-4 py-16 text-center" dir="rtl">
+        <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold">ההזמנה לא נמצאה</h1>
           <Link to="/shop"><Button className="mt-4">חזרה לחנות</Button></Link>
         </div>
@@ -140,7 +140,7 @@ function OrderConfirmationPage() {
 
   return (
     <SiteLayout>
-      <div className="container mx-auto max-w-3xl px-4 py-10 print:py-2" dir="rtl">
+      <div className="container mx-auto max-w-3xl px-4 py-10 print:py-2">
         <div className="mb-6 flex items-center justify-between gap-3 print:hidden">
           <Link to="/profile">
             <Button variant="ghost" size="sm">→ לפרופיל</Button>

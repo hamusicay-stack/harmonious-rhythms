@@ -6,7 +6,7 @@ import { ShopProductImporter } from "./ShopProductImporter";
 
 export function ShopManager() {
   return (
-    <div dir="rtl">
+    <div>
       <Tabs defaultValue="products">
         <TabsList>
           <TabsTrigger value="products">מוצרים</TabsTrigger>

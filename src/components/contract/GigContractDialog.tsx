@@ -33,7 +33,7 @@ function buildContractHtml(data: {
   notes: string;
 }) {
   const today = new Date().toLocaleDateString("he-IL");
-  return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8" />
+  return `<!doctype html><html lang="he"><head><meta charset="utf-8" />
 <title>חוזה עבודה — ${data.clientName}</title>
 <style>
   @page { size: A4; margin: 22mm; }
@@ -171,7 +171,7 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent dir="rtl" className="max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
             <FileSignature className="h-5 w-5 text-primary" /> חוזה עבודה חכם
@@ -187,7 +187,7 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-xs">תאריך האירוע</Label>
-              <Input type="date" dir="ltr" value={form.eventDate} onChange={(e) => update("eventDate", e.target.value)} />
+              <Input type="date" value={form.eventDate} onChange={(e) => update("eventDate", e.target.value)} />
             </div>
             <div>
               <Label className="text-xs">מחיר (₪)</Label>

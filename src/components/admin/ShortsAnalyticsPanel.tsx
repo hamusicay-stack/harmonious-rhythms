@@ -159,7 +159,7 @@ export function ShortsAnalyticsPanel() {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <KpiCard
           icon={<TrendingUp className="h-4 w-4" />}

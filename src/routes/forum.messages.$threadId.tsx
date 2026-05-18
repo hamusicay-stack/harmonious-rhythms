@@ -51,7 +51,7 @@ function ThreadPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-6 max-w-3xl">
+      <div className="container mx-auto px-4 py-6 max-w-3xl">
         <Link to="/forum/messages" className="text-sm text-muted-foreground hover:underline">← הודעות</Link>
         <h1 className="text-xl font-bold my-3">{data?.other?.display_name ?? "טוען…"}</h1>
 

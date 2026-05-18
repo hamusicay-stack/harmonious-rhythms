@@ -149,7 +149,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
   const selectedModelName = useMemo(() => models.find((m) => m.id === modelId)?.model_name ?? "—", [models, modelId]);
 
   return (
-    <div dir="rtl" className="space-y-4">
+    <div className="space-y-4">
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
           <div>
@@ -190,7 +190,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
         {/* EDITOR */}
         <Card>
           <CardContent className="p-3">
-            <Tabs defaultValue="top" dir="rtl">
+            <Tabs defaultValue="top">
               <TabsList className="grid grid-cols-3 sm:grid-cols-6 h-auto">
                 <TabsTrigger value="top" className="text-xs">עליון</TabsTrigger>
                 <TabsTrigger value="lcd" className="text-xs">מסך</TabsTrigger>

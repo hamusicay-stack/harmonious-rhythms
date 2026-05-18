@@ -85,7 +85,7 @@ function ProfilePage() {
       </section>
 
       <section className="container mx-auto max-w-6xl px-4 py-8 md:px-8">
-        <Tabs value={tab} onValueChange={setTab} dir="rtl">
+        <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:grid-cols-7 h-auto">
             <TabsTrigger value="profile" className="gap-1"><UserIcon className="h-4 w-4" />פרופיל ציבורי</TabsTrigger>
             <TabsTrigger value="account" className="gap-1"><Eye className="h-4 w-4" />חשבון</TabsTrigger>
@@ -190,7 +190,7 @@ function Yad2Section({
   const initial: Sub = validSubs.includes(initialSubTab as Sub) ? (initialSubTab as Sub) : "listings";
   const [sub, setSub] = useState<Sub>(initial);
   return (
-    <Tabs value={sub} onValueChange={(v) => setSub(v as Sub)} dir="rtl">
+    <Tabs value={sub} onValueChange={(v) => setSub(v as Sub)}>
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="listings" className="gap-1"><Tags className="h-4 w-4" />המודעות שלי</TabsTrigger>
         <TabsTrigger value="purchases" className="gap-1"><ShieldCheck className="h-4 w-4" />הקניות שלי</TabsTrigger>
@@ -313,7 +313,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
         </div>
         <div className="space-y-2">
           <Label htmlFor="username">שם משתמש</Label>
-          <Input id="username" value={form.username} dir="ltr"
+          <Input id="username" value={form.username}
             onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })}
             placeholder="username" />
         </div>
@@ -333,7 +333,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="profile_phone">טלפון</Label>
-          <Input id="profile_phone" type="tel" dir="ltr" value={form.phone}
+          <Input id="profile_phone" type="tel" value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             placeholder="050-1234567" />
         </div>
@@ -350,20 +350,20 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="website">אתר אישי</Label>
-          <Input id="website" value={form.website} dir="ltr"
+          <Input id="website" value={form.website}
             onChange={(e) => setForm({ ...form, website: e.target.value })}
             placeholder="https://..." />
         </div>
         <div className="space-y-2">
           <Label htmlFor="instagram">Instagram</Label>
-          <Input id="instagram" value={form.instagram} dir="ltr"
+          <Input id="instagram" value={form.instagram}
             onChange={(e) => setForm({ ...form, instagram: e.target.value })}
             placeholder="@username" />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="youtube">YouTube</Label>
-        <Input id="youtube" value={form.youtube} dir="ltr"
+        <Input id="youtube" value={form.youtube}
           onChange={(e) => setForm({ ...form, youtube: e.target.value })}
           placeholder="https://youtube.com/@..." />
       </div>

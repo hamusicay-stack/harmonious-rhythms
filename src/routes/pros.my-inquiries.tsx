@@ -268,7 +268,7 @@ function ReceivedCard({
 
         {/* Contact reveal: pro owner sees contacts immediately */}
         <div className="flex flex-wrap items-center gap-3 border-t pt-3 text-sm">
-          <a href={`tel:${inquiry.contact_phone}`} dir="ltr" className="flex items-center gap-1.5 text-primary hover:underline">
+          <a href={`tel:${inquiry.contact_phone}`} className="flex items-center gap-1.5 text-primary hover:underline">
             <Phone className="h-4 w-4" /> {inquiry.contact_phone}
           </a>
           <a
@@ -279,7 +279,7 @@ function ReceivedCard({
             WhatsApp
           </a>
           {inquiry.contact_email && (
-            <a href={`mailto:${inquiry.contact_email}`} dir="ltr" className="flex items-center gap-1.5 text-muted-foreground hover:text-primary">
+            <a href={`mailto:${inquiry.contact_email}`} className="flex items-center gap-1.5 text-muted-foreground hover:text-primary">
               <Mail className="h-4 w-4" /> {inquiry.contact_email}
             </a>
           )}

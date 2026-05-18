@@ -49,7 +49,7 @@ export function AddReviewDialog({ open, onOpenChange, proId, proName, onSubmitte
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]" dir="rtl">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-right">דירוג ל-{proName}</DialogTitle>
           <DialogDescription className="text-right">

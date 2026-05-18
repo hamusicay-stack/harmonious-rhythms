@@ -46,7 +46,7 @@ export function ShortsManager() {
         <CardTitle className="flex items-center gap-2"><Play className="h-5 w-5 text-primary" />ניהול שורטס</CardTitle>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
-        <Tabs defaultValue="queue" dir="rtl">
+        <Tabs defaultValue="queue">
           <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
             <TabsTrigger value="queue" className="shrink-0 text-xs sm:text-sm">תור אישור</TabsTrigger>
             <TabsTrigger value="ai" className="shrink-0 text-xs sm:text-sm">✨ AI יוטיוב</TabsTrigger>
@@ -294,7 +294,7 @@ function BulkUploader() {
             <div key={it.id} className="rounded-lg border bg-card p-3 space-y-2">
               <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0 space-y-1.5">
-                  <div className="text-xs text-muted-foreground truncate" dir="ltr">{it.file.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{it.file.name}</div>
                   <Input placeholder="כותרת" value={it.title} onChange={(e) => updateItem(it.id, { title: e.target.value })} className="h-8 text-sm" />
                   <Input placeholder="תיאור (אופציונלי)" value={it.description} onChange={(e) => updateItem(it.id, { description: e.target.value })} className="h-8 text-sm" />
                   <div className="flex items-center gap-2">
@@ -423,7 +423,7 @@ function TrustedUploaders() {
           <ShieldCheck className="h-4 w-4 text-primary" />הוסף משתמש מהימן
         </div>
         <div className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
-          <Input dir="ltr" placeholder="email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input placeholder="email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           <Input placeholder="סיבה (אופציונלי)" value={reason} onChange={(e) => setReason(e.target.value)} />
           <Button onClick={add} disabled={adding}><Plus className="h-4 w-4" />הוסף</Button>
         </div>

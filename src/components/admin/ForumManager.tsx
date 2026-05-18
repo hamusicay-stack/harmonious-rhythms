@@ -55,7 +55,7 @@ const FORUM_EVENT_KEYS = [
 
 export function ForumManager() {
   return (
-    <Tabs defaultValue="structure" dir="rtl" className="w-full">
+    <Tabs defaultValue="structure" className="w-full">
       <div className="w-full overflow-x-auto">
         <TabsList className="inline-flex w-max gap-1 md:grid md:w-full md:grid-cols-4">
           <TabsTrigger value="structure"><FolderTree className="ml-1 h-4 w-4" />קטגוריות ולוחות</TabsTrigger>
@@ -208,7 +208,7 @@ function CategoryDialog({ cat, onClose, onSave }: { cat: Category; onClose: () =
   const [s, setS] = useState<Category>(cat);
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent dir="rtl">
+      <DialogContent>
         <DialogHeader><DialogTitle>{cat.id ? "עריכת קטגוריה" : "קטגוריה חדשה"}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div><Label>שם</Label><Input value={s.name} onChange={(e) => setS({ ...s, name: e.target.value })} /></div>
@@ -232,7 +232,7 @@ function BoardDialog({ board, cats, onClose, onSave }: { board: Partial<Board>; 
   const [s, setS] = useState<Partial<Board>>(board);
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent dir="rtl">
+      <DialogContent>
         <DialogHeader><DialogTitle>{board.id ? "עריכת לוח" : "לוח חדש"}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div>

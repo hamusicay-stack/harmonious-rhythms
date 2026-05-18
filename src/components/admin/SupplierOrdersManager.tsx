@@ -223,7 +223,7 @@ function SupplierOrderDialog({
           <Button size="sm"><Plus className="ml-2 h-4 w-4" />הזמנה חדשה</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl text-right" dir="rtl">
+      <DialogContent className="max-w-2xl text-right">
         <DialogHeader>
           <DialogTitle>{order ? "עריכת הזמנה" : "הזמנת רכש חדשה"}</DialogTitle>
         </DialogHeader>

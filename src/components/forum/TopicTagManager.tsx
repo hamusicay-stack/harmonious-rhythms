@@ -92,7 +92,7 @@ export function TopicTagManager({
               בחר תגיות
             </Button>
           </PopoverTrigger>
-          <PopoverContent dir="rtl" className="w-80 p-0" align="end">
+          <PopoverContent className="w-80 p-0" align="end">
             <ScrollArea className="max-h-[320px]">
               <div className="p-3 space-y-3">
                 {tagsQ.isLoading && <div className="text-xs text-muted-foreground">טוען…</div>}

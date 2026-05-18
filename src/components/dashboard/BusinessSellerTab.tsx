@@ -86,7 +86,7 @@ export function BusinessSellerTab({ userId, email }: { userId: string; email: st
       </div>
       <div className="space-y-2">
         <Label>אימייל</Label>
-        <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} dir="ltr" />
+        <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       </div>
       <div className="flex justify-end">
         <Button onClick={save} disabled={saving} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">

@@ -64,7 +64,7 @@ export function MediaUploader({
       />
       {value ? (
         <div className="flex items-center gap-2 rounded-lg border border-border/60 p-2">
-          <span className="flex-1 truncate text-xs text-muted-foreground" dir="ltr">{value.split("/").pop()}</span>
+          <span className="flex-1 truncate text-xs text-muted-foreground">{value.split("/").pop()}</span>
           <Button size="sm" variant="ghost" onClick={() => onChange(null)}>
             <X className="h-4 w-4" />
           </Button>
@@ -92,5 +92,5 @@ type DirectInputProps = {
 };
 
 export function MediaUrlInput({ value, onChange, placeholder = "URL" }: DirectInputProps) {
-  return <Input dir="ltr" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />;
+  return <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />;
 }

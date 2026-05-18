@@ -284,7 +284,7 @@ function WikiArticlePage() {
 
   if (loading) {
     return (
-      <div dir="rtl" className="container mx-auto px-4 py-20 text-center text-muted-foreground">
+      <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">
         טוען ערך...
       </div>
     );
@@ -292,7 +292,7 @@ function WikiArticlePage() {
 
   if (!article) {
     return (
-      <div dir="rtl" className="container mx-auto px-4 py-20 text-center">
+      <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold mb-3">הערך לא נמצא</h1>
         <Link to="/wiki" className="text-amber-400 hover:underline">חזרה לוויזיקאי</Link>
       </div>
@@ -300,7 +300,7 @@ function WikiArticlePage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header banner */}
       <div className="relative w-full h-64 md:h-96 overflow-hidden border-b border-amber-500/20">
         <img src={article.image_url || FALLBACK_IMAGE} alt={article.title} className="w-full h-full object-cover" />
@@ -445,7 +445,7 @@ function WikiArticlePage() {
                     📄 הצע עריכה או ערך חדש
                   </Button>
                 </DialogTrigger>
-                <DialogContent dir="rtl" className="bg-card border-amber-500/30">
+                <DialogContent className="bg-card border-amber-500/30">
                   <DialogHeader>
                     <DialogTitle className="text-amber-300">הצעה לערך חדש / עריכה</DialogTitle>
                     <DialogDescription>
@@ -526,7 +526,7 @@ function WikiArticlePage() {
 
       {/* Suggest edit dialog (UGC -> wiki_revisions) */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-amber-500/30 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-amber-300">הצעת עריכה — {article.title}</DialogTitle>
             <DialogDescription>

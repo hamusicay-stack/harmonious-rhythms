@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/public/marketplace/followup")({
           if (!profile?.email) continue;
 
           const html = `
-            <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px;">
               <h2 style="color: #1a1a1a;">שלום ${profile.display_name ?? "מוכר יקר"},</h2>
               <p>המודעה שלך "<strong>${listing.title}</strong>" פורסמה בלוח יד 2 שלנו לפני ${days} יום.</p>
               <p>האם הפריט עדיין למכירה? אם כן — מומלץ לעדכן את המודעה כדי שתחזור לראש הרשימה.</p>

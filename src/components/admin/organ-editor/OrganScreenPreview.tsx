@@ -53,7 +53,7 @@ export function OrganScreenPreview({ theme, sampleItems = ["MIZRACHI POP", "WEDD
   };
 
   return (
-    <div className="ot-preview yo-root" style={cssVars} dir="ltr">
+    <div className="ot-preview yo-root" style={cssVars}>
       {/* LCD bezel + screen */}
       <div className="ot-bezel">
         <div className="ot-screen">

@@ -153,7 +153,7 @@ function NewsArticlePage() {
 
   if (notFound) {
     return (
-      <div dir="rtl" className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <h1 className="text-2xl font-display mb-3">הכתבה לא נמצאה</h1>
           <Link to="/news" className="text-gold hover:underline">חזרה למגזין</Link>
@@ -164,7 +164,7 @@ function NewsArticlePage() {
 
   if (loading || !article) {
     return (
-      <div dir="rtl" className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background">
         <div className="aspect-[21/9] w-full bg-card/60 animate-pulse" />
         <div className="mx-auto max-w-3xl px-4 py-10 space-y-4">
           <div className="h-8 w-3/4 bg-card/60 rounded animate-pulse" />
@@ -176,7 +176,7 @@ function NewsArticlePage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Parallax hero */}
       <div className="relative h-[55vh] min-h-[360px] w-full overflow-hidden bg-black">
         <div className="absolute inset-0 will-change-transform" style={parallaxStyle}>

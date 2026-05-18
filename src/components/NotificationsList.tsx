@@ -39,7 +39,7 @@ function NotificationRow({ n, onRead, onRemove }: { n: Notification; onRead: (id
         </div>
         {n.body && <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{n.body}</p>}
         {n.type === "inquiry" && phone && (
-          <a href={`tel:${phone}`} dir="ltr" className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+          <a href={`tel:${phone}`} className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline">
             <Phone className="h-3 w-3" />{phone}
           </a>
         )}

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/admin/commerce/global-economy")({
 
 function GlobalEconomyPage() {
   return (
-    <div dir="rtl" className="space-y-6">
+    <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/20 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 p-5">
         <div>
           <h1 className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-2xl font-bold text-transparent">
@@ -519,7 +519,7 @@ function CouponsTab() {
               <Plus className="h-4 w-4" /> קופון חדש
             </Button>
           </DialogTrigger>
-          <DialogContent dir="rtl">
+          <DialogContent>
             <DialogHeader><DialogTitle>{editing?.id ? "עריכת קופון" : "קופון חדש"}</DialogTitle></DialogHeader>
             {editing && (
               <div className="space-y-3">
@@ -751,7 +751,7 @@ function PointsTab() {
                 <Plus className="h-4 w-4" /> חוק חדש
               </Button>
             </DialogTrigger>
-            <DialogContent dir="rtl">
+            <DialogContent>
               <DialogHeader><DialogTitle>{editing?.id ? "עריכת חוק" : "חוק חדש"}</DialogTitle></DialogHeader>
               {editing && (
                 <div className="space-y-3">

@@ -238,7 +238,7 @@ function AcademyPage() {
 
   return (
     <SiteLayout>
-      <section dir="rtl" className="container mx-auto px-4 py-6 md:px-8 md:py-10 text-right">
+      <section className="container mx-auto px-4 py-6 md:px-8 md:py-10 text-right">
         {/* Header */}
         <header className="mb-6 flex items-center gap-3">
           <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-3">

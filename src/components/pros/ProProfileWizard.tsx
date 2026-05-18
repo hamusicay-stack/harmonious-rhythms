@@ -186,7 +186,7 @@ export function ProProfileWizard({
               </div>
               <div>
                 <Label>מחיר התחלתי לשעה ₪</Label>
-                <Input type="number" dir="ltr" value={value.hourly_price_min ?? ""} onChange={(e) => update("hourly_price_min", e.target.value ? Number(e.target.value) : null)} />
+                <Input type="number" value={value.hourly_price_min ?? ""} onChange={(e) => update("hourly_price_min", e.target.value ? Number(e.target.value) : null)} />
               </div>
             </div>
           )}
@@ -207,7 +207,7 @@ export function ProProfileWizard({
                 <Label>צבע מותג</Label>
                 <div className="flex items-center gap-2">
                   <input type="color" value={value.brand_color || "#D4A24E"} onChange={(e) => update("brand_color", e.target.value)} className="h-10 w-16 rounded border" />
-                  <Input dir="ltr" value={value.brand_color} onChange={(e) => update("brand_color", e.target.value)} className="max-w-[140px]" />
+                  <Input value={value.brand_color} onChange={(e) => update("brand_color", e.target.value)} className="max-w-[140px]" />
                 </div>
               </div>
             </div>
@@ -216,11 +216,11 @@ export function ProProfileWizard({
           {step === 4 && (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
-                <div><Label>וואטסאפ</Label><Input dir="ltr" value={value.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="+9725..." /></div>
-                <div><Label>טלפון</Label><Input dir="ltr" value={value.phone} onChange={(e) => update("phone", e.target.value)} /></div>
-                <div><Label>Instagram</Label><Input dir="ltr" value={value.instagram} onChange={(e) => update("instagram", e.target.value)} /></div>
-                <div><Label>YouTube</Label><Input dir="ltr" value={value.youtube} onChange={(e) => update("youtube", e.target.value)} /></div>
-                <div className="md:col-span-2"><Label>אתר</Label><Input dir="ltr" value={value.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" /></div>
+                <div><Label>וואטסאפ</Label><Input value={value.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="+9725..." /></div>
+                <div><Label>טלפון</Label><Input value={value.phone} onChange={(e) => update("phone", e.target.value)} /></div>
+                <div><Label>Instagram</Label><Input value={value.instagram} onChange={(e) => update("instagram", e.target.value)} /></div>
+                <div><Label>YouTube</Label><Input value={value.youtube} onChange={(e) => update("youtube", e.target.value)} /></div>
+                <div className="md:col-span-2"><Label>אתר</Label><Input value={value.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" /></div>
               </div>
 
               <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 space-y-3">

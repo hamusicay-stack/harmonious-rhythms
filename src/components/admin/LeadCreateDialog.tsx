@@ -74,7 +74,7 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
           ליד חדש
         </Button>
       </DialogTrigger>
-      <DialogContent className="text-right" dir="rtl">
+      <DialogContent className="text-right">
         <DialogHeader>
           <DialogTitle>הוספת ליד חדש</DialogTitle>
         </DialogHeader>

@@ -96,7 +96,7 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="max-w-lg">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>בקשת הצעת מחיר — {proName}</DialogTitle>
         </DialogHeader>
@@ -108,12 +108,12 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
             </div>
             <div className="space-y-1.5">
               <Label>טלפון *</Label>
-              <Input dir="ltr" value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} />
+              <Input value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label>אימייל</Label>
-            <Input dir="ltr" type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} />
+            <Input type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1.5">
@@ -129,7 +129,7 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
             </div>
             <div className="space-y-1.5">
               <Label>תאריך</Label>
-              <Input type="date" dir="ltr" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
+              <Input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} />
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
@@ -139,7 +139,7 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
             </div>
             <div className="space-y-1.5">
               <Label>תקציב משוער (₪)</Label>
-              <Input type="number" dir="ltr" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
+              <Input type="number" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
             </div>
           </div>
           <div className="space-y-1.5">

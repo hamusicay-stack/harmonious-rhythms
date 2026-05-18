@@ -54,7 +54,7 @@ export const MentionList = forwardRef<MentionListRef, Props>(({ items, command }
   }
 
   return (
-    <div className="max-h-64 w-60 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-xl" dir="rtl">
+    <div className="max-h-64 w-60 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-xl">
       {items.map((it, i) => (
         <button
           key={it.id}

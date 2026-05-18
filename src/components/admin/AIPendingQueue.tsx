@@ -161,7 +161,7 @@ export function AIPendingQueue() {
   };
 
   return (
-    <div dir="rtl" className="rounded-xl border border-gold/20 bg-card/60 p-5 backdrop-blur-sm">
+    <div className="rounded-xl border border-gold/20 bg-card/60 p-5 backdrop-blur-sm">
       <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
@@ -287,7 +287,7 @@ export function AIPendingQueue() {
       )}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">עריכת כתבה AI לפני פרסום</DialogTitle>
           </DialogHeader>

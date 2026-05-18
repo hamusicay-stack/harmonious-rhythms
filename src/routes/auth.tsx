@@ -125,7 +125,6 @@ function AuthPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
                 required
-                dir="ltr"
               />
             </div>
             <div className="space-y-2">
@@ -138,7 +137,6 @@ function AuthPage() {
                 placeholder="לפחות 6 תווים"
                 minLength={6}
                 required
-                dir="ltr"
               />
             </div>
             {mode === "signup" && (
@@ -151,7 +149,6 @@ function AuthPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="050-1234567"
-                    dir="ltr"
                   />
                 </div>
                 <label className="flex items-start gap-2 text-sm text-muted-foreground">

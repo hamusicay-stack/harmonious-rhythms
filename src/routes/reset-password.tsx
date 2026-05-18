@@ -94,7 +94,7 @@ function ResetPasswordPage() {
             <form onSubmit={requestCode} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">כתובת מייל</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" placeholder="name@example.com" />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@example.com" />
               </div>
               <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
                 {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
@@ -105,11 +105,11 @@ function ResetPasswordPage() {
             <form onSubmit={verify} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="code">קוד מהמייל</Label>
-                <Input id="code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} required dir="ltr" inputMode="numeric" placeholder="6 ספרות" className="text-center text-lg tracking-widest" />
+                <Input id="code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} required inputMode="numeric" placeholder="6 ספרות" className="text-center text-lg tracking-widest" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">סיסמה חדשה</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} dir="ltr" placeholder="לפחות 6 תווים" />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="לפחות 6 תווים" />
               </div>
               <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
                 {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}

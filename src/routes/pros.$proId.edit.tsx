@@ -240,7 +240,7 @@ function AddMediaInline({ onAdd, audioLimitReached }: { onAdd: (type: "audio" | 
       {type === "audio" ? (
         <MediaUploader folder="audio" accept="audio/*" value={url} onChange={setUrl} label="העלה אודיו" />
       ) : (
-        <Input dir="ltr" placeholder="YouTube URL או קישור וידאו" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
+        <Input placeholder="YouTube URL או קישור וידאו" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
       )}
       <Button onClick={submit} disabled={type === "audio" && audioLimitReached} className="w-full" size="sm">
         <Plus className="ml-1 h-4 w-4" /> הוסף

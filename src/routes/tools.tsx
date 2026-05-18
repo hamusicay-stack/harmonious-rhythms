@@ -29,7 +29,7 @@ const TABS = [
 function ToolsPage() {
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-8 md:px-8 md:py-12">
+      <div className="container mx-auto px-4 py-8 md:px-8 md:py-12">
         <header className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border bg-card/60 px-3 py-1 text-xs font-semibold text-muted-foreground backdrop-blur">
             <Wand2 className="h-3.5 w-3.5 text-primary" /> ארגז הכלים של המוזיקאי

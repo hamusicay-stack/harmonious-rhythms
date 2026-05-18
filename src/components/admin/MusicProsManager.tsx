@@ -140,7 +140,7 @@ export function MusicProsManager() {
                 {inquiries.map((i) => (
                   <TableRow key={i.id}>
                     <TableCell className="font-medium">{i.sender_name}</TableCell>
-                    <TableCell dir="ltr">{i.contact_phone}</TableCell>
+                    <TableCell>{i.contact_phone}</TableCell>
                     <TableCell>{i.event_type}</TableCell>
                     <TableCell>{i.event_date ? new Date(i.event_date).toLocaleDateString("he-IL") : "—"}</TableCell>
                     <TableCell><Badge variant="outline">{i.status}</Badge></TableCell>

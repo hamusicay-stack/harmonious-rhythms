@@ -89,7 +89,7 @@ function NewsIndexPage() {
   );
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-20 sm:px-6 lg:px-8">
         {/* Page header */}
         <div className="mb-8 flex items-center gap-3 animate-fade-in">

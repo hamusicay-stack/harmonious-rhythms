@@ -353,7 +353,7 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
   );
 
   return (
-    <SmartRhythmsTheme dir="rtl" className="yo-root min-h-screen p-4 sm:p-8">
+    <SmartRhythmsTheme className="yo-root min-h-screen p-4 sm:p-8">
       <div className="mx-auto max-w-6xl space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between gap-3">

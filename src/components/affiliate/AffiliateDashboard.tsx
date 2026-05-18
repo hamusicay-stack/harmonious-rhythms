@@ -158,7 +158,7 @@ export function AffiliateDashboard() {
             return (
               <div key={t.path} className="flex items-center gap-2 rounded-lg border p-2">
                 <span className="text-xs font-semibold w-24 shrink-0">{t.label}</span>
-                <Input value={url} readOnly dir="ltr" className="text-xs font-mono" />
+                <Input value={url} readOnly className="text-xs font-mono" />
                 <Button size="sm" variant="ghost" onClick={() => copy(url, t.path)}>
                   {copiedKey === t.path ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 </Button>
@@ -166,7 +166,7 @@ export function AffiliateDashboard() {
             );
           })}
           <p className="text-[11px] text-muted-foreground">
-            💡 טיפ של מאסטרו: צרפו את הקוד לכל קישור — <code dir="ltr">?ref={aff.ref_code}</code>. העוגייה זוכרת אתכם 30 יום אחורה.
+            💡 טיפ של מאסטרו: צרפו את הקוד לכל קישור — <code>?ref={aff.ref_code}</code>. העוגייה זוכרת אתכם 30 יום אחורה.
           </p>
         </div>
 

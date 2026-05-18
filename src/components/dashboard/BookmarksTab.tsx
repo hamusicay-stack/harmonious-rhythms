@@ -75,7 +75,7 @@ export function BookmarksTab({ userId }: { userId: string }) {
   }
 
   return (
-    <div dir="rtl" className="space-y-4">
+    <div className="space-y-4">
       <Card className="bg-gradient-to-br from-amber-500/5 to-transparent p-6">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-gradient-to-br from-amber-500/30 to-amber-600/10 p-2">
@@ -90,7 +90,7 @@ export function BookmarksTab({ userId }: { userId: string }) {
         </div>
       </Card>
 
-      <Tabs defaultValue="forum" dir="rtl">
+      <Tabs defaultValue="forum">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="forum" className="gap-1.5">
             <MessageSquare className="h-4 w-4" />

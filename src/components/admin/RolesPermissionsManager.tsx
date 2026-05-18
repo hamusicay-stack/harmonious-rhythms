@@ -60,7 +60,7 @@ type Rule = { id: string; event_key: string; label: string; points: number; enab
 
 export function RolesPermissionsManager() {
   return (
-    <Tabs defaultValue="matrix" dir="rtl">
+    <Tabs defaultValue="matrix">
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="matrix">מטריצת הרשאות</TabsTrigger>
         <TabsTrigger value="users">דרגות משתמשים</TabsTrigger>

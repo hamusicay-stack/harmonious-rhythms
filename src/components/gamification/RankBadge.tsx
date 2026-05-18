@@ -46,7 +46,6 @@ export function RankXpBar({ points, className }: { points: number; className?: s
         "rounded-2xl border border-amber-500/20 bg-gradient-to-l from-amber-500/5 via-background to-amber-500/10 p-4",
         className,
       )}
-      dir="rtl"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">

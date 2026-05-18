@@ -51,7 +51,6 @@ export function PackagesEditor({ value, onChange }: Props) {
           <div className="grid grid-cols-2 gap-2">
             <Input
               type="number"
-              dir="ltr"
               placeholder="מחיר ₪"
               value={pkg.price || ""}
               onChange={(e) => update(i, { price: Number(e.target.value) || 0 })}

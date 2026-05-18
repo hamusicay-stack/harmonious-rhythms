@@ -62,7 +62,7 @@ export function AccountSettingsTab({ refreshProfile }: { refreshProfile: () => P
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       <Card className="space-y-4 p-6 md:p-8">
         <div>
           <h2 className="text-lg font-bold">פרטי חשבון פרטיים</h2>
@@ -79,7 +79,7 @@ export function AccountSettingsTab({ refreshProfile }: { refreshProfile: () => P
             כתובת אימייל
           </Label>
           <div className="flex items-center gap-2">
-            <Input id="account_email" value={user?.email ?? ""} disabled dir="ltr" />
+            <Input id="account_email" value={user?.email ?? ""} disabled />
             <Lock className="h-4 w-4 text-muted-foreground" />
           </div>
           <p className="text-xs text-muted-foreground">
@@ -94,7 +94,6 @@ export function AccountSettingsTab({ refreshProfile }: { refreshProfile: () => P
               <Input
                 id="account_phone"
                 type="tel"
-                dir="ltr"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="050-1234567"
@@ -185,7 +184,7 @@ function SecuritySection({ email }: { email: string | null }) {
   };
 
   return (
-    <Card className="p-6 md:p-8" dir="rtl">
+    <Card className="p-6 md:p-8">
       <div className="mb-4 flex items-center gap-2">
         <div className="rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 p-2">
           <ShieldCheck className="h-5 w-5 text-amber-500" />
@@ -247,7 +246,7 @@ function SecuritySection({ email }: { email: string | null }) {
 
 function PreferencesSection() {
   return (
-    <Card className="p-6 md:p-8" dir="rtl">
+    <Card className="p-6 md:p-8">
       <div className="mb-4 flex items-center gap-2">
         <div className="rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 p-2">
           <Palette className="h-5 w-5 text-amber-500" />
@@ -296,7 +295,7 @@ function DataPrivacySection({ userId }: { userId: string | null }) {
   };
 
   return (
-    <Card className="p-6 md:p-8" dir="rtl">
+    <Card className="p-6 md:p-8">
       <div className="mb-4 flex items-center gap-2">
         <div className="rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 p-2">
           <Download className="h-5 w-5 text-amber-500" />

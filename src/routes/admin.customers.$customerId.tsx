@@ -287,7 +287,7 @@ function CustomerProfilePage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 {profile.email && <span className="flex items-center gap-1"><Mail className="h-4 w-4" />{profile.email}</span>}
-                {profile.phone && <span className="flex items-center gap-1" dir="ltr"><Phone className="h-4 w-4" />{profile.phone}</span>}
+                {profile.phone && <span className="flex items-center gap-1"><Phone className="h-4 w-4" />{profile.phone}</span>}
                 {profile.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.location}</span>}
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3">
@@ -392,8 +392,8 @@ function CustomerProfilePage() {
       </section>
 
       <section className="container mx-auto px-4 py-8 md:px-8">
-        <Tabs defaultValue="timeline" dir="rtl">
-          <div className="overflow-x-auto" dir="rtl">
+        <Tabs defaultValue="timeline">
+          <div className="overflow-x-auto">
             <TabsList>
               <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
               <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים</TabsTrigger>
@@ -454,13 +454,13 @@ function CustomerProfilePage() {
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <DetailField label="שם תצוגה" value={profile.display_name} />
                 <DetailField label="שם מלא" value={profile.full_name} />
-                <DetailField label="אימייל" value={profile.email} dir="ltr" />
-                <DetailField label="טלפון" value={profile.phone} dir="ltr" />
+                <DetailField label="אימייל" value={profile.email} />
+                <DetailField label="טלפון" value={profile.phone} />
                 <DetailField label="מיקום" value={profile.location} />
                 <DetailField label="דגם אורגן" value={profile.organ_model} />
-                <DetailField label="אתר" value={profile.website} dir="ltr" />
-                <DetailField label="אינסטגרם" value={profile.instagram} dir="ltr" />
-                <DetailField label="יוטיוב" value={profile.youtube} dir="ltr" />
+                <DetailField label="אתר" value={profile.website} />
+                <DetailField label="אינסטגרם" value={profile.instagram} />
+                <DetailField label="יוטיוב" value={profile.youtube} />
                 <DetailField label="התמחויות" value={profile.specialties?.join(", ") ?? null} />
                 <div className="md:col-span-2">
                   <DetailField label="ביוגרפיה" value={profile.bio} multiline />
@@ -579,11 +579,11 @@ function StatCard({ icon: Icon, label, value, tone }: { icon: React.ComponentTyp
   );
 }
 
-function DetailField({ label, value, dir, multiline }: { label: string; value: string | null; dir?: string; multiline?: boolean }) {
+function DetailField({ label, value, multiline }: { label: string; value: string | null; dir?: string; multiline?: boolean }) {
   return (
     <div>
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={`mt-1 ${multiline ? "whitespace-pre-wrap" : "truncate"}`} dir={dir}>{value || "—"}</div>
+      <div className={`mt-1 ${multiline ? "whitespace-pre-wrap" : "truncate"}`}>{value || "—"}</div>
     </div>
   );
 }
