@@ -4,7 +4,7 @@ import {
   Package, KeyRound, ShieldCheck, ShoppingBag, Piano, Palette, Tags, Play,
   Music2, GraduationCap, Sparkles, Mail, Bot, Megaphone, MessagesSquare, Zap,
   Boxes, Scale, TicketPercent, Receipt, Activity, Upload, MessageSquareWarning, Crown,
-  Newspaper, BookOpen,
+  Newspaper, BookOpen, ShieldAlert,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
