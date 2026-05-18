@@ -238,12 +238,12 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
               </div>
               <Button
                 onClick={submit}
-                disabled={posting || !text.trim()}
+                disabled={posting || cooldown > 0 || !text.trim()}
                 size="icon"
-                className="shrink-0 rounded-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground"
+                className="shrink-0 rounded-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground disabled:opacity-50"
                 aria-label="שלח"
               >
-                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 -scale-x-100" />}
+                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : cooldown > 0 ? <span className="text-[10px] font-semibold">{cooldown}</span> : <Send className="h-4 w-4 -scale-x-100" />}
               </Button>
             </div>
           </div>
