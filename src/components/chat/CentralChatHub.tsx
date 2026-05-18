@@ -412,6 +412,19 @@ export function CentralChatHub() {
               </Badge>
             </div>
 
+            {/* Pro Mini-CRM Toolbar — only renders for the professional in a PRO chat */}
+            <ProChatStatusToolbar
+              proId={active.contextId ?? ""}
+              clientUserId={active.otherUserId}
+              enabled={
+                active.source === "core" &&
+                active.contextType === "PRO" &&
+                !!active.contextId
+              }
+            />
+
+
+
             {/* Messages */}
             <div
               ref={scrollRef}
