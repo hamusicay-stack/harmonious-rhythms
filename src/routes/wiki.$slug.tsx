@@ -524,18 +524,18 @@ function WikiArticlePage() {
         )}
       </div>
 
-      {/* Edit article dialog */}
+      {/* Suggest edit dialog (UGC -> wiki_revisions) */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-amber-300">עריכת ערך — {article.title}</DialogTitle>
+            <DialogTitle className="text-amber-300">הצעת עריכה — {article.title}</DialogTitle>
             <DialogDescription>
-              השינויים יישמרו מיידית. ניתן לערוך כותרת, תקציר ותוכן.
+              ההצעה תישלח לבדיקת המערכת. הערך הנוכחי לא יתעדכן עד שמנהל יאשר.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm">כותרת *</Label>
+              <Label className="text-sm">כותרת מוצעת</Label>
               <Input
                 value={eTitle}
                 onChange={(e) => setETitle(e.target.value)}
@@ -544,7 +544,7 @@ function WikiArticlePage() {
               />
             </div>
             <div>
-              <Label className="text-sm">תקציר</Label>
+              <Label className="text-sm">תקציר מוצע</Label>
               <Textarea
                 value={eSummary}
                 onChange={(e) => setESummary(e.target.value)}
@@ -554,7 +554,7 @@ function WikiArticlePage() {
               />
             </div>
             <div>
-              <Label className="text-sm">תוכן *</Label>
+              <Label className="text-sm">תוכן הערך *</Label>
               <Textarea
                 value={eContent}
                 onChange={(e) => setEContent(e.target.value)}
@@ -571,7 +571,7 @@ function WikiArticlePage() {
               disabled={savingEdit}
               className="bg-amber-500 text-black hover:bg-amber-400"
             >
-              {savingEdit ? "שומר..." : "שמור שינויים"}
+              {savingEdit ? "שולח..." : "שלח הצעה לבדיקה"}
             </Button>
           </DialogFooter>
         </DialogContent>
