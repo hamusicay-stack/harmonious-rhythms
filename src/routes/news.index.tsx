@@ -104,12 +104,35 @@ function NewsIndexPage() {
           </div>
         </div>
 
+        {/* Filter pills — dynamic, scrollable. Above everything. */}
+        <div className="mb-6 -mx-2 px-2 flex gap-2 overflow-x-auto scrollbar-thin [scrollbar-width:thin] touch-pan-x">
+          {(["all", ...Array.from(new Set(rows.map((r) => r.category))).filter(Boolean).sort()]).map((c) => {
+            const isActive = activeCategory === c;
+            return (
+              <Button
+                key={c}
+                size="sm"
+                variant={isActive ? "default" : "outline"}
+                onClick={() => setActiveCategory(c)}
+                className={
+                  "shrink-0 " +
+                  (isActive
+                    ? "rounded-full bg-gold text-gold-foreground hover:bg-gold/90 border-gold"
+                    : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60")
+                }
+              >
+                {c === "all" ? "הכל" : labelFor(c)}
+              </Button>
+            );
+          })}
+        </div>
+
         {/* Hero featured */}
         {featured && (
           <Link
             to="/news/$slug"
             params={{ slug: featured.slug }}
-            className="group relative block w-full overflow-hidden rounded-2xl ring-1 ring-gold/20 shadow-gold animate-fade-in"
+            className="group relative block w-full overflow-hidden rounded-2xl ring-1 ring-gold/20 shadow-gold animate-fade-in mb-10"
           >
             <div className="relative aspect-[21/9] sm:aspect-[21/8] w-full overflow-hidden bg-black">
               <img
@@ -143,29 +166,6 @@ function NewsIndexPage() {
             </div>
           </Link>
         )}
-
-        {/* Filter pills — dynamic, scrollable */}
-        <div className="mt-10 mb-6 -mx-2 px-2 flex gap-2 overflow-x-auto scrollbar-thin [scrollbar-width:thin] touch-pan-x">
-          {(["all", ...Array.from(new Set(rows.map((r) => r.category))).filter(Boolean).sort()]).map((c) => {
-            const isActive = activeCategory === c;
-            return (
-              <Button
-                key={c}
-                size="sm"
-                variant={isActive ? "default" : "outline"}
-                onClick={() => setActiveCategory(c)}
-                className={
-                  "shrink-0 " +
-                  (isActive
-                    ? "rounded-full bg-gold text-gold-foreground hover:bg-gold/90 border-gold"
-                    : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60")
-                }
-              >
-                {c === "all" ? "הכל" : labelFor(c)}
-              </Button>
-            );
-          })}
-        </div>
 
         {/* Grid */}
         {loading ? (
