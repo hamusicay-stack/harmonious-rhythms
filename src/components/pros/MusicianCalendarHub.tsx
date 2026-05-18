@@ -134,7 +134,10 @@ export function MusicianCalendarHub() {
   };
 
   const deleteEvent = async (id: string) => {
-    const { error } = await supabase.from("music_pro_calendar_events" as never).delete().eq("id", id);
+    const tbl = supabase.from("music_pro_calendar_events" as never) as unknown as {
+      delete: () => { eq: (c: string, v: string) => Promise<{ error: { message: string } | null }> };
+    };
+    const { error } = await tbl.delete().eq("id", id);
     if (error) { toast.error(friendlyError(error)); return; }
     toast.success("האירוע הוסר");
     loadEvents();
