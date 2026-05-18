@@ -1,0 +1,1 @@
+ALTER TABLE public.music_news ADD COLUMN IF NOT EXISTS video_url text;
