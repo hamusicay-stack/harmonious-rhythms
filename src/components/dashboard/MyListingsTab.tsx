@@ -6,8 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Tags, Eye, ArrowUp, Trash2, Phone, MessageCircle, Heart,
-  CheckCircle2, Clock, XCircle, PackageCheck,
+  CheckCircle2, Clock, XCircle, PackageCheck, EyeOff,
 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
 import { MarkAsSoldDialog } from "@/components/marketplace/MarkAsSoldDialog";
 import { OffersReceivedPanel } from "@/components/dashboard/OffersReceivedPanel";
