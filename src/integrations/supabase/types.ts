@@ -1601,6 +1601,83 @@ export type Database = {
         }
         Relationships: []
       }
+      core_chat_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "core_chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "core_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      core_chat_threads: {
+        Row: {
+          context_id: string | null
+          context_type: string
+          created_at: string
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          unread_a: number
+          unread_b: number
+          updated_at: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          context_id?: string | null
+          context_type: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          unread_a?: number
+          unread_b?: number
+          updated_at?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          context_id?: string | null
+          context_type?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          unread_a?: number
+          unread_b?: number
+          updated_at?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
       customer_interactions: {
         Row: {
           created_at: string
