@@ -797,6 +797,27 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
                 דורש קובץ {activeSet.info_file_extension ?? ".n27"}
               </SrChip>
             )}
+
+            {history.length > 0 && (
+              <div className="mt-1 border-t pt-3" style={{ borderColor: "var(--sr-edge)" }}>
+                <div className="mb-2 flex items-center gap-1.5">
+                  <History className="h-3.5 w-3.5" style={{ color: "var(--sr-text-mute)" }} />
+                  <SrLabel>היסטוריית נגינה</SrLabel>
+                </div>
+                <ul className="space-y-1 max-h-[180px] overflow-auto pr-1">
+                  {history.map((h) => (
+                    <li
+                      key={h.key + h.ts}
+                      className="rounded px-2 py-1 text-[0.7rem]"
+                      style={{ background: "oklch(0 0 0 / 0.25)", color: "var(--sr-text-dim)" }}
+                    >
+                      <span className="font-semibold" style={{ color: "var(--sr-led-blue)" }}>{h.label}</span>
+                      <span className="opacity-60"> · {h.setName}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </SrPanel>
         </div>
       </div>
