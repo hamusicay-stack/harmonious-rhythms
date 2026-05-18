@@ -257,7 +257,7 @@ function PendingRevisions() {
         .select("id,title,slug,content")
         .in("id", ids);
       const map = new Map((arts ?? []).map((a: any) => [a.id, a]));
-      list.forEach((r) => { r.article = map.get(r.article_id) ?? null; });
+      list.forEach((r) => { r.article = (map.get(r.article_id) as WikiRevision["article"]) ?? null; });
     }
     setRows(list);
     setLoading(false);
