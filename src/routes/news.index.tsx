@@ -155,7 +155,7 @@ function NewsIndexPage() {
                     : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60")
                 }
               >
-                {c === "all" ? "הכל" : CATEGORY_LABELS[c]}
+                {c === "all" ? "הכל" : labelFor(c)}
               </Button>
             );
           })}
