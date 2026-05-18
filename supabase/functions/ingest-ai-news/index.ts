@@ -23,7 +23,7 @@ const OPENAI_MODEL = Deno.env.get("OPENAI_MODEL") ?? "gpt-4o-mini";
 const MAX_ITEMS_PER_FEED = 2;
 
 type RssItem = { title: string; link: string; description: string; video_url: string | null; image_url: string | null };
-type AiOutput = { title: string; html_content: string };
+type AiOutput = { title: string; html_content: string; category: string };
 
 // --- Minimal RSS / Atom parser (regex-based, no DOM dep) ----------------------
 function decodeEntities(s: string): string {
