@@ -6,8 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Tags, Eye, ArrowUp, Trash2, Phone, MessageCircle, Heart,
-  CheckCircle2, Clock, XCircle, PackageCheck,
+  CheckCircle2, Clock, XCircle, PackageCheck, EyeOff,
 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { BoostListingDialog } from "@/components/marketplace/BoostListingDialog";
 import { MarkAsSoldDialog } from "@/components/marketplace/MarkAsSoldDialog";
 import { OffersReceivedPanel } from "@/components/dashboard/OffersReceivedPanel";
@@ -33,6 +37,23 @@ export function MyListingsTab({ userId }: { userId: string }) {
   const [boostId, setBoostId] = useState<string | null>(null);
   const [soldFor, setSoldFor] = useState<Listing | null>(null);
   const [pendingSoldIds, setPendingSoldIds] = useState<Set<string>>(new Set());
+  const [takeDownFor, setTakeDownFor] = useState<Listing | null>(null);
+  const [takingDown, setTakingDown] = useState(false);
+
+  const handleTakeDown = async () => {
+    if (!takeDownFor) return;
+    setTakingDown(true);
+    const { error } = await supabase
+      .from("marketplace_listings")
+      .update({ status: "archived" })
+      .eq("id", takeDownFor.id);
+    setTakingDown(false);
+    if (error) { toast.error(error.message); return; }
+    // Optimistic client update — no full refresh
+    setListings((prev) => prev.map((l) => l.id === takeDownFor.id ? { ...l, status: "archived" } : l));
+    setTakeDownFor(null);
+    toast.success("המודעה הוסרה והועברה לארכיון בהצלחה 👍");
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -174,6 +195,16 @@ export function MyListingsTab({ userId }: { userId: string }) {
                         <PackageCheck className="h-3 w-3" />סמן כנמכר
                       </Button>
                     )}
+                    {l.status === "approved" && !l.is_sold && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setTakeDownFor(l); }}
+                        className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 hover:text-amber-700 dark:text-amber-400"
+                      >
+                        <EyeOff className="h-3 w-3" />הורד מודעה מהאוויר
+                      </Button>
+                    )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
                       <Button size="sm" variant="outline">צפה</Button>
                     </Link>
@@ -205,6 +236,27 @@ export function MyListingsTab({ userId }: { userId: string }) {
           onDone={load}
         />
       )}
+      <AlertDialog open={!!takeDownFor} onOpenChange={(o) => { if (!o) setTakeDownFor(null); }}>
+        <AlertDialogContent className="border-amber-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-gradient-gold">הורדת מודעה מהאוויר</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך להוריד את המודעה <span className="font-semibold text-foreground">"{takeDownFor?.title}"</span> מהאתר?
+              <br />המודעה תועבר לארכיון ולא תופיע יותר בחיפוש. תוכל לפנות לתמיכה כדי להחזיר אותה.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={takingDown}>ביטול</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleTakeDown}
+              disabled={takingDown}
+              className="bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-700 hover:to-amber-600"
+            >
+              {takingDown ? "מוריד..." : "כן, הורד מהאוויר"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

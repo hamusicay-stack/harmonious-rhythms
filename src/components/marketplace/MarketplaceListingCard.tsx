@@ -23,7 +23,21 @@ export type CardListing = {
   bump_expires_at: string | null;
   is_urgent?: boolean;
   audio_url?: string | null;
+  is_sold?: boolean | null;
 };
+
+// Elegant translucent overlay + gold "SOLD" ribbon for finalized listings
+function SoldOverlay() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[1px]">
+      <div className="relative w-[140%] -rotate-12 select-none">
+        <div className="text-center font-display font-black tracking-[0.35em] text-2xl sm:text-3xl py-2 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 text-black shadow-2xl ring-1 ring-amber-200/60">
+          נמכר · SOLD
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   listing: CardListing;
@@ -91,6 +105,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               {listing.is_urgent && (
                 <Badge className="absolute top-2 right-2 gap-1 shadow-lg bg-rose-500 hover:bg-rose-600 text-[10px]"><Flame className="h-3 w-3" />דחוף</Badge>
               )}
+              {listing.is_sold && <SoldOverlay />}
             </div>
             <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
               <div className="space-y-1.5">
@@ -114,18 +129,20 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               <div className="flex items-center justify-between pt-3 mt-2 border-t border-border/40">
                 <div className="font-display font-bold text-2xl text-gradient-gold">₪{Number(listing.price).toLocaleString()}</div>
                 <div className="flex items-center gap-2">
-                  <div onClick={stop}>
-                    <ChatThreadDialog
-                      listingId={listing.id}
-                      sellerId={listing.seller_id}
-                      listingTitle={listing.title}
-                      trigger={
-                        <button type="button" className="rounded-full p-2 bg-primary/10 hover:bg-primary/20 text-primary transition" title="צ'אט מאובטח עם המוכר">
-                          <MessageSquare className="h-4 w-4" />
-                        </button>
-                      }
-                    />
-                  </div>
+                  {!listing.is_sold && (
+                    <div onClick={stop}>
+                      <ChatThreadDialog
+                        listingId={listing.id}
+                        sellerId={listing.seller_id}
+                        listingTitle={listing.title}
+                        trigger={
+                          <button type="button" className="rounded-full p-2 bg-primary/10 hover:bg-primary/20 text-primary transition" title="צ'אט מאובטח עם המוכר">
+                            <MessageSquare className="h-4 w-4" />
+                          </button>
+                        }
+                      />
+                    </div>
+                  )}
                   <button type="button" onClick={toggleLike} className={`rounded-full p-2 transition ${liked ? "bg-rose-500/15 text-rose-500" : "bg-muted hover:bg-rose-500/10 hover:text-rose-500"}`} title="מועדפים">
                     <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
                   </button>
@@ -209,27 +226,30 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               )}
             </div>
 
-            {/* Quick actions - bottom (always on mobile, hover on desktop) */}
-            <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
-              <div onClick={stop}>
-                <ChatThreadDialog
-                  listingId={listing.id}
-                  sellerId={listing.seller_id}
-                  listingTitle={listing.title}
-                  trigger={
-                    <button type="button" className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition" title="צ'אט עם המוכר">
-                      <MessageSquare className="h-4 w-4" />
-                    </button>
-                  }
-                />
+            {/* Quick actions - bottom (always on mobile, hover on desktop) — hidden when sold */}
+            {!listing.is_sold && (
+              <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+                <div onClick={stop}>
+                  <ChatThreadDialog
+                    listingId={listing.id}
+                    sellerId={listing.seller_id}
+                    listingTitle={listing.title}
+                    trigger={
+                      <button type="button" className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition" title="צ'אט עם המוכר">
+                        <MessageSquare className="h-4 w-4" />
+                      </button>
+                    }
+                  />
+                </div>
+                <button type="button" onClick={toggleLike} className={`h-8 w-8 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition ${liked ? "bg-rose-500 text-white" : "bg-background/90 backdrop-blur"}`} title="מועדפים">
+                  <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
+                </button>
+                <button type="button" onClick={openQuickView} className="h-8 w-8 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center hover:scale-110 transition" title="צפייה מהירה">
+                  <Eye className="h-4 w-4" />
+                </button>
               </div>
-              <button type="button" onClick={toggleLike} className={`h-8 w-8 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition ${liked ? "bg-rose-500 text-white" : "bg-background/90 backdrop-blur"}`} title="מועדפים">
-                <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-              </button>
-              <button type="button" onClick={openQuickView} className="h-8 w-8 rounded-full bg-background/90 backdrop-blur shadow-lg flex items-center justify-center hover:scale-110 transition" title="צפייה מהירה">
-                <Eye className="h-4 w-4" />
-              </button>
-            </div>
+            )}
+            {listing.is_sold && <SoldOverlay />}
           </div>
 
           {/* Content */}
