@@ -57,11 +57,61 @@ const HEBREW_LETTERS = "אבגדהוזחטיכלמנסעפצקרשת".split("");
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=70";
 
+function slugifyWiki(title: string) {
+  const base = title.toLowerCase().replace(/[^a-z0-9\u0590-\u05FF\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
+  return `${base || "article"}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 function WikiIndexPage() {
   const [rows, setRows] = useState<WikiRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [letter, setLetter] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Create new article state
+  const [openCreate, setOpenCreate] = useState(false);
+  const [nTitle, setNTitle] = useState("");
+  const [nCategory, setNCategory] = useState<WikiRow["category"]>("instruments");
+  const [nSummary, setNSummary] = useState("");
+  const [nContent, setNContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  const submitNew = async () => {
+    if (!userId) {
+      toast.error("שגיאה בשמירה. ודא שאתה מחובר למערכת.");
+      return;
+    }
+    if (nTitle.trim().length < 2 || nContent.trim().length < 20) {
+      toast.error("נא למלא כותרת ותוכן מספק");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { error } = await (supabase as any).from("wiki_articles").insert({
+        title: nTitle.trim(),
+        slug: slugifyWiki(nTitle),
+        category: nCategory,
+        summary: nSummary.trim() || null,
+        content: nContent.trim(),
+        created_by: userId,
+        last_edited_by: userId,
+        is_verified: false,
+      });
+      if (error) throw error;
+      toast.success("נשמר בהצלחה! ✅ הערך יעלה לאחר בדיקת מערכת");
+      setOpenCreate(false);
+      setNTitle(""); setNSummary(""); setNContent(""); setNCategory("instruments");
+    } catch (e: any) {
+      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
