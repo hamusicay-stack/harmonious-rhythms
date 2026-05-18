@@ -61,6 +61,8 @@ export function AIPendingQueue() {
   const [editTitle, setEditTitle] = useState("");
   const [editSummary, setEditSummary] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [knownCategories, setKnownCategories] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
