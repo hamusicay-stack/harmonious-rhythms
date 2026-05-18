@@ -143,6 +143,27 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
         </span>
         {loading && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
       </div>
+      {conflict && (
+        <div
+          dir="rtl"
+          className="mb-2 flex items-start gap-2 rounded-lg border border-rose-500/40 bg-gradient-to-l from-rose-500/15 via-rose-500/5 to-transparent px-3 py-2 shadow-[0_0_18px_rgba(244,63,94,0.25)]"
+          role="alert"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
+          <div className="text-[11.5px] leading-relaxed text-rose-100">
+            <div className="font-semibold text-rose-200">⚠️ התראה פנימית מהיומן שלך</div>
+            <div className="opacity-90">
+              שים לב שיש לך כבר אירוע רשום ביומן בתאריך זה
+              {conflict.title ? ` (${conflict.title})` : ""}
+              {conflict.start_time ? ` בשעה ${conflict.start_time.slice(0, 5)}` : ""}.
+              ודא שאין חפיפת שעות לפני שינוי סטטוס העסקה.
+            </div>
+            <div className="mt-0.5 text-[10px] uppercase tracking-wider text-rose-300/70">
+              גלוי רק לך · הלקוח אינו רואה הודעה זו
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap gap-1.5">
         {OPTIONS.map((opt) => {
           const isActive = status === opt.value;
