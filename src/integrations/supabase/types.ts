@@ -3524,6 +3524,30 @@ export type Database = {
         }
         Relationships: []
       }
+      news_sources: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          rss_url: string
+          site_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rss_url: string
+          site_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rss_url?: string
+          site_name?: string
+        }
+        Relationships: []
+      }
       newsletter_campaigns: {
         Row: {
           body_html: string
