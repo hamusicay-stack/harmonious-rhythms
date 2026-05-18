@@ -51,6 +51,7 @@ import { Route as ForumNotificationsRouteImport } from './routes/forum.notificat
 import { Route as ForumModerationRouteImport } from './routes/forum.moderation'
 import { Route as ForumMessagesRouteImport } from './routes/forum.messages'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
+import { Route as AdminWikiRouteImport } from './routes/admin.wiki'
 import { Route as AdminForumRouteImport } from './routes/admin.forum'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCrmRouteImport } from './routes/admin.crm'
@@ -311,6 +312,11 @@ const BeatSetIdRoute = BeatSetIdRouteImport.update({
   id: '/beat/$setId',
   path: '/beat/$setId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWikiRoute = AdminWikiRouteImport.update({
+  id: '/wiki',
+  path: '/wiki',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminForumRoute = AdminForumRouteImport.update({
   id: '/forum',
@@ -599,6 +605,7 @@ export interface FileRoutesByFullPath {
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
+  '/admin/wiki': typeof AdminWikiRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -686,6 +693,7 @@ export interface FileRoutesByTo {
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
+  '/admin/wiki': typeof AdminWikiRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -781,6 +789,7 @@ export interface FileRoutesById {
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
+  '/admin/wiki': typeof AdminWikiRoute
   '/beat/$setId': typeof BeatSetIdRoute
   '/forum/messages': typeof ForumMessagesRouteWithChildren
   '/forum/moderation': typeof ForumModerationRoute
@@ -877,6 +886,7 @@ export interface FileRouteTypes {
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
+    | '/admin/wiki'
     | '/beat/$setId'
     | '/forum/messages'
     | '/forum/moderation'
@@ -964,6 +974,7 @@ export interface FileRouteTypes {
     | '/admin/chat-oversight'
     | '/admin/dashboard'
     | '/admin/forum'
+    | '/admin/wiki'
     | '/beat/$setId'
     | '/forum/messages'
     | '/forum/moderation'
@@ -1058,6 +1069,7 @@ export interface FileRouteTypes {
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/forum'
+    | '/admin/wiki'
     | '/beat/$setId'
     | '/forum/messages'
     | '/forum/moderation'
@@ -1455,6 +1467,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/beat/$setId'
       preLoaderRoute: typeof BeatSetIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/wiki': {
+      id: '/admin/wiki'
+      path: '/wiki'
+      fullPath: '/admin/wiki'
+      preLoaderRoute: typeof AdminWikiRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/forum': {
       id: '/admin/forum'
@@ -1907,6 +1926,7 @@ interface AdminRouteChildren {
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminForumRoute: typeof AdminForumRoute
+  AdminWikiRoute: typeof AdminWikiRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminCustomersCustomerIdRoute: typeof AdminCustomersCustomerIdRoute
 }
@@ -1918,6 +1938,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminForumRoute: AdminForumRoute,
+  AdminWikiRoute: AdminWikiRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminCustomersCustomerIdRoute: AdminCustomersCustomerIdRoute,
 }
