@@ -312,11 +312,21 @@ function WikiArticlePage() {
           {article.summary && (
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl">{article.summary}</p>
           )}
-          <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1">
               <Eye className="h-4 w-4" />
               {(article.views_count ?? 0).toLocaleString("he-IL")} צפיות
             </span>
+            {userId && (
+              <Button
+                size="sm"
+                onClick={openEditDialog}
+                className="bg-amber-500 text-black hover:bg-amber-400"
+              >
+                <Edit3 className="h-4 w-4 ml-1" />
+                ✏️ ערוך ערך זה
+              </Button>
+            )}
           </div>
         </div>
       </div>
