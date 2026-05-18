@@ -87,7 +87,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
     setShortVideoId("");
     setCoverFile(null);
     setCoverPreview(null);
-    setCategory("singles");
+    setCategory("סינגלים חדשים");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
