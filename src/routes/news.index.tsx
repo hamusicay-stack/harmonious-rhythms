@@ -119,7 +119,7 @@ function NewsIndexPage() {
                   className="mb-3 border-gold/60 text-gold bg-black/40 backdrop-blur-sm"
                 >
                   <Sparkles className="h-3 w-3 ml-1" />
-                  כתבה נבחרת · {CATEGORY_LABELS[featured.category]}
+                  כתבה נבחרת · {labelFor(featured.category)}
                 </Badge>
                 <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-gradient-gold leading-tight max-w-3xl">
                   {featured.title}
