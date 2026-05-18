@@ -135,6 +135,7 @@ export function MusicianCalendarHub() {
   }, [cursor]);
 
   const openAddDialog = (dateStr: string) => {
+    if (!canAddManual) { setPaywallOpen(true); return; }
     setAddingDate(dateStr);
     setForm({ title: "", description: "", start_time: "", end_time: "", event_type: "private" });
     setAddOpen(true);
