@@ -493,10 +493,11 @@ export function NewsManager() {
         </div>
         <Button
           onClick={() => setCreateOpen(true)}
-          className="bg-gold text-gold-foreground hover:bg-gold/90"
+          size="lg"
+          className="bg-gold text-gold-foreground hover:bg-gold/90 shadow-lg shadow-gold/20 font-semibold"
         >
-          <Plus className="h-4 w-4 ml-1" />
-          ➕ הוסף כתבה חדשה
+          <Plus className="h-5 w-5 ml-1" />
+          ➕ הוסף כתבה חדשה ידנית
         </Button>
       </div>
 
