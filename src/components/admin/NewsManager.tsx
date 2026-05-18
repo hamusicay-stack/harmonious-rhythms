@@ -636,6 +636,33 @@ export function NewsManager() {
                 className="mt-1 bg-background/60 border-gold/20"
               />
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm">קטגוריה (ניתן להקליד חדשה)</Label>
+                <Input
+                  list="news-edit-category-options"
+                  value={editCategory}
+                  onChange={(e) => setEditCategory(e.target.value)}
+                  maxLength={60}
+                  className="mt-1 bg-background/60 border-gold/20"
+                />
+                <datalist id="news-edit-category-options">
+                  {knownCategories.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
+              </div>
+              <div>
+                <Label className="text-sm">תמונת שער (URL)</Label>
+                <Input
+                  value={editImageUrl}
+                  onChange={(e) => setEditImageUrl(e.target.value)}
+                  maxLength={500}
+                  className="mt-1 bg-background/60 border-gold/20"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
             <div>
               <Label className="text-sm">תקציר</Label>
               <Textarea
