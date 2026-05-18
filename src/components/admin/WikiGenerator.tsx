@@ -44,7 +44,8 @@ export function WikiGenerator() {
       setLastCreated({ slug: data.article.slug, title: data.article.title });
       setTerm("");
     } catch (e: any) {
-      const msg = e?.message ?? String(e);
+      console.error("[WikiGenerator] invoke error:", e, { name: e?.name, message: e?.message, context: e?.context });
+      const msg = e?.context?.error ?? e?.message ?? String(e);
       toast.error(`שגיאה ביצירת הערך: ${msg}`);
     } finally {
       setLoading(false);

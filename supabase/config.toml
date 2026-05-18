@@ -2,3 +2,6 @@ project_id = "fshwzvsdrdmqjnbmwhvt"
 
 [functions.import-product-from-url]
 verify_jwt = false
+
+[functions.generate-wiki-page]
+verify_jwt = false
