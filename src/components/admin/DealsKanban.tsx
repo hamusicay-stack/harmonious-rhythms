@@ -137,7 +137,7 @@ export function DealsKanban() {
       setLoading(true);
       const { data, error } = await supabase
         .from("deals")
-        .select("id,customer_name,value,status,notes,created_at")
+        .select("id,customer_name,value,status,notes,created_at,title,source_type,source_ref_id,customer_id")
         .order("position", { ascending: true })
         .order("created_at", { ascending: false });
       if (error) {
@@ -182,7 +182,7 @@ export function DealsKanban() {
         value: Number(form.value) || 0,
         notes: form.notes.trim() || null,
       })
-      .select("id,customer_name,value,status,notes,created_at")
+      .select("id,customer_name,value,status,notes,created_at,title,source_type,source_ref_id,customer_id")
       .single();
     setSaving(false);
     if (error) { toast.error("שגיאה ביצירת עסקה"); return; }
