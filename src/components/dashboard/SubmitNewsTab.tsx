@@ -39,7 +39,22 @@ function slugify(title: string) {
 
 export function SubmitNewsTab({ userId }: { userId: string }) {
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<Category>("singles");
+  const [category, setCategory] = useState<string>("סינגלים חדשים");
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("music_news")
+        .select("category")
+        .eq("approval_status", "approved")
+        .limit(500);
+      const uniq = Array.from(
+        new Set([...(data ?? []).map((r: any) => r.category).filter(Boolean), ...SUGGESTED_CATEGORIES]),
+      ) as string[];
+      setExistingCategories(uniq);
+    })();
+  }, []);
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [shortVideoId, setShortVideoId] = useState("");
