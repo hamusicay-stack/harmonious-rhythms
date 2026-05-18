@@ -25,6 +25,9 @@ const OPTIONS: { value: InquiryStatus; emoji: string; label: string; tone: strin
 ];
 
 export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
+  const { user } = useAuth();
+  const [isOwner, setIsOwner] = useState(false);
+  const [ownerChecked, setOwnerChecked] = useState(false);
   const [inquiryId, setInquiryId] = useState<string | null>(null);
   const [status, setStatus] = useState<InquiryStatus | null>(null);
   const [loading, setLoading] = useState(true);
