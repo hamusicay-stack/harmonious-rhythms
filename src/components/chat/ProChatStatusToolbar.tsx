@@ -90,6 +90,27 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
     return () => { supabase.removeChannel(ch); };
   }, [inquiryId]);
 
+  // PRIVATE conflict check — runs ONLY for the owning pro. Client never sees this.
+  useEffect(() => {
+    if (!isOwner || !eventDate || !proId) { setConflict(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("music_pro_calendar_events" as never)
+        .select("title, start_time, end_time, source_ref_id")
+        .eq("pro_id", proId)
+        .eq("event_date", eventDate)
+        .limit(5);
+      if (cancelled) return;
+      if (error) { console.error("calendar conflict lookup", error); setConflict(null); return; }
+      const rows = (data ?? []) as Array<{ title: string | null; start_time: string | null; end_time: string | null; source_ref_id: string | null }>;
+      // ignore an entry that points back to this same inquiry (avoid self-conflict)
+      const real = rows.find((r) => r.source_ref_id !== inquiryId);
+      setConflict(real ? { title: real.title, start_time: real.start_time, end_time: real.end_time } : null);
+    })();
+    return () => { cancelled = true; };
+  }, [isOwner, eventDate, proId, inquiryId]);
+
   if (!enabled || !ownerChecked || !isOwner) return null;
   if (!loading && !inquiryId) return null;
 
