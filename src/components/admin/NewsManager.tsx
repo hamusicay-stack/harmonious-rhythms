@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { friendlyError } from "@/lib/errors";
 import { sanitizeHtml } from "@/lib/sanitize";
-import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X } from "lucide-react";
+import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X, Plus } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
