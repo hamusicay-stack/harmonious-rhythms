@@ -974,7 +974,12 @@ function ShortPanel({
         />
 
         {/* Right rail — thumb-zone actions */}
-        <div className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] right-2 z-10 flex flex-col items-center gap-4">
+        <div
+          className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] right-2 z-10 flex flex-col items-center gap-4"
+          onPointerDown={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
           <RailButton
             ref={likeBtnRef}
             icon={<Heart className={cn("h-7 w-7", liked && "fill-rose-500 text-rose-500")} />}
@@ -1047,6 +1052,8 @@ const RailButton = React.forwardRef<HTMLButtonElement, {
     <button
       ref={ref}
       type="button"
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       className={cn(
         "flex flex-col items-center gap-1 rounded-full px-2 py-1.5 text-white transition active:scale-90",
