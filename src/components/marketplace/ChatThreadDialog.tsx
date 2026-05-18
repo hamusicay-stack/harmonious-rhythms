@@ -228,6 +228,37 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          {partner && (
+            partner.username ? (
+              <Link
+                to="/u/$username"
+                params={{ username: partner.username }}
+                onClick={() => setOpen(false)}
+                className="mt-2 flex items-center gap-2 min-h-[44px] rounded-lg p-1.5 -mx-1.5 hover:bg-primary/5 transition group"
+                aria-label="צפה בפרופיל הציבורי"
+              >
+                <Avatar className="h-9 w-9 ring-2 ring-primary/30">
+                  <AvatarImage src={partner.avatar_url ?? undefined} />
+                  <AvatarFallback className="text-xs">{(partner.display_name ?? partner.username ?? "?").slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 text-right">
+                  <div className="text-sm font-semibold truncate group-hover:text-primary transition">{partner.display_name ?? partner.username}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">@{partner.username}</div>
+                </div>
+                <span className="text-[11px] text-primary font-medium inline-flex items-center gap-1 shrink-0">
+                  <UserCircle2 className="h-3.5 w-3.5" />צפה בפרופיל
+                </span>
+              </Link>
+            ) : (
+              <div className="mt-2 flex items-center gap-2">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={partner.avatar_url ?? undefined} />
+                  <AvatarFallback className="text-xs">{(partner.display_name ?? "?").slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm font-semibold">{partner.display_name ?? "המוכר"}</div>
+              </div>
+            )
+          )}
         </DialogHeader>
 
         <div className="px-3 pt-3">
