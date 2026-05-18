@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ChatBubble } from "./shared/ChatBubble";
 import { ChatInput } from "./shared/ChatInput";
+import { ProChatStatusToolbar } from "./ProChatStatusToolbar";
 import {
   ConversationListItem,
   CTX_META,
