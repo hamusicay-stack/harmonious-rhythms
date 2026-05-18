@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
               image_url: item.image_url,
               is_automated: true,
               approval_status: "pending_review",
-              category: "gear_reviews",
+              category: (ai.category && ai.category.trim()) ? ai.category.trim().slice(0, 60) : "סיקורי ציוד",
             });
             if (insErr) throw insErr;
             summary.inserted += 1;
