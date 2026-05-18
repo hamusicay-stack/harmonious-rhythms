@@ -219,8 +219,19 @@ export function MusicianCalendarHub() {
             <Button size="sm" variant="outline" onClick={() => { const d = new Date(); d.setDate(1); setCursor(d); }}>
               היום
             </Button>
-            <Button size="sm" onClick={() => openAddDialog(today)} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
-              <Plus className="ml-1 h-4 w-4" /> הוסף אירוע ידני
+            <Button
+              size="sm"
+              onClick={() => openAddDialog(today)}
+              className={cn(
+                "text-black hover:brightness-110",
+                canAddManual
+                  ? "bg-gradient-to-br from-amber-400 to-amber-600"
+                  : "bg-gradient-to-br from-slate-500/60 to-slate-700/60 text-amber-100 ring-1 ring-amber-400/40",
+              )}
+              title={canAddManual ? "הוסף אירוע ידני" : "דורש מנוי פרימיום / VIP"}
+            >
+              {canAddManual ? <Plus className="ml-1 h-4 w-4" /> : <Crown className="ml-1 h-4 w-4 text-amber-300" />}
+              הוסף אירוע ידני
             </Button>
           </div>
         </div>
