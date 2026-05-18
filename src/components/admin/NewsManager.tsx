@@ -333,16 +333,25 @@ export function NewsManager() {
 
   return (
     <div dir="rtl" className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
-          <Newspaper className="h-5 w-5 text-gold" />
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
+            <Newspaper className="h-5 w-5 text-gold" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-gradient-gold">ניהול חדשות</h1>
+            <p className="text-sm text-muted-foreground">
+              סקירה ואישור של כתבות PR מהקהילה וכתבות אוטומטיות מהעולם
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="font-display text-2xl font-bold text-gradient-gold">ניהול חדשות</h1>
-          <p className="text-sm text-muted-foreground">
-            סקירה ואישור של כתבות PR מהקהילה וכתבות אוטומטיות מהעולם
-          </p>
-        </div>
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="bg-gold text-gold-foreground hover:bg-gold/90"
+        >
+          <Plus className="h-4 w-4 ml-1" />
+          ➕ הוסף כתבה חדשה
+        </Button>
       </div>
 
       <Tabs defaultValue="pr" dir="rtl">
