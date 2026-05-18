@@ -59,6 +59,7 @@ function NewsIndexPage() {
       const { data } = await (supabase as any)
         .from("music_news")
         .select("id,title,slug,summary,image_url,category,is_featured,views_count,created_at")
+        .eq("approval_status", "approved")
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(60);
