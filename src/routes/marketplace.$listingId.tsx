@@ -189,7 +189,13 @@ function ListingDetailPage() {
           </Link>
           {/* Edit removed — owner can only delete via profile page */}
         </div>
-        {listing.is_urgent && (
+        {listing.is_sold && (
+          <div className="mb-4 rounded-2xl border-2 border-amber-400/70 bg-gradient-to-r from-amber-500/20 via-yellow-400/15 to-amber-500/20 p-4 flex items-center justify-center gap-3 shadow-lg">
+            <span className="font-display font-black tracking-[0.3em] text-2xl text-gradient-gold">נמכר · SOLD</span>
+            <span className="text-sm text-muted-foreground">העסקה הושלמה — צור הקשר מושבת</span>
+          </div>
+        )}
+        {listing.is_urgent && !listing.is_sold && (
           <div className="mb-4 rounded-xl border-2 border-rose-500/60 bg-rose-500/10 p-3 flex items-center gap-2">
             <Flame className="h-5 w-5 text-rose-500" />
             <span className="font-semibold text-rose-600 dark:text-rose-400">מכירה דחופה — המוכר רוצה למכור מהר</span>
