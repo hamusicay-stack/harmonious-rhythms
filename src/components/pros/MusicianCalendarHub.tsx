@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronRight, ChevronLeft, Plus, Loader2, CalendarDays, Sparkles, Lock, Trash2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Plus, Loader2, CalendarDays, Sparkles, Lock, Trash2, Crown, Check, Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+
+type TierRow = {
+  id: string;
+  slug: string;
+  name: string;
+  rank: number;
+  is_vip: boolean;
+  description: string | null;
+  discount_percent: number | null;
+  shop_discount_percent: number | null;
+  academy_discount_percent: number | null;
+  marketplace_free_boosts: number | null;
+  beat_access: boolean | null;
+};
 
 type CalendarEvent = {
   id: string;
