@@ -80,7 +80,7 @@ function ListingDetailPage() {
       setListing(l);
 
       const [{ data: prof }, { data: trustedRow }, { data: revs }, { count }, { data: sim }, { count: likesC }] = await Promise.all([
-        supabase.from("profiles").select("id, display_name, avatar_url").eq("id", l.seller_id).maybeSingle(),
+        supabase.from("profiles").select("id, display_name, avatar_url, username").eq("id", l.seller_id).maybeSingle(),
         supabase.from("marketplace_trusted_sellers").select("user_id").eq("user_id", l.seller_id).maybeSingle(),
         supabase.from("marketplace_reviews").select("id, rating, comment, created_at, reviewer_id").eq("seller_id", l.seller_id).order("created_at", { ascending: false }),
         supabase.from("marketplace_listings").select("id", { count: "exact", head: true }).eq("seller_id", l.seller_id).eq("status", "approved"),
