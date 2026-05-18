@@ -161,10 +161,6 @@ export function CentralChatHub() {
       // mark unread = 0
       if (user) {
         if (active.contextType === "MARKETPLACE") {
-          await supabase.from("marketplace_chat_threads")
-            .update(active.otherUserId === active.id ? {} :
-              { ...(threads.find(t=>t.key===active.key)) } as any).eq("id", active.id); // noop fallback
-          // proper:
           const t = await supabase.from("marketplace_chat_threads").select("buyer_id").eq("id", active.id).maybeSingle();
           const patch = t.data?.buyer_id === user.id ? { buyer_unread: 0 } : { seller_unread: 0 };
           await supabase.from("marketplace_chat_threads").update(patch).eq("id", active.id);
