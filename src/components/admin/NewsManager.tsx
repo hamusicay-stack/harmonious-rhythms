@@ -702,7 +702,7 @@ export function NewsManager() {
 
       {/* Create new article dialog (admin instant publish) */}
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); resetCreate(); } }}>
-        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">כתבה חדשה — פרסום מיידי</DialogTitle>
           </DialogHeader>
