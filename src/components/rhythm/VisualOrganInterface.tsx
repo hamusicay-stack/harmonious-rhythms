@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, ArrowUp, Copy, FileText, Folder as FolderIcon, FolderOpen, Heart, Loader2, MenuSquare, Music2, Play, Save, Scissors, ShoppingCart, Square, Trash2, ClipboardPaste } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, ArrowUp, Copy, FileText, Folder as FolderIcon, FolderOpen, Heart, History, Keyboard as KeyboardIcon, Loader2, MenuSquare, Music2, Play, Save, Scissors, ShoppingCart, Square, Star, Trash2, ClipboardPaste } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
@@ -58,7 +58,7 @@ const ENDINGS: ButtonDef[] = [
   { code: "Ending_3", label: "Ending III", led: "red" },
 ];
 
-export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
+export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => void; presetSetId?: string }) {
   const { selectedModel } = useSmartRhythms();
   const { user } = useAuth();
   const { add } = useCart();
@@ -69,10 +69,14 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const [items, setItems] = useState<Item[]>([]);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [history, setHistory] = useState<{ key: string; label: string; setName: string; ts: number }[]>([]);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const presetAppliedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!selectedModel) return;
@@ -143,6 +147,10 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
   const folderItems = useMemo(
     () => items.filter((i) => i.folder_id === activeFolderId),
     [items, activeFolderId]
+  );
+  const displayedFolderItems = useMemo(
+    () => favoritesOnly ? folderItems.filter((i) => favorites.has(i.id)) : folderItems,
+    [folderItems, favoritesOnly, favorites]
   );
   const sampleMap = useMemo(() => {
     const m = new Map<string, string>();
@@ -221,7 +229,7 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
     ? `${(sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase()} / ${(folders.find((f) => f.id === activeFolderId)?.name ?? "").toUpperCase()}`
     : (sets.find(s => s.id === activeSetId)?.set_name ?? "").toUpperCase();
 
-  const playSample = (btn: ButtonDef) => {
+  const playSample = useCallback((btn: ButtonDef) => {
     if (!activeSet) {
       toast.info("בחר ערכת קצב");
       return;
@@ -242,7 +250,45 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
       artist: activeSet.creator_name,
       loop: true,
     });
-  };
+    setHistory((prev) => {
+      const key = `${activeSet.id}:${btn.code}`;
+      const next = [{ key, label: btn.label, setName: activeSet.set_name, ts: Date.now() }, ...prev.filter((h) => h.key !== key)];
+      return next.slice(0, 10);
+    });
+  }, [activeSet, activeBtn, sampleMap, playGlobal]);
+
+  // Apply preset set id once when sets are loaded (e.g. ?set=<id> deep link)
+  useEffect(() => {
+    if (!presetSetId || presetAppliedRef.current === presetSetId) return;
+    if (!sets.length) return;
+    const match = sets.find((s) => s.id === presetSetId);
+    if (match) {
+      presetAppliedRef.current = presetSetId;
+      setActiveSetId(match.id);
+      setActiveFolderId(null);
+      setActiveItemId(null);
+    }
+  }, [presetSetId, sets]);
+
+  // Keyboard shortcuts: 1-4 → Main A-D, Q/W/E → Intro, A/S/D/F → Fill, Z/X/C → Ending, Space → Stop
+  useEffect(() => {
+    const SHORTCUTS: Record<string, ButtonDef> = {
+      "1": MAINS[0], "2": MAINS[1], "3": MAINS[2], "4": MAINS[3],
+      "q": INTROS[0], "w": INTROS[1], "e": INTROS[2],
+      "a": FILLS[0], "s": FILLS[1], "d": FILLS[2], "f": FILLS[3],
+      "z": ENDINGS[0], "x": ENDINGS[1], "c": ENDINGS[2],
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement | null)?.isContentEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.code === "Space") { e.preventDefault(); stopGlobal(); return; }
+      const btn = SHORTCUTS[e.key.toLowerCase()];
+      if (btn) { e.preventDefault(); playSample(btn); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [playSample, stopGlobal]);
 
   useEffect(() => () => { stopGlobal(); }, [stopGlobal]);
   useEffect(() => { stopGlobal(); }, [activeItemId, activeSetId, stopGlobal]);
@@ -325,11 +371,43 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               </div>
             </div>
           </div>
-          <SrChip>
-            <span className="sr-led-dot" style={{ background: "var(--sr-led-green)", boxShadow: "0 0 6px var(--sr-led-green)" }} />
-            POWER ON
-          </SrChip>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <button
+              type="button"
+              onClick={() => setFavoritesOnly((v) => !v)}
+              className="sr-chip inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.7rem]"
+              data-lit={favoritesOnly ? "true" : undefined}
+              style={favoritesOnly ? { color: "var(--sr-led-amber)", borderColor: "color-mix(in oklab, var(--sr-led-amber) 50%, transparent)" } : undefined}
+              aria-pressed={favoritesOnly}
+            >
+              <Star className={cn("h-3.5 w-3.5", favoritesOnly && "fill-current")} />
+              מועדפים בלבד
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowShortcuts((v) => !v)}
+              className="sr-chip inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.7rem]"
+              aria-pressed={showShortcuts}
+            >
+              <KeyboardIcon className="h-3.5 w-3.5" />
+              קיצורים
+            </button>
+            <SrChip>
+              <span className="sr-led-dot" style={{ background: "var(--sr-led-green)", boxShadow: "0 0 6px var(--sr-led-green)" }} />
+              POWER ON
+            </SrChip>
+          </div>
         </div>
+
+        {showShortcuts && (
+          <div className="sr-panel grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 text-[0.72rem]" style={{ fontFamily: "ui-monospace, SFMono-Regular, monospace" }}>
+            <div><b className="opacity-70">1-4</b> · Main A-D</div>
+            <div><b className="opacity-70">Q W E</b> · Intro I-III</div>
+            <div><b className="opacity-70">A S D F</b> · Fill AA-DD</div>
+            <div><b className="opacity-70">Z X C</b> · Ending I-III</div>
+            <div className="col-span-2 sm:col-span-4"><b className="opacity-70">Space</b> · עצור נגינה</div>
+          </div>
+        )}
 
         {/* LCD SCREEN — Yamaha skeuomorphic */}
         {hwTheme.variant === "tyros" ? (
@@ -425,11 +503,11 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                     </div>
                   )
                 ) : (
-                  folderItems.length === 0 ? (
-                    <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">EMPTY FOLDER</div>
+                  displayedFolderItems.length === 0 ? (
+                    <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">{favoritesOnly ? "אין מועדפים בתיקייה" : "EMPTY FOLDER"}</div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                      {folderItems.map((it) => {
+                      {displayedFolderItems.map((it) => {
                         const isActive = activeItemId === it.id;
                         const fav = favorites.has(it.id);
                         const setCover = activeSet?.cover_image_url;
@@ -571,11 +649,11 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                     </div>
                   )
                 ) : (
-                  folderItems.length === 0 ? (
-                    <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">EMPTY FOLDER</div>
+                  displayedFolderItems.length === 0 ? (
+                    <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">{favoritesOnly ? "אין מועדפים בתיקייה" : "EMPTY FOLDER"}</div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {folderItems.map((it) => {
+                      {displayedFolderItems.map((it) => {
                         const isActive = activeItemId === it.id;
                         const fav = favorites.has(it.id);
                         return (
@@ -683,6 +761,12 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
                 <>
                   <div className="font-semibold">{activeSet.set_name}</div>
                   <div className="text-[0.7rem] opacity-70 mt-1">{activeSet.creator_name}</div>
+                  {activeBtn && (
+                    <div className="mt-2 flex items-center gap-1.5 text-[0.7rem]" style={{ color: "var(--sr-led-amber)", textShadow: "0 0 6px var(--sr-led-amber)" }}>
+                      <span className="sr-led-dot sr-blink" style={{ background: "var(--sr-led-amber)", boxShadow: "0 0 6px var(--sr-led-amber)" }} />
+                      ▶ {activeBtn.replace("_", " ")}
+                    </div>
+                  )}
                 </>
               ) : (
                 <span className="opacity-70">— NO SET SELECTED —</span>
@@ -712,6 +796,27 @@ export function VisualOrganInterface({ onBack }: { onBack?: () => void }) {
               <SrChip className="self-start">
                 דורש קובץ {activeSet.info_file_extension ?? ".n27"}
               </SrChip>
+            )}
+
+            {history.length > 0 && (
+              <div className="mt-1 border-t pt-3" style={{ borderColor: "var(--sr-edge)" }}>
+                <div className="mb-2 flex items-center gap-1.5">
+                  <History className="h-3.5 w-3.5" style={{ color: "var(--sr-text-mute)" }} />
+                  <SrLabel>היסטוריית נגינה</SrLabel>
+                </div>
+                <ul className="space-y-1 max-h-[180px] overflow-auto pr-1">
+                  {history.map((h) => (
+                    <li
+                      key={h.key + h.ts}
+                      className="rounded px-2 py-1 text-[0.7rem]"
+                      style={{ background: "oklch(0 0 0 / 0.25)", color: "var(--sr-text-dim)" }}
+                    >
+                      <span className="font-semibold" style={{ color: "var(--sr-led-blue)" }}>{h.label}</span>
+                      <span className="opacity-60"> · {h.setName}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </SrPanel>
         </div>

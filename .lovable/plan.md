@@ -1,81 +1,51 @@
-# פורום קהילה — אפיון בנייה מלא
 
-החלפה מלאה של `/forum` הקיים במערכת פורומים בסגנון NodeBB. גישה: קריאה וכתיבה רק למשתמשים מחוברים.
+## תכנית: אורגן וירטואלי — חוויית נגינה מלאה לכל הדגמים
 
-## שלב 1 — סכמת מסד נתונים
+### מצב נוכחי (מה כבר בנוי)
+- `VisualOrganInterface` עם ניווט סטים/תיקיות/פריטים, ניגון מדגימות `set_audio_samples`, מועדפים, סל קניות, פריסה סקיאומורפית של Tyros.
+- `useOrganTheme(modelId)` + `OrganUIThemeEditor` באדמין — כל דגם יכול להחליף נראות (top banner, LCD, tabs, hardware buttons, LEDs).
+- 5 דגמים בטבלת `keyboard_models` (ימאהה Sx920 / גנוס / טיירוס 5, קורג 1000 / Pa4x). 2 themes כבר מוגדרים.
+- רוטה `/beat/` מציגה גריד סטים; `/beat/$setId` עמוד מוצר. `KeyboardModelSelector` עובד כבר.
 
-הסרת הטבלאות הישנות (`forum_categories`, `forum_posts`, `forum_comments`) ויצירת סכמה חדשה:
+### מה ייבנה
 
-**היררכיית תוכן:**
-- `forum_categories` — קטגוריות-על (סדר, אייקון, צבע)
-- `forum_boards` — לוחות בתוך קטגוריה (slug, שם, תיאור, היררכיה)
-- `forum_topics` — אשכולות (כותרת, slug, נעול, מוצמד, מחבר, board_id, view_count, last_post_at)
-- `forum_posts` — תגובות (תוכן Markdown, מחבר, ציטוט של post_id, נמחק)
-- `forum_tags` + `forum_topic_tags` — תיוג חוצה-לוחות
-- `forum_post_votes` — Upvote/Downvote
-- `forum_subscriptions` — מעקב אחרי אשכולות/לוחות
-- `forum_reports` — דיווחי משתמשים
-- `forum_moderation_log` — יומן ניהול
-- `forum_user_bans` — השתקות וחסימות
-- `forum_badges` + `forum_user_badges` — באג'ים ידניים
-- `forum_direct_messages` + `forum_dm_threads` — הודעות פרטיות
-- `forum_notifications` — מרכז התראות
+**1. רוטה ייעודית: `/organ` (Virtual Organ Studio)**
+- עמוד מלא־מסך עם רקע כהה־פרימיום, רספונסיבי, RTL.
+- שלב 1: בחירת דגם (גריד כרטיסי `keyboard_models` עם `ui_image_url` כתמונה רקע + שם מותג ומודל). בחירה נשמרת ב-`KeyboardSelectionContext` הקיים.
+- שלב 2: `VisualOrganInterface` נטען עם ה-theme של הדגם הנבחר אוטומטית — כל הויזואל (LEDs, פאנל, צבעים, banner) מגיע מ-`organ_ui_themes`.
+- כפתור "החלף דגם" קבוע למעלה.
 
-**הרחבת `profiles`:**
-- `forum_signature` (text) — חתימה
-- `forum_post_count` (integer)
-- `forum_reputation` (integer)
-- `forum_rank` (text, נגזר אוטומטית)
+**2. שדרוג `VisualOrganInterface` לחוויית נגינה מלאה**
+- **טעינה מהירה**: prefetch של דגימות אודיו בעת ריחוף על סט (`<link rel="preload">` ל-3 הדגימות הראשונות).
+- **Tabs לפי theme**: שימוש ב-`theme.tabs` במקום TABS קשיחים — מאפשר להציג לכל דגם את הלשוניות הנכונות (PRESET/USER/HD1/USB1 וכו').
+- **Keyboard shortcuts**: 1-4 → Main A-D, Q/W/E → Intro 1-3, A/S/D → Fill, Z/X/C → Ending, Space → Stop. הצגת hints קטנים.
+- **מצב נגינה מתמשך (continuous)**: כשמשתמש לוחץ Main A תוך כדי שמתנגן Main B — מעבר חלק (crossfade ~200ms) במקום עצירה.
+- **Now-Playing readout** ב-LCD: שם הסט, שם הפריט, איזה כפתור פעיל, מד זמן.
+- **Quick-buy CTA** באזור התחתון: "קנה את הסט הזה ₪X" — נוסף לסל מבלי לעזוב את חווית הנגינה.
+- **תפריט מועדפים**: צ׳יפ שמסנן ל"⭐ מועדפים בלבד".
+- **היסטוריית נגינה**: עמודה צידית קומפקטית עם 10 הפריטים האחרונים שניגנו (בזיכרון, ללא DB).
+- **מוביל**: layout מתאים — מעל-md פאנל מלא; מתחת-md grid מוקטן עם 2 עמודות וגלילה אופקית לטאבים (עקבי עם תיקון ה-Admin News).
 
-**טריגרים ופונקציות:**
-- `award_reputation()` בעת upvote/downvote
-- `bump_post_count()` ביצירת תגובה
-- `compute_rank()` לפי וותק + מונה
-- `update_topic_last_post_at()` בתגובה חדשה
-- `notify_on_mention()` סורק `@username` ויוצר התראה
-- `notify_on_quote()` ביצירת ציטוט
+**3. אינטגרציה Cross-section**
+- כפתור "🎹 נסה באורגן" ב-`BeatSetProductPage` שמעביר ל-`/organ?set=<id>` ופותח את הסט אוטומטית.
+- ב-`SiteHeader` להוסיף קישור "אורגן וירטואלי" תחת חלק ה-BEAT.
 
-**RLS:**
-- כל הטבלאות: SELECT רק למחוברים
-- INSERT/UPDATE: בעלות + אדמין/מנהל פורום
-- מחיקה רכה (`deleted_at`) במקום DELETE
+**4. SEO + Meta**
+- `<head>` של `/organ` עם title/og ייחודיים בעברית. עמוד עתיר תוכן עם h1 + תיאור קצר של החוויה.
+- structured data של `MusicPlaylist` עבור סטים נטענים.
 
-## שלב 2 — Server Functions
+### שינויי קוד עיקריים (לא־ממצה)
+- חדש: `src/routes/organ.tsx` — רוטה חדשה, רנדר מותנה: בוחר דגם או VisualOrganInterface.
+- שינוי: `src/components/rhythm/VisualOrganInterface.tsx` — הטמעת theme.tabs, keyboard shortcuts, crossfade, now-playing readout, היסטוריה, quick-buy.
+- שינוי: `src/components/rhythm/KeyboardModelSelector.tsx` — גריד עשיר יותר עם תמונת רקע, hover state, count of available sets per model.
+- שינוי: `src/components/SiteHeader.tsx` — קישור חדש.
+- שינוי: `src/components/rhythm/BeatSetProductPage.tsx` — כפתור "נסה באורגן".
 
-תחת `src/lib/forum/`:
-- `boards.functions.ts` — רשימת קטגוריות + לוחות עם ספירת אשכולות/הודעות
-- `topics.functions.ts` — יצירה, רשימה (paginated), נעילה/הצמדה/העברה/מיזוג
-- `posts.functions.ts` — יצירת תגובה, עריכה, מחיקה רכה, הצבעה
-- `search.functions.ts` — חיפוש Full-Text ב-Postgres `tsvector`
-- `moderation.functions.ts` — דיווחים, חסימות, יומן
-- `dm.functions.ts` — שליחת/קריאת הודעות פרטיות
-- `notifications.functions.ts` — סימון נקרא, רשימה
-- `tags.functions.ts` — CRUD תגיות
+### ללא שינויי DB
+כל הטבלאות הדרושות קיימות (`rhythm_sets`, `rhythm_folders`, `rhythm_items`, `set_audio_samples`, `rhythm_item_favorites`, `organ_ui_themes`, `keyboard_models`). אין מיגרציה נדרשת.
 
-כולן עם `requireSupabaseAuth` ו-Zod validation.
-
-## שלב 3 — Realtime
-
-Supabase Realtime על `forum_posts` ו-`forum_notifications`:
-- בדף אשכול — תגובות חדשות מופיעות בזמן אמת
-- מרכז התראות בכותרת מתעדכן מיד
-
-## שלב 4 — מסכי UI
-
-```text
-/forum                              → רשימת קטגוריות ולוחות
-/forum/board/$slug                  → רשימת אשכולות בלוח
-/forum/topic/$slug                  → תצוגת אשכול + תגובות
-/forum/topic/new?board=$slug        → יצירת אשכול חדש
-/forum/tag/$tag                     → אשכולות לפי תגית
-/forum/search?q=...                 → תוצאות חיפוש
-/forum/user/$username               → פרופיל פורום (חתימה, באג'ים, הודעות אחרונות)
-/forum/messages                     → תיבת הודעות פרטיות
-/forum/messages/$threadId           → שיחה
-/forum/notifications                → מרכז התראות
-/forum/moderation                   → לוח מנהלי קהילה (דיווחים + יומן)
-```
-
-**רכיבים מרכזיים** (ב-`src/components/forum/`):
-- `MarkdownEditor` — עורך עם תצוגה מקדימה, הדבקת תמונות, ציטוטים, embeds (YouTube/Twitter)
-- `PostCard` — אווטר, חתימה, ד
+### מחוץ לתחום (להמשך)
+- העלאת דגימות אודיו חדשות לדגמים שאין להם.
+- Style Player אוטומטי (רצף Intro→Main→Fill→Ending).
+- Mixer לשליטה ב-volume/tempo per part.
+- העלאה המונית של themes לכל הדגמים החסרים (אפשר ידנית בעורך הקיים).

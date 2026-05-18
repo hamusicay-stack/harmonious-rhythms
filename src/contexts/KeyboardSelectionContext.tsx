@@ -60,10 +60,12 @@ export function KeyboardSelectionProvider({ children }: { children: ReactNode })
     else localStorage.removeItem(LS_KEY);
   };
 
-  // Keep URL ?model= in sync on /beat routes
+  const syncsUrl = (path: string) => path.startsWith("/beat") || path.startsWith("/organ");
+
+  // Keep URL ?model= in sync on /beat and /organ routes
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!location.pathname.startsWith("/beat")) return;
+    if (!syncsUrl(location.pathname)) return;
     const url = new URL(window.location.href);
     const current = url.searchParams.get("model");
     const target = selectedModel?.id ?? null;
@@ -73,10 +75,10 @@ export function KeyboardSelectionProvider({ children }: { children: ReactNode })
     window.history.replaceState({}, "", url.toString());
   }, [selectedModel, location.pathname]);
 
-  // Reflect external URL changes (navigation between /beat pages with ?model=)
+  // Reflect external URL changes (navigation with ?model=)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!location.pathname.startsWith("/beat")) return;
+    if (!syncsUrl(location.pathname)) return;
     const url = new URL(window.location.href);
     const fromUrl = url.searchParams.get("model");
     if (!fromUrl || fromUrl === selectedModel?.id) return;
