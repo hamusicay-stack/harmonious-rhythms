@@ -107,6 +107,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
 import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/public/marketplace.auto-bump'
+import { Route as AdminCommerceOrdersOrderIdRouteImport } from './routes/admin.commerce.orders.$orderId'
 
 const YtShortsRoute = YtShortsRouteImport.update({
   id: '/yt-shorts',
@@ -609,6 +610,12 @@ const ApiPublicMarketplaceAutoBumpRoute =
     path: '/api/public/marketplace/auto-bump',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminCommerceOrdersOrderIdRoute =
+  AdminCommerceOrdersOrderIdRouteImport.update({
+    id: '/$orderId',
+    path: '/$orderId',
+    getParentRoute: () => AdminCommerceOrdersRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -681,7 +688,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/news': typeof AdminCommerceNewsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
-  '/admin/commerce/orders': typeof AdminCommerceOrdersRoute
+  '/admin/commerce/orders': typeof AdminCommerceOrdersRouteWithChildren
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
@@ -705,6 +712,7 @@ export interface FileRoutesByFullPath {
   '/shop/order/$orderId': typeof ShopOrderOrderIdRoute
   '/admin/commerce/': typeof AdminCommerceIndexRoute
   '/admin/crm/': typeof AdminCrmIndexRoute
+  '/admin/commerce/orders/$orderId': typeof AdminCommerceOrdersOrderIdRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -774,7 +782,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/news': typeof AdminCommerceNewsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
-  '/admin/commerce/orders': typeof AdminCommerceOrdersRoute
+  '/admin/commerce/orders': typeof AdminCommerceOrdersRouteWithChildren
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
@@ -798,6 +806,7 @@ export interface FileRoutesByTo {
   '/shop/order/$orderId': typeof ShopOrderOrderIdRoute
   '/admin/commerce': typeof AdminCommerceIndexRoute
   '/admin/crm': typeof AdminCrmIndexRoute
+  '/admin/commerce/orders/$orderId': typeof AdminCommerceOrdersOrderIdRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -875,7 +884,7 @@ export interface FileRoutesById {
   '/admin/commerce/music-pros': typeof AdminCommerceMusicProsRoute
   '/admin/commerce/news': typeof AdminCommerceNewsRoute
   '/admin/commerce/newsletter': typeof AdminCommerceNewsletterRoute
-  '/admin/commerce/orders': typeof AdminCommerceOrdersRoute
+  '/admin/commerce/orders': typeof AdminCommerceOrdersRouteWithChildren
   '/admin/commerce/organ-ui': typeof AdminCommerceOrganUiRoute
   '/admin/commerce/product-types': typeof AdminCommerceProductTypesRoute
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
@@ -899,6 +908,7 @@ export interface FileRoutesById {
   '/shop/order/$orderId': typeof ShopOrderOrderIdRoute
   '/admin/commerce/': typeof AdminCommerceIndexRoute
   '/admin/crm/': typeof AdminCrmIndexRoute
+  '/admin/commerce/orders/$orderId': typeof AdminCommerceOrdersOrderIdRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -1001,6 +1011,7 @@ export interface FileRouteTypes {
     | '/shop/order/$orderId'
     | '/admin/commerce/'
     | '/admin/crm/'
+    | '/admin/commerce/orders/$orderId'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1094,6 +1105,7 @@ export interface FileRouteTypes {
     | '/shop/order/$orderId'
     | '/admin/commerce'
     | '/admin/crm'
+    | '/admin/commerce/orders/$orderId'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1194,6 +1206,7 @@ export interface FileRouteTypes {
     | '/shop/order/$orderId'
     | '/admin/commerce/'
     | '/admin/crm/'
+    | '/admin/commerce/orders/$orderId'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1922,6 +1935,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMarketplaceAutoBumpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/commerce/orders/$orderId': {
+      id: '/admin/commerce/orders/$orderId'
+      path: '/$orderId'
+      fullPath: '/admin/commerce/orders/$orderId'
+      preLoaderRoute: typeof AdminCommerceOrdersOrderIdRouteImport
+      parentRoute: typeof AdminCommerceOrdersRoute
+    }
   }
 }
 
@@ -1938,6 +1958,17 @@ const AcademyRouteChildren: AcademyRouteChildren = {
 const AcademyRouteWithChildren =
   AcademyRoute._addFileChildren(AcademyRouteChildren)
 
+interface AdminCommerceOrdersRouteChildren {
+  AdminCommerceOrdersOrderIdRoute: typeof AdminCommerceOrdersOrderIdRoute
+}
+
+const AdminCommerceOrdersRouteChildren: AdminCommerceOrdersRouteChildren = {
+  AdminCommerceOrdersOrderIdRoute: AdminCommerceOrdersOrderIdRoute,
+}
+
+const AdminCommerceOrdersRouteWithChildren =
+  AdminCommerceOrdersRoute._addFileChildren(AdminCommerceOrdersRouteChildren)
+
 interface AdminCommerceRouteChildren {
   AdminCommerceAcademyRoute: typeof AdminCommerceAcademyRoute
   AdminCommerceAcademyAnalyticsRoute: typeof AdminCommerceAcademyAnalyticsRoute
@@ -1953,7 +1984,7 @@ interface AdminCommerceRouteChildren {
   AdminCommerceMusicProsRoute: typeof AdminCommerceMusicProsRoute
   AdminCommerceNewsRoute: typeof AdminCommerceNewsRoute
   AdminCommerceNewsletterRoute: typeof AdminCommerceNewsletterRoute
-  AdminCommerceOrdersRoute: typeof AdminCommerceOrdersRoute
+  AdminCommerceOrdersRoute: typeof AdminCommerceOrdersRouteWithChildren
   AdminCommerceOrganUiRoute: typeof AdminCommerceOrganUiRoute
   AdminCommerceProductTypesRoute: typeof AdminCommerceProductTypesRoute
   AdminCommerceShopRoute: typeof AdminCommerceShopRoute
@@ -1976,7 +2007,7 @@ const AdminCommerceRouteChildren: AdminCommerceRouteChildren = {
   AdminCommerceMusicProsRoute: AdminCommerceMusicProsRoute,
   AdminCommerceNewsRoute: AdminCommerceNewsRoute,
   AdminCommerceNewsletterRoute: AdminCommerceNewsletterRoute,
-  AdminCommerceOrdersRoute: AdminCommerceOrdersRoute,
+  AdminCommerceOrdersRoute: AdminCommerceOrdersRouteWithChildren,
   AdminCommerceOrganUiRoute: AdminCommerceOrganUiRoute,
   AdminCommerceProductTypesRoute: AdminCommerceProductTypesRoute,
   AdminCommerceShopRoute: AdminCommerceShopRoute,
