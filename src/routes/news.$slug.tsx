@@ -284,7 +284,7 @@ function NewsArticlePage() {
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4 scrollbar-thin">
             {relatedListings.slice(0, 6).map((l) => (
               <div key={l.id} className="min-w-[260px] max-w-[280px] snap-start">
-                <MarketplaceListingCard listing={l} />
+                <MarketplaceListingCard listing={l} isBusiness={false} isTrusted={false} />
               </div>
             ))}
           </div>
