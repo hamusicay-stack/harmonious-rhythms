@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { friendlyError } from "@/lib/errors";
 import { sanitizeHtml } from "@/lib/sanitize";
-import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X, Plus } from "lucide-react";
+import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X, Plus, Sparkles } from "lucide-react";
+import { NewsSourcesManager } from "@/components/admin/NewsSourcesManager";
+import { AIPendingQueue } from "@/components/admin/AIPendingQueue";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
