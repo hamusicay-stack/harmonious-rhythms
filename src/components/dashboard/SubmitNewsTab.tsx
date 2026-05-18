@@ -127,6 +127,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
 
       toast.success("הכתבה נשלחה למערכת ותעלה לאחר אישור עורך קצר! 📄");
       reset();
+      setCooldown(3);
     } catch (err: any) {
       console.error(err);
       toast.error(err?.message ?? "שגיאה בשליחת הכתבה");
@@ -263,14 +264,16 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
           </Button>
           <Button
             type="submit"
-            disabled={submitting}
-            className="bg-gold text-gold-foreground hover:bg-gold/90 min-w-[140px]"
+            disabled={submitting || cooldown > 0}
+            className="bg-gold text-gold-foreground hover:bg-gold/90 min-w-[140px] disabled:opacity-60"
           >
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin ml-2" />
                 שולח...
               </>
+            ) : cooldown > 0 ? (
+              `המתן ${cooldown}s...`
             ) : (
               "שלח לאישור"
             )}
