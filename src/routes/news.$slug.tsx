@@ -47,6 +47,17 @@ function formatDate(iso: string) {
   }
 }
 
+function resolveEmbed(url: string): { kind: "iframe" | "video"; src: string } | null {
+  if (!url) return null;
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+  if (yt) return { kind: "iframe", src: `https://www.youtube.com/embed/${yt[1]}` };
+  const vimeo = url.match(/vimeo\.com\/(\d+)/i);
+  if (vimeo) return { kind: "iframe", src: `https://player.vimeo.com/video/${vimeo[1]}` };
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(url)) return { kind: "video", src: url };
+  if (/^https?:\/\/.+\/embed\//i.test(url)) return { kind: "iframe", src: url };
+  return null;
+}
+
 function NewsArticlePage() {
   const { slug } = useParams({ from: "/news/$slug" });
   const [article, setArticle] = useState<Article | null>(null);
