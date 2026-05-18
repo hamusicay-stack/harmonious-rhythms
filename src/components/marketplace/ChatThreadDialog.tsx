@@ -143,8 +143,39 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length]);
 
+  const ensureThread = async (): Promise<string | null> => {
+    if (!user || user.id === sellerId) return null;
+    if (threadId) return threadId;
+    const buyerId = user.id;
+    const { data: existing, error: findErr } = await supabase
+      .from("marketplace_chat_threads")
+      .select("id")
+      .eq("listing_id", listingId)
+      .eq("buyer_id", buyerId)
+      .maybeSingle();
+    if (findErr) {
+      console.error("Chat Thread Lookup Error:", findErr);
+    }
+    if (existing?.id) {
+      setThreadId(existing.id);
+      return existing.id;
+    }
+    const { data: created, error: createErr } = await supabase
+      .from("marketplace_chat_threads")
+      .insert({ listing_id: listingId, buyer_id: buyerId, seller_id: sellerId })
+      .select("id")
+      .single();
+    if (createErr || !created) {
+      console.error("Chat Thread Create Error:", createErr);
+      toast.error(createErr?.message ? `לא הצלחנו לפתוח שיחה: ${createErr.message}` : "לא הצלחנו לפתוח שיחה");
+      return null;
+    }
+    setThreadId(created.id);
+    return created.id;
+  };
+
   const send = async () => {
-    if (!user || !threadId || !body.trim()) return;
+    if (!user || !body.trim()) return;
 
     // Anti-spam throttle
     const now = Date.now();
@@ -158,23 +189,35 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
     }
 
     setSending(true);
-    const text = body.trim().slice(0, 2000);
-    const { error } = await supabase.from("marketplace_chat_messages").insert({
-      thread_id: threadId,
-      sender_id: user.id,
-      body: text,
-    });
-    setSending(false);
-    if (error) {
-      if (error.message?.includes("BLOCKED")) {
-        toast.error("לא ניתן לשלוח — אחד הצדדים חסם את השני");
-      } else {
-        toast.error("שליחה נכשלה");
+    try {
+      const tid = await ensureThread();
+      if (!tid) {
+        setSending(false);
+        return;
       }
-      return;
+      const text = body.trim().slice(0, 2000);
+      const { error } = await supabase.from("marketplace_chat_messages").insert({
+        thread_id: tid,
+        sender_id: user.id,
+        body: text,
+      });
+      if (error) {
+        console.error("Chat Send Error:", error, { thread_id: tid, sender_id: user.id });
+        if (error.message?.includes("BLOCKED")) {
+          toast.error("לא ניתן לשלוח — אחד הצדדים חסם את השני");
+        } else {
+          toast.error(`שליחה נכשלה: ${error.message ?? "שגיאה לא ידועה"}`);
+        }
+        return;
+      }
+      setSendTimes([...recent, now]);
+      setBody("");
+    } catch (e) {
+      console.error("Chat Send Exception:", e);
+      toast.error("שליחה נכשלה — שגיאה לא צפויה");
+    } finally {
+      setSending(false);
     }
-    setSendTimes([...recent, now]);
-    setBody("");
   };
 
   const blockOther = async () => {
