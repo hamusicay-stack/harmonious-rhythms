@@ -29,6 +29,8 @@ const navItems = [
   { to: "/academy", label: "אקדמיה" },
   { to: "/marketplace", label: "יד שנייה" },
   { to: "/pros", label: "מוזיקאים" },
+  { to: "/news", label: "חדשות המוזיקה" },
+  { to: "/wiki", label: "ויזיקאי" },
   { to: "/leaderboard", label: "לוח הישגים" },
   { to: "/tools", label: "כלים" },
   { to: "/about", label: "אודות" },
