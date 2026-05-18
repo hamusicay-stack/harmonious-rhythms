@@ -161,16 +161,33 @@ function ProfilePage() {
   );
 }
 
-function Yad2Section({ userId, email }: { userId: string; email: string }) {
-  const [sub, setSub] = useState<"listings" | "business">("listings");
+function Yad2Section({
+  userId,
+  email,
+  initialSubTab,
+  openReviewForListing,
+}: {
+  userId: string;
+  email: string;
+  initialSubTab?: string | null;
+  openReviewForListing?: string | null;
+}) {
+  type Sub = "listings" | "purchases" | "business";
+  const validSubs: Sub[] = ["listings", "purchases", "business"];
+  const initial: Sub = validSubs.includes(initialSubTab as Sub) ? (initialSubTab as Sub) : "listings";
+  const [sub, setSub] = useState<Sub>(initial);
   return (
-    <Tabs value={sub} onValueChange={(v) => setSub(v as "listings" | "business")} dir="rtl">
-      <TabsList className="grid w-full grid-cols-2">
+    <Tabs value={sub} onValueChange={(v) => setSub(v as Sub)} dir="rtl">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="listings" className="gap-1"><Tags className="h-4 w-4" />המודעות שלי</TabsTrigger>
+        <TabsTrigger value="purchases" className="gap-1"><ShieldCheck className="h-4 w-4" />הקניות שלי</TabsTrigger>
         <TabsTrigger value="business" className="gap-1"><Building2 className="h-4 w-4" />עסקי</TabsTrigger>
       </TabsList>
       <TabsContent value="listings" className="mt-4">
         <MyListingsTab userId={userId} />
+      </TabsContent>
+      <TabsContent value="purchases" className="mt-4">
+        <MyPurchasesTab userId={userId} autoOpenReviewForListing={openReviewForListing ?? null} />
       </TabsContent>
       <TabsContent value="business" className="mt-4">
         <BusinessSellerTab userId={userId} email={email} />
