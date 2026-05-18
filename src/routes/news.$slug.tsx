@@ -71,7 +71,7 @@ function NewsArticlePage() {
       setLoading(true);
       const { data } = await (supabase as any)
         .from("music_news")
-        .select("id,title,slug,summary,content,image_url,category,author_id,short_video_id,views_count,created_at")
+        .select("id,title,slug,summary,content,image_url,video_url,category,author_id,short_video_id,views_count,created_at")
         .eq("slug", slug)
         .eq("approval_status", "approved")
         .maybeSingle();
