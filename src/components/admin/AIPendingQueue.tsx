@@ -300,6 +300,21 @@ export function AIPendingQueue() {
                 maxLength={180}
                 className="mt-1 bg-background/60 border-gold/20"
               />
+            <div>
+              <Label className="text-sm">קטגוריה (ניתן לבחור או להקליד חדשה)</Label>
+              <Input
+                list="admin-news-category-options"
+                value={editCategory}
+                onChange={(e) => setEditCategory(e.target.value)}
+                maxLength={60}
+                placeholder="לדוגמה: תוכנה ופלאגינים"
+                className="mt-1 bg-background/60 border-gold/20"
+              />
+              <datalist id="admin-news-category-options">
+                {knownCategories.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
             <div>
               <Label className="text-sm">תקציר SEO</Label>
