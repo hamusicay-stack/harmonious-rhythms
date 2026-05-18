@@ -195,6 +195,16 @@ export function MyListingsTab({ userId }: { userId: string }) {
                         <PackageCheck className="h-3 w-3" />סמן כנמכר
                       </Button>
                     )}
+                    {l.status === "approved" && !l.is_sold && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setTakeDownFor(l); }}
+                        className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 hover:text-amber-700 dark:text-amber-400"
+                      >
+                        <EyeOff className="h-3 w-3" />הורד מודעה מהאוויר
+                      </Button>
+                    )}
                     <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
                       <Button size="sm" variant="outline">צפה</Button>
                     </Link>
