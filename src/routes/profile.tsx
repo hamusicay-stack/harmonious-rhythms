@@ -12,7 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Save, User as UserIcon, Tags, Heart, Building2, Eye, Bell,
-  Music2, Pencil, ShoppingBag, GraduationCap, Sparkles, Piano, Crown, Coins, Bookmark,
+  Music2, Pencil, ShoppingBag, GraduationCap, Sparkles, Piano, Crown, Coins, Bookmark, Newspaper,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +34,7 @@ import { PublicProfileTab } from "@/components/dashboard/PublicProfileTab";
 import { AccountSettingsTab } from "@/components/dashboard/AccountSettingsTab";
 import { BookmarksTab } from "@/components/dashboard/BookmarksTab";
 import { MyPurchasesTab } from "@/components/dashboard/MyPurchasesTab";
+import { SubmitNewsTab } from "@/components/dashboard/SubmitNewsTab";
 import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -96,6 +97,7 @@ function ProfilePage() {
             <TabsTrigger value="yad2" className="gap-1"><Tags className="h-4 w-4" />יד 2</TabsTrigger>
             <TabsTrigger value="pro" className="gap-1"><Music2 className="h-4 w-4" />האינדקס שלי</TabsTrigger>
             <TabsTrigger value="social" className="gap-1"><Heart className="h-4 w-4" />פעילות</TabsTrigger>
+            <TabsTrigger value="submit-news" className="gap-1"><Newspaper className="h-4 w-4" />פרסם כתבה</TabsTrigger>
             <TabsTrigger value="affiliate" className="gap-1"><Sparkles className="h-4 w-4" />שותף</TabsTrigger>
           </TabsList>
 
@@ -150,6 +152,10 @@ function ProfilePage() {
 
           <TabsContent value="social" className="mt-6">
             <SocialActivityTab userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="submit-news" className="mt-6">
+            <SubmitNewsTab userId={user.id} />
           </TabsContent>
 
           <TabsContent value="affiliate" className="mt-6">
