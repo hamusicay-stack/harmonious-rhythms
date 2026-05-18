@@ -95,7 +95,8 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
       // Render HTML → canvas → real PDF (Hebrew preserved as raster).
       const container = document.createElement("div");
       container.style.cssText = "position:fixed;left:-99999px;top:0;width:794px;background:#fff;";
-      container.innerHTML = html.replace(/<script[\s\S]*?<\/script>/g, "");
+      const { sanitizeHtml } = await import("@/lib/sanitize");
+      container.innerHTML = sanitizeHtml(html);
       document.body.appendChild(container);
       try {
         const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([

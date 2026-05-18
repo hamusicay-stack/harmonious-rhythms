@@ -286,7 +286,7 @@ function WikiArticlePage() {
               prose-strong:text-amber-200
               prose-li:marker:text-amber-400
             "
-            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(bodyHtml) }}
           />
 
           {/* Conversion footers */}

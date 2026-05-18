@@ -269,7 +269,7 @@ function NewsArticlePage() {
             prose-li:text-foreground/90
             prose-img:rounded-xl prose-img:ring-1 prose-img:ring-gold/20
             bg-card/30 ring-1 ring-border rounded-xl p-6 sm:p-8 backdrop-blur-sm"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
         />
       </article>
 

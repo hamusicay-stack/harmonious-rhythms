@@ -331,7 +331,7 @@ export function NewsManager() {
           )}
           <div
             className="prose prose-invert max-w-none prose-headings:text-gold prose-strong:text-gold prose-a:text-gold"
-            dangerouslySetInnerHTML={{ __html: previewing?.content ?? "" }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewing?.content ?? "") }}
           />
         </DialogContent>
       </Dialog>
