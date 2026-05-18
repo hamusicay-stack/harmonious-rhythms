@@ -8,27 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-const CATEGORIES = [
-  { value: "singles", label: "סינגלים חדשים" },
-  { value: "albums", label: "השקות אלבומים" },
-  { value: "events", label: "אירועים" },
-  { value: "gear_reviews", label: "סיקורי ציוד" },
-  { value: "interviews", label: "ראיונות" },
-] as const;
-
-type Category = (typeof CATEGORIES)[number]["value"];
+const SUGGESTED_CATEGORIES = [
+  "סינגלים חדשים",
+  "השקות אלבומים",
+  "אירועים",
+  "סיקורי ציוד",
+  "ראיונות",
+  "תוכנה ופלאגינים",
+  "תעשיית המוזיקה",
+];
 
 const schema = z.object({
   title: z.string().trim().min(3, "כותרת חייבת להיות לפחות 3 תווים").max(180),
-  category: z.enum(["singles", "albums", "events", "gear_reviews", "interviews"]),
+  category: z.string().trim().min(2, "יש לבחור או להזין קטגוריה").max(60),
   summary: z.string().trim().max(500).optional(),
   content: z.string().trim().min(20, "התוכן קצר מדי").max(50000),
   short_video_id: z.string().uuid().optional().or(z.literal("")),
@@ -46,7 +39,22 @@ function slugify(title: string) {
 
 export function SubmitNewsTab({ userId }: { userId: string }) {
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<Category>("singles");
+  const [category, setCategory] = useState<string>("סינגלים חדשים");
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("music_news")
+        .select("category")
+        .eq("approval_status", "approved")
+        .limit(500);
+      const uniq = Array.from(
+        new Set([...(data ?? []).map((r: any) => r.category).filter(Boolean), ...SUGGESTED_CATEGORIES]),
+      ) as string[];
+      setExistingCategories(uniq);
+    })();
+  }, []);
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [shortVideoId, setShortVideoId] = useState("");
@@ -79,7 +87,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
     setShortVideoId("");
     setCoverFile(null);
     setCoverPreview(null);
-    setCategory("singles");
+    setCategory("סינגלים חדשים");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -172,18 +180,20 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
             <Label className="text-sm">
               קטגוריה <span className="text-gold">*</span>
             </Label>
-            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
-              <SelectTrigger className="mt-1.5 bg-background/60 border-gold/20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              list="news-category-options"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              maxLength={60}
+              placeholder="בחר או הקלד קטגוריה חדשה"
+              className="mt-1.5 bg-background/60 border-gold/20 focus-visible:ring-gold/40"
+              required
+            />
+            <datalist id="news-category-options">
+              {existingCategories.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
           </div>
 
           <div>

@@ -61,6 +61,8 @@ export function AIPendingQueue() {
   const [editTitle, setEditTitle] = useState("");
   const [editSummary, setEditSummary] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [knownCategories, setKnownCategories] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -81,6 +83,15 @@ export function AIPendingQueue() {
 
   useEffect(() => {
     load();
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("music_news")
+        .select("category")
+        .limit(500);
+      setKnownCategories(
+        Array.from(new Set((data ?? []).map((r: any) => r.category).filter(Boolean))) as string[],
+      );
+    })();
   }, []);
 
   const approve = async (a: Article) => {
@@ -116,6 +127,7 @@ export function AIPendingQueue() {
     setEditTitle(a.title);
     setEditSummary(a.summary ?? "");
     setEditContent(a.content);
+    setEditCategory(a.category ?? "");
   };
 
   const saveEdit = async () => {
@@ -127,6 +139,7 @@ export function AIPendingQueue() {
         title: editTitle,
         summary: editSummary || null,
         content: editContent,
+        category: editCategory.trim() || editing.category,
       })
       .eq("id", editing.id);
     setSaving(false);
@@ -135,11 +148,15 @@ export function AIPendingQueue() {
       return;
     }
     toast.success("הטקסט עודכן ✍️");
+    const newCat = editCategory.trim() || editing.category;
     setItems((p) =>
       p.map((x) =>
-        x.id === editing.id ? { ...x, title: editTitle, summary: editSummary, content: editContent } : x,
+        x.id === editing.id
+          ? { ...x, title: editTitle, summary: editSummary, content: editContent, category: newCat }
+          : x,
       ),
     );
+    setKnownCategories((prev) => (prev.includes(newCat) ? prev : [...prev, newCat]));
     setEditing(null);
   };
 
@@ -283,6 +300,22 @@ export function AIPendingQueue() {
                 maxLength={180}
                 className="mt-1 bg-background/60 border-gold/20"
               />
+            </div>
+            <div>
+              <Label className="text-sm">קטגוריה (ניתן לבחור או להקליד חדשה)</Label>
+              <Input
+                list="admin-news-category-options"
+                value={editCategory}
+                onChange={(e) => setEditCategory(e.target.value)}
+                maxLength={60}
+                placeholder="לדוגמה: תוכנה ופלאגינים"
+                className="mt-1 bg-background/60 border-gold/20"
+              />
+              <datalist id="admin-news-category-options">
+                {knownCategories.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
             <div>
               <Label className="text-sm">תקציר SEO</Label>

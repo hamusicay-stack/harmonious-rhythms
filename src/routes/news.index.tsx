@@ -23,19 +23,21 @@ type NewsRow = {
   slug: string;
   summary: string | null;
   image_url: string | null;
-  category: "singles" | "albums" | "events" | "gear_reviews" | "interviews";
+  category: string;
   is_featured: boolean | null;
   views_count: number | null;
   created_at: string;
 };
 
-const CATEGORY_LABELS: Record<NewsRow["category"], string> = {
+const CATEGORY_LABELS: Record<string, string> = {
   singles: "סינגלים חדשים",
   albums: "השקות אלבומים",
   events: "אירועים",
   gear_reviews: "סיקורי ציוד",
   interviews: "ראיונות",
 };
+
+const labelFor = (c: string) => CATEGORY_LABELS[c] ?? c;
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1600&q=70";
@@ -51,7 +53,7 @@ function formatDate(iso: string) {
 function NewsIndexPage() {
   const [rows, setRows] = useState<NewsRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<NewsRow["category"] | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -117,7 +119,7 @@ function NewsIndexPage() {
                   className="mb-3 border-gold/60 text-gold bg-black/40 backdrop-blur-sm"
                 >
                   <Sparkles className="h-3 w-3 ml-1" />
-                  כתבה נבחרת · {CATEGORY_LABELS[featured.category]}
+                  כתבה נבחרת · {labelFor(featured.category)}
                 </Badge>
                 <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-gradient-gold leading-tight max-w-3xl">
                   {featured.title}
@@ -136,9 +138,9 @@ function NewsIndexPage() {
           </Link>
         )}
 
-        {/* Filter pills */}
-        <div className="mt-10 mb-6 flex flex-wrap gap-2">
-          {(["all", "singles", "albums", "events", "gear_reviews", "interviews"] as const).map((c) => {
+        {/* Filter pills — dynamic, scrollable */}
+        <div className="mt-10 mb-6 -mx-2 px-2 flex gap-2 overflow-x-auto scrollbar-thin [scrollbar-width:thin] touch-pan-x">
+          {(["all", ...Array.from(new Set(rows.map((r) => r.category))).filter(Boolean).sort()]).map((c) => {
             const isActive = activeCategory === c;
             return (
               <Button
@@ -147,12 +149,13 @@ function NewsIndexPage() {
                 variant={isActive ? "default" : "outline"}
                 onClick={() => setActiveCategory(c)}
                 className={
-                  isActive
+                  "shrink-0 " +
+                  (isActive
                     ? "rounded-full bg-gold text-gold-foreground hover:bg-gold/90 border-gold"
-                    : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60"
+                    : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60")
                 }
               >
-                {c === "all" ? "הכל" : CATEGORY_LABELS[c]}
+                {c === "all" ? "הכל" : labelFor(c)}
               </Button>
             );
           })}
@@ -191,7 +194,7 @@ function NewsIndexPage() {
                     variant="outline"
                     className="absolute top-3 right-3 border-gold/60 text-gold bg-black/50 backdrop-blur-sm text-[10px]"
                   >
-                    {CATEGORY_LABELS[r.category]}
+                    {labelFor(r.category)}
                   </Badge>
                 </div>
                 <div className="flex-1 flex flex-col p-5">
