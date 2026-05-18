@@ -26,7 +26,11 @@ export const Route = createFileRoute("/wiki/")({
       { property: "og:description", content: "חפש מושג, כלי או אמן. הכל במקום אחד." },
     ],
   }),
-  component: WikiIndexPage,
+  component: () => (
+    <SiteLayout>
+      <WikiIndexPage />
+    </SiteLayout>
+  ),
 });
 
 type WikiRow = {
