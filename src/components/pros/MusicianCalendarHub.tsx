@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronRight, ChevronLeft, Plus, Loader2, CalendarDays, Sparkles, Lock, Trash2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Plus, Loader2, CalendarDays, Sparkles, Lock, Trash2, Crown, Check, Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+
+type TierRow = {
+  id: string;
+  slug: string;
+  name: string;
+  rank: number;
+  is_vip: boolean;
+  description: string | null;
+  discount_percent: number | null;
+  shop_discount_percent: number | null;
+  academy_discount_percent: number | null;
+  marketplace_free_boosts: number | null;
+  beat_access: boolean | null;
+};
 
 type CalendarEvent = {
   id: string;
@@ -46,13 +61,32 @@ export function MusicianCalendarHub() {
   const [addingDate, setAddingDate] = useState<string>(ymd(new Date()));
   const [form, setForm] = useState({ title: "", description: "", start_time: "", end_time: "", event_type: "private" });
   const [saving, setSaving] = useState(false);
+  const [currentTier, setCurrentTier] = useState<TierRow | null>(null);
+  const [allTiers, setAllTiers] = useState<TierRow[]>([]);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
-  // Locate the music_pro row owned by the current user
+  const canAddManual = !!currentTier?.is_vip;
+
+  // Locate the music_pro row owned by the current user + load tier matrix
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("music_pros").select("id").eq("user_id", user.id).maybeSingle();
       setProId(data?.id ?? null);
+    })();
+    (async () => {
+      const { data: tiers } = await (supabase as never as {
+        from: (t: string) => { select: (c: string) => { order: (c: string, o: { ascending: boolean }) => Promise<{ data: TierRow[] | null }> } };
+      }).from("subscription_tiers").select("*").order("rank", { ascending: true });
+      setAllTiers(tiers ?? []);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("global_subscription_tier_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      const tierId = (prof as { global_subscription_tier_id?: string | null } | null)?.global_subscription_tier_id;
+      const found = (tiers ?? []).find((t) => t.id === tierId) ?? (tiers ?? []).find((t) => t.slug === "free") ?? null;
+      setCurrentTier(found);
     })();
   }, [user]);
 
@@ -101,6 +135,7 @@ export function MusicianCalendarHub() {
   }, [cursor]);
 
   const openAddDialog = (dateStr: string) => {
+    if (!canAddManual) { setPaywallOpen(true); return; }
     setAddingDate(dateStr);
     setForm({ title: "", description: "", start_time: "", end_time: "", event_type: "private" });
     setAddOpen(true);
@@ -108,6 +143,7 @@ export function MusicianCalendarHub() {
 
   const saveManualEvent = async () => {
     if (!user || !proId) { toast.error("יש להגדיר פרופיל מוזיקאי תחילה"); return; }
+    if (!canAddManual) { setAddOpen(false); setPaywallOpen(true); return; }
     if (!form.title.trim()) { toast.error("הזן כותרת לאירוע"); return; }
     setSaving(true);
     const payload = {
@@ -184,8 +220,19 @@ export function MusicianCalendarHub() {
             <Button size="sm" variant="outline" onClick={() => { const d = new Date(); d.setDate(1); setCursor(d); }}>
               היום
             </Button>
-            <Button size="sm" onClick={() => openAddDialog(today)} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
-              <Plus className="ml-1 h-4 w-4" /> הוסף אירוע ידני
+            <Button
+              size="sm"
+              onClick={() => openAddDialog(today)}
+              className={cn(
+                "text-black hover:brightness-110",
+                canAddManual
+                  ? "bg-gradient-to-br from-amber-400 to-amber-600"
+                  : "bg-gradient-to-br from-slate-500/60 to-slate-700/60 text-amber-100 ring-1 ring-amber-400/40",
+              )}
+              title={canAddManual ? "הוסף אירוע ידני" : "דורש מנוי פרימיום / VIP"}
+            >
+              {canAddManual ? <Plus className="ml-1 h-4 w-4" /> : <Crown className="ml-1 h-4 w-4 text-amber-300" />}
+              הוסף אירוע ידני
             </Button>
           </div>
         </div>
@@ -197,6 +244,22 @@ export function MusicianCalendarHub() {
           <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-500/40 bg-slate-500/10 px-2.5 py-1 text-slate-200">
             <Lock className="h-3 w-3" /> אירועים פרטיים · {extCount}
           </span>
+          {currentTier && (
+            <span className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ring-1",
+              currentTier.is_vip
+                ? "bg-amber-500/10 ring-amber-400/50 text-amber-200"
+                : "bg-slate-500/10 ring-slate-500/40 text-slate-300",
+            )}>
+              {currentTier.is_vip ? <Crown className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+              דרגה: {currentTier.name}
+              {!currentTier.is_vip && (
+                <button onClick={() => setPaywallOpen(true)} className="underline-offset-2 hover:underline text-amber-300 mr-1">
+                  שדרג
+                </button>
+              )}
+            </span>
+          )}
           {loading && <span className="inline-flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> טוען…</span>}
         </div>
       </div>
@@ -328,6 +391,83 @@ export function MusicianCalendarHub() {
             <Button onClick={saveManualEvent} disabled={saving} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
               {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}
               שמור ביומן
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Paywall dialog — uses existing subscription_tiers matrix */}
+      <Dialog open={paywallOpen} onOpenChange={setPaywallOpen}>
+        <DialogContent dir="rtl" className="max-w-2xl border-amber-400/30 bg-gradient-to-br from-background/95 via-background/90 to-amber-950/20 backdrop-blur-2xl shadow-[0_20px_80px_-20px_rgba(251,191,36,0.35)]">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-amber-600 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/30">
+                <Crown className="h-6 w-6 text-black" />
+              </div>
+              <div className="text-right">
+                <DialogTitle className="text-right text-xl">שדרוג נדרש · אירועים פרטיים ביומן</DialogTitle>
+                <DialogDescription className="text-right text-xs">
+                  הוספת אירועים חיצוניים זמינה למנויי <b className="text-amber-300">פרימיום</b> ו-<b className="text-amber-300">VIP</b> בלבד.
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+            {allTiers.map((t) => {
+              const isCurrent = currentTier?.id === t.id;
+              const benefits: string[] = [];
+              if (t.shop_discount_percent) benefits.push(`${t.shop_discount_percent}% הנחה בחנות`);
+              if (t.academy_discount_percent) benefits.push(`${t.academy_discount_percent}% הנחה באקדמיה`);
+              if (t.marketplace_free_boosts) benefits.push(`${t.marketplace_free_boosts} בוסטים חינם ביד 2`);
+              if (t.beat_access) benefits.push("גישה ל-Beat / Smart Rhythms");
+              if (t.is_vip) benefits.push("יומן אירועים פרטי + ניהול חפיפות");
+              return (
+                <div
+                  key={t.id}
+                  className={cn(
+                    "relative rounded-2xl border p-4 backdrop-blur-md transition-all",
+                    t.is_vip
+                      ? "border-amber-400/50 bg-gradient-to-br from-amber-500/[0.08] to-amber-900/10 shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]"
+                      : "border-border/60 bg-card/40",
+                    isCurrent && "ring-2 ring-amber-300/70",
+                  )}
+                >
+                  {isCurrent && (
+                    <span className="absolute top-2 left-2 rounded-full bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5">
+                      הדרגה שלך
+                    </span>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {t.is_vip ? <Crown className="h-4 w-4 text-amber-300" /> : <Star className="h-4 w-4 text-muted-foreground" />}
+                      <span className="font-bold text-base">{t.name}</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">rank {t.rank}</span>
+                  </div>
+                  {benefits.length > 0 ? (
+                    <ul className="mt-3 space-y-1.5 text-[12px] text-right">
+                      {benefits.map((b, i) => (
+                        <li key={i} className="flex items-start gap-1.5 justify-end">
+                          <span className="leading-tight">{b}</span>
+                          <Check className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", t.is_vip ? "text-amber-300" : "text-muted-foreground")} />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-3 text-[12px] text-muted-foreground">הטבות בסיסיות</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="sm:justify-between gap-2 mt-3">
+            <Button variant="outline" onClick={() => setPaywallOpen(false)}>סגור</Button>
+            <Button asChild className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
+              <Link to="/profile" search={{ tab: "subscription" } as never}>
+                <Crown className="ml-2 h-4 w-4" /> שדרג עכשיו
+              </Link>
             </Button>
           </DialogFooter>
         </DialogContent>
