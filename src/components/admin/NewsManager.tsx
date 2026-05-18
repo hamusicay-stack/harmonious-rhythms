@@ -623,7 +623,7 @@ export function NewsManager() {
 
       {/* Edit dialog */}
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent dir="rtl" className="max-w-3xl">
+        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">עריכת כתבה</DialogTitle>
           </DialogHeader>
@@ -684,14 +684,14 @@ export function NewsManager() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setEditing(null)} className="w-full sm:w-auto">
               ביטול
             </Button>
             <Button
               onClick={saveEdit}
               disabled={savingEdit}
-              className="bg-gold text-gold-foreground hover:bg-gold/90"
+              className="bg-gold text-gold-foreground hover:bg-gold/90 w-full sm:w-auto"
             >
               {savingEdit ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
               שמור שינויים
@@ -702,7 +702,7 @@ export function NewsManager() {
 
       {/* Create new article dialog (admin instant publish) */}
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); resetCreate(); } }}>
-        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">כתבה חדשה — פרסום מיידי</DialogTitle>
           </DialogHeader>
@@ -765,14 +765,14 @@ export function NewsManager() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setCreateOpen(false); resetCreate(); }}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => { setCreateOpen(false); resetCreate(); }} className="w-full sm:w-auto">
               ביטול
             </Button>
             <Button
               onClick={createArticle}
               disabled={creating}
-              className="bg-gold text-gold-foreground hover:bg-gold/90"
+              className="bg-gold text-gold-foreground hover:bg-gold/90 w-full sm:w-auto"
             >
               {creating ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
               פרסם עכשיו
