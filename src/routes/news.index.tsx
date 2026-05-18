@@ -194,7 +194,7 @@ function NewsIndexPage() {
                     variant="outline"
                     className="absolute top-3 right-3 border-gold/60 text-gold bg-black/50 backdrop-blur-sm text-[10px]"
                   >
-                    {CATEGORY_LABELS[r.category]}
+                    {labelFor(r.category)}
                   </Badge>
                 </div>
                 <div className="flex-1 flex flex-col p-5">
