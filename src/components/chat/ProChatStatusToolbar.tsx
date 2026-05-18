@@ -60,7 +60,7 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
       setLoading(true);
       const { data, error } = await supabase
         .from("music_pro_inquiries")
-        .select("id, status")
+        .select("id, status, event_date")
         .eq("pro_id", proId)
         .eq("sender_id", clientUserId)
         .order("created_at", { ascending: false })
@@ -70,6 +70,7 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
       if (error) console.error("inquiry lookup", error);
       setInquiryId(data?.id ?? null);
       setStatus((data?.status as InquiryStatus) ?? null);
+      setEventDate((data?.event_date as string | null) ?? null);
       setLoading(false);
     })();
     return () => { cancelled = true; };
