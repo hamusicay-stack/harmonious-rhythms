@@ -127,6 +127,7 @@ export function AIPendingQueue() {
     setEditTitle(a.title);
     setEditSummary(a.summary ?? "");
     setEditContent(a.content);
+    setEditCategory(a.category ?? "");
   };
 
   const saveEdit = async () => {
@@ -138,6 +139,7 @@ export function AIPendingQueue() {
         title: editTitle,
         summary: editSummary || null,
         content: editContent,
+        category: editCategory.trim() || editing.category,
       })
       .eq("id", editing.id);
     setSaving(false);
@@ -146,11 +148,15 @@ export function AIPendingQueue() {
       return;
     }
     toast.success("הטקסט עודכן ✍️");
+    const newCat = editCategory.trim() || editing.category;
     setItems((p) =>
       p.map((x) =>
-        x.id === editing.id ? { ...x, title: editTitle, summary: editSummary, content: editContent } : x,
+        x.id === editing.id
+          ? { ...x, title: editTitle, summary: editSummary, content: editContent, category: newCat }
+          : x,
       ),
     );
+    setKnownCategories((prev) => (prev.includes(newCat) ? prev : [...prev, newCat]));
     setEditing(null);
   };
 
