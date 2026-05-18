@@ -931,33 +931,38 @@ function ShortPanel({
           />
         ))}
 
-        {/* Bottom safe zone — metadata */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-12">
-          <div className="pointer-events-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pr-20">
-
-            {/* Commerce hotspot CTA — sits above author block */}
+        {/* Bottom safe zone — metadata. Strong gradient for readability over bright video. */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-32 pb-20 lg:pb-6 px-4 pr-20">
+          {/* Commerce hotspot CTA — sits above author block */}
+          <div className="pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
             <CommerceHotspot short={short} />
-
-            <div className="flex items-center gap-2.5">
-              <Avatar className="h-9 w-9 border-2 border-white/40">
-                <AvatarImage src={short.creator.avatar || undefined} />
-                <AvatarFallback className="bg-secondary text-xs font-bold">
-                  {short.creator.name.slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-display text-sm font-bold text-white drop-shadow">
-                {short.creator.name}
-              </span>
-            </div>
-            {short.title && (
-              <h2 className="mt-2 text-base font-bold text-white drop-shadow line-clamp-2">{short.title}</h2>
-            )}
-            {short.description && (
-              <p className="mt-1 text-xs text-white/85 drop-shadow line-clamp-2">
-                <HashtagText text={short.description} />
-              </p>
-            )}
           </div>
+
+          <div
+            className="pointer-events-auto flex items-center gap-2.5"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <Avatar className="h-9 w-9 border-2 border-white/40">
+              <AvatarImage src={short.creator.avatar || undefined} />
+              <AvatarFallback className="bg-secondary text-xs font-bold">
+                {short.creator.name.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-display text-sm font-bold text-white drop-shadow">
+              {short.creator.name}
+            </span>
+          </div>
+          {short.title && (
+            <h2
+              className="pointer-events-auto mt-2 text-base font-bold text-white drop-shadow line-clamp-2"
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              {short.title}
+            </h2>
+          )}
+          {short.description && (
+            <ExpandableDescription text={short.description} />
+          )}
         </div>
 
         {/* Word-level karaoke lyrics */}
@@ -995,6 +1000,40 @@ function ShortPanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function ExpandableDescription({ text }: { text: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  // Heuristic: show toggle if text is long enough to plausibly clamp past 2 lines.
+  const canExpand = text.length > 80 || text.includes("\n");
+  return (
+    <div
+      className="pointer-events-auto mt-1"
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      <p
+        className={cn(
+          "text-xs text-white/90 drop-shadow whitespace-pre-wrap break-words",
+          !isExpanded && "line-clamp-2",
+        )}
+      >
+        <HashtagText text={text} />
+      </p>
+      {canExpand && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded((v) => !v);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="mt-1 text-[12px] font-bold text-primary drop-shadow hover:underline"
+        >
+          {isExpanded ? "הצג פחות" : "קריאה מלאה..."}
+        </button>
+      )}
+    </div>
   );
 }
 
