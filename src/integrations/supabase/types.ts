@@ -6007,6 +6007,82 @@ export type Database = {
         }
         Relationships: []
       }
+      wiki_articles: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          image_url: string | null
+          is_verified: boolean | null
+          last_edited_by: string | null
+          related_gear_keywords: string[] | null
+          related_product_id: string | null
+          slug: string
+          summary: string | null
+          title: string
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          last_edited_by?: string | null
+          related_gear_keywords?: string[] | null
+          related_product_id?: string | null
+          slug: string
+          summary?: string | null
+          title: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          last_edited_by?: string | null
+          related_gear_keywords?: string[] | null
+          related_product_id?: string | null
+          slug?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wiki_articles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wiki_articles_last_edited_by_fkey"
+            columns: ["last_edited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wiki_articles_related_product_id_fkey"
+            columns: ["related_product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
