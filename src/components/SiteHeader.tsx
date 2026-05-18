@@ -45,9 +45,25 @@ interface Props {
 
 export function SiteHeader({ onCommandPalette }: Props = {}) {
   const [open, setOpen] = useState(false);
+  const [isPro, setIsPro] = useState(false);
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const { direction, scrollY } = useScrollDirection(80);
+
+  useEffect(() => {
+    if (!user) { setIsPro(false); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("music_pros")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled) setIsPro(!!data);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
