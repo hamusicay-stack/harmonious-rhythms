@@ -61,7 +61,7 @@ export function UsersManager() {
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.rpc("admin_list_users", {
-      _search: search || null,
+      _search: search || undefined,
       _limit: 200,
       _offset: 0,
     });
@@ -118,7 +118,7 @@ export function UsersManager() {
     const { error } = await supabase.rpc("admin_set_user_ban", {
       _user_id: banTarget.id,
       _banned: !banTarget.is_banned,
-      _reason: banTarget.is_banned ? null : (banReason || null),
+      _reason: banTarget.is_banned ? undefined : (banReason || undefined),
     });
     setBanSaving(false);
     if (error) { toast.error(friendlyError(error)); return; }
