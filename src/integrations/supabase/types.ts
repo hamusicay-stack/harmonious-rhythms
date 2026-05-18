@@ -4201,6 +4201,8 @@ export type Database = {
           address_street: string | null
           address_zip: string | null
           avatar_url: string | null
+          banned_at: string | null
+          banned_reason: string | null
           banner_url: string | null
           bio: string | null
           created_at: string
@@ -4220,6 +4222,7 @@ export type Database = {
           has_whatsapp: boolean
           id: string
           instagram: string | null
+          is_banned: boolean
           is_public_profile_active: boolean
           keyboard_model_id: string | null
           last_login_at: string | null
@@ -4239,6 +4242,8 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           avatar_url?: string | null
+          banned_at?: string | null
+          banned_reason?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
@@ -4258,6 +4263,7 @@ export type Database = {
           has_whatsapp?: boolean
           id: string
           instagram?: string | null
+          is_banned?: boolean
           is_public_profile_active?: boolean
           keyboard_model_id?: string | null
           last_login_at?: string | null
@@ -4277,6 +4283,8 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           avatar_url?: string | null
+          banned_at?: string | null
+          banned_reason?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
@@ -4296,6 +4304,7 @@ export type Database = {
           has_whatsapp?: boolean
           id?: string
           instagram?: string | null
+          is_banned?: boolean
           is_public_profile_active?: boolean
           keyboard_model_id?: string | null
           last_login_at?: string | null
@@ -6333,6 +6342,34 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_list_users: {
+        Args: { _limit?: number; _offset?: number; _search?: string }
+        Returns: {
+          avatar_url: string
+          banned_at: string
+          banned_reason: string
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          is_banned: boolean
+          roles: string[]
+          subscription_tier: string
+          username: string
+        }[]
+      }
+      admin_set_user_ban: {
+        Args: { _banned: boolean; _reason?: string; _user_id: string }
+        Returns: undefined
+      }
+      admin_set_user_role: {
+        Args: {
+          _revoke?: boolean
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: string
+      }
       affiliate_approve_application: {
         Args: { _app_id: string }
         Returns: string
@@ -6398,6 +6435,7 @@ export type Database = {
       }
       increment_pro_views: { Args: { _pro_id: string }; Returns: undefined }
       increment_short_views: { Args: { _video_id: string }; Returns: undefined }
+      is_user_banned: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
