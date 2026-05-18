@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -331,7 +332,7 @@ export function NewsManager() {
           )}
           <div
             className="prose prose-invert max-w-none prose-headings:text-gold prose-strong:text-gold prose-a:text-gold"
-            dangerouslySetInnerHTML={{ __html: previewing?.content ?? "" }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewing?.content ?? "") }}
           />
         </DialogContent>
       </Dialog>

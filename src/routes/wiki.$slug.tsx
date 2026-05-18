@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BookOpen, Edit3, Eye, ShoppingBag, Tag, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -286,7 +287,7 @@ function WikiArticlePage() {
               prose-strong:text-amber-200
               prose-li:marker:text-amber-400
             "
-            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(bodyHtml) }}
           />
 
           {/* Conversion footers */}
