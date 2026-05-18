@@ -57,6 +57,7 @@ const MARKETING: NavItem[] = [
 ];
 
 const COMMUNITY: NavItem[] = [
+  { to: "/admin/moderation", title: "דיווחים ומודרציה", icon: ShieldAlert },
   { to: "/admin/forum", title: "ניהול פורום", icon: MessagesSquare },
   { to: "/admin/chat-oversight", title: "פיקוח צ'אטים", icon: MessageSquareWarning },
 ];
