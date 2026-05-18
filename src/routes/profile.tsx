@@ -136,7 +136,12 @@ function ProfilePage() {
           </TabsContent>
 
           <TabsContent value="yad2" className="mt-6">
-            <Yad2Section userId={user.id} email={user.email ?? ""} />
+            <Yad2Section
+              userId={user.id}
+              email={user.email ?? ""}
+              initialSubTab={initialQuery.subTab}
+              openReviewForListing={initialQuery.openReview}
+            />
           </TabsContent>
 
           <TabsContent value="pro" className="mt-6">
