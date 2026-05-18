@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useRef, useState } from "react";
 import { Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export function MediaUploader({
     });
     setUploading(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);

@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Check, X, ShieldCheck, Trash2, Eye, Loader2, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export function MarketplaceManager() {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("marketplace_listings").update({ status }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(status === "approved" ? "המודעה אושרה ופורסמה" : status === "rejected" ? "המודעה נדחתה" : "עודכן");
     load();
   };
@@ -47,7 +48,7 @@ export function MarketplaceManager() {
   const deleteListing = async (id: string) => {
     if (!confirm("למחוק את המודעה?")) return;
     const { error } = await supabase.from("marketplace_listings").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     load();
   };
@@ -55,7 +56,7 @@ export function MarketplaceManager() {
   const bumpListing = async (id: string, hours: number) => {
     const expires = new Date(Date.now() + hours * 3600 * 1000).toISOString();
     const { error } = await supabase.from("marketplace_listings").update({ bumped_at: new Date().toISOString(), bump_expires_at: expires }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(`המודעה הוקפצה ל-${hours} שעות`);
     load();
   };

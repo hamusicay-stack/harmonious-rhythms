@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ export function ShopVendorsManager() {
     const { error } = editing.id
       ? await supabase.from("shop_vendors").update(payload).eq("id", editing.id)
       : await supabase.from("shop_vendors").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נשמר"); setOpen(false); load();
   };
 

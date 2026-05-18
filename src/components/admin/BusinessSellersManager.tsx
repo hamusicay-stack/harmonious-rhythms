@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Briefcase, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,7 @@ export function BusinessSellersManager() {
       subscription_expires_at: form.expires_at || null,
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("מוכר עסקי נוסף");
     setForm({ user_email: "", business_name: "", contact_name: "", phone: "", email: "", expires_at: "" });
     setOpen(false);
@@ -55,7 +56,7 @@ export function BusinessSellersManager() {
   const remove = async (id: string) => {
     if (!confirm("להסיר את המוכר העסקי?")) return;
     const { error } = await supabase.from("marketplace_business_sellers").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הוסר");
     load();
   };

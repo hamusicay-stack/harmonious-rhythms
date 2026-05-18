@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,7 +86,7 @@ function ApprovalQueue() {
     const { error } = await supabase.from("shorts_videos").update({
       status: "active", reviewed_by: user?.id, reviewed_at: new Date().toISOString(), scheduled_for: null,
     }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("הסרטון אושר"); load();
   };
 
@@ -96,14 +97,14 @@ function ApprovalQueue() {
       status: "rejected", admin_notes: reason || null,
       reviewed_by: user?.id, reviewed_at: new Date().toISOString(),
     }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נדחה"); load();
   };
 
   const remove = async (id: string) => {
     if (!confirm("למחוק לחלוטין?")) return;
     const { error } = await supabase.from("shorts_videos").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נמחק"); load();
   };
 
@@ -346,7 +347,7 @@ function ShortsSettings() {
     const { error } = await supabase.from("shorts_settings").update({
       auto_approve_all: autoAll, require_approval: requireApproval, updated_at: new Date().toISOString(),
     }).eq("id", 1);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("ההגדרות נשמרו");
   };
 
@@ -401,14 +402,14 @@ function TrustedUploaders() {
     const { data: prof } = await supabase.from("profiles").select("id").eq("email", email.trim().toLowerCase()).maybeSingle();
     if (!prof) { toast.error("משתמש לא נמצא — חייב להיות רשום באתר"); setAdding(false); return; }
     const { error } = await supabase.from("shorts_trusted_uploaders").insert({ user_id: prof.id, reason: reason || null });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else { toast.success("נוסף לרשימה"); setEmail(""); setReason(""); load(); }
     setAdding(false);
   };
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("shorts_trusted_uploaders").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("הוסר"); load();
   };
 

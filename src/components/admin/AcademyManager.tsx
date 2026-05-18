@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ function CoursesManager() {
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from("academy_courses").select("*").order("display_order").order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else setCourses((data ?? []) as Course[]);
     setLoading(false);
   }, []);
@@ -139,7 +140,7 @@ function CoursesManager() {
                     <Button size="sm" variant="ghost" onClick={async () => {
                       if (!confirm(`למחוק את "${c.title}"?`)) return;
                       const { error } = await supabase.from("academy_courses").delete().eq("id", c.id);
-                      if (error) toast.error(error.message); else { toast.success("נמחק"); load(); }
+                      if (error) toast.error(friendlyError(error)); else { toast.success("נמחק"); load(); }
                     }}>
                       <Trash2 className="h-3.5 w-3.5 text-rose-500" />
                     </Button>
@@ -187,7 +188,7 @@ function CourseDialog({ course, onSaved }: { course: Course | null; onSaved: () 
       ? await supabase.from("academy_courses").update(payload).eq("id", course.id)
       : await supabase.from("academy_courses").insert(payload);
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נשמר");
     onSaved();
   };
@@ -297,7 +298,7 @@ function CourseBuilder({ course, onChange }: { course: Course; onChange: () => v
     const { error } = await supabase.from("academy_modules").insert({
       course_id: course.id, title: newModuleTitle, display_order: modules.length,
     });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else { setNewModuleTitle(""); refresh(); }
   };
 
@@ -334,7 +335,7 @@ function ModuleSection({ module, lessons, courseId, onChange }: { module: Module
       duration_seconds: newLesson.duration_seconds, is_preview: newLesson.is_preview,
       display_order: lessons.length,
     });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else { setNewLesson({ title: "", video_url: "", duration_seconds: 0, is_preview: false }); setAdding(false); onChange(); }
   };
 
@@ -412,7 +413,7 @@ function AccessCodesManager() {
       code: form.code.toUpperCase(), course_id: form.course_id,
       max_uses: form.max_uses, notes: form.notes,
     });
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else { toast.success("קוד נוצר"); setForm({ code: "", course_id: "", max_uses: 1, notes: "" }); load(); }
   };
 
@@ -505,7 +506,7 @@ function BroadcastsManager() {
       setForm({ title: "", body: "", link: "/academy", audience: "all" });
       loadHistory();
     } catch (err: any) {
-      toast.error(err?.message ?? "שגיאה");
+      toast.error(friendlyError(err, "שגיאה"));
     }
     setSending(false);
   };
@@ -655,7 +656,7 @@ function PodcastsManager() {
     const { error } = editing
       ? await supabase.from("academy_podcasts").update(payload).eq("id", editing.id)
       : await supabase.from("academy_podcasts").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נשמר"); setOpen(false); load();
   };
 
@@ -664,7 +665,7 @@ function PodcastsManager() {
     const ext = file.name.split(".").pop() || "mp3";
     const path = `episodes/${editing.id}-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("podcast-audio").upload(path, file, { contentType: file.type || "audio/mpeg", upsert: false });
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     const { data } = supabase.storage.from("podcast-audio").getPublicUrl(path);
     setForm({ ...form, audio_url: data.publicUrl });
     await supabase.from("academy_podcasts").update({ audio_url: data.publicUrl, audio_status: "manual", audio_generated_at: new Date().toISOString() }).eq("id", editing.id);
@@ -680,7 +681,7 @@ function PodcastsManager() {
       host_name: seriesForm.host_name || null,
       cover_url: seriesForm.cover_url || null,
     } as any).select("*").single();
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("הסדרה נוצרה");
     setSeriesOpen(false);
     setSeriesForm({ title: "", description: "", host_name: "", cover_url: "", playlist_url: "" });
@@ -695,7 +696,7 @@ function PodcastsManager() {
       cover_url: form.thumbnail_url || null,
     } as any).select("id").single();
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return null;
     }
     toast.info("נפתחה סדרה חדשה — נסיים לסנכרן את הפרקים");
@@ -710,14 +711,14 @@ function PodcastsManager() {
       body: { series_id: seriesId, playlist_url: url.trim() },
     });
     setImportingSeriesId(null);
-    if (error || data?.error) return toast.error(error?.message ?? data.error);
+    if (error || data?.error) return toast.error(friendlyError(error, data.error));
     toast.success(`יובאו ${data.imported} פרקים`);
     load();
   };
   const del = async (id: string) => {
     if (!confirm("למחוק?")) return;
     const { error } = await supabase.from("academy_podcasts").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("נמחק"); load(); }
+    if (error) toast.error(friendlyError(error)); else { toast.success("נמחק"); load(); }
   };
 
   return (
@@ -947,7 +948,7 @@ function QuizzesManager() {
     if (!title) return;
     const moduleId = modules[0]?.id ?? null;
     const { error } = await supabase.from("academy_quizzes").insert({ course_id: courseId, module_id: moduleId, title });
-    if (error) toast.error(error.message); else setCourseId(courseId);
+    if (error) toast.error(friendlyError(error)); else setCourseId(courseId);
   };
 
   const addQuestion = async () => {
@@ -962,7 +963,7 @@ function QuizzesManager() {
       quiz_id: activeQuiz.id, question: q, choices: [a1, a2, a3, a4].filter(Boolean),
       correct_index: correct, display_order: questions.length,
     });
-    if (error) toast.error(error.message); else loadQuestions(activeQuiz);
+    if (error) toast.error(friendlyError(error)); else loadQuestions(activeQuiz);
   };
 
   const delQ = async (id: string) => {

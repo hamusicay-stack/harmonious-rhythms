@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ export function CourseGiftDialog({ open, onOpenChange }: { open: boolean; onOpen
       _course_id: courseId,
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success(`הקורס ניתן במתנה ל-${email}`);
     setEmail("");
     onOpenChange(false);

@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useRef, useState } from "react";
 import { Tags, Plus, Trash2, Loader2, Upload, X, GripVertical, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function MarketplaceCategoriesManager() {
   const remove = async (id: string) => {
     if (!confirm("למחוק את הקטגוריה?")) return;
     const { error } = await supabase.from("marketplace_categories").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     load();
   };
@@ -122,7 +123,7 @@ function CategoryDialog({ open, onOpenChange, editing, maxOrder, onSaved }: {
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await supabase.storage.from("marketplace-categories").upload(path, file, { upsert: false });
-    if (error) { toast.error(error.message); setUploading(false); return; }
+    if (error) { toast.error(friendlyError(error)); setUploading(false); return; }
     const { data } = supabase.storage.from("marketplace-categories").getPublicUrl(path);
     setImageUrl(data.publicUrl);
     setUploading(false);
@@ -149,7 +150,7 @@ function CategoryDialog({ open, onOpenChange, editing, maxOrder, onSaved }: {
       ? await supabase.from("marketplace_categories").update(payload).eq("id", editing.id)
       : await supabase.from("marketplace_categories").insert(payload);
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(editing ? "עודכן" : "נוסף");
     onOpenChange(false);
     onSaved();

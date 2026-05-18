@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
@@ -56,7 +57,7 @@ function ProDetailPage() {
 
   const approveReview = async (id: string, approve: boolean) => {
     const { error } = await supabase.from("music_pro_reviews").update({ is_approved: approve }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(approve ? "הביקורת אושרה" : "הביקורת הוסרה");
     reload();
   };
@@ -64,7 +65,7 @@ function ProDetailPage() {
   const deleteReview = async (id: string) => {
     if (!confirm("למחוק ביקורת זו?")) return;
     const { error } = await supabase.from("music_pro_reviews").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("נמחק");
     reload();
   };

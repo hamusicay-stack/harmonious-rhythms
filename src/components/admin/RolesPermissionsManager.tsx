@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,7 +84,7 @@ function MatrixEditor() {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("role_permissions").select("*");
-    if (error) { toast.error(error.message); setLoading(false); return; }
+    if (error) { toast.error(friendlyError(error)); setLoading(false); return; }
     const r = (data ?? []) as PermRow[];
     setRows(r);
     const allKeys = Array.from(new Set([...DEFAULT_PERMISSIONS, ...r.map(x => x.permission_key)])).sort();
@@ -116,7 +117,7 @@ function MatrixEditor() {
       onConflict: "role,permission_key",
     });
     setSaving(false);
-    if (error) toast.error(error.message); else { toast.success("נשמר"); void load(); }
+    if (error) toast.error(friendlyError(error)); else { toast.success("נשמר"); void load(); }
   };
 
   const addKey = () => {
@@ -238,10 +239,10 @@ function UserRoleManager() {
   const toggleRole = async (userId: string, role: AppRole, currentlyHas: boolean) => {
     if (currentlyHas) {
       const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
-      if (error) return toast.error(error.message);
+      if (error) return toast.error(friendlyError(error));
     } else {
       const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
-      if (error) return toast.error(error.message);
+      if (error) return toast.error(friendlyError(error));
     }
     toast.success("עודכן");
     void load();
@@ -309,7 +310,7 @@ function PointsRulesEditor() {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase.from("points_rules").select("*").order("event_key");
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     setRules((data ?? []) as Rule[]);
     setLoading(false);
   };
@@ -325,7 +326,7 @@ function PointsRulesEditor() {
       const { error } = await supabase.from("points_rules").update({
         label: r.label, points: r.points, enabled: r.enabled,
       }).eq("id", r.id);
-      if (error) { toast.error(error.message); setSaving(false); return; }
+      if (error) { toast.error(friendlyError(error)); setSaving(false); return; }
     }
     setSaving(false);
     toast.success("כל הכללים נשמרו");
@@ -341,14 +342,14 @@ function PointsRulesEditor() {
       label: newRule.label.trim(),
       points: newRule.points,
     });
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     setNewRule({ event_key: "", label: "", points: 10 });
     void load();
   };
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("points_rules").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     void load();
   };
 

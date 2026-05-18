@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Star, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ export function CourseReviews({ courseId, isEnrolled }: { courseId: string; isEn
       ? await supabase.from("academy_reviews").update(payload).eq("id", myReview.id)
       : await supabase.from("academy_reviews").insert(payload);
     setSubmitting(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     else { toast.success("תודה על הביקורת!"); setBody(""); load(); }
   };
 

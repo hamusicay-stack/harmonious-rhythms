@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -262,7 +263,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
     const { data: pub } = supabase.storage.from("profile-banners").getPublicUrl(path);
     const url = pub.publicUrl;
     const { error } = await supabase.from("profiles").update(kind === "avatar" ? { avatar_url: url } : { banner_url: url }).eq("id", user.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     await refreshProfile();
     toast.success(kind === "avatar" ? "תמונת הפרופיל עודכנה" : "הבאנר עודכן");
   };

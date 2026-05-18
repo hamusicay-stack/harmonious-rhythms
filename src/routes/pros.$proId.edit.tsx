@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -134,13 +135,13 @@ function EditProPage() {
     const { data, error } = await supabase.from("music_pro_media").insert({
       pro_id: proId, type, url, title: title || null, display_order: media.length,
     }).select("*").maybeSingle();
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     if (data) setMedia([...media, data as Media]);
   };
 
   const removeMedia = async (id: string) => {
     const { error } = await supabase.from("music_pro_media").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     setMedia(media.filter((m) => m.id !== id));
   };
 

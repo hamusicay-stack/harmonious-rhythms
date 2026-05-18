@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Star, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -36,7 +37,7 @@ export function AddReviewDialog({ open, onOpenChange, proId, proName, onSubmitte
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("הביקורת נשלחה ותוצג לאחר אישור המוזיקאי");

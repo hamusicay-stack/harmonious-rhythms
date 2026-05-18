@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export function ShopCategoriesManager() {
     const { error } = editing.id
       ? await supabase.from("shop_categories").update(payload).eq("id", editing.id)
       : await supabase.from("shop_categories").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     toast.success("נשמר");
     setOpen(false); setEditing(null); load();
   };
@@ -39,7 +40,7 @@ export function ShopCategoriesManager() {
   const remove = async (id: string) => {
     if (!confirm("למחוק קטגוריה?")) return;
     const { error } = await supabase.from("shop_categories").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(friendlyError(error));
     load();
   };
 

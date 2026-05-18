@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { requireAuth } from "@/lib/routeGuards";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
@@ -115,7 +116,7 @@ function MyInquiriesPage() {
       .from("music_pro_inquiries")
       .update({ status })
       .eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(`הסטטוס עודכן ל"${STATUS_META[status].label}"`);
     setReceived((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
   };

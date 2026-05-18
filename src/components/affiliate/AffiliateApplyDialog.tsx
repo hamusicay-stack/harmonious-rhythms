@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +30,7 @@ export function AffiliateApplyDialog({ children, onApplied }: { children: React.
     if (error) {
       if (error.message.includes("unique") || error.code === "23505") {
         toast.error("יש לך כבר בקשה ממתינה");
-      } else toast.error(error.message);
+      } else toast.error(friendlyError(error));
       return;
     }
     toast.success("הבקשה נשלחה! נודיע לך כשתאושר");

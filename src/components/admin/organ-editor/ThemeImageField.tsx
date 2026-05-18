@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useRef, useState } from "react";
 import { Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,7 @@ export function ThemeImageField({
       upsert: false,
     });
     setUploading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     onChange(data.publicUrl);
   };

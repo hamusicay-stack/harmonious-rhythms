@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2, MapPin, Star, ShieldCheck, Pencil, Globe, Instagram, Youtube, ArrowRight, Building2 } from "lucide-react";
@@ -71,7 +72,7 @@ function SellerProfilePage() {
       }));
     }
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(myReviewId ? "הדירוג עודכן!" : "תודה על הדירוג!");
     const { data: revs } = await supabase.from("marketplace_reviews").select("id, rating, comment, created_at, reviewer_id").eq("seller_id", sellerId).order("created_at", { ascending: false });
     setReviews(revs ?? []);

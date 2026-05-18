@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
 import { BadgeCheck, ShieldQuestion, Loader2, PenSquare, ShieldCheck, Sparkles, X } from "lucide-react";
@@ -43,7 +44,7 @@ export function MyPurchasesTab({ userId, autoOpenReviewForListing }: Props) {
       .select("id, listing_id, seller_id, status, created_at, responded_at")
       .eq("buyer_id", userId)
       .order("created_at", { ascending: false });
-    if (error) { toast.error(error.message); setLoading(false); return; }
+    if (error) { toast.error(friendlyError(error)); setLoading(false); return; }
     const list = confs ?? [];
     if (list.length === 0) { setRows([]); setLoading(false); return; }
     const listingIds = Array.from(new Set(list.map((r) => r.listing_id)));
@@ -92,7 +93,7 @@ export function MyPurchasesTab({ userId, autoOpenReviewForListing }: Props) {
       .update({ status, responded_at: new Date().toISOString() })
       .eq("id", id);
     setBusyId(null);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(status === "confirmed" ? "אישרת את הרכישה" : "סימנת שלא רכשת");
     void load();
   };

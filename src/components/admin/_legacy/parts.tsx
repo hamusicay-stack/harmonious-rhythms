@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,7 @@ export function CustomerEditDialog({ customer, onSaved }: { customer: Customer; 
       subscription_tier: form.subscription_tier,
     }).eq("id", customer.id);
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הלקוח עודכן");
     setOpen(false);
     onSaved();
@@ -124,7 +125,7 @@ export function CustomerEditDialog({ customer, onSaved }: { customer: Customer; 
 export function LeadStatusSelect({ lead, onChanged }: { lead: Lead; onChanged: () => void }) {
   const update = async (status: string) => {
     const { error } = await supabase.from("leads").update({ status: status as "new" | "in_progress" | "converted" | "lost" }).eq("id", lead.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     onChanged();
   };
   return (
@@ -175,7 +176,7 @@ export function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier;
       ? await supabase.from("suppliers").update(payload).eq("id", supplier.id)
       : await supabase.from("suppliers").insert(payload);
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(supplier ? "הספק עודכן" : "ספק נוסף");
     setOpen(false);
     onSaved();
@@ -253,7 +254,7 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
       related_customer_id: form.related_customer_id === "none" ? null : form.related_customer_id,
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("המשימה נוספה");
     setOpen(false);
     setForm({ title: "", description: "", priority: "normal", due_date: "", related_customer_id: "none" });
@@ -318,12 +319,12 @@ export function TaskRow({ task, customers, onChanged }: { task: Task; customers:
   const cycle = async () => {
     const next = task.status === "open" ? "in_progress" : task.status === "in_progress" ? "done" : "open";
     const { error } = await supabase.from("admin_tasks").update({ status: next }).eq("id", task.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     onChanged();
   };
   const remove = async () => {
     const { error } = await supabase.from("admin_tasks").delete().eq("id", task.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("המשימה נמחקה");
     onChanged();
   };

@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -271,7 +272,7 @@ function SegmentsManager() {
     if (!name.trim()) { toast.error("שם הסגמנט חובה"); return; }
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("newsletter_segments").insert({ name, description, filters, created_by: user?.id });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("סגמנט נשמר");
     setName(""); setDescription(""); setFilters({ email_opt_in_only: true });
     load();

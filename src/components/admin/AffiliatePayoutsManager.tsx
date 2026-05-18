@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState, useCallback } from "react";
 import { Loader2, Banknote, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,7 +58,7 @@ export function AffiliatePayoutsManager() {
       .from("affiliate_payout_requests")
       .select("*")
       .order("requested_at", { ascending: false });
-    if (error) { toast.error(error.message); setLoading(false); return; }
+    if (error) { toast.error(friendlyError(error)); setLoading(false); return; }
 
     const rows = (data ?? []) as Payout[];
     const affIds = Array.from(new Set(rows.map((r) => r.affiliate_id)));
@@ -90,7 +91,7 @@ export function AffiliatePayoutsManager() {
     const update: any = { status };
     if (adminNotes !== undefined) update.admin_notes = adminNotes;
     const { error } = await supabase.from("affiliate_payout_requests").update(update).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(`עודכן: ${STATUS_META[status].label}`);
     setSelected(null);
     void load();

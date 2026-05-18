@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ export function OffersReceivedPanel({ userId }: { userId: string }) {
   const accept = async (o: Offer) => {
     setBusyId(o.id);
     const { error } = await supabase.from("marketplace_offers").update({ status: "accepted" }).eq("id", o.id);
-    if (error) { toast.error(error.message); setBusyId(null); return; }
+    if (error) { toast.error(friendlyError(error)); setBusyId(null); return; }
     await sendSystemMsg(o.listing_id, o.buyer_id, `✅ הצעתך על סך ₪${o.offer_amount.toLocaleString()} התקבלה. צרו קשר לקביעת מסירה.`);
     toast.success("ההצעה התקבלה");
     setBusyId(null);
@@ -101,7 +102,7 @@ export function OffersReceivedPanel({ userId }: { userId: string }) {
   const reject = async (o: Offer) => {
     setBusyId(o.id);
     const { error } = await supabase.from("marketplace_offers").update({ status: "rejected" }).eq("id", o.id);
-    if (error) { toast.error(error.message); setBusyId(null); return; }
+    if (error) { toast.error(friendlyError(error)); setBusyId(null); return; }
     await sendSystemMsg(o.listing_id, o.buyer_id, `❌ ההצעה על סך ₪${o.offer_amount.toLocaleString()} נדחתה.`);
     toast.success("ההצעה נדחתה");
     setBusyId(null);
@@ -117,7 +118,7 @@ export function OffersReceivedPanel({ userId }: { userId: string }) {
       .from("marketplace_offers")
       .update({ status: "counter_offered", counter_amount: num })
       .eq("id", o.id);
-    if (error) { toast.error(error.message); setBusyId(null); return; }
+    if (error) { toast.error(friendlyError(error)); setBusyId(null); return; }
     await sendSystemMsg(o.listing_id, o.buyer_id, `🔁 הצעה נגדית מהמוכר: ₪${num.toLocaleString()} (במקום ₪${o.offer_amount.toLocaleString()})`);
     toast.success("ההצעה הנגדית נשלחה");
     setBusyId(null);

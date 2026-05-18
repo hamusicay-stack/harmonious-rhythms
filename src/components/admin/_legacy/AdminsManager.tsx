@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ export function AdminsManager() {
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase.rpc("admin_list_admins");
-    if (error) toast.error(error.message);
+    if (error) toast.error(friendlyError(error));
     setAdmins((data as AdminEntry[]) ?? []);
     setLoading(false);
   };
@@ -39,7 +40,7 @@ export function AdminsManager() {
       _email: e, _role: "admin", _revoke: false,
     });
     setAdding(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success(`הוקצתה הרשאת מנהל ל-${e}`);
     setEmail("");
     load();
@@ -50,7 +51,7 @@ export function AdminsManager() {
     const { error } = await supabase.rpc("admin_assign_role_by_email", {
       _email: targetEmail, _role: "admin", _revoke: true,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("הרשאת המנהל הוסרה");
     load();
   };
