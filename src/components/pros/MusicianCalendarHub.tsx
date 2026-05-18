@@ -61,13 +61,32 @@ export function MusicianCalendarHub() {
   const [addingDate, setAddingDate] = useState<string>(ymd(new Date()));
   const [form, setForm] = useState({ title: "", description: "", start_time: "", end_time: "", event_type: "private" });
   const [saving, setSaving] = useState(false);
+  const [currentTier, setCurrentTier] = useState<TierRow | null>(null);
+  const [allTiers, setAllTiers] = useState<TierRow[]>([]);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
-  // Locate the music_pro row owned by the current user
+  const canAddManual = !!currentTier?.is_vip;
+
+  // Locate the music_pro row owned by the current user + load tier matrix
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("music_pros").select("id").eq("user_id", user.id).maybeSingle();
       setProId(data?.id ?? null);
+    })();
+    (async () => {
+      const { data: tiers } = await (supabase as never as {
+        from: (t: string) => { select: (c: string) => { order: (c: string, o: { ascending: boolean }) => Promise<{ data: TierRow[] | null }> } };
+      }).from("subscription_tiers").select("*").order("rank", { ascending: true });
+      setAllTiers(tiers ?? []);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("global_subscription_tier_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      const tierId = (prof as { global_subscription_tier_id?: string | null } | null)?.global_subscription_tier_id;
+      const found = (tiers ?? []).find((t) => t.id === tierId) ?? (tiers ?? []).find((t) => t.slug === "free") ?? null;
+      setCurrentTier(found);
     })();
   }, [user]);
 
