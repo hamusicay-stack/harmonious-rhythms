@@ -38,7 +38,7 @@ export function ImageLightbox({ images, open, initialIndex = 0, onOpenChange, al
         <button onClick={() => onOpenChange(false)} className="absolute top-4 left-4 z-50 bg-white/10 hover:bg-white/20 rounded-full p-2 text-white">
           <X className="h-5 w-5" />
         </button>
-        <div className="absolute top-4 right-4 z-50 bg-white/10 text-white rounded-full px-3 py-1 text-sm" dir="ltr">
+        <div className="absolute top-4 right-4 z-50 bg-white/10 text-white rounded-full px-3 py-1 text-sm">
           {index + 1} / {images.length}
         </div>
 

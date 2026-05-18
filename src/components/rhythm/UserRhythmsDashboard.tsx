@@ -58,7 +58,7 @@ export function UserRhythmsDashboard() {
   };
 
   return (
-    <Tabs defaultValue="rhythms" dir="rtl" className="w-full">
+    <Tabs defaultValue="rhythms" className="w-full">
       <TabsList>
         <TabsTrigger value="rhythms"><Music className="ml-1 h-4 w-4" />הקצבים שלי</TabsTrigger>
       </TabsList>

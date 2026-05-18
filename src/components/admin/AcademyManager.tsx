@@ -54,7 +54,7 @@ type Lesson = {
 
 export function AcademyManager() {
   return (
-    <Tabs defaultValue="courses" dir="rtl" className="space-y-4">
+    <Tabs defaultValue="courses" className="space-y-4">
       <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
         <TabsTrigger value="courses"><GraduationCap className="ml-1 h-4 w-4" />קורסים</TabsTrigger>
         <TabsTrigger value="codes"><Key className="ml-1 h-4 w-4" />קודי גישה</TabsTrigger>
@@ -152,7 +152,7 @@ function CoursesManager() {
         )}
         {builderCourse && (
           <Dialog open={!!builderCourse} onOpenChange={(v) => !v && setBuilderCourse(null)}>
-            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
+            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
               <DialogHeader><DialogTitle>תוכן הקורס: {builderCourse.title}</DialogTitle></DialogHeader>
               <CourseBuilder course={builderCourse} onChange={load} />
             </DialogContent>
@@ -194,7 +194,7 @@ function CourseDialog({ course, onSaved }: { course: Course | null; onSaved: () 
   };
 
   return (
-    <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" dir="rtl">
+    <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
       <DialogHeader><DialogTitle>{course ? "עריכת קורס" : "קורס חדש"}</DialogTitle></DialogHeader>
       <div className="space-y-3">
         <div className="grid gap-3 md:grid-cols-2">
@@ -835,7 +835,7 @@ function PodcastsManager() {
         </div>
       )}
       <Dialog open={seriesOpen} onOpenChange={setSeriesOpen}>
-        <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
           <DialogHeader><DialogTitle>סדרת פודקאסט חדשה</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>שם הסדרה</Label><Input value={seriesForm.title} onChange={(e) => setSeriesForm({ ...seriesForm, title: e.target.value })} /></div>
@@ -844,7 +844,7 @@ function PodcastsManager() {
             <div><Label>תמונת תיקייה (URL)</Label><Input value={seriesForm.cover_url} onChange={(e) => setSeriesForm({ ...seriesForm, cover_url: e.target.value })} /></div>
             <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
               <Label className="text-xs">פלייליסט YouTube לייבוא מיידי (אופציונלי)</Label>
-              <Input dir="ltr" value={seriesForm.playlist_url} onChange={(e) => setSeriesForm({ ...seriesForm, playlist_url: e.target.value })} placeholder="https://www.youtube.com/playlist?list=..." />
+              <Input value={seriesForm.playlist_url} onChange={(e) => setSeriesForm({ ...seriesForm, playlist_url: e.target.value })} placeholder="https://www.youtube.com/playlist?list=..." />
               <p className="text-[11px] text-muted-foreground">אם לא תמלא שם / תמונה — נשאב אוטומטית מיוטיוב</p>
             </div>
           </div>
@@ -852,7 +852,7 @@ function PodcastsManager() {
         </DialogContent>
       </Dialog>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "ערוך פרק" : "פרק / פודקאסט חדש"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>
@@ -880,13 +880,13 @@ function PodcastsManager() {
             </div>
             <div>
               <Label>קישור</Label>
-              <Input dir="ltr" value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} placeholder="https://..." />
+              <Input value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} placeholder="https://..." />
               <p className="mt-1 text-[11px] text-muted-foreground">אם תדביק קישור פלייליסט — הוא ייובא אוטומטית כסדרה חדשה</p>
             </div>
             <div><Label>תמונת כיסוי (URL)</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
             <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
               <Label>קובץ MP3 לפרק</Label>
-              <Input dir="ltr" value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://... או העלאה" />
+              <Input value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://... או העלאה" />
               <Input type="file" accept="audio/mpeg,audio/mp3" disabled={!editing} onChange={(e) => { const file = e.target.files?.[0]; if (file) void uploadAudio(file); }} />
               {editing && form.kind === "youtube" && (
                 <Button

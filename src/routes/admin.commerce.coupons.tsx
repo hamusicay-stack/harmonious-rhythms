@@ -120,7 +120,7 @@ function CouponsManager() {
   const openEdit = (c: Coupon) => { setEditing({ ...c }); setDialogOpen(true); };
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -133,7 +133,7 @@ function CouponsManager() {
           <DialogTrigger asChild>
             <Button onClick={openNew} className="gap-1"><Plus className="h-4 w-4" /> קופון חדש</Button>
           </DialogTrigger>
-          <DialogContent dir="rtl">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>{editing?.id ? "עריכת קופון" : "קופון חדש"}</DialogTitle>
             </DialogHeader>

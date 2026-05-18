@@ -107,7 +107,7 @@ export function MultiStepCheckout({ product, items, onComplete }: Props) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6" dir="rtl">
+    <div className="mx-auto w-full max-w-2xl space-y-6">
       <Stepper currentIndex={stepIdx} />
 
       <Card className="border-border/60">
@@ -220,7 +220,7 @@ function AuthStep() {
         <p className="text-sm text-muted-foreground">צריך להיות מחובר/ת כדי להמשיך לתשלום.</p>
       </div>
 
-      <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "register")} dir="rtl">
+      <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "register")}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">התחברות</TabsTrigger>
           <TabsTrigger value="register">הרשמה</TabsTrigger>

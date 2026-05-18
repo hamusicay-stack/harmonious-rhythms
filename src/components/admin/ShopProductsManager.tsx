@@ -199,7 +199,7 @@ export function ShopProductsManager() {
   );
 
   return (
-    <Card className="p-4" dir="rtl">
+    <Card className="p-4">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Package className="h-5 w-5 text-primary" />
@@ -269,7 +269,7 @@ export function ShopProductsManager() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing?.id ? "עריכת מוצר" : "מוצר חדש"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-4 md:grid-cols-2">

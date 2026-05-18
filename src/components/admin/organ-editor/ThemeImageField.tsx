@@ -86,7 +86,6 @@ export function ThemeImageField({
         </Button>
       </div>
       <Input
-        dir="ltr"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value || null)}
         placeholder="או הדבק URL"

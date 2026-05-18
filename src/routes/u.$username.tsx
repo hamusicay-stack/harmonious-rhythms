@@ -34,7 +34,7 @@ export const Route = createFileRoute("/u/$username")({
     const router = useRouter();
     return (
       <SiteLayout>
-        <div dir="rtl" className="container mx-auto px-4 py-12 text-center">
+        <div className="container mx-auto px-4 py-12 text-center">
           <ErrorComponent error={error} />
           <button onClick={() => { router.invalidate(); reset(); }} className="mt-4 underline">נסה שוב</button>
         </div>
@@ -43,7 +43,7 @@ export const Route = createFileRoute("/u/$username")({
   },
   notFoundComponent: () => (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-12 text-center text-muted-foreground">המשתמש לא נמצא</div>
+      <div className="container mx-auto px-4 py-12 text-center text-muted-foreground">המשתמש לא נמצא</div>
     </SiteLayout>
   ),
   component: PublicProfilePage,
@@ -77,7 +77,7 @@ function PublicProfilePage() {
   if (!data?.profile) {
     return (
       <SiteLayout>
-        <div dir="rtl" className="container mx-auto px-4 py-12 text-center text-muted-foreground">המשתמש לא נמצא</div>
+        <div className="container mx-auto px-4 py-12 text-center text-muted-foreground">המשתמש לא נמצא</div>
       </SiteLayout>
     );
   }
@@ -88,7 +88,7 @@ function PublicProfilePage() {
   if ("restricted" in p && p.restricted) {
     return (
       <SiteLayout>
-        <div dir="rtl" className="container mx-auto px-4 py-12 text-center">
+        <div className="container mx-auto px-4 py-12 text-center">
           <h1 className="text-2xl font-bold mb-2">{p.display_name ?? p.username}</h1>
           <StatusBadge status={p.global_status} />
           <p className="text-muted-foreground mt-4">פרופיל זה אינו זמין לצפייה ציבורית כעת.</p>
@@ -104,7 +104,7 @@ function PublicProfilePage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="min-h-screen">
+      <div className="min-h-screen">
         {/* Banner */}
         <div className="relative h-40 sm:h-56 bg-gradient-to-br from-primary/20 via-accent/10 to-background border-b border-border">
           {p.banner_url && <img src={p.banner_url} alt="" className="absolute inset-0 w-full h-full object-cover" />}

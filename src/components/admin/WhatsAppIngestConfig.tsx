@@ -40,7 +40,6 @@ export function WhatsAppIngestConfig() {
 
   return (
     <Card
-      dir="rtl"
       className="border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent"
     >
       <CardHeader>

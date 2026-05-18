@@ -55,7 +55,7 @@ export function AddressBook({ refreshProfile }: { refreshProfile: () => Promise<
   };
 
   return (
-    <Card className="p-6 md:p-8" dir="rtl">
+    <Card className="p-6 md:p-8">
       <div className="mb-4 flex items-center gap-2">
         <div className="rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 p-2">
           <MapPin className="h-5 w-5 text-amber-500" />
@@ -93,7 +93,6 @@ export function AddressBook({ refreshProfile }: { refreshProfile: () => Promise<
             <Input
               id="addr_zip"
               value={form.zip}
-              dir="ltr"
               onChange={(e) => setForm({ ...form, zip: e.target.value })}
               placeholder="6100000"
             />

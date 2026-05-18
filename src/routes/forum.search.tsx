@@ -36,7 +36,7 @@ function SearchPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← פורום</Link>
         <h1 className="text-2xl font-bold my-4 flex items-center gap-2"><Search className="h-6 w-6" />חיפוש</h1>
         <form onSubmit={(e) => { e.preventDefault(); navigate({ search: { q: term } }); }} className="flex gap-2 mb-6">

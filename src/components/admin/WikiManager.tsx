@@ -46,7 +46,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export function WikiManager() {
   return (
-    <div dir="rtl" className="container mx-auto px-4 py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       <Tabs defaultValue="generator" className="w-full">
         <TabsList className="bg-card border border-amber-500/20">
           <TabsTrigger value="generator">✨ מחולל AI</TabsTrigger>
@@ -345,7 +345,7 @@ function PendingRevisions() {
       )}
 
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
-        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-amber-500/30 max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-amber-300">
               השוואה — {viewing?.article?.title ?? "ערך"}

@@ -199,7 +199,7 @@ export function DashboardOverview() {
           {productKeys.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">אין נתוני מכירות עדיין.</p>
           ) : (
-            <div className="h-72 w-full" dir="ltr">
+            <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenue}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />

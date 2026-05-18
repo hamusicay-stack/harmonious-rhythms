@@ -238,7 +238,7 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
           <Button size="sm"><Plus className="ml-2 h-4 w-4" />באנר חדש</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg text-right" dir="rtl">
+      <DialogContent className="max-w-lg text-right">
         <DialogHeader>
           <DialogTitle>{banner ? "עריכת באנר" : "באנר חדש"}</DialogTitle>
         </DialogHeader>

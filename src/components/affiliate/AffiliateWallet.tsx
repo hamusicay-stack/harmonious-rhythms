@@ -228,7 +228,6 @@ function PayoutRequestDialog({
             <Label>סכום למשיכה (₪)</Label>
             <Input
               type="number"
-              dir="ltr"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               min={MIN_PAYOUT}

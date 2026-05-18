@@ -38,7 +38,7 @@ export function CourseGiftDialog({ open, onOpenChange }: { open: boolean; onOpen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2"><Gift className="h-5 w-5 text-primary" />מתנת גישה לקורס</DialogTitle>
         </DialogHeader>
@@ -55,7 +55,6 @@ export function CourseGiftDialog({ open, onOpenChange }: { open: boolean; onOpen
           <div>
             <Label>מייל הנמען</Label>
             <Input
-              dir="ltr"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

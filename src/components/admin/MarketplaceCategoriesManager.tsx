@@ -184,7 +184,7 @@ function CategoryDialog({ open, onOpenChange, editing, maxOrder, onSaved }: {
             </div>
             <div className="space-y-1.5">
               <Label>Slug (URL)</Label>
-              <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="guitars" dir="ltr" />
+              <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="guitars" />
             </div>
           </div>
 

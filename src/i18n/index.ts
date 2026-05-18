@@ -35,7 +35,7 @@ if (!i18n.isInitialized) {
 }
 
 // No-op kept for backwards compatibility with any lingering imports.
-// The app is locked to RTL via <html dir="rtl"> in __root.tsx.
+// The app is locked to RTL via <html> in __root.tsx.
 export function applyDocumentDir(_lang?: string) {
   if (typeof document === "undefined") return;
   document.documentElement.dir = "rtl";

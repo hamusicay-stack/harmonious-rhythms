@@ -112,7 +112,7 @@ export function MarkAsSoldDialog({ open, onOpenChange, listingId, listingTitle, 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" dir="rtl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <PartyPopper className="h-5 w-5 text-primary" />

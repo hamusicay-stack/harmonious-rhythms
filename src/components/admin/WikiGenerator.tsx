@@ -53,7 +53,7 @@ export function WikiGenerator() {
   };
 
   return (
-    <div dir="rtl" className="container mx-auto px-4 py-8 max-w-3xl">
+    <div className="container mx-auto px-4 py-8 max-w-3xl">
       <Card className="border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-background">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">

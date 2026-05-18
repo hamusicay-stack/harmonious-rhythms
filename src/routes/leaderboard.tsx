@@ -116,7 +116,7 @@ function LeaderboardPage() {
 
   return (
     <SiteLayout>
-      <section className="container mx-auto max-w-3xl px-4 py-10" dir="rtl">
+      <section className="container mx-auto max-w-3xl px-4 py-10">
         <header className="mb-8 text-center">
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-amber-950 shadow-lg shadow-amber-500/30">
             <Trophy className="h-7 w-7" />

@@ -201,7 +201,7 @@ function ProDetailPage() {
               ))}
             </div>
 
-            <Tabs defaultValue="showreel" dir="rtl" className="mt-6">
+            <Tabs defaultValue="showreel" className="mt-6">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="showreel">דמו</TabsTrigger>
                 <TabsTrigger value="services">שירותים</TabsTrigger>
@@ -408,13 +408,13 @@ function ProDetailPage() {
                 {(pro.phone || pro.instagram || pro.youtube || pro.website) && (
                   <div className="mt-4 space-y-2 border-t border-border/40 pt-4">
                     {pro.phone && (isOwner || (isVip && pro.show_phone_public)) ? (
-                      <a href={`tel:${pro.phone}`} dir="ltr" className="flex items-center gap-2 text-sm hover:text-primary">
+                      <a href={`tel:${pro.phone}`} className="flex items-center gap-2 text-sm hover:text-primary">
                         <Phone className="h-4 w-4" /> {pro.phone}
                       </a>
                     ) : pro.phone ? (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground" title="פרימיום בלבד">
                         <Phone className="h-4 w-4" />
-                        <span dir="ltr" className="tracking-widest">••• ••• ••••</span>
+                        <span className="tracking-widest">••• ••• ••••</span>
                         <Badge variant="outline" className="text-[10px]">פרימיום בלבד</Badge>
                       </div>
                     ) : null}

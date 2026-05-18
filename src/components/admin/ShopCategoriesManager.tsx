@@ -45,7 +45,7 @@ export function ShopCategoriesManager() {
   };
 
   return (
-    <Card className="p-4" dir="rtl">
+    <Card className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2"><Tags className="h-5 w-5 text-primary" /><h2 className="text-lg font-bold">קטגוריות חנות</h2></div>
         <Button onClick={() => { setEditing({ display_order: 0, is_active: true }); setOpen(true); }}><Plus className="ml-1 h-4 w-4" /> חדש</Button>
@@ -68,7 +68,7 @@ export function ShopCategoriesManager() {
         </div>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent dir="rtl">
+        <DialogContent>
           <DialogHeader><DialogTitle>{editing?.id ? "עריכה" : "קטגוריה חדשה"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="space-y-3">

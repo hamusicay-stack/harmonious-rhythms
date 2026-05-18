@@ -99,7 +99,7 @@ export function NewsSourcesManager() {
   };
 
   return (
-    <div dir="rtl" className="rounded-xl border border-gold/20 bg-card/60 p-5 backdrop-blur-sm">
+    <div className="rounded-xl border border-gold/20 bg-card/60 p-5 backdrop-blur-sm">
       <div className="flex items-center gap-3 mb-5">
         <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
           <Rss className="h-5 w-5 text-gold" />
@@ -131,7 +131,6 @@ export function NewsSourcesManager() {
             maxLength={500}
             placeholder="https://www.example.com/rss"
             className="mt-1 bg-background/60 border-gold/20 font-mono text-xs"
-            dir="ltr"
           />
         </div>
         <div className="flex items-end">
@@ -177,7 +176,6 @@ export function NewsSourcesManager() {
                   target="_blank"
                   rel="noreferrer"
                   className="text-xs text-muted-foreground hover:text-gold font-mono truncate inline-flex items-center gap-1 mt-0.5"
-                  dir="ltr"
                 >
                   {s.rss_url}
                   <ExternalLink className="h-3 w-3 shrink-0" />

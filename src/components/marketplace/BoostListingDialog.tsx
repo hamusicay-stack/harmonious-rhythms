@@ -128,7 +128,7 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowUp className="h-5 w-5 text-primary" />הקפץ את המודעה

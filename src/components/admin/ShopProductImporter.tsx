@@ -123,7 +123,7 @@ export function ShopProductImporter() {
   };
 
   return (
-    <Card className="p-4 space-y-4" dir="rtl">
+    <Card className="p-4 space-y-4">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
         <h2 className="text-lg font-bold">ייבוא מוצרים מ-URL</h2>

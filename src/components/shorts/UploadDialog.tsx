@@ -208,7 +208,7 @@ export function UploadDialog({
               קישור לשיעור מלא (אופציונלי)
             </Label>
             <Input value={courseLink} onChange={(e) => setCourseLink(e.target.value)}
-              placeholder="/academy/my-course" dir="ltr" maxLength={500} />
+              placeholder="/academy/my-course" maxLength={500} />
           </div>
           <p className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
             💡 הסרטון יישלח לאישור מנהל. משתמשים מאושרים מראש (Trusted) פרסומיהם עולים מיד.

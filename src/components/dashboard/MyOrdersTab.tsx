@@ -96,7 +96,7 @@ export function MyOrdersTab({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-4">
       {orders.map((o) => {
         const s = STATUS_LABELS[o.status] ?? { label: o.status, variant: "outline" as const };
         const p = STATUS_LABELS[o.payment_status] ?? { label: o.payment_status, variant: "outline" as const };

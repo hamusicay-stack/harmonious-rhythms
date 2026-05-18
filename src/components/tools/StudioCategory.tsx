@@ -110,7 +110,6 @@ export function StudioCategory() {
             step={0.1}
             max={0}
             className="h-9"
-            dir="ltr"
           />
         </div>
         <ProcessingPanel {...normalizer} onDownload={normalizer.download} onReset={normalizer.reset} />

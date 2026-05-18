@@ -319,7 +319,7 @@ function CheckoutPage() {
   if (items.length === 0) {
     return (
       <SiteLayout>
-        <div className="container mx-auto px-4 py-16 text-center" dir="rtl">
+        <div className="container mx-auto px-4 py-16 text-center">
           <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <h1 className="text-2xl font-bold">ארגז הציוד עוד ריק</h1>
           <p className="mt-2 text-muted-foreground">בחרו את הציוד הבא שלכם — ואנחנו ננגן את שאר השלבים</p>
@@ -331,7 +331,7 @@ function CheckoutPage() {
 
   return (
     <SiteLayout>
-      <div className="container mx-auto px-4 py-6 md:px-8 md:py-8" dir="rtl">
+      <div className="container mx-auto px-4 py-6 md:px-8 md:py-8">
         <Link to="/shop" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowRight className="h-4 w-4" /> המשך קניות
         </Link>
@@ -388,7 +388,6 @@ function CheckoutPage() {
                       type="tel"
                       inputMode="tel"
                       autoComplete="tel"
-                      dir="ltr"
                       value={form.customer_phone}
                       onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
                       onFocus={focusToCenter}
@@ -401,7 +400,6 @@ function CheckoutPage() {
                       type="email"
                       inputMode="email"
                       autoComplete="email"
-                      dir="ltr"
                       value={form.customer_email}
                       onChange={(e) => setForm({ ...form, customer_email: e.target.value })}
                       onFocus={focusToCenter}

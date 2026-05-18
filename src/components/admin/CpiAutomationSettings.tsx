@@ -47,7 +47,7 @@ export function CpiAutomationSettings() {
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
-    <Card dir="rtl">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2"><Webhook className="h-5 w-5" />אוטומציה — Webhook ליצירת CPI</CardTitle>
       </CardHeader>
@@ -63,12 +63,12 @@ export function CpiAutomationSettings() {
 
         <div>
           <Label>Webhook URL</Label>
-          <Input dir="ltr" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://your-windows-vps.com/api/generate-cpi" />
+          <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://your-windows-vps.com/api/generate-cpi" />
         </div>
 
         <div>
           <Label>Shared Secret (אופציונלי)</Label>
-          <Input dir="ltr" type="password" value={secret} onChange={(e) => setSecret(e.target.value)} placeholder="..." />
+          <Input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} placeholder="..." />
         </div>
 
         <div className="flex items-center justify-between rounded-md border p-3">

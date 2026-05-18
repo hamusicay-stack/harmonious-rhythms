@@ -186,7 +186,7 @@ function NewProPage() {
             <div><Label>ערים (פסיקים)</Label>
               <Input placeholder="ירושלים, בני ברק" value={form.cities} onChange={(e) => setForm({ ...form, cities: e.target.value })} /></div>
             <div><Label>מחיר התחלתי ₪</Label>
-              <Input type="number" dir="ltr" value={form.hourly_price_min} onChange={(e) => setForm({ ...form, hourly_price_min: e.target.value })} /></div>
+              <Input type="number" value={form.hourly_price_min} onChange={(e) => setForm({ ...form, hourly_price_min: e.target.value })} /></div>
           </div>
 
           <div><Label>ציוד (פסיקים)</Label>
@@ -207,16 +207,16 @@ function NewProPage() {
             <Label>צבע מותג</Label>
             <div className="flex items-center gap-2">
               <input type="color" value={form.brand_color} onChange={(e) => setForm({ ...form, brand_color: e.target.value })} className="h-10 w-16 cursor-pointer rounded border" />
-              <Input dir="ltr" value={form.brand_color} onChange={(e) => setForm({ ...form, brand_color: e.target.value })} className="max-w-[140px]" />
+              <Input value={form.brand_color} onChange={(e) => setForm({ ...form, brand_color: e.target.value })} className="max-w-[140px]" />
             </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <div><Label>וואטסאפ</Label><Input dir="ltr" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} /></div>
-            <div><Label>טלפון</Label><Input dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-            <div><Label>Instagram</Label><Input dir="ltr" value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} /></div>
-            <div><Label>YouTube</Label><Input dir="ltr" value={form.youtube} onChange={(e) => setForm({ ...form, youtube: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label>אתר</Label><Input dir="ltr" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} /></div>
+            <div><Label>וואטסאפ</Label><Input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} /></div>
+            <div><Label>טלפון</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+            <div><Label>Instagram</Label><Input value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} /></div>
+            <div><Label>YouTube</Label><Input value={form.youtube} onChange={(e) => setForm({ ...form, youtube: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label>אתר</Label><Input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} /></div>
           </div>
 
           <Button onClick={submit} disabled={saving} size="lg" className="w-full">

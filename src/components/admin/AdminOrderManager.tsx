@@ -82,7 +82,7 @@ export function AdminOrderManager() {
   };
 
   return (
-    <Card dir="rtl">
+    <Card>
       <CardHeader>
         <CardTitle>ניהול הזמנות קצבים</CardTitle>
       </CardHeader>

@@ -15,7 +15,6 @@ export function ImpersonationBanner() {
 
   return (
     <div
-      dir="rtl"
       className="sticky top-0 z-[9999] flex items-center justify-between gap-3 border-b border-destructive/40 bg-destructive px-4 py-2 text-destructive-foreground shadow-lg"
       role="status"
     >

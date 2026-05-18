@@ -97,7 +97,6 @@ export function VirtualOrganPreview({
 
   return (
     <div
-      dir="ltr"
       className="rounded-2xl border border-amber-500/30 p-4 sm:p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_20px_40px_-20px_rgba(0,0,0,0.8)]"
       style={{ background: theme.chassis.bgImage ? `url(${theme.chassis.bgImage}) center/cover` : theme.chassis.bg }}
     >

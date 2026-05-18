@@ -49,7 +49,7 @@ export function VerifiedReviewDialog({ open, onOpenChange, listingId, sellerId, 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
@@ -61,7 +61,7 @@ export function VerifiedReviewDialog({ open, onOpenChange, listingId, sellerId, 
         </DialogHeader>
 
         <div className="space-y-4 py-2" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-1" dir="ltr">
+          <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
               <button
                 key={n}

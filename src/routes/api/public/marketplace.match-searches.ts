@@ -96,7 +96,7 @@ export const Route = createFileRoute("/api/public/marketplace/match-searches")({
 
             const html = `
 <!DOCTYPE html>
-<html dir="rtl" lang="he"><body style="margin:0;padding:24px;background:#f6f7f9;">
+<html lang="he"><body style="margin:0;padding:24px;background:#f6f7f9;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;font-family:Arial,sans-serif;">
     <tr><td style="padding:20px 24px;background:#111;color:#fff;">
       <h1 style="margin:0;font-size:20px;">🔔 הסוכן החכם שלך מצא ${matches.length} מודעות חדשות</h1>

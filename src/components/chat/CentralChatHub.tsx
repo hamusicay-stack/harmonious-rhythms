@@ -217,7 +217,6 @@ export function CentralChatHub() {
 
   return (
     <div
-      dir="rtl"
       className="flex h-[calc(100vh-220px)] min-h-[500px] overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-card/80 via-card/40 to-background backdrop-blur-xl shadow-2xl"
     >
       {/* Sidebar */}

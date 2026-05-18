@@ -48,7 +48,6 @@ export function AnalysisCategory() {
             <div className="relative flex-1">
               <Youtube className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                dir="ltr"
                 placeholder="https://youtube.com/..."
                 className="pr-8"
                 value={ytUrl}

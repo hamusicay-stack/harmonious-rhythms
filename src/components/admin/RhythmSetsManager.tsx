@@ -55,7 +55,7 @@ export function RhythmSetsManager() {
       </div>
 
       <Tabs defaultValue="sets" className="w-full">
-        <div className="overflow-x-auto touch-pan-x -mx-2 px-2" dir="rtl">
+        <div className="overflow-x-auto touch-pan-x -mx-2 px-2">
           <TabsList className="inline-flex w-max h-auto gap-1">
             <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
             <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
@@ -377,7 +377,7 @@ function SetsSection() {
                     <Button type="button" variant="outline" size="sm" onClick={() => coverFileRef.current?.click()} disabled={uploadingCover}>
                       {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת תמונה
                     </Button>
-                    <Input dir="ltr" value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} placeholder="או הזן URL" />
+                    <Input value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} placeholder="או הזן URL" />
                   </div>
                 </div>
               </div>
@@ -391,10 +391,10 @@ function SetsSection() {
                     <TabsTrigger value="direct">העלאה ישירה</TabsTrigger>
                   </TabsList>
                   <TabsContent value="youtube" className="mt-2">
-                    <Input dir="ltr" value={form.video_url || form.youtube_video_id} onChange={(e) => setForm({ ...form, video_url: e.target.value, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" />
+                    <Input value={form.video_url || form.youtube_video_id} onChange={(e) => setForm({ ...form, video_url: e.target.value, youtube_video_id: e.target.value })} placeholder="https://youtu.be/... או dQw4w9WgXcQ" />
                   </TabsContent>
                   <TabsContent value="google_drive" className="mt-2">
-                    <Input dir="ltr" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://drive.google.com/file/d/.../view" />
+                    <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://drive.google.com/file/d/.../view" />
                     <p className="mt-1 text-xs text-muted-foreground">הדבק קישור שיתוף — המערכת תמיר אוטומטית לתצוגת וידאו.</p>
                   </TabsContent>
                   <TabsContent value="direct" className="mt-2 space-y-2">
@@ -402,7 +402,7 @@ function SetsSection() {
                     <Button type="button" variant="outline" size="sm" onClick={() => videoFileRef.current?.click()} disabled={uploadingVideo}>
                       {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת MP4
                     </Button>
-                    <Input dir="ltr" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="URL ישיר לקובץ" />
+                    <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="URL ישיר לקובץ" />
                   </TabsContent>
                 </Tabs>
               </div>
@@ -592,7 +592,7 @@ function SamplesSection() {
                     העלאת קובץ
                   </Button>
                 </div>
-                <Input dir="ltr" value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://... או קישור Google Drive (יומר אוטומטית)" />
+                <Input value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://... או קישור Google Drive (יומר אוטומטית)" />
               </div>
             </div>
             <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>

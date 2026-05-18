@@ -56,7 +56,6 @@ export function ProfileCompletion({ profile }: { profile: Profile }) {
   return (
     <Card
       className="overflow-hidden border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-background to-amber-500/10 p-5 shadow-lg shadow-amber-500/5"
-      dir="rtl"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">

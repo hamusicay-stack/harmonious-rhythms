@@ -44,7 +44,7 @@ export function ShopVendorsManager() {
   };
 
   return (
-    <Card className="p-4" dir="rtl">
+    <Card className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2"><Truck className="h-5 w-5 text-primary" /><h2 className="text-lg font-bold">ספקים ויבואנים</h2></div>
         <Button onClick={() => { setEditing({ vendor_type: "in_house", is_active: true }); setOpen(true); }}><Plus className="ml-1 h-4 w-4" /> חדש</Button>
@@ -67,7 +67,7 @@ export function ShopVendorsManager() {
         </div>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent dir="rtl">
+        <DialogContent>
           <DialogHeader><DialogTitle>{editing?.id ? "עריכה" : "ספק חדש"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="space-y-3">

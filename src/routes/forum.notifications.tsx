@@ -22,7 +22,7 @@ function NotificationsPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="container mx-auto px-4 py-6 max-w-3xl">
+      <div className="container mx-auto px-4 py-6 max-w-3xl">
         <Link to="/forum" className="text-sm text-muted-foreground hover:underline">← פורום</Link>
         <header className="flex items-center justify-between my-4">
           <h1 className="text-2xl font-bold flex items-center gap-2"><Bell className="h-6 w-6" />התראות פורום</h1>

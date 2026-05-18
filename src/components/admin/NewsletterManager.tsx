@@ -68,7 +68,7 @@ async function computeAudience(filters: Filters): Promise<{ ids: string[]; email
 
 export function NewsletterManager() {
   return (
-    <Tabs defaultValue="composer" dir="rtl" className="space-y-4">
+    <Tabs defaultValue="composer" className="space-y-4">
       <TabsList>
         <TabsTrigger value="composer"><Send className="ml-1 h-4 w-4" />קמפיין חדש</TabsTrigger>
         <TabsTrigger value="segments"><Users className="ml-1 h-4 w-4" />סגמנטים</TabsTrigger>

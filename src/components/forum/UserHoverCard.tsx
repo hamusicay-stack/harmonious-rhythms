@@ -68,7 +68,7 @@ export function UserHoverCard({
           {showName && <span className="text-xs font-medium truncate max-w-[120px]">{name}</span>}
         </Link>
       </HoverCardTrigger>
-      <HoverCardContent side="top" className="w-72 p-0 overflow-hidden" dir="rtl">
+      <HoverCardContent side="top" className="w-72 p-0 overflow-hidden">
         <HoverCardBody user={user} name={name} initials={initials} />
       </HoverCardContent>
     </HoverCard>

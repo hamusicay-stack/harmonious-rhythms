@@ -153,7 +153,7 @@ export function ProChatDialog({
       <DialogTrigger asChild onClick={(e) => e.stopPropagation()}>
         {triggerBtn}
       </DialogTrigger>
-      <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]" dir="rtl">
+      <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם {peerName}</DialogTitle>

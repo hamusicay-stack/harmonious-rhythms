@@ -85,7 +85,6 @@ export function RichTextEditor({ value, onChange, placeholder, rows = 6, classNa
         <div
           ref={ref}
           contentEditable
-          dir="rtl"
           onInput={handleInput}
           onPaste={handlePaste}
           onFocus={() => setFocused(true)}

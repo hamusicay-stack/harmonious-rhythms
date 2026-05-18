@@ -43,7 +43,7 @@ function YtShortsPage() {
 
   return (
     <SiteLayout>
-      <div dir="rtl" className="bg-gradient-to-b from-background via-background to-amber-950/10 min-h-[calc(100vh-200px)]">
+      <div className="bg-gradient-to-b from-background via-background to-amber-950/10 min-h-[calc(100vh-200px)]">
         <section className="container mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
             <Sparkles className="h-6 w-6 text-amber-400" />

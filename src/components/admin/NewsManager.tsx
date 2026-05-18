@@ -478,7 +478,7 @@ export function NewsManager() {
     );
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div className="space-y-6">
       <div className="w-full flex flex-row flex-nowrap items-center gap-3 overflow-x-auto touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="flex items-center gap-3 shrink-0">
           <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30 shrink-0">
@@ -501,7 +501,7 @@ export function NewsManager() {
         </Button>
       </div>
 
-      <Tabs defaultValue="published" dir="rtl">
+      <Tabs defaultValue="published">
         <TabsList className="flex w-full flex-row flex-nowrap justify-start gap-1">
           <TabsTrigger value="published" className="gap-2">
             <Globe className="h-4 w-4" />
@@ -596,7 +596,7 @@ export function NewsManager() {
 
       {/* Preview dialog */}
       <Dialog open={!!previewing} onOpenChange={(o) => !o && setPreviewing(null)}>
-        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold font-display text-xl">
               {previewing?.title}
@@ -623,7 +623,7 @@ export function NewsManager() {
 
       {/* Edit dialog */}
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">עריכת כתבה</DialogTitle>
           </DialogHeader>
@@ -702,7 +702,7 @@ export function NewsManager() {
 
       {/* Create new article dialog (admin instant publish) */}
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); resetCreate(); } }}>
-        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100vw-1rem)] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-gradient-gold">כתבה חדשה — פרסום מיידי</DialogTitle>
           </DialogHeader>
