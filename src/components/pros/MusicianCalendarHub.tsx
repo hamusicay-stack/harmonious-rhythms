@@ -143,6 +143,7 @@ export function MusicianCalendarHub() {
 
   const saveManualEvent = async () => {
     if (!user || !proId) { toast.error("יש להגדיר פרופיל מוזיקאי תחילה"); return; }
+    if (!canAddManual) { setAddOpen(false); setPaywallOpen(true); return; }
     if (!form.title.trim()) { toast.error("הזן כותרת לאירוע"); return; }
     setSaving(true);
     const payload = {
