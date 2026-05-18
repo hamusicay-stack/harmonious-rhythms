@@ -105,6 +105,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
               {listing.is_urgent && (
                 <Badge className="absolute top-2 right-2 gap-1 shadow-lg bg-rose-500 hover:bg-rose-600 text-[10px]"><Flame className="h-3 w-3" />דחוף</Badge>
               )}
+              {listing.is_sold && <SoldOverlay />}
             </div>
             <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
               <div className="space-y-1.5">
