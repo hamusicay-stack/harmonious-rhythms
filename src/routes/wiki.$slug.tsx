@@ -330,7 +330,7 @@ function WikiArticlePage() {
                 className="bg-amber-500 text-black hover:bg-amber-400"
               >
                 <Edit3 className="h-4 w-4 ml-1" />
-                ✏️ ערוך ערך זה
+                ✍️ ערוך או הוסף מידע
               </Button>
             )}
           </div>
