@@ -74,7 +74,7 @@ function CategoryPage() {
       setLoading(true);
       const [{ data: list }, { data: business }, { data: trusted }] = await Promise.all([
         supabase.from("marketplace_listings")
-          .select("id, seller_id, title, subcategory, brand, model, price, city, region, images, seller_type, bump_expires_at")
+          .select("id, seller_id, title, subcategory, brand, model, price, city, region, images, seller_type, bump_expires_at, is_sold")
           .eq("status", "approved")
           .eq("category", slug)
           .order("bump_expires_at", { ascending: false, nullsFirst: false })
