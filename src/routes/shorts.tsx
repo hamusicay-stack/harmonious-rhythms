@@ -42,7 +42,7 @@ export const Route = createFileRoute("/shorts")({
 type Short = {
   id: string;
   creator_id: string;
-  creator: { name: string; avatar: string | null };
+  creator: { name: string; avatar: string | null; username: string | null };
   videoUrl: string;
   hlsUrl: string | null;
   poster: string | null;
@@ -106,7 +106,7 @@ function ShortsPage() {
 
       const creatorIds = Array.from(new Set(rows.map((r) => r.creator_id)));
       const { data: profs } = await supabase
-        .from("profiles").select("id, display_name, avatar_url").in("id", creatorIds);
+        .from("profiles").select("id, display_name, avatar_url, username").in("id", creatorIds);
       const pmap = new Map((profs ?? []).map((p) => [p.id, p]));
 
       const ids = rows.map((r) => r.id);
@@ -141,7 +141,7 @@ function ShortsPage() {
         return {
           id: r.id,
           creator_id: r.creator_id,
-          creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null },
+          creator: { name: p?.display_name ?? "מוזיקאי", avatar: p?.avatar_url ?? null, username: p?.username ?? null },
           videoUrl: r.video_url,
           hlsUrl: rx.hls_playlist_url ?? null,
           poster: r.thumbnail_url,
@@ -930,20 +930,41 @@ function ShortPanel({
             <CommerceHotspot short={short} />
           </div>
 
-          <div
-            className="pointer-events-auto flex items-center gap-2.5"
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <Avatar className="h-9 w-9 border-2 border-white/40">
-              <AvatarImage src={short.creator.avatar || undefined} />
-              <AvatarFallback className="bg-secondary text-xs font-bold">
-                {short.creator.name.slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-display text-sm font-bold text-white drop-shadow">
-              {short.creator.name}
-            </span>
-          </div>
+          {short.creator.username ? (
+            <Link
+              to="/u/$username"
+              params={{ username: short.creator.username }}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="pointer-events-auto flex items-center gap-2.5 min-h-[44px] active:opacity-80 transition"
+              aria-label={`פרופיל של ${short.creator.name}`}
+            >
+              <Avatar className="h-11 w-11 border-2 border-white/40">
+                <AvatarImage src={short.creator.avatar || undefined} />
+                <AvatarFallback className="bg-secondary text-xs font-bold">
+                  {short.creator.name.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-display text-sm font-bold text-white drop-shadow hover:text-primary transition">
+                {short.creator.name}
+              </span>
+            </Link>
+          ) : (
+            <div
+              className="pointer-events-auto flex items-center gap-2.5"
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <Avatar className="h-9 w-9 border-2 border-white/40">
+                <AvatarImage src={short.creator.avatar || undefined} />
+                <AvatarFallback className="bg-secondary text-xs font-bold">
+                  {short.creator.name.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-display text-sm font-bold text-white drop-shadow">
+                {short.creator.name}
+              </span>
+            </div>
+          )}
           {short.title && (
             <h2
               className="pointer-events-auto mt-2 text-base font-bold text-white drop-shadow line-clamp-2"

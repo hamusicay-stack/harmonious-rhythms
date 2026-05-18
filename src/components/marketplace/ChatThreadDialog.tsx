@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Send, MessageCircle, MoreVertical, ShieldOff } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Loader2, Send, MessageCircle, MoreVertical, ShieldOff, UserCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -39,10 +41,26 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
   const [sendTimes, setSendTimes] = useState<number[]>([]);
   const [cooldown, setCooldown] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [partner, setPartner] = useState<{ username: string | null; display_name: string | null; avatar_url: string | null } | null>(null);
 
   const isBuyer = user && user.id !== sellerId;
   // Other party = seller (buyer's POV is what this dialog handles)
   const otherUserId = sellerId;
+
+  // Fetch partner (seller) profile when dialog opens
+  useEffect(() => {
+    if (!open || !otherUserId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, display_name, avatar_url")
+        .eq("id", otherUserId)
+        .maybeSingle();
+      if (!cancelled) setPartner(data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, otherUserId]);
 
   // Cooldown ticker
   useEffect(() => {
@@ -210,6 +228,37 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          {partner && (
+            partner.username ? (
+              <Link
+                to="/u/$username"
+                params={{ username: partner.username }}
+                onClick={() => setOpen(false)}
+                className="mt-2 flex items-center gap-2 min-h-[44px] rounded-lg p-1.5 -mx-1.5 hover:bg-primary/5 transition group"
+                aria-label="צפה בפרופיל הציבורי"
+              >
+                <Avatar className="h-9 w-9 ring-2 ring-primary/30">
+                  <AvatarImage src={partner.avatar_url ?? undefined} />
+                  <AvatarFallback className="text-xs">{(partner.display_name ?? partner.username ?? "?").slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 text-right">
+                  <div className="text-sm font-semibold truncate group-hover:text-primary transition">{partner.display_name ?? partner.username}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">@{partner.username}</div>
+                </div>
+                <span className="text-[11px] text-primary font-medium inline-flex items-center gap-1 shrink-0">
+                  <UserCircle2 className="h-3.5 w-3.5" />צפה בפרופיל
+                </span>
+              </Link>
+            ) : (
+              <div className="mt-2 flex items-center gap-2">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={partner.avatar_url ?? undefined} />
+                  <AvatarFallback className="text-xs">{(partner.display_name ?? "?").slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="text-sm font-semibold">{partner.display_name ?? "המוכר"}</div>
+              </div>
+            )
+          )}
         </DialogHeader>
 
         <div className="px-3 pt-3">
