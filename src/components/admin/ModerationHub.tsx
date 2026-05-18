@@ -241,7 +241,7 @@ export function ModerationHub() {
     const { error } = await supabase.rpc("admin_set_user_ban", {
       _user_id: banDialog.userId,
       _banned: true,
-      _reason: banReason || null,
+      _reason: banReason || undefined,
     });
     if (error) return toast.error(friendlyError(error));
     toast.success("המשתמש נחסם");
