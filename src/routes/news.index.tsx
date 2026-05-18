@@ -15,7 +15,11 @@ export const Route = createFileRoute("/news/")({
       { property: "og:description", content: "סקירות, השקות וסיפורים מאחורי הצלילים." },
     ],
   }),
-  component: NewsIndexPage,
+  component: () => (
+    <SiteLayout>
+      <NewsIndexPage />
+    </SiteLayout>
+  ),
 });
 
 type NewsRow = {
