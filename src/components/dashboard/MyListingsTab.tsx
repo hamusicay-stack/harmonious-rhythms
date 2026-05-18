@@ -236,6 +236,27 @@ export function MyListingsTab({ userId }: { userId: string }) {
           onDone={load}
         />
       )}
+      <AlertDialog open={!!takeDownFor} onOpenChange={(o) => { if (!o) setTakeDownFor(null); }}>
+        <AlertDialogContent className="border-amber-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-gradient-gold">הורדת מודעה מהאוויר</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך להוריד את המודעה <span className="font-semibold text-foreground">"{takeDownFor?.title}"</span> מהאתר?
+              <br />המודעה תועבר לארכיון ולא תופיע יותר בחיפוש. תוכל לפנות לתמיכה כדי להחזיר אותה.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={takingDown}>ביטול</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleTakeDown}
+              disabled={takingDown}
+              className="bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-700 hover:to-amber-600"
+            >
+              {takingDown ? "מוריד..." : "כן, הורד מהאוויר"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
