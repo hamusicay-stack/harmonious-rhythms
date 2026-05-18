@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Bot, Check, Pencil, X, Loader2, ExternalLink, Sparkles } from "lucide-react";
+import { Bot, Check, Pencil, X, Loader2, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { friendlyError } from "@/lib/errors";
 import { sanitizeHtml } from "@/lib/sanitize";
