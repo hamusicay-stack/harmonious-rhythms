@@ -295,8 +295,21 @@ export function NewsManager() {
     setLoading(false);
   };
 
+  const loadPublished = async () => {
+    setLoadingPublished(true);
+    const { data } = await (supabase as any)
+      .from("music_news")
+      .select("*")
+      .eq("approval_status", "approved")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    setPublishedArticles((data ?? []) as Article[]);
+    setLoadingPublished(false);
+  };
+
   useEffect(() => {
     load();
+    loadPublished();
   }, []);
 
   const approve = async (a: Article) => {
