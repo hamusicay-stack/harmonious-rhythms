@@ -3165,6 +3165,62 @@ export type Database = {
         }
         Relationships: []
       }
+      music_news: {
+        Row: {
+          author_id: string | null
+          category: string
+          content: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          short_video_id: string | null
+          slug: string
+          summary: string | null
+          title: string
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          category: string
+          content: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          short_video_id?: string | null
+          slug: string
+          summary?: string | null
+          title: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          short_video_id?: string | null
+          slug?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_news_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       music_pro_inquiries: {
         Row: {
           budget: number | null
