@@ -8,27 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-const CATEGORIES = [
-  { value: "singles", label: "סינגלים חדשים" },
-  { value: "albums", label: "השקות אלבומים" },
-  { value: "events", label: "אירועים" },
-  { value: "gear_reviews", label: "סיקורי ציוד" },
-  { value: "interviews", label: "ראיונות" },
-] as const;
-
-type Category = (typeof CATEGORIES)[number]["value"];
+const SUGGESTED_CATEGORIES = [
+  "סינגלים חדשים",
+  "השקות אלבומים",
+  "אירועים",
+  "סיקורי ציוד",
+  "ראיונות",
+  "תוכנה ופלאגינים",
+  "תעשיית המוזיקה",
+];
 
 const schema = z.object({
   title: z.string().trim().min(3, "כותרת חייבת להיות לפחות 3 תווים").max(180),
-  category: z.enum(["singles", "albums", "events", "gear_reviews", "interviews"]),
+  category: z.string().trim().min(2, "יש לבחור או להזין קטגוריה").max(60),
   summary: z.string().trim().max(500).optional(),
   content: z.string().trim().min(20, "התוכן קצר מדי").max(50000),
   short_video_id: z.string().uuid().optional().or(z.literal("")),
