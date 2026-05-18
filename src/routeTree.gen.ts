@@ -25,6 +25,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WikiIndexRouteImport } from './routes/wiki.index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as NewsIndexRouteImport } from './routes/news.index'
@@ -178,6 +179,11 @@ const AboutRoute = AboutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WikiIndexRoute = WikiIndexRouteImport.update({
+  id: '/wiki/',
+  path: '/wiki/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopIndexRoute = ShopIndexRouteImport.update({
@@ -611,6 +617,7 @@ export interface FileRoutesByFullPath {
   '/news/': typeof NewsIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/wiki/': typeof WikiIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
@@ -696,6 +703,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/wiki': typeof WikiIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
@@ -789,6 +797,7 @@ export interface FileRoutesById {
   '/news/': typeof NewsIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/wiki/': typeof WikiIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
@@ -883,6 +892,7 @@ export interface FileRouteTypes {
     | '/news/'
     | '/pros/'
     | '/shop/'
+    | '/wiki/'
     | '/admin/commerce/academy'
     | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
@@ -968,6 +978,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/pros'
     | '/shop'
+    | '/wiki'
     | '/admin/commerce/academy'
     | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
@@ -1060,6 +1071,7 @@ export interface FileRouteTypes {
     | '/news/'
     | '/pros/'
     | '/shop/'
+    | '/wiki/'
     | '/admin/commerce/academy'
     | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
@@ -1128,6 +1140,7 @@ export interface RootRouteChildren {
   VerifyCodeRoute: typeof VerifyCodeRoute
   BeatIndexRoute: typeof BeatIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
+  WikiIndexRoute: typeof WikiIndexRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -1246,6 +1259,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wiki/': {
+      id: '/wiki/'
+      path: '/wiki'
+      fullPath: '/wiki/'
+      preLoaderRoute: typeof WikiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop/': {
@@ -2019,6 +2039,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyCodeRoute: VerifyCodeRoute,
   BeatIndexRoute: BeatIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
+  WikiIndexRoute: WikiIndexRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:
