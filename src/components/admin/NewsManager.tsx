@@ -500,18 +500,27 @@ export function NewsManager() {
         </Button>
       </div>
 
-      <Tabs defaultValue="pr" dir="rtl">
-        <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-3 gap-1">
+      <Tabs defaultValue="published" dir="rtl">
+        <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-2 sm:grid-cols-4 gap-1">
+          <TabsTrigger value="published" className="gap-2">
+            <Globe className="h-4 w-4" />
+            כתבות מפורסמות
+            {publishedArticles.length > 0 && (
+              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 ml-1">
+                {publishedArticles.length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="pr" className="gap-2">
             <Megaphone className="h-4 w-4" />
-            בקשות פרסום (PR)
+            בקשות PR
             {prArticles.length > 0 && (
               <Badge className="bg-gold text-gold-foreground ml-1">{prArticles.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="ai" className="gap-2">
             <Bot className="h-4 w-4" />
-            חדשות מהעולם (AI Ingest)
+            AI ממתינות
             {aiArticles.length > 0 && (
               <Badge className="bg-gold text-gold-foreground ml-1">{aiArticles.length}</Badge>
             )}
@@ -522,13 +531,60 @@ export function NewsManager() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="published" className="mt-5 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={publishedSearch}
+                onChange={(e) => setPublishedSearch(e.target.value)}
+                placeholder="חיפוש בכותרות ותקצירים..."
+                className="pr-9 bg-background/60 border-gold/20"
+              />
+            </div>
+            <Select value={publishedCategory} onValueChange={setPublishedCategory}>
+              <SelectTrigger className="sm:w-56 bg-background/60 border-gold/20">
+                <SelectValue placeholder="כל הקטגוריות" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל הקטגוריות</SelectItem>
+                {knownCategories.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {CATEGORY_LABELS[c] ?? c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="text-xs text-muted-foreground sm:whitespace-nowrap">
+              {filteredPublished.length} מתוך {publishedArticles.length}
+            </div>
+          </div>
+          <Section
+            items={filteredPublished}
+            emptyText={
+              publishedArticles.length === 0
+                ? "עדיין אין כתבות מפורסמות."
+                : "אין תוצאות לחיפוש זה."
+            }
+            isLoading={loadingPublished}
+            mode="published"
+          />
+        </TabsContent>
+
         <TabsContent value="pr" className="mt-5">
-          <Section items={prArticles} emptyText="אין כרגע בקשות פרסום ממתינות." />
+          <Section
+            items={prArticles}
+            emptyText="אין כרגע בקשות פרסום ממתינות."
+            isLoading={loading}
+            mode="pending"
+          />
         </TabsContent>
         <TabsContent value="ai" className="mt-5">
           <Section
             items={aiArticles}
             emptyText="אין כרגע כתבות אוטומטיות ממתינות לאישור."
+            isLoading={loading}
+            mode="pending"
           />
         </TabsContent>
         <TabsContent value="engine" className="mt-5 space-y-6">
