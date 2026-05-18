@@ -300,6 +300,7 @@ export function AIPendingQueue() {
                 maxLength={180}
                 className="mt-1 bg-background/60 border-gold/20"
               />
+            </div>
             <div>
               <Label className="text-sm">קטגוריה (ניתן לבחור או להקליד חדשה)</Label>
               <Input
