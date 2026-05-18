@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Newspaper, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -52,6 +52,13 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const onPickCover = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -76,6 +83,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting || cooldown > 0) return;
     const parsed = schema.safeParse({
       title,
       category,
