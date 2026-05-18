@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
               title: ai.title,
               slug: `${slugify(ai.title)}-${Date.now().toString(36)}`,
               content: ai.html_content,
-              excerpt: stripTags(ai.html_content).slice(0, 200),
+              summary: stripTags(ai.html_content).slice(0, 200),
               source_url: item.link,
               is_automated: true,
               approval_status: "pending_review",
