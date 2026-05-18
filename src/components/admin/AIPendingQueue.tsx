@@ -35,6 +35,27 @@ export function AIPendingQueue() {
   const [items, setItems] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const runSync = async () => {
+    setIsSyncing(true);
+    toast.info("מתחיל סריקה ותרגום AI (זה עשוי לקחת כדקה)... 🤖");
+    try {
+      const { data, error } = await supabase.functions.invoke("ingest-ai-news", { method: "POST" });
+      if (error) throw error;
+      const inserted = (data as any)?.inserted ?? 0;
+      toast.success(
+        inserted > 0
+          ? `הסריקה הושלמה! ${inserted} כתבות חדשות ממתינות לאישור. ✨`
+          : "הסריקה הושלמה! לא נמצאו כתבות חדשות. ✨",
+      );
+      await load();
+    } catch (e) {
+      toast.error(friendlyError(e, "הסריקה נכשלה"));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const [editing, setEditing] = useState<Article | null>(null);
   const [editTitle, setEditTitle] = useState("");
