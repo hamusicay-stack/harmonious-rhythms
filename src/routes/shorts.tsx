@@ -42,7 +42,7 @@ export const Route = createFileRoute("/shorts")({
 type Short = {
   id: string;
   creator_id: string;
-  creator: { name: string; avatar: string | null };
+  creator: { name: string; avatar: string | null; username: string | null };
   videoUrl: string;
   hlsUrl: string | null;
   poster: string | null;
