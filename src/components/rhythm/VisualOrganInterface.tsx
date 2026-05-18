@@ -471,11 +471,11 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
                     </div>
                   )
                 ) : (
-                  folderItems.length === 0 ? (
-                    <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">EMPTY FOLDER</div>
+                  displayedFolderItems.length === 0 ? (
+                    <div className="flex h-32 items-center justify-center sr-mono text-sm opacity-70">{favoritesOnly ? "אין מועדפים בתיקייה" : "EMPTY FOLDER"}</div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                      {folderItems.map((it) => {
+                      {displayedFolderItems.map((it) => {
                         const isActive = activeItemId === it.id;
                         const fav = favorites.has(it.id);
                         const setCover = activeSet?.cover_image_url;
