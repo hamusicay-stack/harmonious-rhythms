@@ -271,6 +271,30 @@ function NewsArticlePage() {
           </Link>
         )}
 
+        {/* Source product video */}
+        {article.video_url && (() => {
+          const embed = resolveEmbed(article.video_url);
+          if (!embed) return null;
+          return (
+            <div className="mb-8 overflow-hidden rounded-xl ring-1 ring-gold/30 bg-black shadow-gold">
+              <div className="aspect-video w-full">
+                {embed.kind === "iframe" ? (
+                  <iframe
+                    src={embed.src}
+                    title={article.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-full w-full"
+                  />
+                ) : (
+                  <video src={embed.src} controls className="h-full w-full" preload="metadata" />
+                )}
+              </div>
+              <div className="px-4 py-2 text-xs text-gold/80 bg-black/40">🎬 סרטון המוצר מהמקור</div>
+            </div>
+          );
+        })()}
+
         {/* Content */}
         <div
           className="prose prose-invert max-w-none
