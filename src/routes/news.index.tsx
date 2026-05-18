@@ -138,9 +138,9 @@ function NewsIndexPage() {
           </Link>
         )}
 
-        {/* Filter pills */}
-        <div className="mt-10 mb-6 flex flex-wrap gap-2">
-          {(["all", "singles", "albums", "events", "gear_reviews", "interviews"] as const).map((c) => {
+        {/* Filter pills — dynamic, scrollable */}
+        <div className="mt-10 mb-6 -mx-2 px-2 flex gap-2 overflow-x-auto scrollbar-thin [scrollbar-width:thin] touch-pan-x">
+          {(["all", ...Array.from(new Set(rows.map((r) => r.category))).filter(Boolean).sort()]).map((c) => {
             const isActive = activeCategory === c;
             return (
               <Button
@@ -149,9 +149,10 @@ function NewsIndexPage() {
                 variant={isActive ? "default" : "outline"}
                 onClick={() => setActiveCategory(c)}
                 className={
-                  isActive
+                  "shrink-0 " +
+                  (isActive
                     ? "rounded-full bg-gold text-gold-foreground hover:bg-gold/90 border-gold"
-                    : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60"
+                    : "rounded-full border-gold/30 text-foreground hover:bg-gold/10 hover:text-gold hover:border-gold/60")
                 }
               >
                 {c === "all" ? "הכל" : CATEGORY_LABELS[c]}
