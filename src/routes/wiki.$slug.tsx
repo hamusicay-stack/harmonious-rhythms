@@ -268,9 +268,10 @@ function WikiArticlePage() {
         created_by: userId,
         last_edited_by: userId,
         is_verified: false,
+        approval_status: "pending_review",
       });
       if (error) throw error;
-      toast.success("ההצעה נשלחה לבדיקה — תודה על התרומה לקהילה 🙏");
+      toast.success("הערך נשלח לבדיקת המערכת!");
       setOpenProposal(false);
       setProposalTitle("");
       setProposalBody("");
