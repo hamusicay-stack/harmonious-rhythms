@@ -243,6 +243,22 @@ export function MusicianCalendarHub() {
           <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-500/40 bg-slate-500/10 px-2.5 py-1 text-slate-200">
             <Lock className="h-3 w-3" /> אירועים פרטיים · {extCount}
           </span>
+          {currentTier && (
+            <span className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ring-1",
+              currentTier.is_vip
+                ? "bg-amber-500/10 ring-amber-400/50 text-amber-200"
+                : "bg-slate-500/10 ring-slate-500/40 text-slate-300",
+            )}>
+              {currentTier.is_vip ? <Crown className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+              דרגה: {currentTier.name}
+              {!currentTier.is_vip && (
+                <button onClick={() => setPaywallOpen(true)} className="underline-offset-2 hover:underline text-amber-300 mr-1">
+                  שדרג
+                </button>
+              )}
+            </span>
+          )}
           {loading && <span className="inline-flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> טוען…</span>}
         </div>
       </div>
