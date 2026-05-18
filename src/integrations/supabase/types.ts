@@ -3167,45 +3167,57 @@ export type Database = {
       }
       music_news: {
         Row: {
+          approval_status: string | null
           author_id: string | null
           category: string
           content: string
           created_at: string | null
           id: string
           image_url: string | null
+          is_automated: boolean | null
           is_featured: boolean | null
           short_video_id: string | null
           slug: string
+          source_url: string | null
+          submitted_by_pr: boolean | null
           summary: string | null
           title: string
           updated_at: string | null
           views_count: number | null
         }
         Insert: {
+          approval_status?: string | null
           author_id?: string | null
           category: string
           content: string
           created_at?: string | null
           id?: string
           image_url?: string | null
+          is_automated?: boolean | null
           is_featured?: boolean | null
           short_video_id?: string | null
           slug: string
+          source_url?: string | null
+          submitted_by_pr?: boolean | null
           summary?: string | null
           title: string
           updated_at?: string | null
           views_count?: number | null
         }
         Update: {
+          approval_status?: string | null
           author_id?: string | null
           category?: string
           content?: string
           created_at?: string | null
           id?: string
           image_url?: string | null
+          is_automated?: boolean | null
           is_featured?: boolean | null
           short_video_id?: string | null
           slug?: string
+          source_url?: string | null
+          submitted_by_pr?: boolean | null
           summary?: string | null
           title?: string
           updated_at?: string | null
