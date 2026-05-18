@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/wiki/$slug")({
   component: WikiArticlePage,
@@ -114,6 +116,53 @@ function WikiArticlePage() {
   const [submitting, setSubmitting] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const incrementedRef = useRef(false);
+
+  // Edit existing article
+  const [openEdit, setOpenEdit] = useState(false);
+  const [eTitle, setETitle] = useState("");
+  const [eSummary, setESummary] = useState("");
+  const [eContent, setEContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEditDialog = () => {
+    if (!article) return;
+    setETitle(article.title);
+    setESummary(article.summary ?? "");
+    setEContent(article.content);
+    setOpenEdit(true);
+  };
+
+  const saveEditArticle = async () => {
+    if (!article) return;
+    if (!userId) {
+      toast.error("שגיאה בשמירה. ודא שאתה מחובר למערכת.");
+      return;
+    }
+    if (!eTitle.trim() || eContent.trim().length < 20) {
+      toast.error("נא למלא כותרת ותוכן");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { error } = await (supabase as any)
+        .from("wiki_articles")
+        .update({
+          title: eTitle.trim(),
+          summary: eSummary.trim() || null,
+          content: eContent.trim(),
+          last_edited_by: userId,
+        })
+        .eq("id", article.id);
+      if (error) throw error;
+      toast.success("נשמר בהצלחה! ✅");
+      setArticle({ ...article, title: eTitle.trim(), summary: eSummary.trim() || null, content: eContent.trim(), last_edited_by: userId });
+      setOpenEdit(false);
+    } catch (e: any) {
+      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
@@ -263,11 +312,21 @@ function WikiArticlePage() {
           {article.summary && (
             <p className="text-base md:text-lg text-muted-foreground mt-2 max-w-3xl">{article.summary}</p>
           )}
-          <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1">
               <Eye className="h-4 w-4" />
               {(article.views_count ?? 0).toLocaleString("he-IL")} צפיות
             </span>
+            {userId && (
+              <Button
+                size="sm"
+                onClick={openEditDialog}
+                className="bg-amber-500 text-black hover:bg-amber-400"
+              >
+                <Edit3 className="h-4 w-4 ml-1" />
+                ✏️ ערוך ערך זה
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -458,6 +517,59 @@ function WikiArticlePage() {
           </aside>
         )}
       </div>
+
+      {/* Edit article dialog */}
+      <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-amber-300">עריכת ערך — {article.title}</DialogTitle>
+            <DialogDescription>
+              השינויים יישמרו מיידית. ניתן לערוך כותרת, תקציר ותוכן.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">כותרת *</Label>
+              <Input
+                value={eTitle}
+                onChange={(e) => setETitle(e.target.value)}
+                maxLength={180}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תקציר</Label>
+              <Textarea
+                value={eSummary}
+                onChange={(e) => setESummary(e.target.value)}
+                rows={2}
+                maxLength={500}
+                className="mt-1 resize-none"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תוכן *</Label>
+              <Textarea
+                value={eContent}
+                onChange={(e) => setEContent(e.target.value)}
+                rows={16}
+                maxLength={50000}
+                className="mt-1 font-mono text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenEdit(false)}>ביטול</Button>
+            <Button
+              onClick={saveEditArticle}
+              disabled={savingEdit}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+            >
+              {savingEdit ? "שומר..." : "שמור שינויים"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { friendlyError } from "@/lib/errors";
 import { sanitizeHtml } from "@/lib/sanitize";
-import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X } from "lucide-react";
+import { Newspaper, Eye, Pencil, Check, Bot, Megaphone, Loader2, X, Plus } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -156,6 +160,66 @@ export function NewsManager() {
   const [editContent, setEditContent] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Create new article (admin instant publish)
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newCategory, setNewCategory] = useState<string>("singles");
+  const [newSummary, setNewSummary] = useState("");
+  const [newContent, setNewContent] = useState("");
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const slugify = (t: string) => {
+    const base = t.toLowerCase().replace(/[^a-z0-9\u0590-\u05FF\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
+    return `${base || "article"}-${Math.random().toString(36).slice(2, 8)}`;
+  };
+
+  const resetCreate = () => {
+    setNewTitle(""); setNewCategory("singles"); setNewSummary(""); setNewContent(""); setNewImageUrl("");
+  };
+
+  const createArticle = async () => {
+    if (!newTitle.trim() || newTitle.trim().length < 3) {
+      toast.error("כותרת חייבת לפחות 3 תווים");
+      return;
+    }
+    if (!newContent.trim() || newContent.trim().length < 20) {
+      toast.error("התוכן קצר מדי");
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) {
+        toast.error("יש להתחבר למערכת");
+        setCreating(false);
+        return;
+      }
+      const { error } = await (supabase as any).from("music_news").insert({
+        title: newTitle.trim(),
+        slug: slugify(newTitle),
+        category: newCategory,
+        summary: newSummary.trim() || null,
+        content: newContent.trim(),
+        image_url: newImageUrl.trim() || null,
+        author_id: uid,
+        approval_status: "approved",
+        is_automated: false,
+        submitted_by_pr: false,
+      });
+      if (error) throw error;
+      toast.success("נשמר בהצלחה! ✅");
+      resetCreate();
+      setCreateOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const load = async () => {
     setLoading(true);
     const { data } = await (supabase as any)
@@ -269,16 +333,25 @@ export function NewsManager() {
 
   return (
     <div dir="rtl" className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
-          <Newspaper className="h-5 w-5 text-gold" />
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gold/10 ring-1 ring-gold/30">
+            <Newspaper className="h-5 w-5 text-gold" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-gradient-gold">ניהול חדשות</h1>
+            <p className="text-sm text-muted-foreground">
+              סקירה ואישור של כתבות PR מהקהילה וכתבות אוטומטיות מהעולם
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="font-display text-2xl font-bold text-gradient-gold">ניהול חדשות</h1>
-          <p className="text-sm text-muted-foreground">
-            סקירה ואישור של כתבות PR מהקהילה וכתבות אוטומטיות מהעולם
-          </p>
-        </div>
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="bg-gold text-gold-foreground hover:bg-gold/90"
+        >
+          <Plus className="h-4 w-4 ml-1" />
+          ➕ הוסף כתבה חדשה
+        </Button>
       </div>
 
       <Tabs defaultValue="pr" dir="rtl">
@@ -384,6 +457,87 @@ export function NewsManager() {
             >
               {savingEdit ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
               שמור שינויים
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create new article dialog (admin instant publish) */}
+      <Dialog open={createOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); resetCreate(); } }}>
+        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-gradient-gold">כתבה חדשה — פרסום מיידי</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">כותרת *</Label>
+              <Input
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                maxLength={180}
+                className="mt-1 bg-background/60 border-gold/20"
+                placeholder="כותרת הכתבה"
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm">קטגוריה *</Label>
+                <Select value={newCategory} onValueChange={setNewCategory}>
+                  <SelectTrigger className="mt-1 bg-background/60 border-gold/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(CATEGORY_LABELS).map(([v, l]) => (
+                      <SelectItem key={v} value={v}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-sm">כתובת תמונת שער (URL)</Label>
+                <Input
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  maxLength={500}
+                  className="mt-1 bg-background/60 border-gold/20"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm">תקציר</Label>
+              <Textarea
+                value={newSummary}
+                onChange={(e) => setNewSummary(e.target.value)}
+                rows={2}
+                maxLength={500}
+                className="mt-1 bg-background/60 border-gold/20 resize-none"
+                placeholder="2-3 משפטים שיוצגו בכרטיס המגזין"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תוכן (HTML בסיסי נתמך) *</Label>
+              <Textarea
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                rows={14}
+                maxLength={50000}
+                className="mt-1 bg-background/60 border-gold/20 font-mono text-sm"
+                placeholder="<h2>כותרת</h2><p>פסקה...</p>"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCreateOpen(false); resetCreate(); }}>
+              ביטול
+            </Button>
+            <Button
+              onClick={createArticle}
+              disabled={creating}
+              className="bg-gold text-gold-foreground hover:bg-gold/90"
+            >
+              {creating ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
+              פרסם עכשיו
             </Button>
           </DialogFooter>
         </DialogContent>

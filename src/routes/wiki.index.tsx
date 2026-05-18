@@ -1,10 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Search, BookOpen, Music2, Sliders, User, Library, TrendingUp, Eye } from "lucide-react";
+import { Search, BookOpen, Music2, Sliders, User, Library, TrendingUp, Eye, FileText } from "lucide-react";
+import { toast } from "sonner";
+import { friendlyError } from "@/lib/errors";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/wiki/")({
   head: () => ({
@@ -47,11 +57,61 @@ const HEBREW_LETTERS = "אבגדהוזחטיכלמנסעפצקרשת".split("");
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=70";
 
+function slugifyWiki(title: string) {
+  const base = title.toLowerCase().replace(/[^a-z0-9\u0590-\u05FF\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
+  return `${base || "article"}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 function WikiIndexPage() {
   const [rows, setRows] = useState<WikiRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [letter, setLetter] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Create new article state
+  const [openCreate, setOpenCreate] = useState(false);
+  const [nTitle, setNTitle] = useState("");
+  const [nCategory, setNCategory] = useState<WikiRow["category"]>("instruments");
+  const [nSummary, setNSummary] = useState("");
+  const [nContent, setNContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  const submitNew = async () => {
+    if (!userId) {
+      toast.error("שגיאה בשמירה. ודא שאתה מחובר למערכת.");
+      return;
+    }
+    if (nTitle.trim().length < 2 || nContent.trim().length < 20) {
+      toast.error("נא למלא כותרת ותוכן מספק");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { error } = await (supabase as any).from("wiki_articles").insert({
+        title: nTitle.trim(),
+        slug: slugifyWiki(nTitle),
+        category: nCategory,
+        summary: nSummary.trim() || null,
+        content: nContent.trim(),
+        created_by: userId,
+        last_edited_by: userId,
+        is_verified: false,
+      });
+      if (error) throw error;
+      toast.success("נשמר בהצלחה! ✅ הערך יעלה לאחר בדיקת מערכת");
+      setOpenCreate(false);
+      setNTitle(""); setNSummary(""); setNContent(""); setNCategory("instruments");
+    } catch (e: any) {
+      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -109,6 +169,16 @@ function WikiIndexPage() {
               placeholder="חפש מושג, כלי או אמן..."
               className="h-14 pr-12 text-lg bg-card border-amber-500/30 focus-visible:ring-amber-500/40"
             />
+          </div>
+
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={() => setOpenCreate(true)}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+            >
+              <FileText className="h-4 w-4 ml-1" />
+              📄 הצע ערך חדש
+            </Button>
           </div>
 
           {/* Alphabet selector */}
@@ -251,6 +321,76 @@ function WikiIndexPage() {
           )}
         </section>
       </div>
+
+      {/* Create new wiki article dialog */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent dir="rtl" className="bg-card border-amber-500/30 max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-amber-300">הצעת ערך חדש לוויזיקאי</DialogTitle>
+            <DialogDescription>
+              הערך יישלח לבדיקת מערכת לפני שיופיע בפומבי באנציקלופדיה.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">כותרת *</Label>
+              <Input
+                value={nTitle}
+                onChange={(e) => setNTitle(e.target.value)}
+                maxLength={180}
+                placeholder="לדוגמה: Korg Pa5X"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">קטגוריה *</Label>
+              <Select value={nCategory} onValueChange={(v) => setNCategory(v as WikiRow["category"])}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c.key} value={c.key}>{c.emoji} {c.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm">תקציר</Label>
+              <Textarea
+                value={nSummary}
+                onChange={(e) => setNSummary(e.target.value)}
+                rows={2}
+                maxLength={500}
+                placeholder="משפט-שניים שמסכמים את הערך"
+                className="mt-1 resize-none"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תוכן הערך *</Label>
+              <Textarea
+                value={nContent}
+                onChange={(e) => setNContent(e.target.value)}
+                rows={12}
+                maxLength={50000}
+                placeholder="ניתן להשתמש ב-Markdown (## כותרת) או HTML בסיסי"
+                className="mt-1 font-mono text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenCreate(false)}>ביטול</Button>
+            <Button
+              onClick={submitNew}
+              disabled={submitting || !userId}
+              className="bg-amber-500 text-black hover:bg-amber-400"
+            >
+              {submitting ? "שולח..." : "שלח לבדיקה"}
+            </Button>
+          </DialogFooter>
+          {!userId && (
+            <p className="text-xs text-muted-foreground text-center">יש להתחבר כדי להציע ערך חדש.</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
