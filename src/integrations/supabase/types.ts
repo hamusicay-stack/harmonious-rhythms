@@ -3380,11 +3380,15 @@ export type Database = {
       music_pro_calendar_events: {
         Row: {
           created_at: string
+          description: string | null
           end_time: string | null
           event_date: string
+          event_type: string | null
           id: string
+          is_external: boolean
           notes: string | null
           pro_id: string
+          pro_user_id: string | null
           source: string
           source_ref_id: string | null
           start_time: string | null
@@ -3393,11 +3397,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           end_time?: string | null
           event_date: string
+          event_type?: string | null
           id?: string
+          is_external?: boolean
           notes?: string | null
           pro_id: string
+          pro_user_id?: string | null
           source?: string
           source_ref_id?: string | null
           start_time?: string | null
@@ -3406,11 +3414,15 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           end_time?: string | null
           event_date?: string
+          event_type?: string | null
           id?: string
+          is_external?: boolean
           notes?: string | null
           pro_id?: string
+          pro_user_id?: string | null
           source?: string
           source_ref_id?: string | null
           start_time?: string | null
@@ -3423,6 +3435,13 @@ export type Database = {
             columns: ["pro_id"]
             isOneToOne: false
             referencedRelation: "music_pros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_pro_calendar_events_pro_user_id_fkey"
+            columns: ["pro_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
