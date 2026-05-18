@@ -55,6 +55,7 @@ import { Route as ForumMessagesRouteImport } from './routes/forum.messages'
 import { Route as BeatSetIdRouteImport } from './routes/beat.$setId'
 import { Route as AdminWikiRouteImport } from './routes/admin.wiki'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
 import { Route as AdminForumRouteImport } from './routes/admin.forum'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -335,6 +336,11 @@ const AdminWikiRoute = AdminWikiRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminModerationRoute = AdminModerationRouteImport.update({
@@ -632,6 +638,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin/moderation': typeof AdminModerationRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/wiki': typeof AdminWikiRoute
   '/beat/$setId': typeof BeatSetIdRoute
@@ -724,6 +731,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin/moderation': typeof AdminModerationRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/wiki': typeof AdminWikiRoute
   '/beat/$setId': typeof BeatSetIdRoute
@@ -824,6 +832,7 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin/moderation': typeof AdminModerationRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/wiki': typeof AdminWikiRoute
   '/beat/$setId': typeof BeatSetIdRoute
@@ -925,6 +934,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/forum'
     | '/admin/moderation'
+    | '/admin/notifications'
     | '/admin/users'
     | '/admin/wiki'
     | '/beat/$setId'
@@ -1017,6 +1027,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/forum'
     | '/admin/moderation'
+    | '/admin/notifications'
     | '/admin/users'
     | '/admin/wiki'
     | '/beat/$setId'
@@ -1116,6 +1127,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/forum'
     | '/admin/moderation'
+    | '/admin/notifications'
     | '/admin/users'
     | '/admin/wiki'
     | '/beat/$setId'
@@ -1544,6 +1556,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/moderation': {
@@ -2005,6 +2024,7 @@ interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminForumRoute: typeof AdminForumRoute
   AdminModerationRoute: typeof AdminModerationRoute
+  AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminWikiRoute: typeof AdminWikiRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -2019,6 +2039,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminForumRoute: AdminForumRoute,
   AdminModerationRoute: AdminModerationRoute,
+  AdminNotificationsRoute: AdminNotificationsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminWikiRoute: AdminWikiRoute,
   AdminIndexRoute: AdminIndexRoute,
