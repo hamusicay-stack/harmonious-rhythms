@@ -33,7 +33,7 @@ function SellerProfilePage() {
   useEffect(() => {
     (async () => {
       const [{ data: prof }, { data: biz }, { data: trustedRow }, { data: list }, { data: revs }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", sellerId).maybeSingle(),
+        supabase.from("profiles").select("id, display_name, username, avatar_url, banner_url, bio, created_at").eq("id", sellerId).maybeSingle(),
         supabase.from("marketplace_business_sellers").select("business_name").eq("user_id", sellerId).maybeSingle(),
         supabase.from("marketplace_trusted_sellers").select("user_id").eq("user_id", sellerId).maybeSingle(),
         supabase.from("marketplace_listings").select("id, title, price, images, status").eq("seller_id", sellerId).eq("status", "approved").order("created_at", { ascending: false }),

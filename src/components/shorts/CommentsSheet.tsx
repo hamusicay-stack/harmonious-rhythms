@@ -43,6 +43,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
   const [posting, setPosting] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   const load = useCallback(async () => {
@@ -87,6 +88,13 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
     ta.style.height = "auto";
     ta.style.height = Math.min(ta.scrollHeight, 140) + "px";
   }, [text]);
+
+  // Cooldown countdown (3s anti-spam window after a successful post)
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const submit = async () => {
     if (!user) { toast.error("יש להתחבר"); return; }
