@@ -187,6 +187,16 @@ export function CentralChatHub() {
     loadThreads();
   }, [loadThreads]);
 
+  // Honor ?thread=core:<id> from the URL so deep-links open the right chat.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    const wanted = sp.get("thread");
+    if (!wanted) return;
+    const match = threads.find((t) => t.id === wanted);
+    if (match) setActiveId(match.id);
+  }, [threads]);
+
   // Realtime: refresh list on any thread/message change for the three sources
   useEffect(() => {
     if (!user) return;
