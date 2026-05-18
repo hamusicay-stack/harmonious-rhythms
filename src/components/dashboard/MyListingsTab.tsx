@@ -37,6 +37,23 @@ export function MyListingsTab({ userId }: { userId: string }) {
   const [boostId, setBoostId] = useState<string | null>(null);
   const [soldFor, setSoldFor] = useState<Listing | null>(null);
   const [pendingSoldIds, setPendingSoldIds] = useState<Set<string>>(new Set());
+  const [takeDownFor, setTakeDownFor] = useState<Listing | null>(null);
+  const [takingDown, setTakingDown] = useState(false);
+
+  const handleTakeDown = async () => {
+    if (!takeDownFor) return;
+    setTakingDown(true);
+    const { error } = await supabase
+      .from("marketplace_listings")
+      .update({ status: "archived" })
+      .eq("id", takeDownFor.id);
+    setTakingDown(false);
+    if (error) { toast.error(error.message); return; }
+    // Optimistic client update — no full refresh
+    setListings((prev) => prev.map((l) => l.id === takeDownFor.id ? { ...l, status: "archived" } : l));
+    setTakeDownFor(null);
+    toast.success("המודעה הוסרה והועברה לארכיון בהצלחה 👍");
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
