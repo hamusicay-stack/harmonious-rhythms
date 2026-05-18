@@ -211,6 +211,8 @@ Deno.serve(async (req) => {
               content: ai.html_content,
               summary: stripTags(ai.html_content).slice(0, 200),
               source_url: item.link,
+              video_url: item.video_url,
+              image_url: item.image_url,
               is_automated: true,
               approval_status: "pending_review",
               category: "gear_reviews",
