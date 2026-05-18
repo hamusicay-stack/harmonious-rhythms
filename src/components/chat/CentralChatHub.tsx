@@ -117,6 +117,7 @@ export function CentralChatHub() {
         lastMessageAt: t.last_message_at,
         lastPreview: t.last_message_preview,
         unread: iAmUserA ? t.unread_a : t.unread_b,
+        contextId: t.context_id ?? null,
       });
     });
 
