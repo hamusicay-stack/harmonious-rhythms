@@ -31,6 +31,10 @@ type Deal = {
   status: DealStatus;
   notes: string | null;
   created_at: string;
+  title: string | null;
+  source_type: string | null;
+  source_ref_id: string | null;
+  customer_id: string | null;
 };
 
 const COLUMNS: { id: DealStatus; title: string; tone: string }[] = [
