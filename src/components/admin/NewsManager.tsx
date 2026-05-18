@@ -357,7 +357,7 @@ export function NewsManager() {
       </div>
 
       <Tabs defaultValue="pr" dir="rtl">
-        <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-2 gap-1">
+        <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-3 gap-1">
           <TabsTrigger value="pr" className="gap-2">
             <Megaphone className="h-4 w-4" />
             בקשות פרסום (PR)
@@ -372,6 +372,10 @@ export function NewsManager() {
               <Badge className="bg-gold text-gold-foreground ml-1">{aiArticles.length}</Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="engine" className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            מנוע תוכן AI
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="pr" className="mt-5">
@@ -382,6 +386,10 @@ export function NewsManager() {
             items={aiArticles}
             emptyText="אין כרגע כתבות אוטומטיות ממתינות לאישור."
           />
+        </TabsContent>
+        <TabsContent value="engine" className="mt-5 space-y-6">
+          <AIPendingQueue />
+          <NewsSourcesManager />
         </TabsContent>
       </Tabs>
 
