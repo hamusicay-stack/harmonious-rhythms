@@ -17,6 +17,7 @@ type Article = {
   summary: string | null;
   content: string;
   image_url: string | null;
+  video_url: string | null;
   category: "singles" | "albums" | "events" | "gear_reviews" | "interviews";
   author_id: string | null;
   short_video_id: string | null;
