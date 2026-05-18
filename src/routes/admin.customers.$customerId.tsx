@@ -131,6 +131,9 @@ function CustomerProfilePage() {
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [listingsCount, setListingsCount] = useState(0);
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const [proInquiries, setProInquiries] = useState<any[]>([]);
+  const [customerDeals, setCustomerDeals] = useState<any[]>([]);
+  const [customerLeads, setCustomerLeads] = useState<any[]>([]);
   const [newTag, setNewTag] = useState("");
   const [newTagColor, setNewTagColor] = useState("default");
 
@@ -159,7 +162,7 @@ function CustomerProfilePage() {
 
   const load = async () => {
     setLoading(true);
-    const [p, t, i, o, so, en, ml, ci] = await Promise.all([
+    const [p, t, i, o, so, en, ml, ci, pi, dl, ld] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", customerId).maybeSingle(),
       supabase.from("customer_tags").select("*").eq("customer_id", customerId).order("created_at"),
       supabase.from("customer_interactions").select("*").eq("customer_id", customerId).order("occurred_at", { ascending: false }),
@@ -168,6 +171,9 @@ function CustomerProfilePage() {
       supabase.from("academy_enrollments").select("id, course_id, progress_percent, status, last_accessed_at, academy_courses(title)").eq("user_id", customerId),
       supabase.from("marketplace_listings").select("id", { count: "exact", head: true }).eq("seller_id", customerId).eq("status", "approved"),
       supabase.from("cart_items").select("*").eq("user_id", customerId).order("added_at", { ascending: false }),
+      supabase.from("music_pro_inquiries").select("id, pro_id, event_type, event_date, status, budget, created_at, music_pros(display_name)").eq("sender_id", customerId).order("created_at", { ascending: false }),
+      supabase.from("deals").select("id, title, customer_name, value, status, source_type, source_ref_id, created_at").eq("customer_id", customerId).order("created_at", { ascending: false }),
+      supabase.from("leads").select("id, name, source, status, created_at, notes").eq("customer_id", customerId).order("created_at", { ascending: false }),
     ]);
     setProfile(p.data as Profile | null);
     setTags((t.data as CustomerTag[]) ?? []);
@@ -177,6 +183,9 @@ function CustomerProfilePage() {
     setEnrollments(en.data ?? []);
     setListingsCount(ml.count ?? 0);
     setCartItems(ci.data ?? []);
+    setProInquiries(pi.data ?? []);
+    setCustomerDeals(dl.data ?? []);
+    setCustomerLeads(ld.data ?? []);
     setLoading(false);
   };
 
@@ -401,8 +410,73 @@ function CustomerProfilePage() {
               <TabsTrigger value="courses"><BookOpen className="ml-2 h-4 w-4" />קורסים ({enrollments.length})</TabsTrigger>
               <TabsTrigger value="marketplace"><Store className="ml-2 h-4 w-4" />יד שנייה ({listingsCount})</TabsTrigger>
               <TabsTrigger value="cart"><ShoppingBag className="ml-2 h-4 w-4" />עגלה ({cartItems.length})</TabsTrigger>
+              <TabsTrigger value="crm"><Sparkles className="ml-2 h-4 w-4" />CRM ({proInquiries.length + customerDeals.length})</TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="crm" className="mt-6 space-y-4">
+            <Card>
+              <CardHeader><CardTitle>פניות למוזיקאים ({proInquiries.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {proInquiries.length === 0 && <p className="text-sm text-muted-foreground">אין פניות.</p>}
+                {proInquiries.map((iq: any) => (
+                  <div key={iq.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold">
+                        {iq.music_pros?.display_name || "—"} · {iq.event_type}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(iq.created_at).toLocaleDateString("he-IL")}
+                        {iq.event_date && ` · אירוע: ${new Date(iq.event_date).toLocaleDateString("he-IL")}`}
+                        {iq.budget && ` · ₪${iq.budget}`}
+                      </div>
+                    </div>
+                    <Badge variant="outline">{iq.status}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle>עסקאות ({customerDeals.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {customerDeals.length === 0 && <p className="text-sm text-muted-foreground">אין עסקאות.</p>}
+                {customerDeals.map((d: any) => (
+                  <div key={d.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold">{d.title || d.customer_name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(d.created_at).toLocaleDateString("he-IL")} · ₪{Number(d.value || 0)}
+                        {d.source_type === "music_pro_inquiry" && " · מקור: פנייה למוזיקאי"}
+                      </div>
+                    </div>
+                    <Badge>{d.status}</Badge>
+                  </div>
+                ))}
+                <Button asChild variant="outline" size="sm" className="mt-2">
+                  <Link to="/admin/crm/deals">לקאנבן העסקאות</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle>לידים ({customerLeads.length})</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {customerLeads.length === 0 && <p className="text-sm text-muted-foreground">אין לידים.</p>}
+                {customerLeads.map((l: any) => (
+                  <div key={l.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold">{l.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(l.created_at).toLocaleDateString("he-IL")} · מקור: {l.source}
+                      </div>
+                    </div>
+                    <Badge>{l.status}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="timeline" className="mt-6 space-y-4">
             <AddInteractionCard customerId={customerId} userId={user.id} onAdded={load} />

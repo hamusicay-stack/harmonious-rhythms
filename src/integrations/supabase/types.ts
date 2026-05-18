@@ -1781,9 +1781,13 @@ export type Database = {
           customer_id: string | null
           customer_name: string
           id: string
+          lead_id: string | null
           notes: string | null
           position: number
+          source_ref_id: string | null
+          source_type: string | null
           status: string
+          title: string | null
           updated_at: string
           value: number
         }
@@ -1793,9 +1797,13 @@ export type Database = {
           customer_id?: string | null
           customer_name: string
           id?: string
+          lead_id?: string | null
           notes?: string | null
           position?: number
+          source_ref_id?: string | null
+          source_type?: string | null
           status?: string
+          title?: string | null
           updated_at?: string
           value?: number
         }
@@ -1805,13 +1813,25 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string
           id?: string
+          lead_id?: string | null
           notes?: string | null
           position?: number
+          source_ref_id?: string | null
+          source_type?: string | null
           status?: string
+          title?: string | null
           updated_at?: string
           value?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "deals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_logs: {
         Row: {
@@ -2590,6 +2610,7 @@ export type Database = {
           assigned_to: string | null
           created_at: string
           custom_source: string | null
+          customer_id: string | null
           email: string | null
           id: string
           name: string
@@ -2603,6 +2624,7 @@ export type Database = {
           assigned_to?: string | null
           created_at?: string
           custom_source?: string | null
+          customer_id?: string | null
           email?: string | null
           id?: string
           name: string
@@ -2616,6 +2638,7 @@ export type Database = {
           assigned_to?: string | null
           created_at?: string
           custom_source?: string | null
+          customer_id?: string | null
           email?: string | null
           id?: string
           name?: string
@@ -2625,7 +2648,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       marketplace_business_sellers: {
         Row: {
@@ -6640,6 +6671,7 @@ export type Database = {
         | "phone"
         | "referral"
         | "other"
+        | "music_pro_inquiry"
       lead_status: "new" | "in_progress" | "converted" | "lost"
       payment_status: "pending" | "paid" | "cancelled" | "refunded"
       profile_global_status: "active" | "suspended" | "banned" | "pending"
@@ -6845,6 +6877,7 @@ export const Constants = {
         "phone",
         "referral",
         "other",
+        "music_pro_inquiry",
       ],
       lead_status: ["new", "in_progress", "converted", "lost"],
       payment_status: ["pending", "paid", "cancelled", "refunded"],
