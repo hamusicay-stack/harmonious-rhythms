@@ -39,6 +39,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   albums: "השקות אלבומים",
   events: "אירועים",
   gear_reviews: "סיקורי ציוד",
+  plugins: "פלאגינים",
   interviews: "ראיונות",
 };
 
