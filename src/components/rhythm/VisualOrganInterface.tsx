@@ -371,11 +371,43 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
               </div>
             </div>
           </div>
-          <SrChip>
-            <span className="sr-led-dot" style={{ background: "var(--sr-led-green)", boxShadow: "0 0 6px var(--sr-led-green)" }} />
-            POWER ON
-          </SrChip>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <button
+              type="button"
+              onClick={() => setFavoritesOnly((v) => !v)}
+              className="sr-chip inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.7rem]"
+              data-lit={favoritesOnly ? "true" : undefined}
+              style={favoritesOnly ? { color: "var(--sr-led-amber)", borderColor: "color-mix(in oklab, var(--sr-led-amber) 50%, transparent)" } : undefined}
+              aria-pressed={favoritesOnly}
+            >
+              <Star className={cn("h-3.5 w-3.5", favoritesOnly && "fill-current")} />
+              מועדפים בלבד
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowShortcuts((v) => !v)}
+              className="sr-chip inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.7rem]"
+              aria-pressed={showShortcuts}
+            >
+              <KeyboardIcon className="h-3.5 w-3.5" />
+              קיצורים
+            </button>
+            <SrChip>
+              <span className="sr-led-dot" style={{ background: "var(--sr-led-green)", boxShadow: "0 0 6px var(--sr-led-green)" }} />
+              POWER ON
+            </SrChip>
+          </div>
         </div>
+
+        {showShortcuts && (
+          <div className="sr-panel grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 text-[0.72rem]" style={{ fontFamily: "ui-monospace, SFMono-Regular, monospace" }}>
+            <div><b className="opacity-70">1-4</b> · Main A-D</div>
+            <div><b className="opacity-70">Q W E</b> · Intro I-III</div>
+            <div><b className="opacity-70">A S D F</b> · Fill AA-DD</div>
+            <div><b className="opacity-70">Z X C</b> · Ending I-III</div>
+            <div className="col-span-2 sm:col-span-4"><b className="opacity-70">Space</b> · עצור נגינה</div>
+          </div>
+        )}
 
         {/* LCD SCREEN — Yamaha skeuomorphic */}
         {hwTheme.variant === "tyros" ? (
