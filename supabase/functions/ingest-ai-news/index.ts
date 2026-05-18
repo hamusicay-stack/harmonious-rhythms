@@ -89,7 +89,8 @@ function parseFeed(xml: string): RssItem[] {
 
   const itemBlocks = xml.match(/<item[\s\S]*?<\/item>/gi) ?? [];
   for (const block of itemBlocks) {
-    const rawDesc = pick("description", block) || pick("content:encoded", block);
+    // Prefer full content over short description snippet
+    const rawDesc = pick("content:encoded", block) || pick("content", block) || pick("description", block);
     items.push({
       title: stripTags(pick("title", block)),
       link: stripTags(pick("link", block)),
@@ -103,7 +104,7 @@ function parseFeed(xml: string): RssItem[] {
     const entryBlocks = xml.match(/<entry[\s\S]*?<\/entry>/gi) ?? [];
     for (const block of entryBlocks) {
       const linkMatch = block.match(/<link[^>]*href=["']([^"']+)["']/i);
-      const rawDesc = pick("summary", block) || pick("content", block);
+      const rawDesc = pick("content", block) || pick("summary", block);
       items.push({
         title: stripTags(pick("title", block)),
         link: linkMatch ? linkMatch[1] : "",
@@ -129,11 +130,12 @@ async function rewriteWithOpenAI(item: RssItem): Promise<AiOutput> {
       model: OPENAI_MODEL,
       response_format: { type: "json_object" },
       temperature: 0.7,
+      max_tokens: 2500,
       messages: [
         {
           role: "system",
           content:
-            "You are a top-tier music equipment journalist for an Israeli portal. Translate the following news to Hebrew. Rewrite it to be highly engaging for musicians, producers, and keyboardists. Add a catchy title. Format the output as clean HTML paragraphs. Return JSON with 'title' and 'html_content'.",
+            "You are an elite music technology journalist and SEO expert. Translate, adapt, and expand the provided text into Hebrew. CRITICAL RULE: You must write a comprehensive, long-form, in-depth article. Do NOT summarize or skip details. If the text mentions a list (e.g., '6 pedals' or 'top features'), you MUST detail every single one. If the provided source text is too short, use your expert knowledge to expand deeply on the specific gear, instruments, or concepts mentioned to ensure the article is authoritative, professional, and at least 500 words long. Use rich HTML formatting (<h2>, <ul>, <li>, <strong>). Return JSON with 'title' and 'html_content'.",
         },
         {
           role: "user",
