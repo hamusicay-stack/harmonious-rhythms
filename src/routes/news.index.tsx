@@ -4,6 +4,7 @@ import { Calendar, Sparkles, Newspaper } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SiteLayout } from "@/components/SiteLayout";
 
 export const Route = createFileRoute("/news/")({
   head: () => ({
