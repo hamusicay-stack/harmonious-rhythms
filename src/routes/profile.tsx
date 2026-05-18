@@ -120,6 +120,10 @@ function ProfilePage() {
             <NotificationsList />
           </TabsContent>
 
+          <TabsContent value="messages" className="mt-6">
+            <CentralChatHub />
+          </TabsContent>
+
           <TabsContent value="courses" className="mt-6">
             <MyCoursesTab userId={user.id} />
           </TabsContent>
