@@ -25,6 +25,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WikiIndexRouteImport } from './routes/wiki.index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
 import { Route as NewsIndexRouteImport } from './routes/news.index'
@@ -32,6 +33,7 @@ import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index
 import { Route as ForumIndexRouteImport } from './routes/forum.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as WikiSlugRouteImport } from './routes/wiki.$slug'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as ShopCheckoutRouteImport } from './routes/shop.checkout'
@@ -180,6 +182,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WikiIndexRoute = WikiIndexRouteImport.update({
+  id: '/wiki/',
+  path: '/wiki/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopIndexRoute = ShopIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -214,6 +221,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const WikiSlugRoute = WikiSlugRouteImport.update({
+  id: '/wiki/$slug',
+  path: '/wiki/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/verify/$code',
@@ -604,6 +616,7 @@ export interface FileRoutesByFullPath {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/wiki/$slug': typeof WikiSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
@@ -611,6 +624,7 @@ export interface FileRoutesByFullPath {
   '/news/': typeof NewsIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/wiki/': typeof WikiIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
@@ -689,6 +703,7 @@ export interface FileRoutesByTo {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/wiki/$slug': typeof WikiSlugRoute
   '/admin': typeof AdminIndexRoute
   '/beat': typeof BeatIndexRoute
   '/forum': typeof ForumIndexRoute
@@ -696,6 +711,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
+  '/wiki': typeof WikiIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
@@ -782,6 +798,7 @@ export interface FileRoutesById {
   '/shop/checkout': typeof ShopCheckoutRoute
   '/u/$username': typeof UUsernameRoute
   '/verify/$code': typeof VerifyCodeRoute
+  '/wiki/$slug': typeof WikiSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
@@ -789,6 +806,7 @@ export interface FileRoutesById {
   '/news/': typeof NewsIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
+  '/wiki/': typeof WikiIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
   '/admin/commerce/academy-analytics': typeof AdminCommerceAcademyAnalyticsRoute
   '/admin/commerce/affiliates': typeof AdminCommerceAffiliatesRoute
@@ -876,6 +894,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/wiki/$slug'
     | '/admin/'
     | '/beat/'
     | '/forum/'
@@ -883,6 +902,7 @@ export interface FileRouteTypes {
     | '/news/'
     | '/pros/'
     | '/shop/'
+    | '/wiki/'
     | '/admin/commerce/academy'
     | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
@@ -961,6 +981,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/wiki/$slug'
     | '/admin'
     | '/beat'
     | '/forum'
@@ -968,6 +989,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/pros'
     | '/shop'
+    | '/wiki'
     | '/admin/commerce/academy'
     | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
@@ -1053,6 +1075,7 @@ export interface FileRouteTypes {
     | '/shop/checkout'
     | '/u/$username'
     | '/verify/$code'
+    | '/wiki/$slug'
     | '/admin/'
     | '/beat/'
     | '/forum/'
@@ -1060,6 +1083,7 @@ export interface FileRouteTypes {
     | '/news/'
     | '/pros/'
     | '/shop/'
+    | '/wiki/'
     | '/admin/commerce/academy'
     | '/admin/commerce/academy-analytics'
     | '/admin/commerce/affiliates'
@@ -1126,8 +1150,10 @@ export interface RootRouteChildren {
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   UUsernameRoute: typeof UUsernameRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
+  WikiSlugRoute: typeof WikiSlugRoute
   BeatIndexRoute: typeof BeatIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
+  WikiIndexRoute: typeof WikiIndexRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -1248,6 +1274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wiki/': {
+      id: '/wiki/'
+      path: '/wiki'
+      fullPath: '/wiki/'
+      preLoaderRoute: typeof WikiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop/': {
       id: '/shop/'
       path: '/'
@@ -1296,6 +1329,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/wiki/$slug': {
+      id: '/wiki/$slug'
+      path: '/wiki/$slug'
+      fullPath: '/wiki/$slug'
+      preLoaderRoute: typeof WikiSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/verify/$code': {
       id: '/verify/$code'
@@ -2017,8 +2057,10 @@ const rootRouteChildren: RootRouteChildren = {
   SellerSellerIdRoute: SellerSellerIdRoute,
   UUsernameRoute: UUsernameRoute,
   VerifyCodeRoute: VerifyCodeRoute,
+  WikiSlugRoute: WikiSlugRoute,
   BeatIndexRoute: BeatIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
+  WikiIndexRoute: WikiIndexRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:
