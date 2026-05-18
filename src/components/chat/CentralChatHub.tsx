@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Loader2, Search, ArrowRight, MessageCircle } from "lucide-react";
+import { Loader2, Search, ArrowRight, MessageCircle, Calendar } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -336,14 +337,24 @@ export function CentralChatHub() {
         )}
       >
         <div className="p-3 border-b border-border/60">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="חיפוש שיחות..."
-              className="pr-9 bg-background/60"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="חיפוש שיחות..."
+                className="pr-9 bg-background/60"
+              />
+            </div>
+            <Link
+              to="/pros/calendar"
+              title="היומן שלי"
+              className="shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-b from-amber-500/15 to-amber-500/5 text-amber-300 hover:from-amber-500/25 hover:text-amber-200 transition-colors"
+              aria-label="יומן אירועים"
+            >
+              <Calendar className="h-4 w-4" />
+            </Link>
           </div>
         </div>
         <ScrollArea className="flex-1">

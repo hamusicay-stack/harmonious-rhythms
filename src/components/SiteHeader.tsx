@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon, Globe } from "lucide-react";
+import { Search, Menu, X, LogOut, User as UserIcon, Shield, Command as CommandIcon, Globe, Calendar } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 import logoImg from "@/assets/logo.png";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -43,9 +45,25 @@ interface Props {
 
 export function SiteHeader({ onCommandPalette }: Props = {}) {
   const [open, setOpen] = useState(false);
+  const [isPro, setIsPro] = useState(false);
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const { direction, scrollY } = useScrollDirection(80);
+
+  useEffect(() => {
+    if (!user) { setIsPro(false); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("music_pros")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled) setIsPro(!!data);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -147,6 +165,12 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                     <DropdownMenuItem onClick={() => navigate({ to: "/u/$username", params: { username: profile.username! } })} className="cursor-pointer">
                       <Globe className="ml-2 h-4 w-4" />
                       הפרופיל הציבורי שלי
+                    </DropdownMenuItem>
+                  )}
+                  {isPro && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/pros/calendar" })} className="cursor-pointer">
+                      <Calendar className="ml-2 h-4 w-4 text-amber-400" />
+                      היומן שלי
                     </DropdownMenuItem>
                   )}
                   {isAdmin && (
