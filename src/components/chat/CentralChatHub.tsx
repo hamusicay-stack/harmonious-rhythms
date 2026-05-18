@@ -27,6 +27,7 @@ type Thread = ConversationThread & {
   // for marketplace/pro we also need context info
   rawListingId?: string;
   rawProId?: string;
+  contextId?: string | null; // core_chat_threads.context_id (e.g. music_pros.id when context_type='PRO')
 };
 
 type Message = {
