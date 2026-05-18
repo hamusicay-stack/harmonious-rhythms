@@ -461,6 +461,87 @@ export function NewsManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Create new article dialog (admin instant publish) */}
+      <Dialog open={createOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); resetCreate(); } }}>
+        <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-gradient-gold">כתבה חדשה — פרסום מיידי</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">כותרת *</Label>
+              <Input
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                maxLength={180}
+                className="mt-1 bg-background/60 border-gold/20"
+                placeholder="כותרת הכתבה"
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm">קטגוריה *</Label>
+                <Select value={newCategory} onValueChange={setNewCategory}>
+                  <SelectTrigger className="mt-1 bg-background/60 border-gold/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(CATEGORY_LABELS).map(([v, l]) => (
+                      <SelectItem key={v} value={v}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-sm">כתובת תמונת שער (URL)</Label>
+                <Input
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  maxLength={500}
+                  className="mt-1 bg-background/60 border-gold/20"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm">תקציר</Label>
+              <Textarea
+                value={newSummary}
+                onChange={(e) => setNewSummary(e.target.value)}
+                rows={2}
+                maxLength={500}
+                className="mt-1 bg-background/60 border-gold/20 resize-none"
+                placeholder="2-3 משפטים שיוצגו בכרטיס המגזין"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">תוכן (HTML בסיסי נתמך) *</Label>
+              <Textarea
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                rows={14}
+                maxLength={50000}
+                className="mt-1 bg-background/60 border-gold/20 font-mono text-sm"
+                placeholder="<h2>כותרת</h2><p>פסקה...</p>"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCreateOpen(false); resetCreate(); }}>
+              ביטול
+            </Button>
+            <Button
+              onClick={createArticle}
+              disabled={creating}
+              className="bg-gold text-gold-foreground hover:bg-gold/90"
+            >
+              {creating ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
+              פרסם עכשיו
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
