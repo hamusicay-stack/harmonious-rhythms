@@ -130,10 +130,15 @@ export function BeatSetProductPage({ setId }: { setId: string }) {
               )}
               <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">{set.set_name}</h1>
               {set.description && <p className="mt-4 text-muted-foreground">{set.description}</p>}
-              <div className="mt-6 flex items-center gap-4">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 <div className="text-3xl font-bold">₪{Number(set.price).toLocaleString()}</div>
                 <Button size="lg" onClick={handleAdd} className="gap-2">
                   <ShoppingCart className="h-5 w-5" /> הוסף לעגלה
+                </Button>
+                <Button asChild size="lg" variant="outline" className="gap-2">
+                  <Link to="/organ" search={{ set: set.id }}>
+                    <Piano className="h-5 w-5" /> נסה באורגן הוירטואלי
+                  </Link>
                 </Button>
               </div>
               <div className="mt-4 text-xs text-muted-foreground">
