@@ -43,6 +43,7 @@ import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
 import { Route as ProsNewRouteImport } from './routes/pros.new'
 import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
+import { Route as ProsCalendarRouteImport } from './routes/pros.calendar'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as MarketplaceWantedRouteImport } from './routes/marketplace.wanted'
@@ -277,6 +278,11 @@ const ProsNewRoute = ProsNewRouteImport.update({
 const ProsMyInquiriesRoute = ProsMyInquiriesRouteImport.update({
   id: '/my-inquiries',
   path: '/my-inquiries',
+  getParentRoute: () => ProsRoute,
+} as any)
+const ProsCalendarRoute = ProsCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => ProsRoute,
 } as any)
 const ProsProIdRoute = ProsProIdRouteImport.update({
@@ -658,6 +664,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/wanted': typeof MarketplaceWantedRoute
   '/news/$slug': typeof NewsSlugRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
+  '/pros/calendar': typeof ProsCalendarRoute
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
@@ -752,6 +759,7 @@ export interface FileRoutesByTo {
   '/marketplace/wanted': typeof MarketplaceWantedRoute
   '/news/$slug': typeof NewsSlugRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
+  '/pros/calendar': typeof ProsCalendarRoute
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
@@ -854,6 +862,7 @@ export interface FileRoutesById {
   '/marketplace/wanted': typeof MarketplaceWantedRoute
   '/news/$slug': typeof NewsSlugRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
+  '/pros/calendar': typeof ProsCalendarRoute
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
   '/seller/$sellerId': typeof SellerSellerIdRoute
@@ -957,6 +966,7 @@ export interface FileRouteTypes {
     | '/marketplace/wanted'
     | '/news/$slug'
     | '/pros/$proId'
+    | '/pros/calendar'
     | '/pros/my-inquiries'
     | '/pros/new'
     | '/seller/$sellerId'
@@ -1051,6 +1061,7 @@ export interface FileRouteTypes {
     | '/marketplace/wanted'
     | '/news/$slug'
     | '/pros/$proId'
+    | '/pros/calendar'
     | '/pros/my-inquiries'
     | '/pros/new'
     | '/seller/$sellerId'
@@ -1152,6 +1163,7 @@ export interface FileRouteTypes {
     | '/marketplace/wanted'
     | '/news/$slug'
     | '/pros/$proId'
+    | '/pros/calendar'
     | '/pros/my-inquiries'
     | '/pros/new'
     | '/seller/$sellerId'
@@ -1485,6 +1497,13 @@ declare module '@tanstack/react-router' {
       path: '/my-inquiries'
       fullPath: '/pros/my-inquiries'
       preLoaderRoute: typeof ProsMyInquiriesRouteImport
+      parentRoute: typeof ProsRoute
+    }
+    '/pros/calendar': {
+      id: '/pros/calendar'
+      path: '/calendar'
+      fullPath: '/pros/calendar'
+      preLoaderRoute: typeof ProsCalendarRouteImport
       parentRoute: typeof ProsRoute
     }
     '/pros/$proId': {
@@ -2160,6 +2179,7 @@ const ProsProIdRouteWithChildren = ProsProIdRoute._addFileChildren(
 
 interface ProsRouteChildren {
   ProsProIdRoute: typeof ProsProIdRouteWithChildren
+  ProsCalendarRoute: typeof ProsCalendarRoute
   ProsMyInquiriesRoute: typeof ProsMyInquiriesRoute
   ProsNewRoute: typeof ProsNewRoute
   ProsIndexRoute: typeof ProsIndexRoute
@@ -2167,6 +2187,7 @@ interface ProsRouteChildren {
 
 const ProsRouteChildren: ProsRouteChildren = {
   ProsProIdRoute: ProsProIdRouteWithChildren,
+  ProsCalendarRoute: ProsCalendarRoute,
   ProsMyInquiriesRoute: ProsMyInquiriesRoute,
   ProsNewRoute: ProsNewRoute,
   ProsIndexRoute: ProsIndexRoute,
