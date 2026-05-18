@@ -140,7 +140,7 @@ function WikiArticlePage() {
   const saveEditArticle = async () => {
     if (!article) return;
     if (!userId) {
-      toast.error("שגיאה בשמירה. ודא שאתה מחובר למערכת.");
+      toast.error("יש להתחבר כדי להציע עריכה");
       return;
     }
     if (!eTitle.trim() || eContent.trim().length < 20) {
@@ -150,20 +150,20 @@ function WikiArticlePage() {
     setSavingEdit(true);
     try {
       const { error } = await (supabase as any)
-        .from("wiki_articles")
-        .update({
-          title: eTitle.trim(),
-          summary: eSummary.trim() || null,
-          content: eContent.trim(),
-          last_edited_by: userId,
-        })
-        .eq("id", article.id);
+        .from("wiki_revisions")
+        .insert({
+          article_id: article.id,
+          suggested_title: eTitle.trim(),
+          suggested_summary: eSummary.trim() || null,
+          suggested_html: eContent.trim(),
+          submitted_by: userId,
+          status: "pending_review",
+        });
       if (error) throw error;
-      toast.success("נשמר בהצלחה! ✅");
-      setArticle({ ...article, title: eTitle.trim(), summary: eSummary.trim() || null, content: eContent.trim(), last_edited_by: userId });
+      toast.success("הצעת העריכה נשלחה לבדיקה!");
       setOpenEdit(false);
     } catch (e: any) {
-      toast.error(friendlyError(e, "שגיאה בשמירה. ודא שאתה מחובר למערכת."));
+      toast.error(friendlyError(e, "שליחת ההצעה נכשלה"));
     } finally {
       setSavingEdit(false);
     }
