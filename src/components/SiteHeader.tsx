@@ -167,6 +167,12 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                       הפרופיל הציבורי שלי
                     </DropdownMenuItem>
                   )}
+                  {isPro && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/pros/calendar" })} className="cursor-pointer">
+                      <Calendar className="ml-2 h-4 w-4 text-amber-400" />
+                      היומן שלי
+                    </DropdownMenuItem>
+                  )}
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
                       <Shield className="ml-2 h-4 w-4 text-primary" />
