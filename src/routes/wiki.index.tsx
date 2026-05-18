@@ -106,9 +106,10 @@ function WikiIndexPage() {
         created_by: userId,
         last_edited_by: userId,
         is_verified: false,
+        approval_status: "pending_review",
       });
       if (error) throw error;
-      toast.success("נשמר בהצלחה! ✅ הערך יעלה לאחר בדיקת מערכת");
+      toast.success("הערך נשלח לבדיקת המערכת!");
       setOpenCreate(false);
       setNTitle(""); setNSummary(""); setNContent(""); setNCategory("instruments");
     } catch (e: any) {
