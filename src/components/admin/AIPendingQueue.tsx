@@ -83,6 +83,15 @@ export function AIPendingQueue() {
 
   useEffect(() => {
     load();
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("music_news")
+        .select("category")
+        .limit(500);
+      setKnownCategories(
+        Array.from(new Set((data ?? []).map((r: any) => r.category).filter(Boolean))) as string[],
+      );
+    })();
   }, []);
 
   const approve = async (a: Article) => {
