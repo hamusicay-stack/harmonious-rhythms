@@ -27,6 +27,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProsIndexRouteImport } from './routes/pros.index'
+import { Route as NewsIndexRouteImport } from './routes/news.index'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace.index'
 import { Route as ForumIndexRouteImport } from './routes/forum.index'
 import { Route as BeatIndexRouteImport } from './routes/beat.index'
@@ -39,6 +40,7 @@ import { Route as SellerSellerIdRouteImport } from './routes/seller.$sellerId'
 import { Route as ProsNewRouteImport } from './routes/pros.new'
 import { Route as ProsMyInquiriesRouteImport } from './routes/pros.my-inquiries'
 import { Route as ProsProIdRouteImport } from './routes/pros.$proId'
+import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as MarketplaceWantedRouteImport } from './routes/marketplace.wanted'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace.$listingId'
@@ -187,6 +189,11 @@ const ProsIndexRoute = ProsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProsRoute,
 } as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -246,6 +253,11 @@ const ProsProIdRoute = ProsProIdRouteImport.update({
   id: '/$proId',
   path: '/$proId',
   getParentRoute: () => ProsRoute,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/news/$slug',
+  path: '/news/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceWantedRoute = MarketplaceWantedRouteImport.update({
   id: '/wanted',
@@ -577,6 +589,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/marketplace/wanted': typeof MarketplaceWantedRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
@@ -589,6 +602,7 @@ export interface FileRoutesByFullPath {
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
@@ -659,6 +673,7 @@ export interface FileRoutesByTo {
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/marketplace/wanted': typeof MarketplaceWantedRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
@@ -671,6 +686,7 @@ export interface FileRoutesByTo {
   '/beat': typeof BeatIndexRoute
   '/forum': typeof ForumIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/news': typeof NewsIndexRoute
   '/pros': typeof ProsIndexRoute
   '/shop': typeof ShopIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
@@ -749,6 +765,7 @@ export interface FileRoutesById {
   '/marketplace/$listingId': typeof MarketplaceListingIdRouteWithChildren
   '/marketplace/new': typeof MarketplaceNewRoute
   '/marketplace/wanted': typeof MarketplaceWantedRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/pros/$proId': typeof ProsProIdRouteWithChildren
   '/pros/my-inquiries': typeof ProsMyInquiriesRoute
   '/pros/new': typeof ProsNewRoute
@@ -761,6 +778,7 @@ export interface FileRoutesById {
   '/beat/': typeof BeatIndexRoute
   '/forum/': typeof ForumIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/pros/': typeof ProsIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/admin/commerce/academy': typeof AdminCommerceAcademyRoute
@@ -840,6 +858,7 @@ export interface FileRouteTypes {
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/marketplace/wanted'
+    | '/news/$slug'
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
@@ -852,6 +871,7 @@ export interface FileRouteTypes {
     | '/beat/'
     | '/forum/'
     | '/marketplace/'
+    | '/news/'
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/academy'
@@ -922,6 +942,7 @@ export interface FileRouteTypes {
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/marketplace/wanted'
+    | '/news/$slug'
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
@@ -934,6 +955,7 @@ export interface FileRouteTypes {
     | '/beat'
     | '/forum'
     | '/marketplace'
+    | '/news'
     | '/pros'
     | '/shop'
     | '/admin/commerce/academy'
@@ -1011,6 +1033,7 @@ export interface FileRouteTypes {
     | '/marketplace/$listingId'
     | '/marketplace/new'
     | '/marketplace/wanted'
+    | '/news/$slug'
     | '/pros/$proId'
     | '/pros/my-inquiries'
     | '/pros/new'
@@ -1023,6 +1046,7 @@ export interface FileRouteTypes {
     | '/beat/'
     | '/forum/'
     | '/marketplace/'
+    | '/news/'
     | '/pros/'
     | '/shop/'
     | '/admin/commerce/academy'
@@ -1086,10 +1110,12 @@ export interface RootRouteChildren {
   StoreRoute: typeof StoreRoute
   ToolsRoute: typeof ToolsRoute
   BeatSetIdRoute: typeof BeatSetIdRoute
+  NewsSlugRoute: typeof NewsSlugRoute
   SellerSellerIdRoute: typeof SellerSellerIdRoute
   UUsernameRoute: typeof UUsernameRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
   BeatIndexRoute: typeof BeatIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
   ApiPublicMarketplaceAutoBumpRoute: typeof ApiPublicMarketplaceAutoBumpRoute
   ApiPublicMarketplaceFollowupRoute: typeof ApiPublicMarketplaceFollowupRoute
   ApiPublicMarketplaceMatchSearchesRoute: typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -1224,6 +1250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProsIndexRouteImport
       parentRoute: typeof ProsRoute
     }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news/'
+      preLoaderRoute: typeof NewsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketplace/': {
       id: '/marketplace/'
       path: '/'
@@ -1307,6 +1340,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pros/$proId'
       preLoaderRoute: typeof ProsProIdRouteImport
       parentRoute: typeof ProsRoute
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/news/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/marketplace/wanted': {
       id: '/marketplace/wanted'
@@ -1952,10 +1992,12 @@ const rootRouteChildren: RootRouteChildren = {
   StoreRoute: StoreRoute,
   ToolsRoute: ToolsRoute,
   BeatSetIdRoute: BeatSetIdRoute,
+  NewsSlugRoute: NewsSlugRoute,
   SellerSellerIdRoute: SellerSellerIdRoute,
   UUsernameRoute: UUsernameRoute,
   VerifyCodeRoute: VerifyCodeRoute,
   BeatIndexRoute: BeatIndexRoute,
+  NewsIndexRoute: NewsIndexRoute,
   ApiPublicMarketplaceAutoBumpRoute: ApiPublicMarketplaceAutoBumpRoute,
   ApiPublicMarketplaceFollowupRoute: ApiPublicMarketplaceFollowupRoute,
   ApiPublicMarketplaceMatchSearchesRoute:
