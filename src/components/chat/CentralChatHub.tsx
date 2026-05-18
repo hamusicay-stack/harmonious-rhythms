@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ChatBubble } from "./shared/ChatBubble";
 import { ChatInput } from "./shared/ChatInput";
+import { ProChatStatusToolbar } from "./ProChatStatusToolbar";
 import {
   ConversationListItem,
   CTX_META,
@@ -27,6 +28,7 @@ type Thread = ConversationThread & {
   // for marketplace/pro we also need context info
   rawListingId?: string;
   rawProId?: string;
+  contextId?: string | null; // core_chat_threads.context_id (e.g. music_pros.id when context_type='PRO')
 };
 
 type Message = {
@@ -116,6 +118,7 @@ export function CentralChatHub() {
         lastMessageAt: t.last_message_at,
         lastPreview: t.last_message_preview,
         unread: iAmUserA ? t.unread_a : t.unread_b,
+        contextId: t.context_id ?? null,
       });
     });
 
@@ -408,6 +411,19 @@ export function CentralChatHub() {
                 {CTX_META[active.contextType].label}
               </Badge>
             </div>
+
+            {/* Pro Mini-CRM Toolbar — only renders for the professional in a PRO chat */}
+            <ProChatStatusToolbar
+              proId={active.contextId ?? ""}
+              clientUserId={active.otherUserId}
+              enabled={
+                active.source === "core" &&
+                active.contextType === "PRO" &&
+                !!active.contextId
+              }
+            />
+
+
 
             {/* Messages */}
             <div

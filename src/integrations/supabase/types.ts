@@ -6633,6 +6633,10 @@ export type Database = {
         Args: { _event_type: string; _listing_id: string }
         Returns: undefined
       }
+      update_pro_inquiry_and_crm_status: {
+        Args: { p_inquiry_id: string; p_new_status: string }
+        Returns: Json
+      }
       user_can_access_lesson: { Args: { _lesson_id: string }; Returns: boolean }
     }
     Enums: {
