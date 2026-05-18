@@ -148,6 +148,10 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
     () => items.filter((i) => i.folder_id === activeFolderId),
     [items, activeFolderId]
   );
+  const displayedFolderItems = useMemo(
+    () => favoritesOnly ? folderItems.filter((i) => favorites.has(i.id)) : folderItems,
+    [folderItems, favoritesOnly, favorites]
+  );
   const sampleMap = useMemo(() => {
     const m = new Map<string, string>();
     if (activeItemId) {
