@@ -378,82 +378,15 @@ export function MusicianCalendarHub() {
         </DialogContent>
       </Dialog>
 
-      {/* Paywall dialog — uses existing subscription_tiers matrix */}
-      <Dialog open={paywallOpen} onOpenChange={setPaywallOpen}>
-        <DialogContent dir="rtl" className="max-w-2xl border-amber-400/30 bg-gradient-to-br from-background/95 via-background/90 to-amber-950/20 backdrop-blur-2xl shadow-[0_20px_80px_-20px_rgba(251,191,36,0.35)]">
-          <DialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-amber-600 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/30">
-                <Crown className="h-6 w-6 text-black" />
-              </div>
-              <div className="text-right">
-                <DialogTitle className="text-right text-xl">שדרוג נדרש · אירועים פרטיים ביומן</DialogTitle>
-                <DialogDescription className="text-right text-xs">
-                  הוספת אירועים חיצוניים זמינה למנויי <b className="text-amber-300">פרימיום</b> ו-<b className="text-amber-300">VIP</b> בלבד.
-                </DialogDescription>
-              </div>
-            </div>
-          </DialogHeader>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-            {allTiers.map((t) => {
-              const isCurrent = currentTier?.id === t.id;
-              const benefits: string[] = [];
-              if (t.shop_discount_percent) benefits.push(`${t.shop_discount_percent}% הנחה בחנות`);
-              if (t.academy_discount_percent) benefits.push(`${t.academy_discount_percent}% הנחה באקדמיה`);
-              if (t.marketplace_free_boosts) benefits.push(`${t.marketplace_free_boosts} בוסטים חינם ביד 2`);
-              if (t.beat_access) benefits.push("גישה ל-Beat / Smart Rhythms");
-              if (t.is_vip) benefits.push("יומן אירועים פרטי + ניהול חפיפות");
-              return (
-                <div
-                  key={t.id}
-                  className={cn(
-                    "relative rounded-2xl border p-4 backdrop-blur-md transition-all",
-                    t.is_vip
-                      ? "border-amber-400/50 bg-gradient-to-br from-amber-500/[0.08] to-amber-900/10 shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]"
-                      : "border-border/60 bg-card/40",
-                    isCurrent && "ring-2 ring-amber-300/70",
-                  )}
-                >
-                  {isCurrent && (
-                    <span className="absolute top-2 left-2 rounded-full bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5">
-                      הדרגה שלך
-                    </span>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {t.is_vip ? <Crown className="h-4 w-4 text-amber-300" /> : <Star className="h-4 w-4 text-muted-foreground" />}
-                      <span className="font-bold text-base">{t.name}</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">rank {t.rank}</span>
-                  </div>
-                  {benefits.length > 0 ? (
-                    <ul className="mt-3 space-y-1.5 text-[12px] text-right">
-                      {benefits.map((b, i) => (
-                        <li key={i} className="flex items-start gap-1.5 justify-end">
-                          <span className="leading-tight">{b}</span>
-                          <Check className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", t.is_vip ? "text-amber-300" : "text-muted-foreground")} />
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="mt-3 text-[12px] text-muted-foreground">הטבות בסיסיות</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <DialogFooter className="sm:justify-between gap-2 mt-3">
-            <Button variant="outline" onClick={() => setPaywallOpen(false)}>סגור</Button>
-            <Button asChild className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
-              <Link to="/profile" search={{ tab: "subscription" } as never}>
-                <Crown className="ml-2 h-4 w-4" /> שדרג עכשיו
-              </Link>
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Universal paywall — SSoT for the upgrade experience */}
+      <UniversalPaywallDialog
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        title="שדרוג נדרש · אירועים פרטיים ביומן"
+        description="הוספת אירועים פרטיים ביומן זמינה למנויי פרימיום ו-VIP בלבד."
+        vipBonusBenefits={["יומן אירועים פרטי + ניהול חפיפות"]}
+        requiredRank={20}
+      />
     </div>
   );
 }
