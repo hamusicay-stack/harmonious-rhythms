@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { NotificationsBell } from "@/components/NotificationsBell";
+import { UserPointsDisplay } from "@/components/UserPointsDisplay";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
