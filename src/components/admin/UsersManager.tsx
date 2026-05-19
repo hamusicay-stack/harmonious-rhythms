@@ -440,5 +440,6 @@ export function UsersManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </Card>
   );
 }
