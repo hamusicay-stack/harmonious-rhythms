@@ -96,6 +96,9 @@ export function AutomationsManager() {
   };
 
   return (
+    <div className="space-y-4">
+      <AbandonedCartSettings />
+
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
