@@ -79,6 +79,7 @@ const PILLARS: Pillar[] = [
       { to: "/admin/commerce/coupons", title: "קופונים", icon: TicketPercent },
       { to: "/admin/commerce/business-rules", title: "מטריצת VIP × מוצר", icon: Scale },
       { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
+      { to: "/admin/commerce/storage-explorer", title: "סייר אחסון (יתומים)", icon: HardDrive },
     ],
   },
   {
