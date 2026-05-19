@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { wrapVipCheck } from "@/lib/entitlements";
 import { toast } from "sonner";
 
 const MAX_SHORT_FILE_SIZE = 60 * 1024 * 1024;
@@ -45,11 +46,9 @@ export function UploadDialog({
       const isAdmin = (roles ?? []).some((r) => r.role === "admin");
       const isTrusted = !!trusted;
       const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
-      setIsPremiumUser(isAdmin || isTrusted || tier === "premium" || tier === "vip" || tier === "pro");
-      // Shadow Entitlement Layer (Phase 2): SSoT divergence check only.
-      void import("@/lib/entitlements").then(({ compareEntitlements }) =>
-        compareEntitlements(user.id),
-      ).catch(() => {});
+      const legacyPremium = isAdmin || isTrusted || tier === "premium" || tier === "vip" || tier === "pro";
+      // Phase 3 dual-run: legacy stays source of truth, SSoT compared in background.
+      setIsPremiumUser(wrapVipCheck(legacyPremium, { userId: user.id, module: "shorts.UploadDialog:gate" }));
     })();
 
   }, [open, user]);
@@ -92,7 +91,8 @@ export function UploadDialog({
     const isTrusted = !!trusted;
     const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
     const isPremium = tier === "premium" || tier === "vip" || tier === "pro";
-    if (isAdmin || isTrusted || isPremium) return true;
+    const legacyPass = isAdmin || isTrusted || isPremium;
+    if (wrapVipCheck(legacyPass, { userId: user.id, module: "shorts.UploadDialog:quota" })) return true;
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data: recent } = await supabase
