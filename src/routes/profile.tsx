@@ -421,7 +421,7 @@ function MyProIndex({ userId }: { userId: string }) {
           <div className="text-xs text-muted-foreground">סטטוס</div>
         </div>
         <div className="rounded-xl border bg-card p-4 text-center">
-          <div className="text-2xl font-bold">{wrapVipCheck(pro.subscription_tier === "vip", { userId: pro.user_id ?? user?.id ?? null, module: "profile:musicProTier" }) ? "VIP" : "חינם"}</div>
+          <div className="text-2xl font-bold">{wrapVipCheck(pro.subscription_tier === "vip", { userId, module: "profile:musicProTier" }) ? "VIP" : "חינם"}</div>
           <div className="text-xs text-muted-foreground">מנוי</div>
         </div>
       </div>
