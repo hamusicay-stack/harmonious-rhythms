@@ -1,35 +1,31 @@
 /**
- * Shadow Entitlement Layer — Phase 5 Authority Stabilization.
+ * Entitlements — CONSOLIDATION LAYER (Phase 7).
  *
- * Mode is now controlled by the server-side control plane
- * (`entitlement_control_plane`). The browser only READS the mode via
- * `controlPlane.ts` — it can no longer flip authority via localStorage.
+ * Single decision entry point. Authority order:
+ *   1. SSoT (primary truth)
+ *   2. Legacy (deterministic fallback)
+ *   3. Dual (safe mode — returns legacy and records comparison)
  *
- * The gate continues to:
- *  - never throw into callers
- *  - always return a usable boolean
- *  - record comparisons for the metrics collector
- *  - emit drift snapshots for subscribers
+ * Control plane is CONFIGURATION ONLY (mode + rollout). It does not
+ * participate in decision logic. Drift, confidence, anomalies and
+ * recommendations are OBSERVATIONAL and surfaced via EntitlementSignal —
+ * they never alter the returned entitlement value.
  *
- * Confidence weighting replaces hard auto-rollback:
- *  - drift > rollback threshold → recommendation = "rollback-to-legacy"
- *    BUT we DO NOT auto-flip mode. The admin dashboard surfaces it.
- *  - drift between warning and rollback → "investigate"
- *  - SSoT confidence below threshold → keep dual evaluation
- *
- * The only path that ever auto-falls-back to legacy at runtime is when the
- * control plane has explicitly set `allow_auto_rollback = true`.
+ * Deterministic failover:
+ *   - mode "ssot" → use SSoT; if SSoT unavailable/threw → legacy
+ *   - mode "legacy" → use legacy
+ *   - mode "dual" → in-rollout users use SSoT (with legacy failover);
+ *                   out-of-rollout users return legacy. Comparison is
+ *                   always recorded when both values are known.
  */
 import { isVip as ssotIsVipFn } from "./TierService";
 import { recordComparison, getEntitlementMismatchReport } from "./metrics";
 import {
   getCachedControlPlane,
   getEntitlementControlPlane,
-  logRollbackRecommendation,
   type EntitlementMode,
 } from "./controlPlane";
-import { allowUserResolve } from "./rateLimit";
-import { recordDriftSample, evaluateAnomalies, isSafetyMode } from "./anomalyDetector";
+import { recordDriftSample, evaluateAnomalies, getAnomalyMetrics, isSafetyMode } from "./anomalyDetector";
 import "./health";
 
 export type { EntitlementMode } from "./controlPlane";
@@ -39,18 +35,38 @@ export type Recommendation =
   | "investigate"
   | "rollback-suggested";
 
+export type StabilityLevel = "stable" | "degraded" | "unstable";
+
+/**
+ * Unified observational signal. Every observability subsystem feeds into
+ * this single object. NOTHING in resolveEntitlement consults it for the
+ * returned entitlement value.
+ */
+export type EntitlementSignal = {
+  confidenceScore: number; // 0..1
+  driftRate: number;       // 0..1
+  anomalyState: {
+    safetyMode: boolean;
+    anomalyCount: number;
+    lastType: string | null;
+  };
+  recommendation: Recommendation;
+  stabilityLevel: StabilityLevel;
+};
+
 export type DriftSnapshot = {
   mode: EntitlementMode;
   total: number;
   mismatches: number;
   rate: number;
-  confidence: number; // 0-1
+  confidence: number;
   recommendation: Recommendation;
   topHotspot: string | null;
   at: number;
+  signal: EntitlementSignal;
 };
 
-const MIN_SAMPLES_FOR_ACTION = 25;
+const MIN_SAMPLES_FOR_RECOMMENDATION = 25;
 
 type Listener = (snap: DriftSnapshot) => void;
 const listeners = new Set<Listener>();
@@ -61,23 +77,18 @@ export function getEntitlementMode(): EntitlementMode {
   return getCachedControlPlane().mode;
 }
 
-/**
- * DEPRECATED — kept as a no-op for source compatibility. Mode is now
- * controlled exclusively by the server control plane + admin UI.
- */
+/** DEPRECATED — mode is server-controlled via admin Entitlements Control panel. */
 export function setEntitlementMode(_mode: EntitlementMode): void {
   // eslint-disable-next-line no-console
   console.warn(
-    "[entitlements] setEntitlementMode is disabled — mode is server-controlled. Use the admin Entitlements Control panel.",
+    "[entitlements] setEntitlementMode is disabled — mode is server-controlled.",
   );
 }
 
 function computeConfidence(): { confidence: number; rate: number; total: number; top: string | null } {
   const r = getEntitlementMismatchReport();
   const rate = r.total > 0 ? r.mismatches / r.total : 0;
-  // base correctness 0..1
   const base = 1 - rate;
-  // sample size weighting (asymptotic toward 1 around 200 samples)
   const sampleFactor = Math.min(1, r.total / 200);
   const confidence = Math.max(0, Math.min(1, base * (0.5 + 0.5 * sampleFactor)));
   return { confidence, rate, total: r.total, top: r.hotspots[0]?.module ?? null };
@@ -87,11 +98,33 @@ function computeRecommendation(): { rec: Recommendation; rate: number; total: nu
   const cp = getCachedControlPlane();
   const { confidence, rate, total, top } = computeConfidence();
   let rec: Recommendation = "stay-the-course";
-  if (total >= MIN_SAMPLES_FOR_ACTION) {
+  if (total >= MIN_SAMPLES_FOR_RECOMMENDATION) {
     if (rate >= cp.drift_threshold_rollback) rec = "rollback-suggested";
     else if (rate >= cp.drift_threshold_warning) rec = "investigate";
   }
   return { rec, rate, total, top, confidence };
+}
+
+/** Build the unified observational signal. Read-only — never used for decisions. */
+export function getEntitlementSignal(): EntitlementSignal {
+  const { confidence, rate } = computeConfidence();
+  const { rec } = computeRecommendation();
+  const anom = getAnomalyMetrics();
+  const lastEvt = anom.recent[anom.recent.length - 1] ?? null;
+  let stability: StabilityLevel = "stable";
+  if (isSafetyMode() || rec === "rollback-suggested") stability = "unstable";
+  else if (rec === "investigate" || anom.anomalyCount > 0) stability = "degraded";
+  return {
+    confidenceScore: confidence,
+    driftRate: rate,
+    anomalyState: {
+      safetyMode: isSafetyMode(),
+      anomalyCount: anom.anomalyCount,
+      lastType: lastEvt?.type ?? null,
+    },
+    recommendation: rec,
+    stabilityLevel: stability,
+  };
 }
 
 function emit(snap: DriftSnapshot) {
@@ -118,6 +151,7 @@ export function getDriftSnapshot(): DriftSnapshot {
     recommendation: rec,
     topHotspot: top,
     at: Date.now(),
+    signal: getEntitlementSignal(),
   };
 }
 
@@ -131,43 +165,44 @@ export type ResolveArgs = {
 export type ResolveResult = {
   value: boolean;
   mode: EntitlementMode;
-  source: "legacy" | "ssot";
+  source: "ssot" | "legacy";
   mismatch: boolean | null;
   recommendation: Recommendation;
+  signal: EntitlementSignal;
 };
 
-// Simple stable hash → [0,100) bucket for rollout %.
+// Stable hash → [0,100) bucket for rollout %.
 function bucketForUser(userId: string | null | undefined): number {
-  if (!userId) return 100; // unknown user → never in rollout slice
+  if (!userId) return 100;
   let h = 0;
   for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) >>> 0;
   return h % 100;
 }
 
+/**
+ * Single decision entry point for every entitlement check.
+ *
+ * Deterministic — only mode + rollout decide which source to read.
+ * Observability is recorded but never influences the returned value.
+ */
 export function resolveEntitlement(args: ResolveArgs): ResolveResult {
   const cp = getCachedControlPlane();
-  // Per-user rate limit. Exceeded → return legacy immediately (continuity).
-  if (!allowUserResolve(args.userId)) {
-    return {
-      value: args.legacy,
-      mode: cp.mode,
-      source: "legacy",
-      mismatch: null,
-      recommendation: lastRecommendation,
-    };
-  }
   const mode = cp.mode;
+
+  // Effective mode is purely a function of (mode, rollout, userId).
+  // No safety override. No confidence weighting. No rate-limit bypass.
+  const inRollout = bucketForUser(args.userId) < cp.rollout_percentage;
+  const effectiveMode: EntitlementMode =
+    mode === "ssot" ? "ssot"
+    : mode === "legacy" ? "legacy"
+    : inRollout ? "ssot" : "dual";
+
   let value = args.legacy;
-  let source: "legacy" | "ssot" = "legacy";
+  let source: "ssot" | "legacy" = "legacy";
   let mismatch: boolean | null = null;
 
-  // Resolve "effective mode" with rollout %. Safety_mode forces dual.
-  const inRollout = bucketForUser(args.userId) < cp.rollout_percentage;
-  const baseEffective: EntitlementMode =
-    mode === "ssot" ? "ssot" : mode === "legacy" ? "legacy" : inRollout ? "ssot" : "dual";
-  const effectiveMode: EntitlementMode = isSafetyMode() ? "dual" : baseEffective;
-
   try {
+    // 1. Record comparison whenever both values are known (observation only).
     if (typeof args.ssot === "boolean") {
       mismatch = args.legacy !== args.ssot;
       try {
@@ -190,24 +225,16 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
         });
       }
 
+      // 2. Deterministic selection by effective mode.
       if (effectiveMode === "ssot") {
-        // Confidence-weighted selection — keep dual behavior when confidence low.
-        const { confidence, rec } = computeRecommendation();
-        const lowConfidence = confidence < cp.confidence_threshold_ssot;
-        const shouldAutoRollback = cp.allow_auto_rollback && rec === "rollback-suggested";
-        if (lowConfidence || shouldAutoRollback) {
-          value = args.legacy;
-          source = "legacy";
-        } else {
-          value = args.ssot;
-          source = "ssot";
-        }
+        value = args.ssot;
+        source = "ssot";
       } else {
         value = args.legacy;
         source = "legacy";
       }
-    } else if (args.userId) {
-      // Async path — fire-and-forget; sync return stays legacy.
+    } else if (effectiveMode !== "legacy" && args.userId) {
+      // Async path — sync return stays legacy; SSoT result feeds metrics only.
       void ssotIsVipFn(args.userId)
         .then((ssot) => {
           const mm = args.legacy !== ssot;
@@ -231,25 +258,23 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
           }
           afterSample();
         })
-        .catch(() => { /* swallow */ });
+        .catch(() => { /* SSoT unavailable → legacy already returned */ });
     }
   } catch {
-    /* never throw out of the gate */
+    // Final deterministic failover — legacy is the safety net.
+    value = args.legacy;
+    source = "legacy";
   }
 
+  // 3. Recommendation transitions are logged for admins — never auto-acted upon.
   const { rec } = computeRecommendation();
   if (rec !== lastRecommendation) {
     lastRecommendation = rec;
     // eslint-disable-next-line no-console
     console.warn("[entitlements:recommendation]", rec);
-    if (rec === "rollback-suggested") {
-      void logRollbackRecommendation({
-        mode,
-        snapshot: getDriftSnapshot(),
-      }).catch(() => { /* swallow */ });
-    }
   }
 
+  // 4. Observation sampling.
   try {
     const snap = getDriftSnapshot();
     recordDriftSample(snap.rate, snap.confidence);
@@ -257,7 +282,14 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
     emit(snap);
   } catch { /* swallow */ }
 
-  return { value, mode, source, mismatch, recommendation: rec };
+  return {
+    value,
+    mode,
+    source,
+    mismatch,
+    recommendation: rec,
+    signal: getEntitlementSignal(),
+  };
 }
 
 function afterSample() {
@@ -267,29 +299,17 @@ function afterSample() {
     evaluateAnomalies();
     emit(snap);
   } catch { /* swallow */ }
-  const { rec } = computeRecommendation();
-  if (rec !== lastRecommendation) {
-    lastRecommendation = rec;
-    // eslint-disable-next-line no-console
-    console.warn("[entitlements:recommendation]", rec);
-    if (rec === "rollback-suggested") {
-      void logRollbackRecommendation({ snapshot: getDriftSnapshot() }).catch(() => { /* swallow */ });
-    }
-  }
 }
 
-// Refresh control plane periodically so the gate picks up admin changes
-// even when realtime is not available.
+// Background refresh of the control-plane cache (no decision impact).
 if (typeof window !== "undefined") {
   void getEntitlementControlPlane().catch(() => { /* swallow */ });
   setInterval(() => {
     void getEntitlementControlPlane().catch(() => { /* swallow */ });
   }, 15_000);
 
-  // Read-only debug inspectors only.
   const w = window as unknown as Record<string, unknown>;
   w.__entitlementsDrift = getDriftSnapshot;
   w.__entitlementsMode = getEntitlementMode;
-  // Authority hooks are intentionally NOT exposed anymore:
-  //   __entitlementsSetMode is removed.
+  w.__entitlementsSignal = getEntitlementSignal;
 }
