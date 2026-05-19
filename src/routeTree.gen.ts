@@ -68,6 +68,7 @@ import { Route as AdminCommerceRouteImport } from './routes/admin.commerce'
 import { Route as AdminChatOversightRouteImport } from './routes/admin.chat-oversight'
 import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
 import { Route as AdminAuditLogRouteImport } from './routes/admin.audit-log'
+import { Route as AdminAccessControlRouteImport } from './routes/admin.access-control'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as AdminCrmIndexRouteImport } from './routes/admin.crm.index'
@@ -410,6 +411,11 @@ const AdminAuditLogRoute = AdminAuditLogRouteImport.update({
   path: '/audit-log',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAccessControlRoute = AdminAccessControlRouteImport.update({
+  id: '/access-control',
+  path: '/access-control',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   id: '/podcasts',
   path: '/podcasts',
@@ -671,6 +677,7 @@ export interface FileRoutesByFullPath {
   '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/access-control': typeof AdminAccessControlRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
@@ -772,6 +779,7 @@ export interface FileRoutesByTo {
   '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/access-control': typeof AdminAccessControlRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
@@ -877,6 +885,7 @@ export interface FileRoutesById {
   '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/access-control': typeof AdminAccessControlRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
@@ -985,6 +994,7 @@ export interface FileRouteTypes {
     | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/access-control'
     | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
@@ -1086,6 +1096,7 @@ export interface FileRouteTypes {
     | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/access-control'
     | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
@@ -1190,6 +1201,7 @@ export interface FileRouteTypes {
     | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/access-control'
     | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
@@ -1725,6 +1737,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditLogRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/access-control': {
+      id: '/admin/access-control'
+      path: '/access-control'
+      fullPath: '/admin/access-control'
+      preLoaderRoute: typeof AdminAccessControlRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/academy/podcasts': {
       id: '/academy/podcasts'
       path: '/podcasts'
@@ -2146,6 +2165,7 @@ const AdminCrmRouteWithChildren = AdminCrmRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAccessControlRoute: typeof AdminAccessControlRoute
   AdminAuditLogRoute: typeof AdminAuditLogRoute
   AdminAutomationsRoute: typeof AdminAutomationsRoute
   AdminChatOversightRoute: typeof AdminChatOversightRoute
@@ -2164,6 +2184,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAccessControlRoute: AdminAccessControlRoute,
   AdminAuditLogRoute: AdminAuditLogRoute,
   AdminAutomationsRoute: AdminAutomationsRoute,
   AdminChatOversightRoute: AdminChatOversightRoute,
