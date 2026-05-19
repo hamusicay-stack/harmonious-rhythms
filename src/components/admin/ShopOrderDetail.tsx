@@ -411,7 +411,10 @@ function RefundDialog({ order, onDone, disabled }: { order: Order; onDone: () =>
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     const meta = data as any;
-    toast.success(`בוצע החזר. ${meta?.revoked_items ?? 0} פריטים בוטלו, ${meta?.affiliate_conversions_rejected ?? 0} עמלות שותפים נדחו.`);
+    toast.success(
+      `✅ החזר בוצע בהצלחה. נחסמה גישת המשתמש ל-${meta?.revoked_items ?? 0} נכסים דיגיטליים (קורסים / דרגות פרימיום) ונדחו ${meta?.affiliate_conversions_rejected ?? 0} עמלות שותפים.`,
+      { duration: 6000 },
+    );
     setOpen(false);
     onDone();
   };
