@@ -79,6 +79,7 @@ function EntitlementsControlPage() {
     const t = setInterval(() => {
       setDrift(getDriftSnapshot());
       setReport(getEntitlementMismatchReport());
+      setHealth(getEntitlementHealth());
     }, 4000);
     return () => { unsubCp(); unsubDrift(); clearInterval(t); };
   }, []);
