@@ -250,7 +250,12 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
     }
   }
 
-  try { emit(getDriftSnapshot()); } catch { /* swallow */ }
+  try {
+    const snap = getDriftSnapshot();
+    recordDriftSample(snap.rate, snap.confidence);
+    evaluateAnomalies();
+    emit(snap);
+  } catch { /* swallow */ }
 
   return { value, mode, source, mismatch, recommendation: rec };
 }
