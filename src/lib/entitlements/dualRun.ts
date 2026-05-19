@@ -48,29 +48,3 @@ export function wrapTierCheck(legacy: string, ctx: WrapContext): string {
     /* swallow */
   }
   return legacy;
-}
-
-
-/** Wrap a legacy tier-slug decision. Returns the legacy slug unchanged. */
-export function wrapTierCheck(legacy: string, ctx: WrapContext): string {
-  try {
-    if (ctx.userId) {
-      void getSubscriptionTier(ctx.userId)
-        .then((ssot) => {
-          recordComparison({
-            module: ctx.module,
-            userId: ctx.userId ?? null,
-            legacy,
-            ssot,
-            mismatch: (legacy ?? "").toLowerCase() !== (ssot ?? "").toLowerCase(),
-          });
-        })
-        .catch(() => {
-          /* swallow */
-        });
-    }
-  } catch {
-    /* swallow */
-  }
-  return legacy;
-}
