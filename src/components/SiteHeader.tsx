@@ -134,6 +134,7 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
               </kbd>
             </Button>
             <CartDrawer />
+            <UserPointsDisplay />
             <NotificationsBell />
             <LanguageSwitcher />
 
