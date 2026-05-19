@@ -27,7 +27,6 @@ const PILLARS: Pillar[] = [
       { to: "/admin/dashboard", title: "סקירה פיננסית", icon: LayoutDashboard },
       { to: "/admin/audit-log", title: "יומן ביקורת", icon: ShieldAlert },
       { to: "/admin/entitlements-control", title: "בקרת הרשאות", icon: ShieldCheck },
-      { to: "/admin/access-control", title: "בקרת גישה (Allowlist)", icon: ShieldCheck },
     ],
   },
   {

@@ -1,70 +1,45 @@
+# Admin Backend Wiring & Consolidation Plan
 
-# חיבור תת-דומיין + הגבלת גישה ל-Allowlist
+This is a large, multi-area effort. Executing in 6 focused phases with zero deletion of active features.
 
-המטרה: לחבר את `Neu.hamusicay` (נראה לי שהכוונה ל-`new.hamuzikai.com` או `neu.hamuzikai.com` — נצטרך לאשר את האיות המדויק של הדומיין הבסיס), ולהבטיח שרק אימיילים מאושרים מראש יוכלו להיכנס לאתר.
+## Phase 1 — Marketing & Automations Backend
+- **Migration**: create `automation_settings` table (singleton) with `abandoned_cart_delay_hours` (default 2), `abandoned_cart_enabled`.
+- **Migration**: function `process_abandoned_carts()` — scans `cart_items` older than configured delay, not converted to orders. For each user: insert `crm_deals` row with `source_type='shop_abandoned_cart'`, `title='נטישת עגלה'`, attempt email enqueue via `enqueue_email` (if email infra exists), mark cart row as `abandoned_notified_at`.
+- **Migration**: function `process_pending_newsletter_campaigns()` — iterates `newsletter_campaigns` status='scheduled' where send_at<=now(), enqueues per-recipient sends, marks status='sent'.
+- **Migration**: pg_cron schedules (every 15 min for carts, every 5 min for newsletters).
+- **UI**: New tab inside `AutomationsManager` (or new card) — "הגדרות נטישת עגלה" form (delay hours + enabled switch) backed by `automation_settings`.
 
-## חלק 1 — חיבור תת-הדומיין (פעולה ידנית שלך)
+## Phase 2 — CRM Kanban Channels
+- Edit `DealsKanban.tsx`:
+  - Remove `marketplace_bump_request` and `marketplace_upgrade` source badges + filter chips.
+  - Add badges/filters: `custom_beat_request` → "בקשת מקצב בהתאמה אישית", `cpi_encoding_error` → "שגיאת קידוד CPI".
+- **Migration**: trigger on `shop_orders` after update — if `status='paid'` and `cpi_status='error'`, insert deal with `source_type='cpi_encoding_error'`.
+- **Migration**: ALTER `admin_tasks` ADD `related_deal_id uuid`, `related_order_id uuid`, `related_pro_id uuid` (nullable, no FK strictness to avoid breakage).
+- **UI**: `TaskEditDialog` — add 3 optional selectors (deal / order / pro) populated from light queries.
 
-תת-דומיין מתחבר דרך הגדרות הפרויקט ב-Lovable — לא דרך קוד.
+## Phase 3 — Inventory & Logistics
+- **Migration**: RPC `process_received_purchase_order(p_order_id uuid)` — loops `supplier_order_items`, `UPDATE shop_products SET stock = stock + qty WHERE id = product_id`. Trigger on `supplier_orders` AFTER UPDATE when `status` transitions to 'received' → calls RPC.
+- **Migration**: extend existing refund function — for each `order_items` row of physical product, `stock = stock + qty`.
 
-1. **Project Settings → Domains → Connect Domain**
-2. הזן את תת-הדומיין המלא: `neu.hamuzikai.com` (או האיות הנכון).
-3. Lovable יציג רשומת DNS להוספה אצל ספק ה-DNS של הדומיין הבסיס:
-   - **CNAME** (לתת-דומיין): `neu` → הערך ש-Lovable ייתן
-   - **TXT** לאימות: `_lovable` עם הערך שיוצג
-4. אם הדומיין מאחורי Cloudflare/proxy — סמן את התיבה "Domain uses Cloudflare or a similar proxy" בדיאלוג.
-5. המתן ל-DNS propagation (עד 72 שעות, בד"כ דקות).
-6. הפרויקט חייב להיות **Published** כדי שהדומיין יעבוד.
+## Phase 4 — SSoT Consolidation
+- `MusicProsManager.tsx`: replace any `subscription_tier` text read/write with `global_subscription_tier_id` joined to `subscription_tiers`.
+- `NewsletterManager.tsx`: segment filters query against `subscription_tiers` via the FK, not legacy text.
+- Embed `RolesPermissionsManager` as a tab inside `UsersManager` (keep `/admin/crm/roles` route as redirect / preserved alias — no deletion).
+- `admin.customers.$customerId.tsx`: add manual points panel (+/- with reason) → inserts into existing economy ledger table (will inspect actual table name) with `reason` + `admin_id`.
 
-הערה: זה לא משפיע על האתר השני שלך — תת-דומיין נפרד לחלוטין מהדומיין הבסיס.
+## Phase 5 — Global Audit Log + Storage Explorer
+- **Migration**: `system_audit_logs (id, user_id, user_type, action, entity, entity_id, details jsonb, created_at)`. RLS: only admins SELECT.
+- **UI**: new admin route `/admin/audit-log` with filterable read-only table; sidebar link under Dashboard pillar.
+- **UI**: `/admin/commerce/storage-explorer` — server fn listing objects per bucket (audio, shorts, cpis) with size; "find orphans" compares against referenced URLs in `shorts`, `cpi_files`, `academy_lessons`, etc.; safe delete with confirm.
 
-## חלק 2 — Allowlist של אימיילים (שינוי קוד + DB)
+## Phase 6 — UI Cohesion
+- `UsersManager.tsx` + `MusicProsManager.tsx`: strip `bg-amber-*` / amber gradients → `bg-primary`, `text-primary-foreground`, `text-muted-foreground`, `border-border`.
 
-המודל: רק מי שהאימייל שלו נמצא בטבלת `allowed_emails` יוכל להירשם או להתחבר. כל שאר הניסיונות נדחים בנימוס.
+## Technical Notes
+- All schema in single migration per phase, RLS preserved.
+- Sidebar (`AdminSidebar.tsx`): add new entries (audit-log, storage-explorer) inside appropriate pillars without removing existing items.
+- No table or component deletion. Orphan route `/admin/crm/roles` kept as alias.
+- Hebrew RTL labels exactly as specified.
 
-### שינויים ב-Backend
-
-1. **טבלת `allowed_emails`** חדשה:
-   - `email` (citext, unique, primary key)
-   - `added_by` (uuid, אדמין שהוסיף)
-   - `note` (text, אופציונלי — "בטא טסטר", "לקוח" וכו')
-   - `created_at`
-   - RLS: רק אדמינים קוראים/כותבים.
-
-2. **חסימת signup לא מורשה**: trigger `BEFORE INSERT` על `auth.users` שבודק אם `NEW.email` נמצא ב-`allowed_emails`. אם לא — `RAISE EXCEPTION 'Email not authorized'`.
-
-3. **חסימת login לא מורשה** (קצה נגד הוספת אימייל לטבלה אחרי שהמשתמש כבר נוצר ואז הסרה): RPC `is_email_allowed(email)` + בדיקה ב-`AuthContext` בעת `onAuthStateChange` — אם משתמש קיים אך אימיילו אינו ב-allowlist, מבצעים `signOut()` מיידי ומציגים הודעה.
-
-4. **Disable public signup ברירת מחדל**: משאיר Email/Password פתוח (Trigger יחסום ממילא), אבל מציג ב-UI הודעה ברורה "האתר במצב גישה מוגבלת".
-
-### שינויים ב-Frontend
-
-5. **דף Auth (`/auth`)**: 
-   - הצגת באנר: "האתר במצב גישה מוגבלת — רק אימיילים מאושרים יכולים להיכנס".
-   - על שגיאת trigger ("Email not authorized") — מציג הודעה ידידותית בעברית.
-
-6. **רכיב `AccessGate`** ברמת `__root.tsx`: אם יש session אבל האימייל לא ב-allowlist — `signOut` ו-redirect ל-`/auth` עם הודעה.
-
-7. **דף ניהול אדמין `/admin/access-control`**: רשימה של אימיילים מאושרים, הוספה/הסרה, חיפוש. שימוש ב-`system_audit_logs` הקיים לתיעוד.
-
-### Google Sign-In
-אם תרצה לאפשר רק Email/Password (פשוט יותר ל-allowlist) או גם Google — נצטרך להחליט. אם Google, ה-trigger ב-`auth.users` יחסום גם אותם, אבל חוויית המשתמש פחות נעימה (הם נכנסים ל-Google ואז נדחים).
-
-## שאלות פתוחות שצריך לאשר לפני יישום
-
-1. **איות הדומיין**: כתבת `Neu.hamusicay` — האם הכוונה ל-`neu.hamuzikai.com`? (האתר נקרא "המוזיקאי" = HaMuzikai)
-2. **Google Sign-In**: להשאיר מופעל או להשבית בזמן הביטא?
-3. **רשימה ראשונית**: יש לך כבר רשימת אימיילים להוסיף, או שתוסיף אחרי שנבנה את המסך?
-
-## פרטים טכניים (לקריאה אם רלוונטי)
-
-- **קבצים שיווצרו**: 
-  - `supabase/migrations/...sql` (טבלה + trigger + RPC + RLS)
-  - `src/routes/admin.access-control.tsx`
-  - `src/components/AccessGate.tsx`
-- **קבצים שיתעדכנו**:
-  - `src/contexts/AuthContext.tsx` (בדיקת allowlist על onAuthStateChange)
-  - `src/routes/auth.tsx` (באנר + שגיאות)
-  - `src/routes/__root.tsx` (mount AccessGate)
-  - `src/components/admin/AdminSidebar.tsx` (קישור לדף החדש)
-- **תיעוד ב-`system_audit_logs`** לכל הוספה/הסרה (תואם ל-Production Safe v1).
+## Scope / Effort
+Substantial: ~5 migrations, ~12 file edits, ~3 new files. Will execute sequentially after approval.

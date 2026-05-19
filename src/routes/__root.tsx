@@ -14,7 +14,6 @@ import { captureAffiliateRef } from "@/lib/affiliate";
 import { useDeviceGuard } from "@/hooks/useDeviceGuard";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
-import { AccessGate } from "@/components/AccessGate";
 import { SharedCartHydrator } from "@/components/cart/SharedCartHydrator";
 import { FloatingShortProvider } from "@/contexts/FloatingShortContext";
 import { FloatingShortPlayer } from "@/components/shorts/FloatingShortPlayer";
@@ -100,7 +99,6 @@ function RootComponent() {
                 <FloatingShortProvider>
                   <KeyboardSelectionProvider>
                     <DeviceGuardInner />
-                    <AccessGate />
                     <ImpersonationBanner />
                     <SharedCartHydrator />
                     <Outlet />

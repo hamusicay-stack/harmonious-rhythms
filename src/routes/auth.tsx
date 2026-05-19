@@ -77,8 +77,6 @@ function AuthPage() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "אירעה שגיאה";
       const friendly =
-        message.includes("Email not authorized") || message.includes("access_restricted")
-          ? "האתר במצב גישה מוגבלת — האימייל שלך לא ברשימת המאושרים. פנה למנהל המערכת." :
         message.includes("Invalid login credentials") ? "מייל או סיסמה שגויים" :
         message.includes("already registered") || message.includes("User already") ? "המייל כבר רשום" :
         message.includes("Password") ? "הסיסמה לא תקינה (לפחות 6 תווים)" :
@@ -103,9 +101,6 @@ function AuthPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               {mode === "login" ? "המשיכו בדיוק מאיפה שעצרתם" : "כמה פרטים קטנים — והבמה שלכם"}
             </p>
-            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
-              🔒 האתר במצב גישה מוגבלת — רק אימיילים שאושרו מראש יכולים להיכנס.
-            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

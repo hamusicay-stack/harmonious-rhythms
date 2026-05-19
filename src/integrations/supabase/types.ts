@@ -1396,27 +1396,6 @@ export type Database = {
         }
         Relationships: []
       }
-      allowed_emails: {
-        Row: {
-          added_by: string | null
-          created_at: string
-          email: string
-          note: string | null
-        }
-        Insert: {
-          added_by?: string | null
-          created_at?: string
-          email: string
-          note?: string | null
-        }
-        Update: {
-          added_by?: string | null
-          created_at?: string
-          email?: string
-          note?: string | null
-        }
-        Relationships: []
-      }
       automation_rules: {
         Row: {
           action_config: Json
@@ -6706,10 +6685,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      admin_add_allowed_email: {
-        Args: { _email: string; _note?: string; _reason?: string }
-        Returns: undefined
-      }
       admin_adjust_user_points: {
         Args: { _delta: number; _reason: string; _user_id: string }
         Returns: {
@@ -6772,10 +6747,6 @@ export type Database = {
           p_reason: string
         }
         Returns: Json
-      }
-      admin_remove_allowed_email: {
-        Args: { _email: string; _reason?: string }
-        Returns: undefined
       }
       admin_retrigger_cpi_webhook: {
         Args: { p_rhythm_order_id: string }
@@ -6880,7 +6851,6 @@ export type Database = {
       }
       increment_pro_views: { Args: { _pro_id: string }; Returns: undefined }
       increment_short_views: { Args: { _video_id: string }; Returns: undefined }
-      is_email_allowed: { Args: { _email: string }; Returns: boolean }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
