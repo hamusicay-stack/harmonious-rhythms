@@ -183,7 +183,7 @@ export function UsersManager() {
     const variants: Record<string, string> = {
       admin: "bg-destructive/15 text-destructive border-destructive/40",
       moderator: "bg-orange-500/15 text-orange-600 border-orange-500/40",
-      vip: "bg-amber-500/15 text-amber-600 border-amber-500/40",
+      vip: "bg-primary/15 text-primary border-primary/40",
       premium: "bg-purple-500/15 text-purple-600 border-purple-500/40",
       member: "bg-blue-500/15 text-blue-600 border-blue-500/40",
       user: "bg-muted text-muted-foreground border-border",
@@ -302,7 +302,7 @@ export function UsersManager() {
                           <KeyRound className="ml-2 h-4 w-4" />נהל הרשאות
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openSubscription(u)}>
-                          <Crown className="ml-2 h-4 w-4 text-amber-500" />ניהול מנוי
+                          <Crown className="ml-2 h-4 w-4 text-primary" />ניהול מנוי
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => impersonate(u)} disabled={u.id === currentUser?.id}>
                           <UserCheck className="ml-2 h-4 w-4" />התחזה למשתמש
@@ -402,7 +402,7 @@ export function UsersManager() {
         <DialogContent dir="rtl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-right">
-              <Crown className="h-5 w-5 text-amber-500" />
+              <Crown className="h-5 w-5 text-primary" />
               ניהול מנוי
             </DialogTitle>
             <DialogDescription className="text-right">
@@ -426,14 +426,14 @@ export function UsersManager() {
               מקור אמת יחיד: <code>profiles.global_subscription_tier_id</code>. השינוי נכנס לתוקף מיידית בכל המודולים (אקדמיה, חנות, יומן, יד 2).
             </p>
             {subCurrentTierId && (
-              <div className="text-[11px] text-amber-300">
+              <div className="text-[11px] text-primary">
                 דרגה נוכחית: {tiers.find((t) => t.id === subCurrentTierId)?.name ?? "—"}
               </div>
             )}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSubTarget(null)}>ביטול</Button>
-            <Button onClick={saveSubscription} disabled={subSaving} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
+            <Button onClick={saveSubscription} disabled={subSaving} className="bg-primary text-primary-foreground hover:bg-primary/90">
               {subSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
               שמור מנוי
             </Button>

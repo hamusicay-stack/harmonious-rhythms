@@ -5258,6 +5258,7 @@ export type Database = {
         Row: {
           admin_notes: string | null
           coupon_code: string | null
+          cpi_status: string
           created_at: string
           currency: string
           customer_email: string | null
@@ -5288,6 +5289,7 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           coupon_code?: string | null
+          cpi_status?: string
           created_at?: string
           currency?: string
           customer_email?: string | null
@@ -5318,6 +5320,7 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           coupon_code?: string | null
+          cpi_status?: string
           created_at?: string
           currency?: string
           customer_email?: string | null
@@ -6604,6 +6607,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_user_points: {
+        Args: { _delta: number; _reason: string; _user_id: string }
+        Returns: {
+          new_balance: number
+        }[]
+      }
       admin_assign_role_by_email: {
         Args: {
           _email: string

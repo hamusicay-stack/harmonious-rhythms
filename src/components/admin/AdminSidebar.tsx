@@ -25,6 +25,7 @@ const PILLARS: Pillar[] = [
     icon: Gauge,
     items: [
       { to: "/admin/dashboard", title: "סקירה פיננסית", icon: LayoutDashboard },
+      { to: "/admin/audit-log", title: "יומן ביקורת", icon: ShieldAlert },
     ],
   },
   {

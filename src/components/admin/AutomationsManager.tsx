@@ -96,6 +96,9 @@ export function AutomationsManager() {
   };
 
   return (
+    <div className="space-y-4">
+      <AbandonedCartSettings />
+
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
@@ -186,8 +189,106 @@ export function AutomationsManager() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }
+
+function AbandonedCartSettings() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [id, setId] = useState<string | null>(null);
+  const [enabled, setEnabled] = useState(true);
+  const [delay, setDelay] = useState(2);
+  const [newsletterEnabled, setNewsletterEnabled] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("automation_settings")
+        .select("id, abandoned_cart_enabled, abandoned_cart_delay_hours, newsletter_enabled")
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        setId((data as { id: string }).id);
+        setEnabled((data as { abandoned_cart_enabled: boolean }).abandoned_cart_enabled);
+        setDelay((data as { abandoned_cart_delay_hours: number }).abandoned_cart_delay_hours);
+        setNewsletterEnabled((data as { newsletter_enabled: boolean }).newsletter_enabled);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const save = async () => {
+    if (!Number.isFinite(delay) || delay < 0 || delay > 168) {
+      toast.error("השהייה חייבת להיות בין 0 ל-168 שעות");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      abandoned_cart_enabled: enabled,
+      abandoned_cart_delay_hours: Math.floor(delay),
+      newsletter_enabled: newsletterEnabled,
+      updated_at: new Date().toISOString(),
+    };
+    const q = id
+      ? supabase.from("automation_settings").update(payload).eq("id", id)
+      : supabase.from("automation_settings").insert(payload);
+    const { error } = await q;
+    setSaving(false);
+    if (error) { toast.error(friendlyError(error)); return; }
+    toast.success("הגדרות האוטומציה נשמרו");
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Zap className="h-5 w-5 text-primary" />הגדרות אוטומציה גלובליות
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 text-right" dir="rtl">
+        {loading ? (
+          <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between rounded-md border border-border/60 p-3">
+              <div>
+                <Label className="text-sm font-medium">נטישת עגלה — שליחת תזכורת אוטומטית</Label>
+                <p className="text-xs text-muted-foreground mt-1">פותח Deal "נטישת עגלה" ושולח תזכורת אחרי השהייה.</p>
+              </div>
+              <Switch checked={enabled} onCheckedChange={setEnabled} />
+            </div>
+            <div className="space-y-2">
+              <Label>השהייה (שעות) לפני סימון עגלה כנטושה</Label>
+              <Input
+                type="number" min={0} max={168}
+                value={delay}
+                onChange={(e) => setDelay(Number(e.target.value))}
+                disabled={!enabled}
+              />
+              <p className="text-[11px] text-muted-foreground">ברירת מחדל: 2 שעות. הסריקה רצה כל 15 דקות.</p>
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border/60 p-3">
+              <div>
+                <Label className="text-sm font-medium">ניוזלטר אוטומטי</Label>
+                <p className="text-xs text-muted-foreground mt-1">עיבוד תור הניוזלטר המתוזמן (כל 5 דקות).</p>
+              </div>
+              <Switch checked={newsletterEnabled} onCheckedChange={setNewsletterEnabled} />
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={save} disabled={saving}>
+                {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+                שמור הגדרות
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+
 
 function RuleEditDialog({ rule, onSaved }: { rule?: Rule; onSaved: () => void }) {
   const [open, setOpen] = useState(false);

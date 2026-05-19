@@ -16,8 +16,8 @@ import { toast } from "sonner";
 type Filters = {
   organ_model?: string;
   user_type?: string;
-  subscription_tier?: string;
-  inactive_days?: number; // last login older than N days (or never)
+  subscription_tier_id?: string;
+  inactive_days?: number;
   bought_product_name?: string;
   enrolled_course_id?: string;
   has_abandoned_cart?: boolean;
@@ -28,10 +28,10 @@ type Segment = { id: string; name: string; description: string | null; filters: 
 type Campaign = { id: string; subject: string; segment_id: string | null; recipients_count: number; sent_count: number; status: string; created_at: string; sent_at: string | null };
 
 async function computeAudience(filters: Filters): Promise<{ ids: string[]; emails: string[] }> {
-  let q = supabase.from("profiles").select("id, email, organ_model, user_type, subscription_tier, last_login_at, email_opt_in");
+  let q = supabase.from("profiles").select("id, email, organ_model, user_type, global_subscription_tier_id, last_login_at, email_opt_in");
   if (filters.organ_model) q = q.eq("organ_model", filters.organ_model);
   if (filters.user_type) q = q.eq("user_type", filters.user_type);
-  if (filters.subscription_tier) q = q.eq("subscription_tier", filters.subscription_tier);
+  if (filters.subscription_tier_id) q = q.eq("global_subscription_tier_id", filters.subscription_tier_id);
   if (filters.email_opt_in_only) q = q.eq("email_opt_in", true);
   const { data: profiles } = await q.limit(5000);
   let users = (profiles ?? []) as any[];
@@ -66,6 +66,7 @@ async function computeAudience(filters: Filters): Promise<{ ids: string[]; email
   };
 }
 
+
 export function NewsletterManager() {
   return (
     <Tabs defaultValue="composer" className="space-y-4">
@@ -84,10 +85,12 @@ export function NewsletterManager() {
 function FiltersForm({ filters, setFilters }: { filters: Filters; setFilters: (f: Filters) => void }) {
   const [models, setModels] = useState<string[]>([]);
   const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
+  const [tiers, setTiers] = useState<{ id: string; name: string; is_vip: boolean }[]>([]);
 
   useEffect(() => {
     supabase.from("keyboard_models").select("name").then(({ data }) => setModels((data ?? []).map((r: any) => r.name)));
     supabase.from("academy_courses").select("id, title").then(({ data }) => setCourses((data ?? []) as any));
+    supabase.from("subscription_tiers").select("id, name, is_vip, rank").order("rank", { ascending: true }).then(({ data }) => setTiers((data ?? []) as any));
   }, []);
 
   const upd = (patch: Partial<Filters>) => setFilters({ ...filters, ...patch });
@@ -117,16 +120,17 @@ function FiltersForm({ filters, setFilters }: { filters: Filters; setFilters: (f
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>סטטוס מנוי</Label>
-        <Select value={filters.subscription_tier ?? "all"} onValueChange={(v) => upd({ subscription_tier: v === "all" ? undefined : v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+        <Label>דרגת מנוי (SSoT)</Label>
+        <Select value={filters.subscription_tier_id ?? "all"} onValueChange={(v) => upd({ subscription_tier_id: v === "all" ? undefined : v })}>
+          <SelectTrigger><SelectValue placeholder="כל הדרגות" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">הכל</SelectItem>
-            <SelectItem value="free">חינם</SelectItem>
-            <SelectItem value="premium">פרימיום</SelectItem>
-            <SelectItem value="vip">VIP</SelectItem>
+            <SelectItem value="all">כל הדרגות</SelectItem>
+            {tiers.map((t) => (
+              <SelectItem key={t.id} value={t.id}>{t.is_vip ? "👑 " : ""}{t.name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
+
       </div>
       <div className="space-y-2">
         <Label>לא התחבר X ימים (ריק = ללא סינון)</Label>
