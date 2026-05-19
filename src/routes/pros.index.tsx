@@ -42,16 +42,15 @@ function ProsIndex() {
       setLoading(true);
       const { data, error } = await supabase
         .from("music_pros")
-        .select("id,user_id,display_name,headline,profile_image,cover_image,brand_color,hourly_price_min,region,cities,specialties,genres,is_verified,subscription_tier,is_featured,created_at")
-        .eq("status", "approved");
+        .select("id,user_id,display_name,headline,profile_image,cover_image,brand_color,hourly_price_min,region,cities,specialties,genres,is_verified,is_featured,created_at");
       if (cancelled) return;
       if (error) console.error(error);
-      const rawList = (data as (ProCardData & { created_at: string })[]) ?? [];
-      // Unified tier: derive VIP from profiles.global_subscription_tier_id → subscription_tiers.is_vip
+      const rawList = (data as (Omit<ProCardData, "is_vip"> & { created_at: string })[]) ?? [];
+      // SSoT: derive VIP exclusively from profiles.global_subscription_tier_id → subscription_tiers.is_vip
       const vipUserIds = await fetchVipUserIds(rawList.map((p) => p.user_id));
-      const list = rawList.map((p) => ({
+      const list: (ProCardData & { created_at: string })[] = rawList.map((p) => ({
         ...p,
-        subscription_tier: vipUserIds.has(p.user_id) ? "vip" : "free",
+        is_vip: vipUserIds.has(p.user_id),
       }));
       setPros(list);
 
@@ -92,16 +91,15 @@ function ProsIndex() {
       if (filters.city && !p.cities.some((c) => c.includes(filters.city))) return false;
       if (filters.priceMax < 20000 && p.hourly_price_min != null && p.hourly_price_min > filters.priceMax) return false;
       if (filters.verifiedOnly && !p.is_verified) return false;
-      if (filters.vipOnly && p.subscription_tier !== "vip") return false;
+      if (filters.vipOnly && !p.is_vip) return false;
       return true;
     });
 
     // Sort
-    const tierWeight = (t: string) => (t === "vip" ? 2 : 0);
     list.sort((a: any, b: any) => {
       if (sort === "relevance") {
         // VIP first → featured → rating avg → review count → newest
-        const tw = tierWeight(b.subscription_tier) - tierWeight(a.subscription_tier);
+        const tw = (b.is_vip ? 1 : 0) - (a.is_vip ? 1 : 0);
         if (tw !== 0) return tw;
         const fw = (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
         if (fw !== 0) return fw;

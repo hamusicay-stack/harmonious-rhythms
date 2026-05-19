@@ -47,7 +47,7 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
   }, [pro.id]);
 
   const brand = pro.brand_color || "#D4A24E";
-  const isVip = pro.subscription_tier === "vip";
+  const isVip = pro.is_vip;
   const open = () => navigate({ to: "/pros/$proId", params: { proId: pro.id } });
 
   const onPlay = (e: React.MouseEvent) => {
@@ -89,7 +89,7 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
       <div className="min-w-0 flex-1 text-right">
         <div className="flex flex-wrap items-center justify-end gap-1.5">
           {isVip && (
-            <Badge className="border-amber-500/40 bg-gradient-to-r from-amber-500 to-yellow-400 text-white">
+            <Badge className="border-primary/30 bg-primary/15 text-primary">
               <Crown className="ml-1 h-3 w-3" />VIP
             </Badge>
           )}
@@ -104,7 +104,7 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           {rating.count > 0 && (
             <span className="flex items-center gap-1">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <Star className="h-3.5 w-3.5 fill-primary text-primary" />
               <span className="font-semibold text-foreground">{rating.avg.toFixed(1)}</span>
               <span>({rating.count})</span>
             </span>

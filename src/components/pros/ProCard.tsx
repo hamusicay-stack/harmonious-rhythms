@@ -24,7 +24,8 @@ export type ProCardData = {
   specialties: string[];
   genres: string[];
   is_verified: boolean;
-  subscription_tier: string;
+  /** SSoT-derived: profiles.global_subscription_tier_id → subscription_tiers.is_vip */
+  is_vip: boolean;
   is_featured: boolean;
 };
 
@@ -68,7 +69,7 @@ export function ProCard({ pro, onRequestQuote }: Props) {
   }, [pro.id]);
 
   const brand = pro.brand_color || "#D4A24E";
-  const isVip = pro.subscription_tier === "vip";
+  const isVip = pro.is_vip;
 
   const open = () => navigate({ to: "/pros/$proId", params: { proId: pro.id } });
 
@@ -102,7 +103,7 @@ export function ProCard({ pro, onRequestQuote }: Props) {
       {/* Top badges */}
       <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
         {isVip && (
-          <Badge className="border-amber-500/40 bg-gradient-to-r from-amber-500 to-yellow-400 text-white shadow-md">
+          <Badge className="border-primary/30 bg-primary/15 text-primary shadow-md">
             <Crown className="ml-1 h-3 w-3" /> VIP
           </Badge>
         )}
@@ -162,7 +163,7 @@ export function ProCard({ pro, onRequestQuote }: Props) {
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {rating.count > 0 ? (
               <span className="flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-primary text-primary" />
                 <span className="font-semibold text-foreground">{rating.avg.toFixed(1)}</span>
                 <span>({rating.count})</span>
               </span>
