@@ -11,8 +11,12 @@ import { toast } from "sonner";
 
 type Pro = {
   id: string; user_id: string; display_name: string; status: string;
-  is_verified: boolean; is_featured: boolean; subscription_tier: string;
+  is_verified: boolean; is_featured: boolean;
   region: string | null; created_at: string;
+  // SSoT join via profiles.global_subscription_tier_id
+  tier_id: string | null;
+  tier_name: string | null;
+  tier_is_vip: boolean;
 };
 
 type Inquiry = {
@@ -20,28 +24,68 @@ type Inquiry = {
   event_type: string; event_date: string | null; status: string; created_at: string;
 };
 
+type Tier = { id: string; slug: string; name: string; is_vip: boolean };
+
 export function MusicProsManager() {
   const [pros, setPros] = useState<Pro[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [vipTier, setVipTier] = useState<Tier | null>(null);
+  const [freeTier, setFreeTier] = useState<Tier | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     setLoading(true);
-    const [{ data: p }, { data: i }] = await Promise.all([
-      supabase.from("music_pros").select("id,user_id,display_name,status,is_verified,is_featured,subscription_tier,region,created_at").order("created_at", { ascending: false }),
+    const [{ data: p }, { data: i }, { data: t }] = await Promise.all([
+      supabase.from("music_pros").select("id,user_id,display_name,status,is_verified,is_featured,region,created_at").order("created_at", { ascending: false }),
       supabase.from("music_pro_inquiries").select("id,pro_id,sender_name,contact_phone,event_type,event_date,status,created_at").order("created_at", { ascending: false }).limit(100),
+      supabase.from("subscription_tiers").select("id,slug,name,is_vip").order("rank"),
     ]);
-    setPros((p as Pro[]) ?? []);
+    const ts = (t as Tier[]) ?? [];
+    setTiers(ts);
+    setVipTier(ts.find(x => x.is_vip) ?? null);
+    setFreeTier(ts.find(x => x.slug === "free") ?? null);
+
+    // Pull global tier per pro user from profiles (SSoT)
+    const userIds = ((p ?? []) as { user_id: string }[]).map(r => r.user_id).filter(Boolean);
+    const tierByUser = new Map<string, string | null>();
+    if (userIds.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, global_subscription_tier_id")
+        .in("id", userIds);
+      for (const pr of (profs ?? []) as { id: string; global_subscription_tier_id: string | null }[]) {
+        tierByUser.set(pr.id, pr.global_subscription_tier_id);
+      }
+    }
+    const tierById = new Map(ts.map(x => [x.id, x] as const));
+    const enriched: Pro[] = ((p ?? []) as Pro[]).map(r => {
+      const tid = tierByUser.get(r.user_id) ?? null;
+      const tier = tid ? tierById.get(tid) : undefined;
+      return { ...r, tier_id: tid, tier_name: tier?.name ?? null, tier_is_vip: !!tier?.is_vip };
+    });
+    setPros(enriched);
     setInquiries((i as Inquiry[]) ?? []);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const update = async (id: string, patch: Partial<Pro>) => {
+  const update = async (id: string, patch: { status?: string; is_verified?: boolean; is_featured?: boolean }) => {
     const { error } = await supabase.from("music_pros").update(patch).eq("id", id);
     if (error) { toast.error(friendlyError(error)); return; }
     toast.success("עודכן");
+    load();
+  };
+
+  const toggleVipGlobal = async (pro: Pro) => {
+    if (!vipTier) { toast.error("לא הוגדרה דרגת VIP במערכת"); return; }
+    const targetTierId = pro.tier_is_vip ? (freeTier?.id ?? null) : vipTier.id;
+    const { error } = await (supabase as never as {
+      rpc: (n: string, args: { _user_id: string; _tier_id: string | null }) => Promise<{ error: { message: string } | null }>;
+    }).rpc("admin_set_user_global_tier", { _user_id: pro.user_id, _tier_id: targetTierId });
+    if (error) { toast.error(friendlyError(error)); return; }
+    toast.success(pro.tier_is_vip ? "VIP הוסר" : "VIP הוענק");
     load();
   };
 
@@ -64,7 +108,10 @@ export function MusicProsManager() {
 
       <TabsContent value="profiles" className="mt-4">
         <Card>
-          <CardHeader><CardTitle>מוזיקאים מקצועיים</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>מוזיקאים מקצועיים</CardTitle>
+            <p className="text-xs text-muted-foreground">דרגות VIP נשלטות דרך המקור היחיד: <code>profiles.global_subscription_tier_id</code></p>
+          </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
@@ -85,9 +132,10 @@ export function MusicProsManager() {
                       <Badge variant={p.status === "approved" ? "default" : "outline"}>{p.status}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        {p.is_verified && <Badge className="bg-blue-500/15 text-blue-600"><ShieldCheck className="ml-1 h-3 w-3" />מאומת</Badge>}
-                        {p.subscription_tier === "vip" && <Badge className="bg-amber-500/20 text-amber-700"><Crown className="ml-1 h-3 w-3" />VIP</Badge>}
+                      <div className="flex flex-wrap gap-1">
+                        {p.is_verified && <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary"><ShieldCheck className="ml-1 h-3 w-3" />מאומת</Badge>}
+                        {p.tier_is_vip && <Badge className="bg-primary text-primary-foreground"><Crown className="ml-1 h-3 w-3" />{p.tier_name ?? "VIP"}</Badge>}
+                        {!p.tier_is_vip && p.tier_name && <Badge variant="outline" className="text-muted-foreground">{p.tier_name}</Badge>}
                         {p.is_featured && <Badge variant="outline">Featured</Badge>}
                       </div>
                     </TableCell>
@@ -105,8 +153,8 @@ export function MusicProsManager() {
                         <Button size="sm" variant="outline" onClick={() => update(p.id, { is_verified: !p.is_verified })}>
                           <ShieldCheck className="ml-1 h-3 w-3" />{p.is_verified ? "בטל אימות" : "אמת"}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => update(p.id, { subscription_tier: p.subscription_tier === "vip" ? "free" : "vip" })}>
-                          <Crown className="ml-1 h-3 w-3" />{p.subscription_tier === "vip" ? "FREE" : "VIP"}
+                        <Button size="sm" variant="outline" onClick={() => toggleVipGlobal(p)}>
+                          <Crown className="ml-1 h-3 w-3" />{p.tier_is_vip ? "הסר VIP" : "הענק VIP"}
                         </Button>
                         <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove(p.id)}>
                           <Trash2 className="h-3 w-3" />
@@ -155,3 +203,4 @@ export function MusicProsManager() {
     </Tabs>
   );
 }
+

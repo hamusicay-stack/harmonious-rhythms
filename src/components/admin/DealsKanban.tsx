@@ -8,7 +8,7 @@ import {
   useDraggable,
   useDroppable,
 } from "@dnd-kit/core";
-import { Plus, Loader2, GripVertical, Music2, ShoppingBag, TrendingUp } from "lucide-react";
+import { Plus, Loader2, GripVertical, Music2, ShoppingBag, Drum, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,14 +82,24 @@ function DealCard({ deal }: { deal: Deal }) {
                 <Music2 className="h-3 w-3" />פנייה למוזיקאי
               </Badge>
             )}
-            {(deal.source_type === "shop_abandoned_cart" || deal.source_type === "shop_custom_quote" || deal.source_type === "premium_shop_lead") && (
+            {deal.source_type === "shop_abandoned_cart" && (
+              <Badge variant="outline" className="gap-1 border-amber-500/40 bg-amber-500/10 text-[10px] text-amber-600">
+                <ShoppingBag className="h-3 w-3" />נטישת עגלה
+              </Badge>
+            )}
+            {(deal.source_type === "shop_custom_quote" || deal.source_type === "premium_shop_lead") && (
               <Badge variant="outline" className="gap-1 border-amber-500/40 bg-amber-500/10 text-[10px] text-amber-600">
                 <ShoppingBag className="h-3 w-3" />ליד פרימיום מהחנות
               </Badge>
             )}
-            {(deal.source_type === "marketplace_bump_request" || deal.source_type === "marketplace_upgrade") && (
+            {deal.source_type === "custom_beat_request" && (
               <Badge variant="outline" className="gap-1 border-emerald-500/40 bg-emerald-500/10 text-[10px] text-emerald-600">
-                <TrendingUp className="h-3 w-3" />שדרוג יד 2
+                <Drum className="h-3 w-3" />בקשת מקצב בהתאמה אישית
+              </Badge>
+            )}
+            {deal.source_type === "cpi_encoding_error" && (
+              <Badge variant="outline" className="gap-1 border-destructive/40 bg-destructive/10 text-[10px] text-destructive">
+                <AlertTriangle className="h-3 w-3" />שגיאת קידוד CPI
               </Badge>
             )}
           </div>

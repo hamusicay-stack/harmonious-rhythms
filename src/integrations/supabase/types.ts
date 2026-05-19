@@ -1003,7 +1003,10 @@ export type Database = {
           id: string
           priority: Database["public"]["Enums"]["task_priority"]
           related_customer_id: string | null
+          related_deal_id: string | null
           related_lead_id: string | null
+          related_order_id: string | null
+          related_pro_id: string | null
           related_supplier_id: string | null
           status: Database["public"]["Enums"]["task_status"]
           title: string
@@ -1018,7 +1021,10 @@ export type Database = {
           id?: string
           priority?: Database["public"]["Enums"]["task_priority"]
           related_customer_id?: string | null
+          related_deal_id?: string | null
           related_lead_id?: string | null
+          related_order_id?: string | null
+          related_pro_id?: string | null
           related_supplier_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title: string
@@ -1033,7 +1039,10 @@ export type Database = {
           id?: string
           priority?: Database["public"]["Enums"]["task_priority"]
           related_customer_id?: string | null
+          related_deal_id?: string | null
           related_lead_id?: string | null
+          related_order_id?: string | null
+          related_pro_id?: string | null
           related_supplier_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title?: string
@@ -1470,6 +1479,33 @@ export type Database = {
           },
         ]
       }
+      automation_settings: {
+        Row: {
+          abandoned_cart_delay_hours: number
+          abandoned_cart_enabled: boolean
+          id: string
+          newsletter_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          abandoned_cart_delay_hours?: number
+          abandoned_cart_enabled?: boolean
+          id?: string
+          newsletter_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          abandoned_cart_delay_hours?: number
+          abandoned_cart_enabled?: boolean
+          id?: string
+          newsletter_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
@@ -1567,6 +1603,7 @@ export type Database = {
       }
       cart_items: {
         Row: {
+          abandoned_notified_at: string | null
           added_at: string
           id: string
           image: string | null
@@ -1582,6 +1619,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          abandoned_notified_at?: string | null
           added_at?: string
           id?: string
           image?: string | null
@@ -1597,6 +1635,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          abandoned_notified_at?: string | null
           added_at?: string
           id?: string
           image?: string | null
@@ -3802,6 +3841,7 @@ export type Database = {
           failed_count: number
           id: string
           recipients_count: number
+          scheduled_for: string | null
           segment_filters: Json
           segment_id: string | null
           sent_at: string | null
@@ -3817,6 +3857,7 @@ export type Database = {
           failed_count?: number
           id?: string
           recipients_count?: number
+          scheduled_for?: string | null
           segment_filters?: Json
           segment_id?: string | null
           sent_at?: string | null
@@ -3832,6 +3873,7 @@ export type Database = {
           failed_count?: number
           id?: string
           recipients_count?: number
+          scheduled_for?: string | null
           segment_filters?: Json
           segment_id?: string | null
           sent_at?: string | null
@@ -6243,6 +6285,39 @@ export type Database = {
         }
         Relationships: []
       }
+      system_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity: string | null
+          entity_id: string | null
+          id: string
+          user_id: string | null
+          user_type: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          user_id?: string | null
+          user_type?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          user_id?: string | null
+          user_type?: string | null
+        }
+        Relationships: []
+      }
       user_device_sessions: {
         Row: {
           created_at: string
@@ -6685,9 +6760,15 @@ export type Database = {
         }
         Returns: number
       }
+      process_abandoned_carts: { Args: never; Returns: number }
       process_order_fulfillment: {
         Args: { _order_id: string }
         Returns: undefined
+      }
+      process_pending_newsletter_campaigns: { Args: never; Returns: number }
+      process_received_purchase_order: {
+        Args: { p_order_id: string }
+        Returns: number
       }
       publish_scheduled_shorts: { Args: never; Returns: number }
       read_email_batch: {
