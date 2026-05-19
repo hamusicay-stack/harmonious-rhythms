@@ -227,6 +227,58 @@ function EntitlementsControlPage() {
       </Card>
 
       <Card className="p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-semibold">System Health</h2>
+          <Badge
+            variant="outline"
+            className={
+              health.status === "red"
+                ? "border-destructive text-destructive"
+                : health.status === "yellow"
+                ? "border-yellow-500 text-yellow-500"
+                : "border-emerald-500 text-emerald-500"
+            }
+          >
+            <Activity className="me-1 h-3.5 w-3.5" />
+            {health.status === "red" ? "RED — safety mode" : health.status === "yellow" ? "YELLOW — degraded" : "GREEN — stable"}
+          </Badge>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5 text-sm">
+          <div>
+            <div className="text-xs text-muted-foreground">Cache hit %</div>
+            <div className="text-lg font-semibold">{(health.cacheHitRate * 100).toFixed(1)}%</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Avg latency</div>
+            <div className="text-lg font-semibold">{health.avgLatency.toFixed(0)} ms</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Anomalies</div>
+            <div className="text-lg font-semibold">{health.anomalyCount}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Rate-limit hits</div>
+            <div className="text-lg font-semibold">{health.rateLimitHits}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Safety mode</div>
+            <div className="text-lg font-semibold">{health.safetyModeStatus ? "ON" : "off"}</div>
+          </div>
+        </div>
+        {health.details.anomaly.recent.length > 0 && (
+          <div className="mt-3 space-y-1 text-xs">
+            <div className="text-muted-foreground">Recent anomalies:</div>
+            {health.details.anomaly.recent.slice(-5).reverse().map((a, i) => (
+              <div key={i} className="flex justify-between border-b border-border/40 py-1">
+                <span className="font-mono">{a.type}</span>
+                <span className="text-muted-foreground">{a.detail}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-4">
         <h2 className="mb-3 font-semibold">Audit log (100 אחרונים)</h2>
         <div className="max-h-96 overflow-auto text-xs">
           <table className="w-full">
