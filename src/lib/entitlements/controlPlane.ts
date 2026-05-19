@@ -10,6 +10,9 @@
  * entitlement evaluation never blocks users.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { swrFetch, getCachedValue, setLastGood, getLastGood } from "./cache";
+import { allowControlPlaneFetch, allowAdminModeSwitch } from "./rateLimit";
+import { isSafetyMode, recordModeChange } from "./anomalyDetector";
 
 export type EntitlementMode = "legacy" | "dual" | "ssot";
 
@@ -37,67 +40,60 @@ const FALLBACK: ControlPlaneConfig = {
   updated_at: null,
 };
 
+const CACHE_KEY = "entitlement_control_plane";
 const TTL_MS = 8_000;
-let cached: ControlPlaneConfig = FALLBACK;
-let cachedAt = 0;
-let inflight: Promise<ControlPlaneConfig> | null = null;
 const listeners = new Set<(c: ControlPlaneConfig) => void>();
 
-function setCached(c: ControlPlaneConfig) {
-  cached = c;
-  cachedAt = Date.now();
+function notify(c: ControlPlaneConfig) {
   for (const l of listeners) {
     try { l(c); } catch { /* swallow */ }
   }
 }
 
+async function rawLoad(): Promise<ControlPlaneConfig> {
+  const { data, error } = await (supabase as unknown as {
+    from: (t: string) => {
+      select: (c: string) => {
+        eq: (k: string, v: boolean) => {
+          maybeSingle: () => Promise<{ data: ControlPlaneConfig | null; error: unknown }>;
+        };
+      };
+    };
+  })
+    .from("entitlement_control_plane")
+    .select(
+      "id, mode, rollout_percentage, allow_auto_rollback, drift_threshold_warning, drift_threshold_rollback, confidence_threshold_ssot, updated_by, updated_at",
+    )
+    .eq("is_active", true)
+    .maybeSingle();
+  if (error || !data) throw new Error("control_plane_load_failed");
+  setLastGood(CACHE_KEY, data);
+  notify(data);
+  return data;
+}
+
 /** Synchronous read of last cached config (never throws). */
 export function getCachedControlPlane(): ControlPlaneConfig {
-  return cached;
+  return (
+    getCachedValue<ControlPlaneConfig>(CACHE_KEY) ??
+    getLastGood<ControlPlaneConfig>(CACHE_KEY, FALLBACK)
+  );
 }
 
 /** Fetch (or return cached) config. Always resolves — falls back on error. */
 export async function getEntitlementControlPlane(
   opts: { force?: boolean } = {},
 ): Promise<ControlPlaneConfig> {
-  if (!opts.force && Date.now() - cachedAt < TTL_MS && cached.id) {
-    return cached;
+  // Per-system rate limit on control plane reads. Exceeded → serve cached.
+  if (!opts.force && !allowControlPlaneFetch()) {
+    return getCachedControlPlane();
   }
-  if (inflight) return inflight;
-
-  inflight = (async () => {
-    try {
-      const { data, error } = await (supabase as unknown as {
-        from: (t: string) => {
-          select: (c: string) => {
-            eq: (k: string, v: boolean) => {
-              maybeSingle: () => Promise<{ data: ControlPlaneConfig | null; error: unknown }>;
-            };
-          };
-        };
-      })
-        .from("entitlement_control_plane")
-        .select(
-          "id, mode, rollout_percentage, allow_auto_rollback, drift_threshold_warning, drift_threshold_rollback, confidence_threshold_ssot, updated_by, updated_at",
-        )
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (error || !data) {
-        setCached({ ...FALLBACK });
-        return cached;
-      }
-      setCached(data);
-      return cached;
-    } catch {
-      setCached({ ...FALLBACK });
-      return cached;
-    } finally {
-      inflight = null;
-    }
-  })();
-
-  return inflight;
+  const ttl = isSafetyMode() ? 30_000 : TTL_MS;
+  return swrFetch<ControlPlaneConfig>(CACHE_KEY, rawLoad, {
+    ttlMs: ttl,
+    fallback: FALLBACK,
+    force: opts.force,
+  });
 }
 
 /** Subscribe to changes. Fires on every successful fetch / realtime update. */
@@ -105,7 +101,6 @@ export function subscribeToControlPlaneChanges(
   listener: (c: ControlPlaneConfig) => void,
 ): () => void {
   listeners.add(listener);
-  // Best-effort realtime wiring.
   let channel: { unsubscribe?: () => void } | null = null;
   try {
     channel = (supabase as unknown as {
