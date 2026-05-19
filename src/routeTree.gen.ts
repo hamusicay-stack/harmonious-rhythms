@@ -63,6 +63,7 @@ import { Route as AdminForumRouteImport } from './routes/admin.forum'
 import { Route as AdminEntitlementsControlRouteImport } from './routes/admin.entitlements-control'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCrmRouteImport } from './routes/admin.crm'
+import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminCommerceRouteImport } from './routes/admin.commerce'
 import { Route as AdminChatOversightRouteImport } from './routes/admin.chat-oversight'
 import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
@@ -384,6 +385,11 @@ const AdminCrmRoute = AdminCrmRouteImport.update({
   path: '/crm',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCommerceRoute = AdminCommerceRouteImport.update({
   id: '/commerce',
   path: '/commerce',
@@ -669,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
@@ -768,6 +775,7 @@ export interface FileRoutesByTo {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
+  '/admin/content': typeof AdminContentRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
   '/admin/forum': typeof AdminForumRoute
@@ -873,6 +881,7 @@ export interface FileRoutesById {
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
@@ -980,6 +989,7 @@ export interface FileRouteTypes {
     | '/admin/automations'
     | '/admin/chat-oversight'
     | '/admin/commerce'
+    | '/admin/content'
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/entitlements-control'
@@ -1079,6 +1089,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
+    | '/admin/content'
     | '/admin/dashboard'
     | '/admin/entitlements-control'
     | '/admin/forum'
@@ -1183,6 +1194,7 @@ export interface FileRouteTypes {
     | '/admin/automations'
     | '/admin/chat-oversight'
     | '/admin/commerce'
+    | '/admin/content'
     | '/admin/crm'
     | '/admin/dashboard'
     | '/admin/entitlements-control'
@@ -1678,6 +1690,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/commerce': {
       id: '/admin/commerce'
       path: '/commerce'
@@ -2131,6 +2150,7 @@ interface AdminRouteChildren {
   AdminAutomationsRoute: typeof AdminAutomationsRoute
   AdminChatOversightRoute: typeof AdminChatOversightRoute
   AdminCommerceRoute: typeof AdminCommerceRouteWithChildren
+  AdminContentRoute: typeof AdminContentRoute
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminEntitlementsControlRoute: typeof AdminEntitlementsControlRoute
@@ -2148,6 +2168,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAutomationsRoute: AdminAutomationsRoute,
   AdminChatOversightRoute: AdminChatOversightRoute,
   AdminCommerceRoute: AdminCommerceRouteWithChildren,
+  AdminContentRoute: AdminContentRoute,
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminEntitlementsControlRoute: AdminEntitlementsControlRoute,
@@ -2313,13 +2334,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

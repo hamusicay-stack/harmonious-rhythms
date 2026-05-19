@@ -25,6 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { Eye } from "lucide-react";
 import { toast } from "sonner";
+import { PointsOverviewPanel } from "@/components/admin/PointsOverviewPanel";
 
 export const Route = createFileRoute("/admin/customers/$customerId")({
   beforeLoad: requireAdmin,

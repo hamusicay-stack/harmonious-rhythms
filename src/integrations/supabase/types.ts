@@ -1788,6 +1788,7 @@ export type Database = {
       }
       customer_tags: {
         Row: {
+          category: string | null
           color: string | null
           created_at: string
           created_by: string | null
@@ -1796,6 +1797,7 @@ export type Database = {
           tag: string
         }
         Insert: {
+          category?: string | null
           color?: string | null
           created_at?: string
           created_by?: string | null
@@ -1804,6 +1806,7 @@ export type Database = {
           tag: string
         }
         Update: {
+          category?: string | null
           color?: string | null
           created_at?: string
           created_by?: string | null
@@ -6766,8 +6769,21 @@ export type Database = {
         }
         Returns: string
       }
+      admin_set_wiki_approval: {
+        Args: { _article_id: string; _reason?: string; _status: string }
+        Returns: undefined
+      }
       affiliate_approve_application: {
         Args: { _app_id: string }
+        Returns: string
+      }
+      assign_user_tag: {
+        Args: {
+          _category?: string
+          _color?: string
+          _tag: string
+          _user_id: string
+        }
         Returns: string
       }
       award_points_for_event: {
@@ -6892,6 +6908,10 @@ export type Database = {
       register_device: {
         Args: { _device_id: string; _user_agent: string }
         Returns: boolean
+      }
+      remove_user_tag: {
+        Args: { _tag: string; _user_id: string }
+        Returns: undefined
       }
       track_banner_event: {
         Args: { _banner_id: string; _event_type: string }

@@ -1,3 +1,8 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Loader2 } from "lucide-react";
 
 type PointsLedgerRow = {
   id: string;
@@ -21,9 +26,10 @@ const POINTS_EVENT_LABELS: Record<string, string> = {
   redeem_shop_order: "מימוש בחנות",
   daily_login: "כניסה יומית",
   manual_adjustment: "התאמה ידנית",
+  booking_closed: "סגירת עסקה",
 };
 
-function PointsOverviewPanel({ customerId }: { customerId: string }) {
+export function PointsOverviewPanel({ customerId }: { customerId: string }) {
   const [balance, setBalance] = useState<number | null>(null);
   const [rows, setRows] = useState<PointsLedgerRow[]>([]);
   const [earned30d, setEarned30d] = useState<number>(0);
@@ -37,21 +43,12 @@ function PointsOverviewPanel({ customerId }: { customerId: string }) {
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
       const [balRes, ledgerRes, recentRes] = await Promise.all([
         (supabase as any)
-          .from("user_points")
-          .select("total_points")
-          .eq("user_id", customerId)
-          .maybeSingle(),
+          .from("user_points").select("total_points").eq("user_id", customerId).maybeSingle(),
         (supabase as any)
-          .from("points_ledger")
-          .select("id, event_key, points, notes, created_at")
-          .eq("user_id", customerId)
-          .order("created_at", { ascending: false })
-          .limit(10),
+          .from("points_ledger").select("id, event_key, points, notes, created_at")
+          .eq("user_id", customerId).order("created_at", { ascending: false }).limit(10),
         (supabase as any)
-          .from("points_ledger")
-          .select("points")
-          .eq("user_id", customerId)
-          .gte("created_at", since),
+          .from("points_ledger").select("points").eq("user_id", customerId).gte("created_at", since),
       ]);
       if (!alive) return;
       setBalance(Number(balRes.data?.total_points ?? 0));
@@ -59,8 +56,7 @@ function PointsOverviewPanel({ customerId }: { customerId: string }) {
       const recent = (recentRes.data ?? []) as { points: number }[];
       let plus = 0, minus = 0;
       for (const r of recent) {
-        if (r.points >= 0) plus += r.points;
-        else minus += r.points;
+        if (r.points >= 0) plus += r.points; else minus += r.points;
       }
       setEarned30d(plus);
       setSpent30d(Math.abs(minus));

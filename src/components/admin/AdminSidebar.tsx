@@ -54,6 +54,7 @@ const PILLARS: Pillar[] = [
       { to: "/admin/commerce/shorts", title: "שורטס", icon: Play },
       { to: "/admin/commerce/news", title: "חדשות", icon: Newspaper },
       { to: "/admin/wiki", title: "ויקיפדיה AI", icon: BookOpen },
+      { to: "/admin/content", title: "מנהל תוכן ותגיות", icon: BookOpen },
       { to: "/admin/commerce/newsletter", title: "ניוזלטר", icon: Mail },
       { to: "/admin/automations", title: "אוטומציות", icon: Zap },
       { to: "/admin/commerce/banners", title: "פרסומות", icon: Megaphone },
