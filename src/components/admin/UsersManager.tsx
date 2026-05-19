@@ -396,6 +396,49 @@ export function UsersManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+
+      {/* Subscription dialog — SSoT: profiles.global_subscription_tier_id */}
+      <Dialog open={!!subTarget} onOpenChange={(o) => !o && setSubTarget(null)}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-right">
+              <Crown className="h-5 w-5 text-amber-500" />
+              ניהול מנוי
+            </DialogTitle>
+            <DialogDescription className="text-right">
+              עדכון דרגת המנוי הגלובלית של {subTarget?.display_name || subTarget?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-right">
+            <Label>בחר דרגה</Label>
+            <Select value={subDraftTierId} onValueChange={setSubDraftTierId}>
+              <SelectTrigger><SelectValue placeholder="בחר דרגה" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">ללא מנוי</SelectItem>
+                {tiers.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.is_vip ? "👑 " : ""}{t.name} <span className="text-xs text-muted-foreground">· rank {t.rank}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground">
+              מקור אמת יחיד: <code>profiles.global_subscription_tier_id</code>. השינוי נכנס לתוקף מיידית בכל המודולים (אקדמיה, חנות, יומן, יד 2).
+            </p>
+            {subCurrentTierId && (
+              <div className="text-[11px] text-amber-300">
+                דרגה נוכחית: {tiers.find((t) => t.id === subCurrentTierId)?.name ?? "—"}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSubTarget(null)}>ביטול</Button>
+            <Button onClick={saveSubscription} disabled={subSaving} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
+              {subSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              שמור מנוי
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
   );
 }
