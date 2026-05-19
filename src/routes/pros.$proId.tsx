@@ -127,14 +127,14 @@ function ProDetailPage() {
   }
 
   const brand = pro.brand_color || "#D4A24E";
-  const isVip = pro.subscription_tier === "vip";
-  // Shadow Entitlement Layer (Phase 2): parallel SSoT check for divergence
-  // logging only. `isVip` above is the active legacy decision.
-  if (typeof window !== "undefined" && pro.user_id) {
-    void import("@/lib/entitlements").then(({ compareEntitlements }) =>
-      compareEntitlements(pro.user_id),
-    ).catch(() => {});
-  }
+  // Phase 3 dual-run: returns legacy value; logs SSoT comparison in background.
+  // Legacy remains source of truth for UI.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { wrapVipCheck } = require("@/lib/entitlements") as typeof import("@/lib/entitlements");
+  const isVip = wrapVipCheck(pro.subscription_tier === "vip", {
+    userId: pro.user_id,
+    module: "pros.$proId",
+  });
 
   const audios = media.filter((m) => m.type === "audio");
   const videos = media.filter((m) => m.type === "video");
