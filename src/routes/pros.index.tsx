@@ -42,7 +42,8 @@ function ProsIndex() {
       setLoading(true);
       const { data, error } = await supabase
         .from("music_pros")
-        .select("id,user_id,display_name,headline,profile_image,cover_image,brand_color,hourly_price_min,region,cities,specialties,genres,is_verified,is_featured,created_at");
+        .select("id,user_id,display_name,headline,profile_image,cover_image,brand_color,hourly_price_min,region,cities,specialties,genres,is_verified,is_featured,created_at")
+        .eq("status", "approved");
       if (cancelled) return;
       if (error) console.error(error);
       const rawList = (data as (Omit<ProCardData, "is_vip"> & { created_at: string })[]) ?? [];
