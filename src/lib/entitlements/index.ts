@@ -29,6 +29,7 @@ export {
   setEntitlementMode,
   getDriftSnapshot,
   onEntitlementDrift,
+  getEntitlementSignal,
 } from "./resolveEntitlement";
 export type {
   EntitlementMode,
@@ -36,6 +37,8 @@ export type {
   DriftSnapshot,
   ResolveArgs,
   ResolveResult,
+  EntitlementSignal,
+  StabilityLevel,
 } from "./resolveEntitlement";
 export {
   getEntitlementControlPlane,

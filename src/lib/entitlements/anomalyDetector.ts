@@ -1,12 +1,19 @@
 /**
- * Phase 6 — Anomaly detection for the entitlement system.
+ * Anomaly detection — OBSERVATIONAL ONLY (Phase 7 consolidation).
  *
  * Watches drift snapshots + cache health + mode change history and emits
- * categorized alerts. NEVER auto-rolls-back. Suggests safety_mode buffer
- * which extends cache TTL and suppresses noisy recommendations.
+ * categorized alerts. The detector NEVER:
+ *   - auto-rolls-back the mode
+ *   - alters cache TTLs
+ *   - influences resolveEntitlement's return value
+ *
+ * Anomalies are surfaced via getAnomalyMetrics() / onAnomaly() for admin
+ * visibility only. `isSafetyMode()` reports whether instability has been
+ * observed; consumers may use it for UX warnings, but the decision path
+ * does not consult it.
  */
 import { getEntitlementMismatchReport } from "./metrics";
-import { getCacheMetrics, setCacheSafetyMode } from "./cache";
+import { getCacheMetrics } from "./cache";
 
 export type AnomalyType =
   | "DRIFT_SPIKE"
@@ -76,7 +83,7 @@ function enterSafetyMode(reason: string) {
   if (safetyMode) return;
   safetyMode = true;
   safetyEnteredAt = Date.now();
-  setCacheSafetyMode(true);
+  // Observational only — no cache TTL inflation, no decision-path effect.
   emit({
     type: "CONTROL_PLANE_INSTABILITY",
     at: Date.now(),
@@ -92,7 +99,7 @@ function maybeExitSafetyMode() {
   const stableFor = Date.now() - (lastEvt?.at ?? safetyEnteredAt);
   if (stableFor >= STABILITY_REQUIRED_MS) {
     safetyMode = false;
-    setCacheSafetyMode(false);
+    // Observational only — nothing else to unwind.
     // eslint-disable-next-line no-console
     console.info("[entitlements:safety_mode] cleared after stability window");
   }
