@@ -82,6 +82,16 @@ function DealCard({ deal }: { deal: Deal }) {
                 <Music2 className="h-3 w-3" />פנייה למוזיקאי
               </Badge>
             )}
+            {(deal.source_type === "shop_abandoned_cart" || deal.source_type === "shop_custom_quote" || deal.source_type === "premium_shop_lead") && (
+              <Badge variant="outline" className="gap-1 border-amber-500/40 bg-amber-500/10 text-[10px] text-amber-600">
+                <ShoppingBag className="h-3 w-3" />ליד פרימיום מהחנות
+              </Badge>
+            )}
+            {(deal.source_type === "marketplace_bump_request" || deal.source_type === "marketplace_upgrade") && (
+              <Badge variant="outline" className="gap-1 border-emerald-500/40 bg-emerald-500/10 text-[10px] text-emerald-600">
+                <TrendingUp className="h-3 w-3" />שדרוג יד 2
+              </Badge>
+            )}
           </div>
           {deal.notes && (
             <div className="line-clamp-2 text-xs text-muted-foreground">{deal.notes}</div>
