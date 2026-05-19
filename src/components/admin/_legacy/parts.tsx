@@ -281,7 +281,7 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
 
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (v) loadRelated(); }}>
       <DialogTrigger asChild><Button size="sm"><Plus className="ml-2 h-4 w-4" />משימה חדשה</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>משימה חדשה</DialogTitle></DialogHeader>
