@@ -28,6 +28,9 @@ import {
   logRollbackRecommendation,
   type EntitlementMode,
 } from "./controlPlane";
+import { allowUserResolve } from "./rateLimit";
+import { recordDriftSample, evaluateAnomalies, isSafetyMode } from "./anomalyDetector";
+import "./health";
 
 export type { EntitlementMode } from "./controlPlane";
 
