@@ -12,3 +12,14 @@ export * from "./TierService";
 export { default as TierService } from "./TierService";
 export { compareEntitlements } from "./compareEntitlements";
 export type { EntitlementComparison } from "./compareEntitlements";
+export { wrapVipCheck, wrapTierCheck } from "./dualRun";
+export type { WrapContext } from "./dualRun";
+export {
+  recordComparison,
+  getEntitlementMismatchReport,
+  resetEntitlementMetrics,
+} from "./metrics";
+export type {
+  EntitlementMismatchReport,
+  MismatchRecord,
+} from "./metrics";

@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { isUserVip } from "@/lib/tiers";
+import { wrapVipCheck } from "@/lib/entitlements";
 import { MediaUploader } from "@/components/pros/MediaUploader";
 import { type EditablePackage } from "@/components/pros/PackagesEditor";
 import { ProProfileWizard, type ProFormState } from "@/components/pros/ProProfileWizard";
@@ -69,7 +70,10 @@ function EditProPage() {
     return <div className="container mx-auto px-4 py-16 text-center">אין לך הרשאה לערוך פרופיל זה</div>;
   }
 
-  const isVip = pro.subscription_tier === "vip";
+  const isVip = wrapVipCheck(pro.subscription_tier === "vip", {
+    userId: pro.user_id,
+    module: "pros.$proId.edit",
+  });
   const audioCount = media.filter((m) => m.type === "audio").length;
   const audioLimitReached = !isVip && audioCount >= 2;
 
