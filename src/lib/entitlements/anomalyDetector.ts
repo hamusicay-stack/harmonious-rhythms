@@ -1,12 +1,19 @@
 /**
- * Phase 6 — Anomaly detection for the entitlement system.
+ * Anomaly detection — OBSERVATIONAL ONLY (Phase 7 consolidation).
  *
  * Watches drift snapshots + cache health + mode change history and emits
- * categorized alerts. NEVER auto-rolls-back. Suggests safety_mode buffer
- * which extends cache TTL and suppresses noisy recommendations.
+ * categorized alerts. The detector NEVER:
+ *   - auto-rolls-back the mode
+ *   - alters cache TTLs
+ *   - influences resolveEntitlement's return value
+ *
+ * Anomalies are surfaced via getAnomalyMetrics() / onAnomaly() for admin
+ * visibility only. `isSafetyMode()` reports whether instability has been
+ * observed; consumers may use it for UX warnings, but the decision path
+ * does not consult it.
  */
 import { getEntitlementMismatchReport } from "./metrics";
-import { getCacheMetrics, setCacheSafetyMode } from "./cache";
+import { getCacheMetrics } from "./cache";
 
 export type AnomalyType =
   | "DRIFT_SPIKE"
