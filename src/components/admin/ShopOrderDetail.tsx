@@ -460,7 +460,10 @@ function RefundDialog({ order, onDone, disabled }: { order: Order; onDone: () =>
             <AlertDialogContent dir="rtl">
               <AlertDialogHeader>
                 <AlertDialogTitle>לאשר את הפעולה?</AlertDialogTitle>
-                <AlertDialogDescription>הפעולה אינה הפיכה. הזמנה תסומן כ-refunded וגישות דיגיטליות יוסרו.</AlertDialogDescription>
+                <AlertDialogDescription className="space-y-2 text-right">
+                  <span className="block">⚠️ שים לב: ביצוע החזר יחסום מיידית את גישת המשתמש לקורסים או לדרגות הפרימיום הכלולות בהזמנה זו.</span>
+                  <span className="block text-muted-foreground">ההזמנה תסומן כ-refunded, ההרשמות לאקדמיה יבוטלו, דרגת ה-VIP תאופס ל-Free, ועמלות שותפים תלויות יידחו. הפעולה אינה הפיכה.</span>
+                </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>ביטול</AlertDialogCancel>
