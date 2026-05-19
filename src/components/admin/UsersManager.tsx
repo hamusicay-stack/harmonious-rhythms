@@ -92,7 +92,9 @@ export function UsersManager() {
     if (!subTarget) return;
     setSubSaving(true);
     const tierId = subDraftTierId === "__none__" ? null : subDraftTierId;
-    const { error } = await supabase.rpc("admin_set_user_global_tier", {
+    const { error } = await (supabase as never as {
+      rpc: (n: string, args: { _user_id: string; _tier_id: string | null }) => Promise<{ error: { message: string } | null }>;
+    }).rpc("admin_set_user_global_tier", {
       _user_id: subTarget.id,
       _tier_id: tierId,
     });
