@@ -52,7 +52,7 @@ function AccessControlPage() {
     setBusy(true);
     const { error } = await supabase.rpc("admin_add_allowed_email", {
       _email: trimmed,
-      _note: note.trim() || null,
+      _note: note.trim() || undefined,
       _reason: "admin_panel_add",
     });
     setBusy(false);
