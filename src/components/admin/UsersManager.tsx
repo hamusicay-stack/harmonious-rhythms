@@ -402,7 +402,7 @@ export function UsersManager() {
         <DialogContent dir="rtl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-right">
-              <Crown className="h-5 w-5 text-amber-500" />
+              <Crown className="h-5 w-5 text-primary" />
               ניהול מנוי
             </DialogTitle>
             <DialogDescription className="text-right">
