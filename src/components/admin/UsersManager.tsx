@@ -198,6 +198,15 @@ export function UsersManager() {
   };
 
   return (
+    <Tabs defaultValue="users" className="space-y-4" dir="rtl">
+      <TabsList>
+        <TabsTrigger value="users"><UserCog className="ml-2 h-4 w-4" />משתמשים</TabsTrigger>
+        <TabsTrigger value="roles"><ShieldCheck className="ml-2 h-4 w-4" />תפקידים והרשאות</TabsTrigger>
+      </TabsList>
+      <TabsContent value="roles" className="mt-4">
+        <RolesPermissionsManager />
+      </TabsContent>
+      <TabsContent value="users" className="mt-4 space-y-4">
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
