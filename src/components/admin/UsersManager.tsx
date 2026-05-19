@@ -302,7 +302,7 @@ export function UsersManager() {
                           <KeyRound className="ml-2 h-4 w-4" />נהל הרשאות
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openSubscription(u)}>
-                          <Crown className="ml-2 h-4 w-4 text-amber-500" />ניהול מנוי
+                          <Crown className="ml-2 h-4 w-4 text-primary" />ניהול מנוי
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => impersonate(u)} disabled={u.id === currentUser?.id}>
                           <UserCheck className="ml-2 h-4 w-4" />התחזה למשתמש
