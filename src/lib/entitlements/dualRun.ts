@@ -1,46 +1,31 @@
 /**
  * Shadow Entitlement Layer — Phase 3 dual-run wrapper.
  *
- * Pattern:
- *   const isVip = wrapVipCheck(legacyIsVip, { userId, module: "pros.$proId" });
- *
- * The wrapper:
- *   1. Returns the LEGACY value synchronously — UI behavior is unchanged.
- *   2. Fires a non-blocking SSoT lookup via TierService.
- *   3. Records the comparison in the metrics collector.
- *
- * Failures are swallowed. This layer must NEVER affect user-facing flows.
+ * Phase 4 update: now delegates to the single `resolveEntitlement` gate so
+ * every legacy decision flows through one chokepoint with invariant checks,
+ * drift detection, and self-healing recommendation built in. Behavior is
+ * unchanged in the default "dual" mode — legacy is returned.
  */
-import { isVip as ssotIsVip, getSubscriptionTier } from "./TierService";
+import { getSubscriptionTier } from "./TierService";
 import { recordComparison } from "./metrics";
+import { resolveEntitlement } from "./resolveEntitlement";
 
 export type WrapContext = {
   userId: string | null | undefined;
   module: string;
 };
 
-/** Wrap a legacy boolean VIP decision. Returns the legacy value unchanged. */
+/** Wrap a legacy boolean VIP decision. Returns the gate-resolved value. */
 export function wrapVipCheck(legacy: boolean, ctx: WrapContext): boolean {
   try {
-    if (ctx.userId) {
-      void ssotIsVip(ctx.userId)
-        .then((ssot) => {
-          recordComparison({
-            module: ctx.module,
-            userId: ctx.userId ?? null,
-            legacy,
-            ssot,
-            mismatch: legacy !== ssot,
-          });
-        })
-        .catch(() => {
-          /* swallow */
-        });
-    }
+    return resolveEntitlement({
+      userId: ctx.userId,
+      module: ctx.module,
+      legacy,
+    }).value;
   } catch {
-    /* swallow */
+    return legacy;
   }
-  return legacy;
 }
 
 /** Wrap a legacy tier-slug decision. Returns the legacy slug unchanged. */
@@ -57,12 +42,11 @@ export function wrapTierCheck(legacy: string, ctx: WrapContext): string {
             mismatch: (legacy ?? "").toLowerCase() !== (ssot ?? "").toLowerCase(),
           });
         })
-        .catch(() => {
-          /* swallow */
-        });
+        .catch(() => { /* swallow */ });
     }
   } catch {
     /* swallow */
   }
   return legacy;
 }
+

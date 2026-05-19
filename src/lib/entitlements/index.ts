@@ -23,3 +23,17 @@ export type {
   EntitlementMismatchReport,
   MismatchRecord,
 } from "./metrics";
+export {
+  resolveEntitlement,
+  getEntitlementMode,
+  setEntitlementMode,
+  getDriftSnapshot,
+  onEntitlementDrift,
+} from "./resolveEntitlement";
+export type {
+  EntitlementMode,
+  Recommendation,
+  DriftSnapshot,
+  ResolveArgs,
+  ResolveResult,
+} from "./resolveEntitlement";
