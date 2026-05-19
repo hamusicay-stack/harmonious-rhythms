@@ -219,7 +219,9 @@ export async function updateControlPlane(
     .select()
     .maybeSingle();
   if (error || !data) throw new Error("Failed to update control plane");
-  setCached(data);
+  setLastGood(CACHE_KEY, data);
+  notify(data);
+  void getEntitlementControlPlane({ force: true });
   await logAudit("config_change", {
     previous_mode: prev.mode,
     new_mode: data.mode,
