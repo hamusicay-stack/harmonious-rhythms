@@ -22,10 +22,12 @@ import {
   ExternalLink, KeyRound, UserCog, Crown,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
+import { RolesPermissionsManager } from "@/components/admin/RolesPermissionsManager";
 
 type AppRole = "user" | "member" | "premium" | "vip" | "admin" | "moderator";
 const ALL_ROLES: AppRole[] = ["user", "member", "premium", "vip", "moderator", "admin"];
