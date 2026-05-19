@@ -64,6 +64,7 @@ import { Route as AdminCrmRouteImport } from './routes/admin.crm'
 import { Route as AdminCommerceRouteImport } from './routes/admin.commerce'
 import { Route as AdminChatOversightRouteImport } from './routes/admin.chat-oversight'
 import { Route as AdminAutomationsRouteImport } from './routes/admin.automations'
+import { Route as AdminAuditLogRouteImport } from './routes/admin.audit-log'
 import { Route as AcademyPodcastsRouteImport } from './routes/academy.podcasts'
 import { Route as AcademySlugRouteImport } from './routes/academy.$slug'
 import { Route as AdminCrmIndexRouteImport } from './routes/admin.crm.index'
@@ -385,6 +386,11 @@ const AdminAutomationsRoute = AdminAutomationsRouteImport.update({
   path: '/automations',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAuditLogRoute = AdminAuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AcademyPodcastsRoute = AcademyPodcastsRouteImport.update({
   id: '/podcasts',
   path: '/podcasts',
@@ -644,6 +650,7 @@ export interface FileRoutesByFullPath {
   '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
@@ -741,6 +748,7 @@ export interface FileRoutesByTo {
   '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -842,6 +850,7 @@ export interface FileRoutesById {
   '/yt-shorts': typeof YtShortsRoute
   '/academy/$slug': typeof AcademySlugRoute
   '/academy/podcasts': typeof AcademyPodcastsRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
@@ -946,6 +955,7 @@ export interface FileRouteTypes {
     | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
     | '/admin/commerce'
@@ -1043,6 +1053,7 @@ export interface FileRouteTypes {
     | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
     | '/admin/dashboard'
@@ -1143,6 +1154,7 @@ export interface FileRouteTypes {
     | '/yt-shorts'
     | '/academy/$slug'
     | '/academy/podcasts'
+    | '/admin/audit-log'
     | '/admin/automations'
     | '/admin/chat-oversight'
     | '/admin/commerce'
@@ -1646,6 +1658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAutomationsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/audit-log': {
+      id: '/admin/audit-log'
+      path: '/audit-log'
+      fullPath: '/admin/audit-log'
+      preLoaderRoute: typeof AdminAuditLogRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/academy/podcasts': {
       id: '/academy/podcasts'
       path: '/podcasts'
@@ -2067,6 +2086,7 @@ const AdminCrmRouteWithChildren = AdminCrmRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAuditLogRoute: typeof AdminAuditLogRoute
   AdminAutomationsRoute: typeof AdminAutomationsRoute
   AdminChatOversightRoute: typeof AdminChatOversightRoute
   AdminCommerceRoute: typeof AdminCommerceRouteWithChildren
@@ -2082,6 +2102,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditLogRoute: AdminAuditLogRoute,
   AdminAutomationsRoute: AdminAutomationsRoute,
   AdminChatOversightRoute: AdminChatOversightRoute,
   AdminCommerceRoute: AdminCommerceRouteWithChildren,
