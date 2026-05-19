@@ -46,7 +46,12 @@ export function UploadDialog({
       const isTrusted = !!trusted;
       const tier = ((prof as { subscription_tier?: string } | null)?.subscription_tier ?? "free").toLowerCase();
       setIsPremiumUser(isAdmin || isTrusted || tier === "premium" || tier === "vip" || tier === "pro");
+      // Shadow Entitlement Layer (Phase 2): SSoT divergence check only.
+      void import("@/lib/entitlements").then(({ compareEntitlements }) =>
+        compareEntitlements(user.id),
+      ).catch(() => {});
     })();
+
   }, [open, user]);
 
   const addTag = (raw: string) => {
