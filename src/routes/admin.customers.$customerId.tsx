@@ -834,3 +834,81 @@ function HardwareSmartOffers({ keyboardModelId }: { keyboardModelId: string | nu
     </div>
   );
 }
+
+function ManualPointsPanel({ customerId }: { customerId: string }) {
+  const [balance, setBalance] = useState<number | null>(null);
+  const [delta, setDelta] = useState<string>("");
+  const [reason, setReason] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+
+  const loadBalance = async () => {
+    const { data } = await supabase
+      .from("user_points")
+      .select("total_points")
+      .eq("user_id", customerId)
+      .maybeSingle();
+    setBalance((data as { total_points: number } | null)?.total_points ?? 0);
+  };
+
+  useEffect(() => { loadBalance(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [customerId]);
+
+  const submit = async () => {
+    const n = Number(delta);
+    if (!Number.isFinite(n) || n === 0) { toast.error("הזן מספר נקודות תקין (שונה מאפס)"); return; }
+    if (!reason.trim()) { toast.error("חובה לציין סיבה"); return; }
+    setSaving(true);
+    const { error } = await (supabase as never as {
+      rpc: (n: string, args: { _user_id: string; _delta: number; _reason: string }) => Promise<{ data: number | null; error: { message: string } | null }>;
+    }).rpc("admin_adjust_user_points", { _user_id: customerId, _delta: Math.trunc(n), _reason: reason.trim() });
+    setSaving(false);
+    if (error) { toast.error(friendlyError(error)); return; }
+    toast.success(`עודכן: ${n > 0 ? "+" : ""}${Math.trunc(n)} נקודות`);
+    setDelta(""); setReason("");
+    loadBalance();
+  };
+
+  return (
+    <Card dir="rtl" className="border-primary/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center justify-between gap-2 text-base">
+          <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> ניהול נקודות ידני</span>
+          <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
+            יתרה: {balance ?? "—"}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-[140px_1fr_auto]">
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">נקודות (+/-)</Label>
+            <Input
+              type="number"
+              inputMode="numeric"
+              value={delta}
+              onChange={(e) => setDelta(e.target.value)}
+              placeholder="לדוגמה: 100 או -50"
+              className="text-end"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">סיבה (חובה)</Label>
+            <Input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="לדוגמה: פיצוי על תקלה בהזמנה"
+            />
+          </div>
+          <div className="flex items-end">
+            <Button onClick={submit} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary/90">
+              {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}
+              עדכן יתרה
+            </Button>
+          </div>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          הפעולה נרשמת ביומן הביקורת (<code>system_audit_logs</code>) ובספר הנקודות (<code>points_ledger</code>).
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
