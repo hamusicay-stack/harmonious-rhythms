@@ -411,7 +411,10 @@ function RefundDialog({ order, onDone, disabled }: { order: Order; onDone: () =>
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     const meta = data as any;
-    toast.success(`בוצע החזר. ${meta?.revoked_items ?? 0} פריטים בוטלו, ${meta?.affiliate_conversions_rejected ?? 0} עמלות שותפים נדחו.`);
+    toast.success(
+      `✅ החזר בוצע בהצלחה. נחסמה גישת המשתמש ל-${meta?.revoked_items ?? 0} נכסים דיגיטליים (קורסים / דרגות פרימיום) ונדחו ${meta?.affiliate_conversions_rejected ?? 0} עמלות שותפים.`,
+      { duration: 6000 },
+    );
     setOpen(false);
     onDone();
   };
@@ -457,7 +460,10 @@ function RefundDialog({ order, onDone, disabled }: { order: Order; onDone: () =>
             <AlertDialogContent dir="rtl">
               <AlertDialogHeader>
                 <AlertDialogTitle>לאשר את הפעולה?</AlertDialogTitle>
-                <AlertDialogDescription>הפעולה אינה הפיכה. הזמנה תסומן כ-refunded וגישות דיגיטליות יוסרו.</AlertDialogDescription>
+                <AlertDialogDescription className="space-y-2 text-right">
+                  <span className="block">⚠️ שים לב: ביצוע החזר יחסום מיידית את גישת המשתמש לקורסים או לדרגות הפרימיום הכלולות בהזמנה זו.</span>
+                  <span className="block text-muted-foreground">ההזמנה תסומן כ-refunded, ההרשמות לאקדמיה יבוטלו, דרגת ה-VIP תאופס ל-Free, ועמלות שותפים תלויות יידחו. הפעולה אינה הפיכה.</span>
+                </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>ביטול</AlertDialogCancel>

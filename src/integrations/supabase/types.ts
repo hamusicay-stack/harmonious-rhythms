@@ -4740,6 +4740,39 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          target_kind: string | null
+          target_ref: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          target_kind?: string | null
+          target_ref?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          target_kind?: string | null
+          target_ref?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       service_pricing: {
         Row: {
           is_active: boolean
