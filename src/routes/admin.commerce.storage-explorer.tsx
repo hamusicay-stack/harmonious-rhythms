@@ -171,7 +171,7 @@ function StorageExplorerPage() {
               {objectsQ.isLoading ? (
                 <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : (
-                <FileTable rows={filteredObjects} onDelete={handleDelete} deletingPath={del.isPending ? del.variables : null} />
+                <FileTable rows={filteredObjects} onDelete={handleDelete} deletingPath={pendingPath} />
               )}
             </CardContent>
           </Card>
