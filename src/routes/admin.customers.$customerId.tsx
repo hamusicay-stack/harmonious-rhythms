@@ -400,7 +400,8 @@ function CustomerProfilePage() {
         )}
       </section>
 
-      <section className="container mx-auto px-4 pt-6 md:px-8">
+      <section className="container mx-auto grid gap-4 px-4 pt-6 md:grid-cols-2 md:px-8">
+        <PointsOverviewPanel customerId={customerId} />
         <ManualPointsPanel customerId={customerId} />
       </section>
 

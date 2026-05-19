@@ -116,6 +116,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await loadProfile(userId);
             // Track last login (fire-and-forget)
             supabase.from("profiles").update({ last_login_at: new Date().toISOString() }).eq("id", userId).then(() => {});
+            // Award daily-login points once per UTC day per browser session.
+            // The DB has a partial unique index that enforces real dedup; this
+            // sessionStorage gate just avoids spamming the RPC on reloads.
+            try {
+              const today = new Date().toISOString().slice(0, 10);
+              const key = `points:daily_login:${userId}:${today}`;
+              if (typeof window !== "undefined" && !window.sessionStorage.getItem(key)) {
+                window.sessionStorage.setItem(key, "1");
+                (supabase as any)
+                  .rpc("award_points_for_event", {
+                    _user_id: userId,
+                    _event_key: "daily_login",
+                    _reference_type: "daily_login",
+                    _reference_id: today,
+                    _notes: null,
+                  })
+                  .then(() => {});
+              }
+            } catch {
+              /* non-fatal */
+            }
           } finally {
             if (active && activeUserIdRef.current === userId) {
               setLoading(false);
