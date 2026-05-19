@@ -426,7 +426,7 @@ export function UsersManager() {
               מקור אמת יחיד: <code>profiles.global_subscription_tier_id</code>. השינוי נכנס לתוקף מיידית בכל המודולים (אקדמיה, חנות, יומן, יד 2).
             </p>
             {subCurrentTierId && (
-              <div className="text-[11px] text-amber-300">
+              <div className="text-[11px] text-primary">
                 דרגה נוכחית: {tiers.find((t) => t.id === subCurrentTierId)?.name ?? "—"}
               </div>
             )}
