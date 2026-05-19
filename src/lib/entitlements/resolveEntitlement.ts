@@ -261,7 +261,12 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
 }
 
 function afterSample() {
-  try { emit(getDriftSnapshot()); } catch { /* swallow */ }
+  try {
+    const snap = getDriftSnapshot();
+    recordDriftSample(snap.rate, snap.confidence);
+    evaluateAnomalies();
+    emit(snap);
+  } catch { /* swallow */ }
   const { rec } = computeRecommendation();
   if (rec !== lastRecommendation) {
     lastRecommendation = rec;
