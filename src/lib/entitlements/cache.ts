@@ -80,6 +80,7 @@ export function getCacheMetrics() {
       counters.latencySamples > 0
         ? counters.totalLatencyMs / counters.latencySamples
         : 0,
+    latencySamples: counters.latencySamples,
     size: store.size(),
     safetyMode,
   };
