@@ -64,6 +64,8 @@ function StorageExplorerPage() {
   });
 
   const del = useMutation({
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const del = useMutation({
     mutationFn: (path: string) => deleteObj({ data: { bucket, path } }),
     onSuccess: () => {
       toast.success("הקובץ נמחק");
