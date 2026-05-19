@@ -452,5 +452,7 @@ export function UsersManager() {
         </DialogContent>
       </Dialog>
     </Card>
+      </TabsContent>
+    </Tabs>
   );
 }
