@@ -8,7 +8,7 @@ import {
   useDraggable,
   useDroppable,
 } from "@dnd-kit/core";
-import { Plus, Loader2, GripVertical, Music2 } from "lucide-react";
+import { Plus, Loader2, GripVertical, Music2, ShoppingBag, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -80,6 +80,16 @@ function DealCard({ deal }: { deal: Deal }) {
             {deal.source_type === "music_pro_inquiry" && (
               <Badge variant="outline" className="gap-1 border-purple-500/40 bg-purple-500/10 text-[10px] text-purple-600">
                 <Music2 className="h-3 w-3" />פנייה למוזיקאי
+              </Badge>
+            )}
+            {(deal.source_type === "shop_abandoned_cart" || deal.source_type === "shop_custom_quote" || deal.source_type === "premium_shop_lead") && (
+              <Badge variant="outline" className="gap-1 border-amber-500/40 bg-amber-500/10 text-[10px] text-amber-600">
+                <ShoppingBag className="h-3 w-3" />ליד פרימיום מהחנות
+              </Badge>
+            )}
+            {(deal.source_type === "marketplace_bump_request" || deal.source_type === "marketplace_upgrade") && (
+              <Badge variant="outline" className="gap-1 border-emerald-500/40 bg-emerald-500/10 text-[10px] text-emerald-600">
+                <TrendingUp className="h-3 w-3" />שדרוג יד 2
               </Badge>
             )}
           </div>
