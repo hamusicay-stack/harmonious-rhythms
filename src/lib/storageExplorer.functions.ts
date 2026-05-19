@@ -148,9 +148,11 @@ async function collectRefs(bucket: string): Promise<Set<string>> {
   for (const s of scans) {
     const cols = [...s.cols, ...(s.arrayCols ?? [])];
     if (!cols.length) continue;
-    const { data, error } = await supabaseAdmin.from(s.table).select(cols.join(","));
+    const { data, error } = await (supabaseAdmin as never as {
+      from: (t: string) => { select: (c: string) => Promise<{ data: Record<string, unknown>[] | null; error: unknown }> };
+    }).from(s.table).select(cols.join(","));
     if (error) continue;
-    for (const row of (data ?? []) as Record<string, unknown>[]) {
+    for (const row of (data ?? [])) {
       for (const c of s.cols) add(row[c] as string | null);
       for (const c of s.arrayCols ?? []) {
         const arr = row[c];
