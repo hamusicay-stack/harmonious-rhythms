@@ -19,8 +19,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Loader2, Search, MoreVertical, ShieldCheck, Ban, UserCheck,
-  ExternalLink, KeyRound, UserCog,
+  ExternalLink, KeyRound, UserCog, Crown,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -57,6 +58,50 @@ export function UsersManager() {
   const [rolesTarget, setRolesTarget] = useState<UserRow | null>(null);
   const [rolesDraft, setRolesDraft] = useState<Set<string>>(new Set());
   const [rolesSaving, setRolesSaving] = useState(false);
+
+  // Subscription management (SSoT: profiles.global_subscription_tier_id)
+  type TierOpt = { id: string; slug: string; name: string; rank: number; is_vip: boolean };
+  const [tiers, setTiers] = useState<TierOpt[]>([]);
+  const [subTarget, setSubTarget] = useState<UserRow | null>(null);
+  const [subCurrentTierId, setSubCurrentTierId] = useState<string | null>(null);
+  const [subDraftTierId, setSubDraftTierId] = useState<string>("__none__");
+  const [subSaving, setSubSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as never as {
+        from: (t: string) => { select: (c: string) => { order: (c: string, o: { ascending: boolean }) => Promise<{ data: TierOpt[] | null }> } };
+      }).from("subscription_tiers").select("id, slug, name, rank, is_vip").order("rank", { ascending: true });
+      setTiers(data ?? []);
+    })();
+  }, []);
+
+  const openSubscription = async (u: UserRow) => {
+    setSubTarget(u);
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("global_subscription_tier_id")
+      .eq("id", u.id)
+      .maybeSingle();
+    const tid = (prof as { global_subscription_tier_id?: string | null } | null)?.global_subscription_tier_id ?? null;
+    setSubCurrentTierId(tid);
+    setSubDraftTierId(tid ?? "__none__");
+  };
+
+  const saveSubscription = async () => {
+    if (!subTarget) return;
+    setSubSaving(true);
+    const tierId = subDraftTierId === "__none__" ? null : subDraftTierId;
+    const { error } = await supabase.rpc("admin_set_user_global_tier", {
+      _user_id: subTarget.id,
+      _tier_id: tierId,
+    });
+    setSubSaving(false);
+    if (error) { toast.error(friendlyError(error)); return; }
+    toast.success("המנוי עודכן");
+    setSubTarget(null);
+    load();
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
