@@ -6,7 +6,7 @@ import {
   Music2, GraduationCap, Mail, Bot, Megaphone, MessagesSquare, Zap,
   Boxes, Scale, TicketPercent, Receipt, Activity, Upload, MessageSquareWarning, Crown,
   Newspaper, BookOpen, ShieldAlert, Sparkles, ChevronDown,
-  Gauge, UsersRound, Handshake,
+  Gauge, UsersRound, Handshake, HardDrive,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
