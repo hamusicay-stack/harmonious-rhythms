@@ -128,6 +128,14 @@ function ProDetailPage() {
 
   const brand = pro.brand_color || "#D4A24E";
   const isVip = pro.subscription_tier === "vip";
+  // Shadow Entitlement Layer (Phase 2): parallel SSoT check for divergence
+  // logging only. `isVip` above is the active legacy decision.
+  if (typeof window !== "undefined" && pro.user_id) {
+    void import("@/lib/entitlements").then(({ compareEntitlements }) =>
+      compareEntitlements(pro.user_id),
+    ).catch(() => {});
+  }
+
   const audios = media.filter((m) => m.type === "audio");
   const videos = media.filter((m) => m.type === "video");
   const isOwner = user?.id === pro.user_id;
