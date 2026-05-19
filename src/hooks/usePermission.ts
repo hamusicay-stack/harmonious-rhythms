@@ -61,8 +61,12 @@ export function useUserRoles(): AppRole[] | null {
   return roles;
 }
 
+/**
+ * Premium check — SSoT: profiles.global_subscription_tier_id → subscription_tiers.is_vip.
+ * Roles like 'premium'/'vip' in app_role are NO LONGER used for feature gating.
+ * Admins still pass through (they always have full access).
+ */
 export function useIsPremium(): boolean {
-  const roles = useUserRoles();
-  if (!roles) return false;
-  return roles.includes("premium") || roles.includes("vip") || roles.includes("admin");
+  const { isVip, isAdmin } = useAuth();
+  return isAdmin || isVip;
 }
