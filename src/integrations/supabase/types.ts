@@ -6565,6 +6565,10 @@ export type Database = {
         Args: { _banned: boolean; _reason?: string; _user_id: string }
         Returns: undefined
       }
+      admin_set_user_global_tier: {
+        Args: { _tier_id: string; _user_id: string }
+        Returns: Json
+      }
       admin_set_user_role: {
         Args: {
           _revoke?: boolean

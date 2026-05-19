@@ -19,8 +19,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Loader2, Search, MoreVertical, ShieldCheck, Ban, UserCheck,
-  ExternalLink, KeyRound, UserCog,
+  ExternalLink, KeyRound, UserCog, Crown,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -57,6 +58,52 @@ export function UsersManager() {
   const [rolesTarget, setRolesTarget] = useState<UserRow | null>(null);
   const [rolesDraft, setRolesDraft] = useState<Set<string>>(new Set());
   const [rolesSaving, setRolesSaving] = useState(false);
+
+  // Subscription management (SSoT: profiles.global_subscription_tier_id)
+  type TierOpt = { id: string; slug: string; name: string; rank: number; is_vip: boolean };
+  const [tiers, setTiers] = useState<TierOpt[]>([]);
+  const [subTarget, setSubTarget] = useState<UserRow | null>(null);
+  const [subCurrentTierId, setSubCurrentTierId] = useState<string | null>(null);
+  const [subDraftTierId, setSubDraftTierId] = useState<string>("__none__");
+  const [subSaving, setSubSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as never as {
+        from: (t: string) => { select: (c: string) => { order: (c: string, o: { ascending: boolean }) => Promise<{ data: TierOpt[] | null }> } };
+      }).from("subscription_tiers").select("id, slug, name, rank, is_vip").order("rank", { ascending: true });
+      setTiers(data ?? []);
+    })();
+  }, []);
+
+  const openSubscription = async (u: UserRow) => {
+    setSubTarget(u);
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("global_subscription_tier_id")
+      .eq("id", u.id)
+      .maybeSingle();
+    const tid = (prof as { global_subscription_tier_id?: string | null } | null)?.global_subscription_tier_id ?? null;
+    setSubCurrentTierId(tid);
+    setSubDraftTierId(tid ?? "__none__");
+  };
+
+  const saveSubscription = async () => {
+    if (!subTarget) return;
+    setSubSaving(true);
+    const tierId = subDraftTierId === "__none__" ? null : subDraftTierId;
+    const { error } = await (supabase as never as {
+      rpc: (n: string, args: { _user_id: string; _tier_id: string | null }) => Promise<{ error: { message: string } | null }>;
+    }).rpc("admin_set_user_global_tier", {
+      _user_id: subTarget.id,
+      _tier_id: tierId,
+    });
+    setSubSaving(false);
+    if (error) { toast.error(friendlyError(error)); return; }
+    toast.success("המנוי עודכן");
+    setSubTarget(null);
+    load();
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -254,6 +301,9 @@ export function UsersManager() {
                         <DropdownMenuItem onClick={() => openRoles(u)}>
                           <KeyRound className="ml-2 h-4 w-4" />נהל הרשאות
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openSubscription(u)}>
+                          <Crown className="ml-2 h-4 w-4 text-amber-500" />ניהול מנוי
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => impersonate(u)} disabled={u.id === currentUser?.id}>
                           <UserCheck className="ml-2 h-4 w-4" />התחזה למשתמש
                         </DropdownMenuItem>
@@ -342,6 +392,50 @@ export function UsersManager() {
             <Button onClick={saveRoles} disabled={rolesSaving}>
               {rolesSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
               שמור
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Subscription dialog — SSoT: profiles.global_subscription_tier_id */}
+      <Dialog open={!!subTarget} onOpenChange={(o) => !o && setSubTarget(null)}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-right">
+              <Crown className="h-5 w-5 text-amber-500" />
+              ניהול מנוי
+            </DialogTitle>
+            <DialogDescription className="text-right">
+              עדכון דרגת המנוי הגלובלית של {subTarget?.display_name || subTarget?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-right">
+            <Label>בחר דרגה</Label>
+            <Select value={subDraftTierId} onValueChange={setSubDraftTierId}>
+              <SelectTrigger><SelectValue placeholder="בחר דרגה" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">ללא מנוי</SelectItem>
+                {tiers.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.is_vip ? "👑 " : ""}{t.name} <span className="text-xs text-muted-foreground">· rank {t.rank}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground">
+              מקור אמת יחיד: <code>profiles.global_subscription_tier_id</code>. השינוי נכנס לתוקף מיידית בכל המודולים (אקדמיה, חנות, יומן, יד 2).
+            </p>
+            {subCurrentTierId && (
+              <div className="text-[11px] text-amber-300">
+                דרגה נוכחית: {tiers.find((t) => t.id === subCurrentTierId)?.name ?? "—"}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSubTarget(null)}>ביטול</Button>
+            <Button onClick={saveSubscription} disabled={subSaving} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
+              {subSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              שמור מנוי
             </Button>
           </DialogFooter>
         </DialogContent>
