@@ -10,10 +10,12 @@ import {
   getDriftSnapshot,
   onEntitlementDrift,
   getEntitlementMismatchReport,
+  getEntitlementHealth,
   type ControlPlaneConfig,
   type EntitlementMode,
   type DriftSnapshot,
   type EntitlementMismatchReport,
+  type EntitlementHealth,
 } from "@/lib/entitlements";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
