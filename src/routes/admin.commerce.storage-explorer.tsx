@@ -63,10 +63,13 @@ function StorageExplorerPage() {
     enabled: !!bucket,
   });
 
-  const del = useMutation({
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const del = useMutation({
-    mutationFn: (path: string) => deleteObj({ data: { bucket, path } }),
+    mutationFn: async (path: string) => {
+      setPendingPath(path);
+      try { return await deleteObj({ data: { bucket, path } }); }
+      finally { setPendingPath(null); }
+    },
     onSuccess: () => {
       toast.success("הקובץ נמחק");
       qc.invalidateQueries({ queryKey: ["storage"] });
