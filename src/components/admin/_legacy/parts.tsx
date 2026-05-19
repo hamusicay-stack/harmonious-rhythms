@@ -315,6 +315,42 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label>שייך לעסקה (Deal)</Label>
+            <Select value={form.related_deal_id} onValueChange={(v) => setForm({ ...form, related_deal_id: v })}>
+              <SelectTrigger><SelectValue placeholder="ללא" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">ללא</SelectItem>
+                {deals.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>{d.title || d.customer_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>שייך להזמנה</Label>
+            <Select value={form.related_order_id} onValueChange={(v) => setForm({ ...form, related_order_id: v })}>
+              <SelectTrigger><SelectValue placeholder="ללא" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">ללא</SelectItem>
+                {orders.map((o) => (
+                  <SelectItem key={o.id} value={o.id}>#{o.order_number}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>שייך לאיש מקצוע</Label>
+            <Select value={form.related_pro_id} onValueChange={(v) => setForm({ ...form, related_pro_id: v })}>
+              <SelectTrigger><SelectValue placeholder="ללא" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">ללא</SelectItem>
+                {pros.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.stage_name || p.display_name || p.id.slice(0, 8)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
