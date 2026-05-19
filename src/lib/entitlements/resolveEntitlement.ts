@@ -28,6 +28,9 @@ import {
   logRollbackRecommendation,
   type EntitlementMode,
 } from "./controlPlane";
+import { allowUserResolve } from "./rateLimit";
+import { recordDriftSample, evaluateAnomalies, isSafetyMode } from "./anomalyDetector";
+import "./health";
 
 export type { EntitlementMode } from "./controlPlane";
 
@@ -143,16 +146,26 @@ function bucketForUser(userId: string | null | undefined): number {
 
 export function resolveEntitlement(args: ResolveArgs): ResolveResult {
   const cp = getCachedControlPlane();
+  // Per-user rate limit. Exceeded → return legacy immediately (continuity).
+  if (!allowUserResolve(args.userId)) {
+    return {
+      value: args.legacy,
+      mode: cp.mode,
+      source: "legacy",
+      mismatch: null,
+      recommendation: lastRecommendation,
+    };
+  }
   const mode = cp.mode;
   let value = args.legacy;
   let source: "legacy" | "ssot" = "legacy";
   let mismatch: boolean | null = null;
 
-  // Resolve "effective mode" with rollout %. In dual mode users in the
-  // rollout slice are evaluated SSoT-primary; everyone else stays legacy.
+  // Resolve "effective mode" with rollout %. Safety_mode forces dual.
   const inRollout = bucketForUser(args.userId) < cp.rollout_percentage;
-  const effectiveMode: EntitlementMode =
+  const baseEffective: EntitlementMode =
     mode === "ssot" ? "ssot" : mode === "legacy" ? "legacy" : inRollout ? "ssot" : "dual";
+  const effectiveMode: EntitlementMode = isSafetyMode() ? "dual" : baseEffective;
 
   try {
     if (typeof args.ssot === "boolean") {
@@ -237,13 +250,23 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
     }
   }
 
-  try { emit(getDriftSnapshot()); } catch { /* swallow */ }
+  try {
+    const snap = getDriftSnapshot();
+    recordDriftSample(snap.rate, snap.confidence);
+    evaluateAnomalies();
+    emit(snap);
+  } catch { /* swallow */ }
 
   return { value, mode, source, mismatch, recommendation: rec };
 }
 
 function afterSample() {
-  try { emit(getDriftSnapshot()); } catch { /* swallow */ }
+  try {
+    const snap = getDriftSnapshot();
+    recordDriftSample(snap.rate, snap.confidence);
+    evaluateAnomalies();
+    emit(snap);
+  } catch { /* swallow */ }
   const { rec } = computeRecommendation();
   if (rec !== lastRecommendation) {
     lastRecommendation = rec;
