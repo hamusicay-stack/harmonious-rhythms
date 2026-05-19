@@ -22,10 +22,12 @@ import {
   ExternalLink, KeyRound, UserCog, Crown,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
+import { RolesPermissionsManager } from "@/components/admin/RolesPermissionsManager";
 
 type AppRole = "user" | "member" | "premium" | "vip" | "admin" | "moderator";
 const ALL_ROLES: AppRole[] = ["user", "member", "premium", "vip", "moderator", "admin"];
@@ -196,6 +198,15 @@ export function UsersManager() {
   };
 
   return (
+    <Tabs defaultValue="users" className="space-y-4" dir="rtl">
+      <TabsList>
+        <TabsTrigger value="users"><UserCog className="ml-2 h-4 w-4" />משתמשים</TabsTrigger>
+        <TabsTrigger value="roles"><ShieldCheck className="ml-2 h-4 w-4" />תפקידים והרשאות</TabsTrigger>
+      </TabsList>
+      <TabsContent value="roles" className="mt-4">
+        <RolesPermissionsManager />
+      </TabsContent>
+      <TabsContent value="users" className="mt-4 space-y-4">
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -441,5 +452,7 @@ export function UsersManager() {
         </DialogContent>
       </Dialog>
     </Card>
+      </TabsContent>
+    </Tabs>
   );
 }

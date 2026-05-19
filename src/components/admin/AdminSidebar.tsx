@@ -6,7 +6,7 @@ import {
   Music2, GraduationCap, Mail, Bot, Megaphone, MessagesSquare, Zap,
   Boxes, Scale, TicketPercent, Receipt, Activity, Upload, MessageSquareWarning, Crown,
   Newspaper, BookOpen, ShieldAlert, Sparkles, ChevronDown,
-  Gauge, UsersRound, Handshake,
+  Gauge, UsersRound, Handshake, HardDrive,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -79,6 +79,7 @@ const PILLARS: Pillar[] = [
       { to: "/admin/commerce/coupons", title: "קופונים", icon: TicketPercent },
       { to: "/admin/commerce/business-rules", title: "מטריצת VIP × מוצר", icon: Scale },
       { to: "/admin/commerce/product-types", title: "סוגי מוצרים", icon: Boxes },
+      { to: "/admin/commerce/storage-explorer", title: "סייר אחסון (יתומים)", icon: HardDrive },
     ],
   },
   {
