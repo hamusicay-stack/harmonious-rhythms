@@ -82,6 +82,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setVipTier(null);
       }
+
+      // Shadow Entitlement Layer (Phase 2): run SSoT resolver + divergence
+      // detection in parallel with legacy auth state. Fire-and-forget;
+      // never affects auth context value or render.
+      void import("@/lib/entitlements").then(({ compareEntitlements }) =>
+        compareEntitlements(userId),
+      ).catch(() => {});
+
     } catch (error) {
       if (activeUserIdRef.current !== userId) return;
       console.error("Failed to sync authenticated user", error);
