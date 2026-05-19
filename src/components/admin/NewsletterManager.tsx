@@ -85,10 +85,12 @@ export function NewsletterManager() {
 function FiltersForm({ filters, setFilters }: { filters: Filters; setFilters: (f: Filters) => void }) {
   const [models, setModels] = useState<string[]>([]);
   const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
+  const [tiers, setTiers] = useState<{ id: string; name: string; is_vip: boolean }[]>([]);
 
   useEffect(() => {
     supabase.from("keyboard_models").select("name").then(({ data }) => setModels((data ?? []).map((r: any) => r.name)));
     supabase.from("academy_courses").select("id, title").then(({ data }) => setCourses((data ?? []) as any));
+    supabase.from("subscription_tiers").select("id, name, is_vip, rank").order("rank", { ascending: true }).then(({ data }) => setTiers((data ?? []) as any));
   }, []);
 
   const upd = (patch: Partial<Filters>) => setFilters({ ...filters, ...patch });
@@ -118,16 +120,17 @@ function FiltersForm({ filters, setFilters }: { filters: Filters; setFilters: (f
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>סטטוס מנוי</Label>
-        <Select value={filters.subscription_tier ?? "all"} onValueChange={(v) => upd({ subscription_tier: v === "all" ? undefined : v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+        <Label>דרגת מנוי (SSoT)</Label>
+        <Select value={filters.subscription_tier_id ?? "all"} onValueChange={(v) => upd({ subscription_tier_id: v === "all" ? undefined : v })}>
+          <SelectTrigger><SelectValue placeholder="כל הדרגות" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">הכל</SelectItem>
-            <SelectItem value="free">חינם</SelectItem>
-            <SelectItem value="premium">פרימיום</SelectItem>
-            <SelectItem value="vip">VIP</SelectItem>
+            <SelectItem value="all">כל הדרגות</SelectItem>
+            {tiers.map((t) => (
+              <SelectItem key={t.id} value={t.id}>{t.is_vip ? "👑 " : ""}{t.name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
+
       </div>
       <div className="space-y-2">
         <Label>לא התחבר X ימים (ריק = ללא סינון)</Label>
