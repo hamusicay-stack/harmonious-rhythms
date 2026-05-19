@@ -53,6 +53,7 @@ function EntitlementsControlPage() {
   const [cp, setCp] = useState<ControlPlaneConfig | null>(null);
   const [drift, setDrift] = useState<DriftSnapshot>(() => getDriftSnapshot());
   const [report, setReport] = useState<EntitlementMismatchReport>(() => getEntitlementMismatchReport());
+  const [health, setHealth] = useState<EntitlementHealth>(() => getEntitlementHealth());
   const [audit, setAudit] = useState<AuditRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingMode, setPendingMode] = useState<EntitlementMode | null>(null);
