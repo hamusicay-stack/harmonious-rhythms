@@ -187,7 +187,7 @@ function StorageExplorerPage() {
               ) : orphansQ.isLoading ? (
                 <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
               ) : (
-                <FileTable rows={orphansQ.data.orphans} onDelete={handleDelete} deletingPath={del.isPending ? del.variables : null} highlight />
+                <FileTable rows={orphansQ.data.orphans} onDelete={handleDelete} deletingPath={pendingPath} highlight />
               )}
             </CardContent>
           </Card>
