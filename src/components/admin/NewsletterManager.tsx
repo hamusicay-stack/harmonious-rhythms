@@ -16,8 +16,8 @@ import { toast } from "sonner";
 type Filters = {
   organ_model?: string;
   user_type?: string;
-  subscription_tier?: string;
-  inactive_days?: number; // last login older than N days (or never)
+  subscription_tier_id?: string;
+  inactive_days?: number;
   bought_product_name?: string;
   enrolled_course_id?: string;
   has_abandoned_cart?: boolean;
@@ -28,10 +28,10 @@ type Segment = { id: string; name: string; description: string | null; filters: 
 type Campaign = { id: string; subject: string; segment_id: string | null; recipients_count: number; sent_count: number; status: string; created_at: string; sent_at: string | null };
 
 async function computeAudience(filters: Filters): Promise<{ ids: string[]; emails: string[] }> {
-  let q = supabase.from("profiles").select("id, email, organ_model, user_type, subscription_tier, last_login_at, email_opt_in");
+  let q = supabase.from("profiles").select("id, email, organ_model, user_type, global_subscription_tier_id, last_login_at, email_opt_in");
   if (filters.organ_model) q = q.eq("organ_model", filters.organ_model);
   if (filters.user_type) q = q.eq("user_type", filters.user_type);
-  if (filters.subscription_tier) q = q.eq("subscription_tier", filters.subscription_tier);
+  if (filters.subscription_tier_id) q = q.eq("global_subscription_tier_id", filters.subscription_tier_id);
   if (filters.email_opt_in_only) q = q.eq("email_opt_in", true);
   const { data: profiles } = await q.limit(5000);
   let users = (profiles ?? []) as any[];
@@ -65,6 +65,7 @@ async function computeAudience(filters: Filters): Promise<{ ids: string[]; email
     emails: users.map((u) => u.email).filter(Boolean),
   };
 }
+
 
 export function NewsletterManager() {
   return (
