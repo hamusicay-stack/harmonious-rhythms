@@ -792,6 +792,7 @@ function SecureVideoPlayer({ src, watermark, initialPosition = 0, onProgress, on
 }
 
 function PremiumLockOverlay({ tierName, coursePrice, courseSlug }: { tierName: string | null; coursePrice: number; courseSlug: string }) {
+  const [paywallOpen, setPaywallOpen] = useState(false);
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-black via-zinc-900 to-amber-950/40 p-6 text-center text-white">
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, rgba(251,191,36,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(217,119,6,0.3), transparent 50%)" }} />
@@ -806,10 +807,11 @@ function PremiumLockOverlay({ tierName, coursePrice, courseSlug }: { tierName: s
         </p>
       </div>
       <div className="relative flex flex-wrap items-center justify-center gap-2">
-        <Button asChild className="bg-gradient-to-l from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500">
-          <Link to="/shop">
-            <Crown className="ms-1 h-4 w-4" />שדרוג ל-VIP
-          </Link>
+        <Button
+          onClick={() => setPaywallOpen(true)}
+          className="bg-gradient-to-l from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500"
+        >
+          <Crown className="ms-1 h-4 w-4" />צפה בתוכניות מנוי
         </Button>
         {coursePrice > 0 && (
           <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
@@ -819,7 +821,16 @@ function PremiumLockOverlay({ tierName, coursePrice, courseSlug }: { tierName: s
           </Button>
         )}
       </div>
+      <UniversalPaywallDialog
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        title="קורס פרימיום נעול"
+        description="גישה מלאה לכל קורסי האקדמיה כלולה במנויי פרימיום ו-VIP."
+        vipBonusBenefits={["גישה מלאה לכל קורסי האקדמיה"]}
+        requiredRank={20}
+      />
     </div>
   );
 }
+
 
