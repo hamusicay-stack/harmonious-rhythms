@@ -433,7 +433,7 @@ export function UsersManager() {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSubTarget(null)}>ביטול</Button>
-            <Button onClick={saveSubscription} disabled={subSaving} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
+            <Button onClick={saveSubscription} disabled={subSaving} className="bg-primary text-primary-foreground hover:bg-primary/90">
               {subSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
               שמור מנוי
             </Button>
