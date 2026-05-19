@@ -12,7 +12,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { swrFetch, getCachedValue, setLastGood, getLastGood } from "./cache";
 import { allowControlPlaneFetch, allowAdminModeSwitch } from "./rateLimit";
-import { isSafetyMode, recordModeChange } from "./anomalyDetector";
+import { recordModeChange } from "./anomalyDetector";
 
 export type EntitlementMode = "legacy" | "dual" | "ssot";
 
@@ -88,9 +88,8 @@ export async function getEntitlementControlPlane(
   if (!opts.force && !allowControlPlaneFetch()) {
     return getCachedControlPlane();
   }
-  const ttl = isSafetyMode() ? 30_000 : TTL_MS;
   return swrFetch<ControlPlaneConfig>(CACHE_KEY, rawLoad, {
-    ttlMs: ttl,
+    ttlMs: TTL_MS,
     fallback: FALLBACK,
     force: opts.force,
   });
