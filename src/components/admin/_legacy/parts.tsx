@@ -238,10 +238,25 @@ export function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier;
 export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; onSaved: () => void }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deals, setDeals] = useState<{ id: string; title: string | null; customer_name: string }[]>([]);
+  const [orders, setOrders] = useState<{ id: string; order_number: string }[]>([]);
+  const [pros, setPros] = useState<{ id: string; display_name: string | null; stage_name: string | null }[]>([]);
   const [form, setForm] = useState({
     title: "", description: "", priority: "normal" as Task["priority"],
     due_date: "", related_customer_id: "none",
+    related_deal_id: "none", related_order_id: "none", related_pro_id: "none",
   });
+
+  const loadRelated = async () => {
+    const [d, o, p] = await Promise.all([
+      supabase.from("deals").select("id, title, customer_name").order("created_at", { ascending: false }).limit(100),
+      supabase.from("shop_orders").select("id, order_number").order("created_at", { ascending: false }).limit(100),
+      supabase.from("music_pros").select("id, display_name, stage_name").order("created_at", { ascending: false }).limit(100),
+    ]);
+    setDeals((d.data ?? []) as any);
+    setOrders((o.data ?? []) as any);
+    setPros((p.data ?? []) as any);
+  };
 
   const save = async () => {
     if (!form.title.trim()) { toast.error("כותרת חובה"); return; }
@@ -252,14 +267,18 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
       priority: form.priority,
       due_date: form.due_date || null,
       related_customer_id: form.related_customer_id === "none" ? null : form.related_customer_id,
+      related_deal_id: form.related_deal_id === "none" ? null : form.related_deal_id,
+      related_order_id: form.related_order_id === "none" ? null : form.related_order_id,
+      related_pro_id: form.related_pro_id === "none" ? null : form.related_pro_id,
     });
     setSaving(false);
     if (error) { toast.error(friendlyError(error)); return; }
     toast.success("המשימה נוספה");
     setOpen(false);
-    setForm({ title: "", description: "", priority: "normal", due_date: "", related_customer_id: "none" });
+    setForm({ title: "", description: "", priority: "normal", due_date: "", related_customer_id: "none", related_deal_id: "none", related_order_id: "none", related_pro_id: "none" });
     onSaved();
   };
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
