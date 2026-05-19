@@ -2001,6 +2001,78 @@ export type Database = {
         }
         Relationships: []
       }
+      entitlement_audit_log: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          new_mode: string | null
+          previous_mode: string | null
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          new_mode?: string | null
+          previous_mode?: string | null
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          new_mode?: string | null
+          previous_mode?: string | null
+        }
+        Relationships: []
+      }
+      entitlement_control_plane: {
+        Row: {
+          allow_auto_rollback: boolean
+          confidence_threshold_ssot: number
+          created_at: string
+          drift_threshold_rollback: number
+          drift_threshold_warning: number
+          id: string
+          is_active: boolean
+          mode: string
+          rollout_percentage: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allow_auto_rollback?: boolean
+          confidence_threshold_ssot?: number
+          created_at?: string
+          drift_threshold_rollback?: number
+          drift_threshold_warning?: number
+          id?: string
+          is_active?: boolean
+          mode?: string
+          rollout_percentage?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allow_auto_rollback?: boolean
+          confidence_threshold_ssot?: number
+          created_at?: string
+          drift_threshold_rollback?: number
+          drift_threshold_warning?: number
+          id?: string
+          is_active?: boolean
+          mode?: string
+          rollout_percentage?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       equipment_catalog: {
         Row: {
           brand: string

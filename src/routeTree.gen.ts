@@ -59,6 +59,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminModerationRouteImport } from './routes/admin.moderation'
 import { Route as AdminForumRouteImport } from './routes/admin.forum'
+import { Route as AdminEntitlementsControlRouteImport } from './routes/admin.entitlements-control'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCrmRouteImport } from './routes/admin.crm'
 import { Route as AdminCommerceRouteImport } from './routes/admin.commerce'
@@ -361,6 +362,12 @@ const AdminForumRoute = AdminForumRouteImport.update({
   path: '/forum',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminEntitlementsControlRoute =
+  AdminEntitlementsControlRouteImport.update({
+    id: '/entitlements-control',
+    path: '/entitlements-control',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -657,6 +664,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/notifications': typeof AdminNotificationsRoute
@@ -753,6 +761,7 @@ export interface FileRoutesByTo {
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/notifications': typeof AdminNotificationsRoute
@@ -857,6 +866,7 @@ export interface FileRoutesById {
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
   '/admin/forum': typeof AdminForumRoute
   '/admin/moderation': typeof AdminModerationRoute
   '/admin/notifications': typeof AdminNotificationsRoute
@@ -962,6 +972,7 @@ export interface FileRouteTypes {
     | '/admin/commerce'
     | '/admin/crm'
     | '/admin/dashboard'
+    | '/admin/entitlements-control'
     | '/admin/forum'
     | '/admin/moderation'
     | '/admin/notifications'
@@ -1058,6 +1069,7 @@ export interface FileRouteTypes {
     | '/admin/automations'
     | '/admin/chat-oversight'
     | '/admin/dashboard'
+    | '/admin/entitlements-control'
     | '/admin/forum'
     | '/admin/moderation'
     | '/admin/notifications'
@@ -1161,6 +1173,7 @@ export interface FileRouteTypes {
     | '/admin/commerce'
     | '/admin/crm'
     | '/admin/dashboard'
+    | '/admin/entitlements-control'
     | '/admin/forum'
     | '/admin/moderation'
     | '/admin/notifications'
@@ -1622,6 +1635,13 @@ declare module '@tanstack/react-router' {
       path: '/forum'
       fullPath: '/admin/forum'
       preLoaderRoute: typeof AdminForumRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/entitlements-control': {
+      id: '/admin/entitlements-control'
+      path: '/entitlements-control'
+      fullPath: '/admin/entitlements-control'
+      preLoaderRoute: typeof AdminEntitlementsControlRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
@@ -2093,6 +2113,7 @@ interface AdminRouteChildren {
   AdminCommerceRoute: typeof AdminCommerceRouteWithChildren
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminEntitlementsControlRoute: typeof AdminEntitlementsControlRoute
   AdminForumRoute: typeof AdminForumRoute
   AdminModerationRoute: typeof AdminModerationRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
@@ -2109,6 +2130,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommerceRoute: AdminCommerceRouteWithChildren,
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminEntitlementsControlRoute: AdminEntitlementsControlRoute,
   AdminForumRoute: AdminForumRoute,
   AdminModerationRoute: AdminModerationRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,

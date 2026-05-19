@@ -1,92 +1,94 @@
 /**
- * Shadow Entitlement Layer — Phase 4 hard guarantee safety layer.
+ * Shadow Entitlement Layer — Phase 5 Authority Stabilization.
  *
- * Single gate: every entitlement decision in the app SHOULD go through
- * `resolveEntitlement()`. The gate:
+ * Mode is now controlled by the server-side control plane
+ * (`entitlement_control_plane`). The browser only READS the mode via
+ * `controlPlane.ts` — it can no longer flip authority via localStorage.
  *
- *   1. Honors a runtime mode flag — "legacy" | "ssot" | "dual" (default "dual").
- *      Mode is read from localStorage("entitlements:mode") so it can be flipped
- *      live without redeploy.
- *   2. ALWAYS returns a usable value, even if SSoT lookup throws. The active
- *      value tracks the mode; legacy is the ultimate safety net.
- *   3. Runs an invariant check (legacy === ssot when both known). On violation
- *      it logs a critical error and feeds the metrics collector but NEVER
- *      throws into the caller.
- *   4. Maintains a drift score + recommendation engine. When drift crosses
- *      a critical threshold, the recommendation flips to "rollback-to-legacy"
- *      and (if mode is "ssot") emits a one-shot alert with the recommendation.
- *   5. Exposes monitoring hooks for ad-hoc subscription + a snapshot getter.
+ * The gate continues to:
+ *  - never throw into callers
+ *  - always return a usable boolean
+ *  - record comparisons for the metrics collector
+ *  - emit drift snapshots for subscribers
  *
- * This file MUST NOT crash any caller. All paths are try/catch wrapped and
- * always return a defined boolean (or the legacy fallback).
+ * Confidence weighting replaces hard auto-rollback:
+ *  - drift > rollback threshold → recommendation = "rollback-to-legacy"
+ *    BUT we DO NOT auto-flip mode. The admin dashboard surfaces it.
+ *  - drift between warning and rollback → "investigate"
+ *  - SSoT confidence below threshold → keep dual evaluation
+ *
+ * The only path that ever auto-falls-back to legacy at runtime is when the
+ * control plane has explicitly set `allow_auto_rollback = true`.
  */
 import { isVip as ssotIsVipFn } from "./TierService";
 import { recordComparison, getEntitlementMismatchReport } from "./metrics";
+import {
+  getCachedControlPlane,
+  getEntitlementControlPlane,
+  logRollbackRecommendation,
+  type EntitlementMode,
+} from "./controlPlane";
 
-export type EntitlementMode = "legacy" | "ssot" | "dual";
-
-const MODE_KEY = "entitlements:mode";
-const DEFAULT_MODE: EntitlementMode = "dual";
-
-// Drift thresholds for the recommendation engine.
-const WARNING_RATE = 0.05; // 5%
-const CRITICAL_RATE = 0.15; // 15%
-const MIN_SAMPLES_FOR_ACTION = 25;
+export type { EntitlementMode } from "./controlPlane";
 
 export type Recommendation =
   | "stay-the-course"
   | "investigate"
-  | "rollback-to-legacy";
+  | "rollback-suggested";
 
 export type DriftSnapshot = {
   mode: EntitlementMode;
   total: number;
   mismatches: number;
   rate: number;
+  confidence: number; // 0-1
   recommendation: Recommendation;
   topHotspot: string | null;
   at: number;
 };
 
+const MIN_SAMPLES_FOR_ACTION = 25;
+
 type Listener = (snap: DriftSnapshot) => void;
 const listeners = new Set<Listener>();
 let lastRecommendation: Recommendation = "stay-the-course";
-let alertedCritical = false;
 
-function readMode(): EntitlementMode {
-  if (typeof window === "undefined") return DEFAULT_MODE;
-  try {
-    const raw = window.localStorage?.getItem?.(MODE_KEY);
-    if (raw === "legacy" || raw === "ssot" || raw === "dual") return raw;
-  } catch {
-    /* ignore */
-  }
-  return DEFAULT_MODE;
-}
-
+/** Current mode from server control plane (cached). */
 export function getEntitlementMode(): EntitlementMode {
-  return readMode();
+  return getCachedControlPlane().mode;
 }
 
-export function setEntitlementMode(mode: EntitlementMode): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage?.setItem?.(MODE_KEY, mode);
-    alertedCritical = false; // reset alert latch when operator changes mode
-  } catch {
-    /* ignore */
-  }
+/**
+ * DEPRECATED — kept as a no-op for source compatibility. Mode is now
+ * controlled exclusively by the server control plane + admin UI.
+ */
+export function setEntitlementMode(_mode: EntitlementMode): void {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[entitlements] setEntitlementMode is disabled — mode is server-controlled. Use the admin Entitlements Control panel.",
+  );
 }
 
-function computeRecommendation(): { rec: Recommendation; rate: number; total: number; top: string | null } {
+function computeConfidence(): { confidence: number; rate: number; total: number; top: string | null } {
   const r = getEntitlementMismatchReport();
   const rate = r.total > 0 ? r.mismatches / r.total : 0;
+  // base correctness 0..1
+  const base = 1 - rate;
+  // sample size weighting (asymptotic toward 1 around 200 samples)
+  const sampleFactor = Math.min(1, r.total / 200);
+  const confidence = Math.max(0, Math.min(1, base * (0.5 + 0.5 * sampleFactor)));
+  return { confidence, rate, total: r.total, top: r.hotspots[0]?.module ?? null };
+}
+
+function computeRecommendation(): { rec: Recommendation; rate: number; total: number; top: string | null; confidence: number } {
+  const cp = getCachedControlPlane();
+  const { confidence, rate, total, top } = computeConfidence();
   let rec: Recommendation = "stay-the-course";
-  if (r.total >= MIN_SAMPLES_FOR_ACTION) {
-    if (rate >= CRITICAL_RATE) rec = "rollback-to-legacy";
-    else if (rate >= WARNING_RATE) rec = "investigate";
+  if (total >= MIN_SAMPLES_FOR_ACTION) {
+    if (rate >= cp.drift_threshold_rollback) rec = "rollback-suggested";
+    else if (rate >= cp.drift_threshold_warning) rec = "investigate";
   }
-  return { rec, rate, total: r.total, top: r.hotspots[0]?.module ?? null };
+  return { rec, rate, total, top, confidence };
 }
 
 function emit(snap: DriftSnapshot) {
@@ -95,21 +97,21 @@ function emit(snap: DriftSnapshot) {
   }
 }
 
-/** Subscribe to drift snapshots (fires after each resolveEntitlement call). */
 export function onEntitlementDrift(listener: Listener): () => void {
   listeners.add(listener);
   return () => { listeners.delete(listener); };
 }
 
-/** One-shot snapshot of current drift state + recommendation. */
 export function getDriftSnapshot(): DriftSnapshot {
-  const { rec, rate, total, top } = computeRecommendation();
+  const cp = getCachedControlPlane();
+  const { rec, rate, total, top, confidence } = computeRecommendation();
   const r = getEntitlementMismatchReport();
   return {
-    mode: readMode(),
+    mode: cp.mode,
     total,
     mismatches: r.mismatches,
     rate,
+    confidence,
     recommendation: rec,
     topHotspot: top,
     at: Date.now(),
@@ -119,9 +121,7 @@ export function getDriftSnapshot(): DriftSnapshot {
 export type ResolveArgs = {
   userId: string | null | undefined;
   module: string;
-  /** Pre-computed legacy value (synchronous). Always required as the safety net. */
   legacy: boolean;
-  /** Optional pre-computed SSoT value. When omitted, gate fetches asynchronously. */
   ssot?: boolean;
 };
 
@@ -129,29 +129,34 @@ export type ResolveResult = {
   value: boolean;
   mode: EntitlementMode;
   source: "legacy" | "ssot";
-  mismatch: boolean | null; // null if SSoT not yet known
+  mismatch: boolean | null;
   recommendation: Recommendation;
 };
 
-/**
- * Single gate for entitlement decisions.
- *
- * Synchronous: returns immediately with `value` chosen per current mode.
- * When SSoT must be resolved asynchronously, the gate fires it in the
- * background, records the comparison, runs the invariant check, and emits
- * a drift snapshot to subscribers. The synchronously returned value
- * NEVER changes after the fact — callers always see a stable answer.
- */
+// Simple stable hash → [0,100) bucket for rollout %.
+function bucketForUser(userId: string | null | undefined): number {
+  if (!userId) return 100; // unknown user → never in rollout slice
+  let h = 0;
+  for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) >>> 0;
+  return h % 100;
+}
+
 export function resolveEntitlement(args: ResolveArgs): ResolveResult {
-  const mode = readMode();
+  const cp = getCachedControlPlane();
+  const mode = cp.mode;
   let value = args.legacy;
   let source: "legacy" | "ssot" = "legacy";
   let mismatch: boolean | null = null;
 
+  // Resolve "effective mode" with rollout %. In dual mode users in the
+  // rollout slice are evaluated SSoT-primary; everyone else stays legacy.
+  const inRollout = bucketForUser(args.userId) < cp.rollout_percentage;
+  const effectiveMode: EntitlementMode =
+    mode === "ssot" ? "ssot" : mode === "legacy" ? "legacy" : inRollout ? "ssot" : "dual";
+
   try {
     if (typeof args.ssot === "boolean") {
       mismatch = args.legacy !== args.ssot;
-      // Invariant check (sync path).
       try {
         recordComparison({
           module: args.module,
@@ -172,23 +177,24 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
         });
       }
 
-      if (mode === "ssot") {
-        // In SSoT mode we prefer SSoT — BUT if the recommendation has flipped
-        // to rollback we fall back to legacy as a self-heal action.
-        const { rec } = computeRecommendation();
-        if (rec === "rollback-to-legacy") {
+      if (effectiveMode === "ssot") {
+        // Confidence-weighted selection — keep dual behavior when confidence low.
+        const { confidence, rec } = computeRecommendation();
+        const lowConfidence = confidence < cp.confidence_threshold_ssot;
+        const shouldAutoRollback = cp.allow_auto_rollback && rec === "rollback-suggested";
+        if (lowConfidence || shouldAutoRollback) {
           value = args.legacy;
           source = "legacy";
         } else {
           value = args.ssot;
           source = "ssot";
         }
-      } else if (mode === "legacy" || mode === "dual") {
+      } else {
         value = args.legacy;
         source = "legacy";
       }
     } else if (args.userId) {
-      // Async path: fire-and-forget SSoT comparison; sync return is legacy.
+      // Async path — fire-and-forget; sync return stays legacy.
       void ssotIsVipFn(args.userId)
         .then((ssot) => {
           const mm = args.legacy !== ssot;
@@ -212,38 +218,28 @@ export function resolveEntitlement(args: ResolveArgs): ResolveResult {
           }
           afterSample();
         })
-        .catch(() => { /* swallow — system stays functional */ });
+        .catch(() => { /* swallow */ });
     }
   } catch {
     /* never throw out of the gate */
   }
 
   const { rec } = computeRecommendation();
-  // Latch a one-shot critical alert when in ssot mode and drift goes critical.
-  if (!alertedCritical && mode === "ssot" && rec === "rollback-to-legacy") {
-    alertedCritical = true;
-    // eslint-disable-next-line no-console
-    console.error(
-      "[entitlements:alert] CRITICAL drift detected — recommendation: rollback-to-legacy. " +
-      "Call setEntitlementMode('legacy') or setEntitlementMode('dual') to self-heal.",
-    );
-  }
   if (rec !== lastRecommendation) {
     lastRecommendation = rec;
     // eslint-disable-next-line no-console
     console.warn("[entitlements:recommendation]", rec);
+    if (rec === "rollback-suggested") {
+      void logRollbackRecommendation({
+        mode,
+        snapshot: getDriftSnapshot(),
+      }).catch(() => { /* swallow */ });
+    }
   }
 
-  // Emit drift snapshot to subscribers (best-effort).
   try { emit(getDriftSnapshot()); } catch { /* swallow */ }
 
-  return {
-    value,
-    mode,
-    source,
-    mismatch,
-    recommendation: rec,
-  };
+  return { value, mode, source, mismatch, recommendation: rec };
 }
 
 function afterSample() {
@@ -253,24 +249,24 @@ function afterSample() {
     lastRecommendation = rec;
     // eslint-disable-next-line no-console
     console.warn("[entitlements:recommendation]", rec);
-  }
-  const mode = readMode();
-  if (!alertedCritical && mode === "ssot" && rec === "rollback-to-legacy") {
-    alertedCritical = true;
-    // eslint-disable-next-line no-console
-    console.error(
-      "[entitlements:alert] CRITICAL drift detected — recommendation: rollback-to-legacy. " +
-      "Call setEntitlementMode('legacy') or setEntitlementMode('dual') to self-heal.",
-    );
+    if (rec === "rollback-suggested") {
+      void logRollbackRecommendation({ snapshot: getDriftSnapshot() }).catch(() => { /* swallow */ });
+    }
   }
 }
 
-// Expose monitoring hooks on window for ad-hoc inspection during validation.
+// Refresh control plane periodically so the gate picks up admin changes
+// even when realtime is not available.
 if (typeof window !== "undefined") {
+  void getEntitlementControlPlane().catch(() => { /* swallow */ });
+  setInterval(() => {
+    void getEntitlementControlPlane().catch(() => { /* swallow */ });
+  }, 15_000);
+
+  // Read-only debug inspectors only.
   const w = window as unknown as Record<string, unknown>;
-  w.__entitlementsGate = resolveEntitlement;
   w.__entitlementsDrift = getDriftSnapshot;
   w.__entitlementsMode = getEntitlementMode;
-  w.__entitlementsSetMode = setEntitlementMode;
-  w.__entitlementsOnDrift = onEntitlementDrift;
+  // Authority hooks are intentionally NOT exposed anymore:
+  //   __entitlementsSetMode is removed.
 }
