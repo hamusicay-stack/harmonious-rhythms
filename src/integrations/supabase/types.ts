@@ -4247,6 +4247,7 @@ export type Database = {
       points_rules: {
         Row: {
           created_at: string
+          daily_limit: number | null
           enabled: boolean
           event_key: string
           id: string
@@ -4256,6 +4257,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          daily_limit?: number | null
           enabled?: boolean
           event_key: string
           id?: string
@@ -4265,6 +4267,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          daily_limit?: number | null
           enabled?: boolean
           event_key?: string
           id?: string
@@ -6786,6 +6789,7 @@ export type Database = {
         }
         Returns: string
       }
+      award_booking_points: { Args: { p_inquiry_id: string }; Returns: number }
       award_points_for_event: {
         Args: {
           _event_key: string
@@ -6876,6 +6880,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      reconcile_points_balance: { Args: never; Returns: Json }
       record_affiliate_conversion:
         | {
             Args: {
@@ -6920,6 +6925,10 @@ export type Database = {
       track_listing_event: {
         Args: { _event_type: string; _listing_id: string }
         Returns: undefined
+      }
+      update_crm_status: {
+        Args: { p_inquiry_id: string; p_new_status: string }
+        Returns: Json
       }
       update_pro_inquiry_and_crm_status: {
         Args: { p_inquiry_id: string; p_new_status: string }
