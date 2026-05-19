@@ -18,6 +18,7 @@ import { AddReviewDialog } from "@/components/pros/AddReviewDialog";
 import { FollowButton } from "@/components/FollowButton";
 import { toast } from "sonner";
 import { isUserVip } from "@/lib/tiers";
+import { wrapVipCheck } from "@/lib/entitlements";
 
 export const Route = createFileRoute("/pros/$proId")({
   component: ProDetailPage,
@@ -129,8 +130,6 @@ function ProDetailPage() {
   const brand = pro.brand_color || "#D4A24E";
   // Phase 3 dual-run: returns legacy value; logs SSoT comparison in background.
   // Legacy remains source of truth for UI.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { wrapVipCheck } = require("@/lib/entitlements") as typeof import("@/lib/entitlements");
   const isVip = wrapVipCheck(pro.subscription_tier === "vip", {
     userId: pro.user_id,
     module: "pros.$proId",
