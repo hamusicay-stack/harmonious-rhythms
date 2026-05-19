@@ -71,7 +71,7 @@ export function MusicProsManager() {
 
   useEffect(() => { load(); }, []);
 
-  const update = async (id: string, patch: Partial<Pro>) => {
+  const update = async (id: string, patch: { status?: string; is_verified?: boolean; is_featured?: boolean }) => {
     const { error } = await supabase.from("music_pros").update(patch).eq("id", id);
     if (error) { toast.error(friendlyError(error)); return; }
     toast.success("עודכן");
