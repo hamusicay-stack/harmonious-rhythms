@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronRight, ChevronLeft, Plus, Loader2, CalendarDays, Sparkles, Lock, Trash2, Crown, Check, Star } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { ChevronRight, ChevronLeft, Plus, Loader2, CalendarDays, Sparkles, Lock, Trash2, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -8,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+import { UniversalPaywallDialog } from "@/components/shared/UniversalPaywallDialog";
 
 type TierRow = {
   id: string;
@@ -20,12 +20,6 @@ type TierRow = {
   name: string;
   rank: number;
   is_vip: boolean;
-  description: string | null;
-  discount_percent: number | null;
-  shop_discount_percent: number | null;
-  academy_discount_percent: number | null;
-  marketplace_free_boosts: number | null;
-  beat_access: boolean | null;
 };
 
 type CalendarEvent = {
@@ -62,33 +56,21 @@ export function MusicianCalendarHub() {
   const [form, setForm] = useState({ title: "", description: "", start_time: "", end_time: "", event_type: "private" });
   const [saving, setSaving] = useState(false);
   const [currentTier, setCurrentTier] = useState<TierRow | null>(null);
-  const [allTiers, setAllTiers] = useState<TierRow[]>([]);
   const [paywallOpen, setPaywallOpen] = useState(false);
 
-  const canAddManual = !!currentTier?.is_vip;
+  // SSoT: tier comes from AuthContext (profiles.global_subscription_tier_id → subscription_tiers)
+  const { vipTier } = useAuth();
+  const canAddManual = !!vipTier?.is_vip;
 
-  // Locate the music_pro row owned by the current user + load tier matrix
+  // Locate the music_pro row owned by the current user
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("music_pros").select("id").eq("user_id", user.id).maybeSingle();
       setProId(data?.id ?? null);
     })();
-    (async () => {
-      const { data: tiers } = await (supabase as never as {
-        from: (t: string) => { select: (c: string) => { order: (c: string, o: { ascending: boolean }) => Promise<{ data: TierRow[] | null }> } };
-      }).from("subscription_tiers").select("*").order("rank", { ascending: true });
-      setAllTiers(tiers ?? []);
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("global_subscription_tier_id")
-        .eq("id", user.id)
-        .maybeSingle();
-      const tierId = (prof as { global_subscription_tier_id?: string | null } | null)?.global_subscription_tier_id;
-      const found = (tiers ?? []).find((t) => t.id === tierId) ?? (tiers ?? []).find((t) => t.slug === "free") ?? null;
-      setCurrentTier(found);
-    })();
-  }, [user]);
+    setCurrentTier(vipTier ? { id: vipTier.id, slug: vipTier.slug, name: vipTier.name, rank: vipTier.rank, is_vip: vipTier.is_vip } : null);
+  }, [user, vipTier]);
 
   const loadEvents = async () => {
     if (!user) return;
