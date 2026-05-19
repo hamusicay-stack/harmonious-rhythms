@@ -83,7 +83,7 @@ function enterSafetyMode(reason: string) {
   if (safetyMode) return;
   safetyMode = true;
   safetyEnteredAt = Date.now();
-  setCacheSafetyMode(true);
+  // Observational only — no cache TTL inflation, no decision-path effect.
   emit({
     type: "CONTROL_PLANE_INSTABILITY",
     at: Date.now(),
@@ -99,7 +99,7 @@ function maybeExitSafetyMode() {
   const stableFor = Date.now() - (lastEvt?.at ?? safetyEnteredAt);
   if (stableFor >= STABILITY_REQUIRED_MS) {
     safetyMode = false;
-    setCacheSafetyMode(false);
+    // Observational only — nothing else to unwind.
     // eslint-disable-next-line no-console
     console.info("[entitlements:safety_mode] cleared after stability window");
   }
