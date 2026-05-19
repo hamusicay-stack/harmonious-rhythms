@@ -1,9 +1,9 @@
 /**
  * Shadow Entitlement Layer — public barrel.
  *
- * Phase 2: this layer runs in PARALLEL with legacy logic. Importing from
- * here does not change any existing behavior; it only adds SSoT-based
- * resolution + optional divergence logging.
+ * Phase 5 (Authority Stabilization): mode is server-controlled via the
+ * `entitlement_control_plane` table. Browsers can read the mode but no
+ * longer hold authority over it.
  *
  * Enable verbose logs in the browser console with:
  *   localStorage.setItem("entitlements:debug", "1")
@@ -37,3 +37,11 @@ export type {
   ResolveArgs,
   ResolveResult,
 } from "./resolveEntitlement";
+export {
+  getEntitlementControlPlane,
+  getCachedControlPlane,
+  subscribeToControlPlaneChanges,
+  setEntitlementMode as setEntitlementModeOnServer,
+  updateControlPlane,
+} from "./controlPlane";
+export type { ControlPlaneConfig } from "./controlPlane";
