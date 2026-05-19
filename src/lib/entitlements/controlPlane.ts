@@ -163,6 +163,9 @@ export async function setEntitlementMode(
   mode: EntitlementMode,
   adminId: string | null,
 ): Promise<ControlPlaneConfig> {
+  if (!allowAdminModeSwitch(adminId)) {
+    throw new Error("Rate limit: too many mode switches. Try again in a minute.");
+  }
   const prev = await getEntitlementControlPlane({ force: true });
   if (!prev.id) throw new Error("Control plane row missing");
   const { data, error } = await (supabase as unknown as {
@@ -180,7 +183,11 @@ export async function setEntitlementMode(
     .select()
     .maybeSingle();
   if (error || !data) throw new Error("Failed to update mode");
-  setCached(data);
+  setLastGood(CACHE_KEY, data);
+  notify(data);
+  recordModeChange(mode);
+  // Force refresh so all readers pick up immediately.
+  void getEntitlementControlPlane({ force: true });
   await logAudit("mode_change", {
     previous_mode: prev.mode,
     new_mode: mode,
