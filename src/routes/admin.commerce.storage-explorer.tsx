@@ -225,9 +225,9 @@ function FileTable({ rows, onDelete, deletingPath, highlight }: { rows: Row[]; o
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10"
                   onClick={() => onDelete(r.path)}
-                  disabled={deletingPath?.path === r.path}
+                  disabled={deletingPath === r.path}
                 >
-                  {deletingPath?.path === r.path ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  {deletingPath === r.path ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 </Button>
               </TableCell>
             </TableRow>
