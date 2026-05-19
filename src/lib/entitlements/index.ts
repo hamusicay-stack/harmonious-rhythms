@@ -45,3 +45,9 @@ export {
   updateControlPlane,
 } from "./controlPlane";
 export type { ControlPlaneConfig } from "./controlPlane";
+export { getEntitlementHealth } from "./health";
+export type { EntitlementHealth } from "./health";
+export { getCacheMetrics } from "./cache";
+export { getRateLimitMetrics } from "./rateLimit";
+export { getAnomalyMetrics, onAnomaly, isSafetyMode } from "./anomalyDetector";
+export type { AnomalyEvent, AnomalyType } from "./anomalyDetector";
