@@ -123,20 +123,17 @@ function PillarGroup({ pillar, currentPath, defaultOpen }: { pillar: Pillar; cur
       <SidebarGroup className="py-1">
         <CollapsibleTrigger asChild>
           <SidebarGroupLabel
-            className={cn(
-              "group/label flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2 text-[12px] font-bold tracking-tight transition-all",
-              "bg-gradient-to-l from-amber-500/[0.06] to-transparent text-amber-200/90 hover:from-amber-500/[0.12] hover:text-amber-100",
-            )}
+            className="group/label flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2 text-[12px] font-bold tracking-tight text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <span className="flex items-center gap-2">
-              <Icon className="h-3.5 w-3.5 text-amber-400/80" />
+              <Icon className="h-3.5 w-3.5 text-muted-foreground" />
               {pillar.label}
             </span>
             <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
           </SidebarGroupLabel>
         </CollapsibleTrigger>
         <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 overflow-hidden">
-          <SidebarGroupContent className="mt-1 border-r-2 border-amber-400/20 pr-1">
+          <SidebarGroupContent className="mt-1 border-r border-sidebar-border pr-1">
             <SidebarMenu>
               {pillar.items.map((item) => {
                 const isActive = currentPath === item.to || currentPath.startsWith(item.to + "/");
@@ -144,14 +141,13 @@ function PillarGroup({ pillar, currentPath, defaultOpen }: { pillar: Pillar; cur
                 return (
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton
-                      asChild isActive={isActive} tooltip={item.title}
-                      className={cn(
-                        "text-[13px] transition-colors",
-                        isActive && "bg-gradient-to-l from-amber-400/15 to-amber-500/[0.04] text-amber-100 font-semibold",
-                      )}
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className="text-[13px]"
                     >
                       <Link to={item.to} className="flex items-center gap-2">
-                        <ItemIcon className={cn("h-4 w-4 shrink-0", isActive ? "text-amber-300" : "text-muted-foreground")} />
+                        <ItemIcon className={cn("h-4 w-4 shrink-0", isActive ? "text-sidebar-primary" : "text-muted-foreground")} />
                         <span className="truncate">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -169,11 +165,11 @@ function PillarGroup({ pillar, currentPath, defaultOpen }: { pillar: Pillar; cur
 export function AdminSidebar() {
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <Sidebar collapsible="icon" side="right" className="border-l border-amber-400/10 bg-gradient-to-b from-background via-background to-amber-950/[0.04]">
-      <SidebarHeader className="border-b border-amber-400/20 px-4 py-3 bg-gradient-to-l from-amber-500/[0.08] to-transparent">
+    <Sidebar collapsible="icon" side="right" className="border-l border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Crown className="h-4 w-4 text-amber-400" />
-          <div className="font-display text-sm font-bold bg-gradient-to-l from-amber-300 to-amber-500 bg-clip-text text-transparent">
+          <Crown className="h-4 w-4 text-primary" />
+          <div className="font-display text-sm font-bold text-sidebar-foreground">
             חדר הבקרה
           </div>
         </div>
