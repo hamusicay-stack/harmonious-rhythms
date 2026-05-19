@@ -87,9 +87,14 @@ function DealCard({ deal }: { deal: Deal }) {
                 <ShoppingBag className="h-3 w-3" />ליד פרימיום מהחנות
               </Badge>
             )}
-            {(deal.source_type === "marketplace_bump_request" || deal.source_type === "marketplace_upgrade") && (
+            {deal.source_type === "custom_beat_request" && (
               <Badge variant="outline" className="gap-1 border-emerald-500/40 bg-emerald-500/10 text-[10px] text-emerald-600">
-                <TrendingUp className="h-3 w-3" />שדרוג יד 2
+                <Drum className="h-3 w-3" />בקשת מקצב בהתאמה אישית
+              </Badge>
+            )}
+            {deal.source_type === "cpi_encoding_error" && (
+              <Badge variant="outline" className="gap-1 border-destructive/40 bg-destructive/10 text-[10px] text-destructive">
+                <AlertTriangle className="h-3 w-3" />שגיאת קידוד CPI
               </Badge>
             )}
           </div>
