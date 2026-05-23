@@ -173,7 +173,7 @@ function EditProPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8 text-right">
+    <div className="container mx-auto max-w-3xl px-4 py-8 text-end">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-bold">עריכת פרופיל</h1>
         <div className="flex items-center gap-3 text-sm">
@@ -247,7 +247,7 @@ function AddMediaInline({ onAdd, audioLimitReached }: { onAdd: (type: "audio" | 
         <Input placeholder="YouTube URL או קישור וידאו" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
       )}
       <Button onClick={submit} disabled={type === "audio" && audioLimitReached} className="w-full" size="sm">
-        <Plus className="ml-1 h-4 w-4" /> הוסף
+        <Plus className="ms-1 h-4 w-4" /> הוסף
       </Button>
     </div>
   );

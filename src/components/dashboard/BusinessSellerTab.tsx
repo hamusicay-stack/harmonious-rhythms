@@ -90,7 +90,7 @@ export function BusinessSellerTab({ userId, email }: { userId: string; email: st
       </div>
       <div className="flex justify-end">
         <Button onClick={save} disabled={saving} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-          {saving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+          {saving && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
           {account ? "שמור שינויים" : "הירשם כמוכר עסקי"}
         </Button>
       </div>

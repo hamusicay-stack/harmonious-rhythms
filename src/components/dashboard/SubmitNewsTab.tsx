@@ -280,7 +280,7 @@ export function SubmitNewsTab({ userId }: { userId: string }) {
           >
             {submitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                <Loader2 className="h-4 w-4 animate-spin ms-2" />
                 שולח...
               </>
             ) : cooldown > 0 ? (

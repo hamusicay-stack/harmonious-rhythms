@@ -156,7 +156,7 @@ export function ProChatDialog({
       <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
           <div className="flex items-center justify-between gap-2">
-            <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם {peerName}</DialogTitle>
+            <DialogTitle className="text-end text-base line-clamp-1 flex-1">צ'אט עם {peerName}</DialogTitle>
             {isProRole && (
               <GigContractDialog
                 clientName={senderName || ""}
@@ -182,7 +182,7 @@ export function ProChatDialog({
                 <div key={m.id} className={`flex ${mine ? "justify-start" : "justify-end"}`}>
                   <div
                     className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap break-words shadow-sm ${
-                      mine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-card border rounded-bl-md"
+                      mine ? "bg-primary text-primary-foreground rounded-ee-md" : "bg-card border rounded-es-md"
                     }`}
                   >
                     {m.body}

@@ -39,11 +39,11 @@ export function FollowActivityDialog({ open, onOpenChange, targetName }: Props) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
+          <DialogTitle className="text-end flex items-center gap-2">
             <Bell className="h-5 w-5 text-primary" />
             לעקוב גם אחרי הפעילות?
           </DialogTitle>
-          <DialogDescription className="text-right">
+          <DialogDescription className="text-end">
             האם תרצה לקבל התראה על כל פעילות של {targetName ? <strong>{targetName}</strong> : "המשתמש"} —
             סרטוני שורטס חדשים ומודעות יד 2 שהוא יעלה?
           </DialogDescription>

@@ -206,7 +206,7 @@ function TopicPage() {
             {t.title}
           </h1>
           <Button size="sm" variant={sub.data?.subscribed ? "default" : "outline"} onClick={toggleFollow}>
-            {sub.data?.subscribed ? <><BellOff className="h-4 w-4 ml-1" />הפסק מעקב</> : <><Bell className="h-4 w-4 ml-1" />עקוב אחרי האשכול</>}
+            {sub.data?.subscribed ? <><BellOff className="h-4 w-4 ms-1" />הפסק מעקב</> : <><Bell className="h-4 w-4 ms-1" />עקוב אחרי האשכול</>}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground mb-3">{posts.length} הודעות · {t.view_count} צפיות</p>

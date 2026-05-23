@@ -58,10 +58,10 @@ export function ForumManager() {
     <Tabs defaultValue="structure" className="w-full">
       <div className="w-full overflow-x-auto">
         <TabsList className="inline-flex w-max gap-1 md:grid md:w-full md:grid-cols-4">
-          <TabsTrigger value="structure"><FolderTree className="ml-1 h-4 w-4" />קטגוריות ולוחות</TabsTrigger>
-          <TabsTrigger value="threads"><MessageSquare className="ml-1 h-4 w-4" />ניהול דיונים</TabsTrigger>
-          <TabsTrigger value="reports"><Flag className="ml-1 h-4 w-4" />תוכן שדווח</TabsTrigger>
-          <TabsTrigger value="points"><Trophy className="ml-1 h-4 w-4" />נקודות פורום</TabsTrigger>
+          <TabsTrigger value="structure"><FolderTree className="ms-1 h-4 w-4" />קטגוריות ולוחות</TabsTrigger>
+          <TabsTrigger value="threads"><MessageSquare className="ms-1 h-4 w-4" />ניהול דיונים</TabsTrigger>
+          <TabsTrigger value="reports"><Flag className="ms-1 h-4 w-4" />תוכן שדווח</TabsTrigger>
+          <TabsTrigger value="points"><Trophy className="ms-1 h-4 w-4" />נקודות פורום</TabsTrigger>
         </TabsList>
       </div>
 
@@ -147,7 +147,7 @@ function StructureTab() {
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>קטגוריות ראשיות</CardTitle>
           <Button size="sm" onClick={() => setCatDialog({ id: "", name: "", slug: "", description: null, icon: null, color: null, display_order: cats.length } as Category)}>
-            <Plus className="ml-1 h-4 w-4" />קטגוריה חדשה
+            <Plus className="ms-1 h-4 w-4" />קטגוריה חדשה
           </Button>
         </CardHeader>
         <CardContent>
@@ -163,7 +163,7 @@ function StructureTab() {
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => setBoardDialog({ category_id: c.id, name: "", slug: "", display_order: catBoards.length })}>
-                        <Plus className="ml-1 h-3 w-3" />לוח
+                        <Plus className="ms-1 h-3 w-3" />לוח
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => setCatDialog(c)}>עריכה</Button>
                       <Button size="sm" variant="ghost" onClick={() => delCat(c.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
@@ -175,8 +175,8 @@ function StructureTab() {
                         <div key={b.id} className="flex items-center justify-between rounded bg-muted/30 px-3 py-2 text-sm">
                           <div>
                             <span className="font-medium">{b.name}</span>
-                            <span className="text-xs text-muted-foreground mr-2">/{b.slug}</span>
-                            <Badge variant="secondary" className="mr-2 text-xs">{b.topic_count} דיונים</Badge>
+                            <span className="text-xs text-muted-foreground me-2">/{b.slug}</span>
+                            <Badge variant="secondary" className="me-2 text-xs">{b.topic_count} דיונים</Badge>
                           </div>
                           <div className="flex gap-1">
                             <Button size="sm" variant="ghost" onClick={() => setBoardDialog(b)}>עריכה</Button>
@@ -221,7 +221,7 @@ function CategoryDialog({ cat, onClose, onSave }: { cat: Category; onClose: () =
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button onClick={() => onSave(s)}><Save className="ml-1 h-4 w-4" />שמירה</Button>
+          <Button onClick={() => onSave(s)}><Save className="ms-1 h-4 w-4" />שמירה</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -252,7 +252,7 @@ function BoardDialog({ board, cats, onClose, onSave }: { board: Partial<Board>; 
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button onClick={() => onSave(s)}><Save className="ml-1 h-4 w-4" />שמירה</Button>
+          <Button onClick={() => onSave(s)}><Save className="ms-1 h-4 w-4" />שמירה</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

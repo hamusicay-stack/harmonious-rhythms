@@ -107,7 +107,7 @@ function ProductTypesPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>סוגי מוצרים — מנוע דינמי</CardTitle>
           <Button onClick={() => setEditing(newDraft())} size="sm">
-            <Plus className="h-4 w-4 ml-1" /> חדש
+            <Plus className="h-4 w-4 ms-1" /> חדש
           </Button>
         </CardHeader>
         <CardContent>
@@ -157,7 +157,7 @@ function ProductTypesPage() {
             <div className="rounded-md border border-border p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-base">שדות מטא-נתונים דינמיים</Label>
-                <Button size="sm" variant="outline" onClick={addField}><Plus className="h-4 w-4 ml-1" /> שדה</Button>
+                <Button size="sm" variant="outline" onClick={addField}><Plus className="h-4 w-4 ms-1" /> שדה</Button>
               </div>
               {editing.attribute_schema.length === 0 && <p className="text-xs text-muted-foreground">לדוגמה: "Requires Info File" (file), "Download Expiry" (number).</p>}
               {editing.attribute_schema.map((f, i) => (
@@ -188,7 +188,7 @@ function ProductTypesPage() {
             <div className="flex gap-2 justify-end">
               <Button variant="ghost" onClick={() => setEditing(null)}>בטל</Button>
               <Button onClick={save} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 ml-1" />} שמור
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 ms-1" />} שמור
               </Button>
             </div>
           </CardContent>

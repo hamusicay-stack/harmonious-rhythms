@@ -137,7 +137,7 @@ function PillarGroup({ pillar, currentPath, defaultOpen }: { pillar: Pillar; cur
           </SidebarGroupLabel>
         </CollapsibleTrigger>
         <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 overflow-hidden">
-          <SidebarGroupContent className="mt-1 border-r border-sidebar-border pr-1">
+          <SidebarGroupContent className="mt-1 border-e border-sidebar-border pe-1">
             <SidebarMenu>
               {pillar.items.map((item) => {
                 const isActive = currentPath === item.to || currentPath.startsWith(item.to + "/");
@@ -169,7 +169,7 @@ function PillarGroup({ pillar, currentPath, defaultOpen }: { pillar: Pillar; cur
 export function AdminSidebar() {
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <Sidebar collapsible="icon" side="right" className="border-l border-sidebar-border">
+    <Sidebar collapsible="icon" side="right" className="border-s border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
         <div className="flex items-center gap-2">
           <Crown className="h-4 w-4 text-primary" />

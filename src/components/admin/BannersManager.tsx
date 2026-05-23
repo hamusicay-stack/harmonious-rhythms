@@ -235,14 +235,14 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
         {banner ? (
           <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
         ) : (
-          <Button size="sm"><Plus className="ml-2 h-4 w-4" />באנר חדש</Button>
+          <Button size="sm"><Plus className="ms-2 h-4 w-4" />באנר חדש</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg text-right">
+      <DialogContent className="max-w-lg text-end">
         <DialogHeader>
           <DialogTitle>{banner ? "עריכת באנר" : "באנר חדש"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 max-h-[70vh] overflow-y-auto pl-1">
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto ps-1">
           <div>
             <Label>כותרת *</Label>
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
@@ -258,7 +258,7 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }}
               />
               <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                {uploading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <ImagePlus className="ml-2 h-4 w-4" />}
+                {uploading ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <ImagePlus className="ms-2 h-4 w-4" />}
                 העלאת תמונה
               </Button>
               {form.image_url && <img src={form.image_url} alt="" className="h-10 w-20 rounded object-cover" />}
@@ -306,7 +306,7 @@ function BannerEditDialog({ banner, onSaved }: { banner?: Banner; onSaved: () =>
         </div>
         <DialogFooter>
           <Button onClick={handleSave} disabled={saving || uploading}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
             שמירה
           </Button>
         </DialogFooter>

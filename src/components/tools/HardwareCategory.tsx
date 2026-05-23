@@ -186,10 +186,10 @@ function SysExGenerator() {
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Button variant="destructive" onClick={resetHardware}>
-          <RotateCcw className="ml-2 h-4 w-4" /> איפוס לחומרה
+          <RotateCcw className="ms-2 h-4 w-4" /> איפוס לחומרה
         </Button>
         <Button onClick={exportSyx}>
-          <Download className="ml-2 h-4 w-4" /> הורד .syx
+          <Download className="ms-2 h-4 w-4" /> הורד .syx
         </Button>
       </div>
       <p className="mt-2 text-[10px] text-muted-foreground">
@@ -247,7 +247,7 @@ function DigitalTuner() {
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center font-mono text-3xl font-black text-foreground/90">
           A
         </div>
-        <div className="absolute bottom-1 left-2 font-mono text-[10px] text-muted-foreground">{ref} Hz</div>
+        <div className="absolute bottom-1 start-2 font-mono text-[10px] text-muted-foreground">{ref} Hz</div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div>

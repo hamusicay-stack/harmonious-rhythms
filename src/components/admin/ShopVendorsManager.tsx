@@ -47,7 +47,7 @@ export function ShopVendorsManager() {
     <Card className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2"><Truck className="h-5 w-5 text-primary" /><h2 className="text-lg font-bold">ספקים ויבואנים</h2></div>
-        <Button onClick={() => { setEditing({ vendor_type: "in_house", is_active: true }); setOpen(true); }}><Plus className="ml-1 h-4 w-4" /> חדש</Button>
+        <Button onClick={() => { setEditing({ vendor_type: "in_house", is_active: true }); setOpen(true); }}><Plus className="ms-1 h-4 w-4" /> חדש</Button>
       </div>
       {loading ? <Loader2 className="mx-auto animate-spin" /> : (
         <div className="grid gap-2">

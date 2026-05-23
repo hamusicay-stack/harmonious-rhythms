@@ -126,7 +126,7 @@ function LikedItems({ userId }: { userId: string }) {
     <Button size="sm" variant={filter === value ? "default" : "outline"} onClick={() => setFilter(value)} className="gap-1">
       <Icon className="h-3.5 w-3.5" />
       {label}
-      {value !== "all" && counts[value] ? <Badge variant="secondary" className="mr-1 h-5 px-1.5">{counts[value]}</Badge> : null}
+      {value !== "all" && counts[value] ? <Badge variant="secondary" className="me-1 h-5 px-1.5">{counts[value]}</Badge> : null}
     </Button>
   );
 
@@ -193,7 +193,7 @@ function LikedCard({ like, item, onUnlike }: { like: LikeRow; item: any; onUnlik
       <Link {...(c.href as any)} className="block">
         <div className="aspect-square bg-muted relative">
           {c.img && <img src={c.img} alt={c.title} className="w-full h-full object-cover" loading="lazy" />}
-          <Badge className="absolute top-2 right-2 gap-1"><Icon className="h-3 w-3" />{c.tag}</Badge>
+          <Badge className="absolute top-2 end-2 gap-1"><Icon className="h-3 w-3" />{c.tag}</Badge>
         </div>
       </Link>
       <div className="p-3 space-y-2 flex-1 flex flex-col">

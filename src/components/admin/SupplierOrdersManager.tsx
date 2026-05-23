@@ -220,14 +220,14 @@ function SupplierOrderDialog({
         {order ? (
           <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
         ) : (
-          <Button size="sm"><Plus className="ml-2 h-4 w-4" />הזמנה חדשה</Button>
+          <Button size="sm"><Plus className="ms-2 h-4 w-4" />הזמנה חדשה</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl text-right">
+      <DialogContent className="max-w-2xl text-end">
         <DialogHeader>
           <DialogTitle>{order ? "עריכת הזמנה" : "הזמנת רכש חדשה"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 max-h-[70vh] overflow-y-auto pl-1">
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto ps-1">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>ספק *</Label>
@@ -248,7 +248,7 @@ function SupplierOrderDialog({
             <div className="flex items-center justify-between mb-2">
               <Label>פריטים *</Label>
               <Button type="button" size="sm" variant="outline" onClick={addItem}>
-                <Plus className="ml-1 h-3 w-3" />הוסף פריט
+                <Plus className="ms-1 h-3 w-3" />הוסף פריט
               </Button>
             </div>
             <div className="space-y-2">
@@ -317,7 +317,7 @@ function SupplierOrderDialog({
         </div>
         <DialogFooter>
           <Button onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
             שמירה
           </Button>
         </DialogFooter>

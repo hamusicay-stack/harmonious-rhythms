@@ -92,7 +92,7 @@ function CustomersRoute() {
                     <div className="flex justify-end gap-2">
                       <Button asChild size="sm" variant="ghost">
                         <Link to="/admin/customers/$customerId" params={{ customerId: c.id }}>
-                          <Eye className="ml-1 h-4 w-4" />כרטיס 360°
+                          <Eye className="ms-1 h-4 w-4" />כרטיס 360°
                         </Link>
                       </Button>
                       <CustomerEditDialog customer={c} onSaved={refetch} />

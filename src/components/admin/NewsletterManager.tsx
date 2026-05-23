@@ -71,8 +71,8 @@ export function NewsletterManager() {
   return (
     <Tabs defaultValue="composer" className="space-y-4">
       <TabsList>
-        <TabsTrigger value="composer"><Send className="ml-1 h-4 w-4" />קמפיין חדש</TabsTrigger>
-        <TabsTrigger value="segments"><Users className="ml-1 h-4 w-4" />סגמנטים</TabsTrigger>
+        <TabsTrigger value="composer"><Send className="ms-1 h-4 w-4" />קמפיין חדש</TabsTrigger>
+        <TabsTrigger value="segments"><Users className="ms-1 h-4 w-4" />סגמנטים</TabsTrigger>
         <TabsTrigger value="history">היסטוריה</TabsTrigger>
       </TabsList>
       <TabsContent value="composer"><CampaignComposer /></TabsContent>
@@ -238,7 +238,7 @@ function CampaignComposer() {
         <FiltersForm filters={filters} setFilters={setFilters} />
 
         <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-          <Users className="ml-1 inline h-4 w-4" />
+          <Users className="ms-1 inline h-4 w-4" />
           {counting ? <Loader2 className="inline h-4 w-4 animate-spin" /> : <Badge variant="secondary">{count ?? 0} נמענים תואמים</Badge>}
         </div>
 
@@ -252,7 +252,7 @@ function CampaignComposer() {
         </div>
 
         <Button onClick={send} disabled={sending || (count ?? 0) === 0}>
-          {sending ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Send className="ml-2 h-4 w-4" />}
+          {sending ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Send className="ms-2 h-4 w-4" />}
           שלח לקמפיין ({count ?? 0})
         </Button>
       </CardContent>
@@ -296,7 +296,7 @@ function SegmentsManager() {
           <Input placeholder="שם" value={name} onChange={(e) => setName(e.target.value)} />
           <Input placeholder="תיאור (לא חובה)" value={description} onChange={(e) => setDescription(e.target.value)} />
           <FiltersForm filters={filters} setFilters={setFilters} />
-          <Button onClick={save}><Save className="ml-2 h-4 w-4" />שמור</Button>
+          <Button onClick={save}><Save className="ms-2 h-4 w-4" />שמור</Button>
         </CardContent>
       </Card>
 

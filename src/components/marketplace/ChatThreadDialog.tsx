@@ -257,7 +257,7 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
       <DialogContent className="max-w-md p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
           <div className="flex items-center justify-between gap-2">
-            <DialogTitle className="text-right text-base line-clamp-1 flex-1">צ'אט עם המוכר · {listingTitle}</DialogTitle>
+            <DialogTitle className="text-end text-base line-clamp-1 flex-1">צ'אט עם המוכר · {listingTitle}</DialogTitle>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -284,7 +284,7 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
                   <AvatarImage src={partner.avatar_url ?? undefined} />
                   <AvatarFallback className="text-xs">{(partner.display_name ?? partner.username ?? "?").slice(0, 2)}</AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0 text-right">
+                <div className="flex-1 min-w-0 text-end">
                   <div className="text-sm font-semibold truncate group-hover:text-primary transition">{partner.display_name ?? partner.username}</div>
                   <div className="text-[11px] text-muted-foreground truncate">@{partner.username}</div>
                 </div>
@@ -322,7 +322,7 @@ export function ChatThreadDialog({ listingId, sellerId, listingTitle, trigger }:
                 <div key={m.id} className={`flex ${mine ? "justify-start" : "justify-end"}`}>
                   <div
                     className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap break-words shadow-sm ${
-                      mine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-card border rounded-bl-md"
+                      mine ? "bg-primary text-primary-foreground rounded-ee-md" : "bg-card border rounded-es-md"
                     }`}
                   >
                     {m.body}

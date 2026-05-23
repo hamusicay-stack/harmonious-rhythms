@@ -434,7 +434,7 @@ function ShortsPage() {
         {user ? (
           <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} onUploaded={loadShorts}>
             <Button className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-              <Plus className="ml-1 h-4 w-4" />פתחו את הבמה
+              <Plus className="ms-1 h-4 w-4" />פתחו את הבמה
             </Button>
           </UploadDialog>
         ) : (
@@ -545,7 +545,7 @@ function ShortsPage() {
                         </AvatarFallback>
                       </Avatar>
                       {isActive && (
-                        <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary shadow-gold" />
+                        <span className="absolute -bottom-0.5 start-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary shadow-gold" />
                       )}
                     </button>
                   );
@@ -850,7 +850,7 @@ function ShortPanel({
 
         {/* Top safe zone — gradient + premium badge */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[18%] bg-gradient-to-b from-black/70 via-black/30 to-transparent" />
-        <div className="pointer-events-none absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+        <div className="pointer-events-none absolute top-3 end-3 z-10 flex flex-col items-end gap-1.5">
           {short.isPremium && (
             <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-primary to-primary-glow px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-gold">
               <Crown className="h-3 w-3" /> PREMIUM
@@ -913,7 +913,7 @@ function ShortPanel({
         {heartPops.map((p) => (
           <Heart
             key={p.id}
-            className="pointer-events-none absolute left-1/2 top-1/2 z-30 h-28 w-28 -translate-x-1/2 -translate-y-1/2 fill-rose-500 text-rose-500 drop-shadow-[0_0_24px_oklch(0.7_0.2_15/0.7)] transform-gpu will-change-transform"
+            className="pointer-events-none absolute start-1/2 top-1/2 z-30 h-28 w-28 -translate-x-1/2 -translate-y-1/2 fill-rose-500 text-rose-500 drop-shadow-[0_0_24px_oklch(0.7_0.2_15/0.7)] transform-gpu will-change-transform"
             style={{
               ["--fly-tx" as string]: `${p.tx}px`,
               ["--fly-ty" as string]: `${p.ty}px`,
@@ -923,7 +923,7 @@ function ShortPanel({
         ))}
 
         {/* Bottom safe zone — metadata. Strong gradient for readability over bright video. */}
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-32 pb-20 lg:pb-6 px-4 pr-20">
+        <div className="pointer-events-none absolute bottom-0 start-0 end-0 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-32 pb-20 lg:pb-6 px-4 pe-20">
           {/* Commerce hotspot CTA — sits above author block */}
           <div className="pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
             <CommerceHotspot short={short} />
@@ -987,7 +987,7 @@ function ShortPanel({
 
         {/* Right rail — thumb-zone actions */}
         <div
-          className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] right-2 z-10 flex flex-col items-center gap-4"
+          className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] end-2 z-10 flex flex-col items-center gap-4"
           onPointerDown={(e) => e.stopPropagation()}
           onPointerUp={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}

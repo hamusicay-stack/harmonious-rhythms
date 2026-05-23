@@ -145,7 +145,7 @@ function ProDetailPage() {
   const canReview = !!user && user.id !== pro.user_id;
 
   return (
-    <div className="text-right">
+    <div className="text-end">
       {/* Hero */}
       <div className="relative h-56 w-full overflow-hidden md:h-72" style={{ background: `linear-gradient(135deg, ${brand}, ${brand}40)` }}>
         {pro.cover_image && (
@@ -172,17 +172,17 @@ function ProDetailPage() {
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   {isVip && (
                     <Badge className="border-amber-500/40 bg-gradient-to-r from-amber-500 to-yellow-400 text-white">
-                      <Crown className="ml-1 h-3 w-3" /> VIP
+                      <Crown className="ms-1 h-3 w-3" /> VIP
                     </Badge>
                   )}
                   {pro.is_verified && (
                     <Badge className="border-blue-500/40 bg-blue-500/15 text-blue-600 dark:text-blue-300">
-                      <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
+                      <ShieldCheck className="ms-1 h-3 w-3" /> מאומת
                     </Badge>
                   )}
                   {isOwner ? (
                     <Button size="sm" variant="outline" onClick={() => navigate({ to: "/pros/$proId/edit", params: { proId: pro.id } })}>
-                      <Pencil className="ml-1 h-3.5 w-3.5" /> ערוך
+                      <Pencil className="ms-1 h-3.5 w-3.5" /> ערוך
                     </Button>
                   ) : (
                     <FollowButton targetType="music_pro" targetId={pro.id} />
@@ -227,7 +227,7 @@ function ProDetailPage() {
                           <button
                             key={a.id}
                             onClick={() => play({ id: a.id, url: a.url, title: a.title || "טראק", artist: pro.display_name, proId: pro.id })}
-                            className="group flex w-full items-center gap-3 rounded-xl border border-border/60 p-3 text-right transition-colors hover:border-primary/40 hover:bg-secondary/40"
+                            className="group flex w-full items-center gap-3 rounded-xl border border-border/60 p-3 text-end transition-colors hover:border-primary/40 hover:bg-secondary/40"
                           >
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
                               <Play className="h-4 w-4" />
@@ -317,7 +317,7 @@ function ProDetailPage() {
               <TabsContent value="reviews" className="mt-4 space-y-3">
                 {canReview && (
                   <Button onClick={() => setReviewOpen(true)} variant="outline" className="w-full">
-                    <Star className="ml-2 h-4 w-4" />הוסף ביקורת
+                    <Star className="ms-2 h-4 w-4" />הוסף ביקורת
                   </Button>
                 )}
                 {isOwner && pendingReviewsCount > 0 && (
@@ -340,12 +340,12 @@ function ProDetailPage() {
                           <div className="flex items-center gap-1.5">
                             {!r.is_approved && (
                               <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
-                                <Clock className="ml-1 h-3 w-3" />ממתין לאישור
+                                <Clock className="ms-1 h-3 w-3" />ממתין לאישור
                               </Badge>
                             )}
                             {r.is_verified && (
                               <Badge variant="outline" className="border-blue-500/40 text-blue-600 dark:text-blue-300">
-                                <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
+                                <ShieldCheck className="ms-1 h-3 w-3" /> מאומת
                               </Badge>
                             )}
                           </div>
@@ -358,10 +358,10 @@ function ProDetailPage() {
                           {isOwner && !r.is_approved && (
                             <div className="flex gap-1">
                               <Button size="sm" variant="outline" onClick={() => approveReview(r.id, true)} className="h-7 text-xs">
-                                <Check className="ml-1 h-3 w-3" />אשר
+                                <Check className="ms-1 h-3 w-3" />אשר
                               </Button>
                               <Button size="sm" variant="ghost" onClick={() => deleteReview(r.id)} className="h-7 text-xs text-destructive">
-                                <X className="ml-1 h-3 w-3" />דחה
+                                <X className="ms-1 h-3 w-3" />דחה
                               </Button>
                             </div>
                           )}
@@ -395,7 +395,7 @@ function ProDetailPage() {
                   size="lg"
                   onClick={() => setQuoteOpen(true)}
                 >
-                  <MessageCircle className="ml-2 h-4 w-4" /> שלח בקשת הצעת מחיר
+                  <MessageCircle className="ms-2 h-4 w-4" /> שלח בקשת הצעת מחיר
                 </Button>
 
                 {pro.whatsapp && (isOwner || (isVip && pro.show_whatsapp_public)) ? (

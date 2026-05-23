@@ -96,12 +96,12 @@ export function DashboardHero({ userId, email, profile }: Props) {
       {/* Decorative glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-40 blur-3xl"
+        className="pointer-events-none absolute -top-24 -end-24 h-72 w-72 rounded-full opacity-40 blur-3xl"
         style={{ background: "radial-gradient(closest-side, rgba(245,158,11,0.45), transparent)" }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-30 blur-3xl"
+        className="pointer-events-none absolute -bottom-32 -start-20 h-72 w-72 rounded-full opacity-30 blur-3xl"
         style={{ background: "radial-gradient(closest-side, rgba(168,85,247,0.35), transparent)" }}
       />
 
@@ -148,7 +148,7 @@ export function DashboardHero({ userId, email, profile }: Props) {
               className="bg-gradient-to-r from-amber-500 to-amber-600 text-zinc-950 hover:from-amber-400 hover:to-amber-500"
             >
               <Link to="/shop">
-                <Crown className="ml-2 h-4 w-4" />
+                <Crown className="ms-2 h-4 w-4" />
                 שדרג מנוי
               </Link>
             </Button>

@@ -173,7 +173,7 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
+          <DialogTitle className="text-end flex items-center gap-2">
             <FileSignature className="h-5 w-5 text-primary" /> חוזה עבודה חכם
           </DialogTitle>
         </DialogHeader>
@@ -218,7 +218,7 @@ export function GigContractDialog({ clientName = "", trigger, proName = "", thre
           )}
 
           <Button className="w-full" onClick={submit} disabled={sending}>
-            {sending ? <Send className="ml-2 h-4 w-4 animate-pulse" /> : <Printer className="ml-2 h-4 w-4" />}
+            {sending ? <Send className="ms-2 h-4 w-4 animate-pulse" /> : <Printer className="ms-2 h-4 w-4" />}
             {sending ? "מייצר חוזה..." : "שלח כ-PDF"}
           </Button>
         </div>

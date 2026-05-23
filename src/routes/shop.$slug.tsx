@@ -324,7 +324,7 @@ function ProductPage() {
                     <Button variant="outline" size="icon" onClick={() => setQty(qty + 1)}>+</Button>
                   </div>
                   <Button size="lg" className="flex-1" onClick={addToCart} disabled={!canAddToCart}>
-                    <ShoppingBag className="ml-2 h-4 w-4" />
+                    <ShoppingBag className="ms-2 h-4 w-4" />
                     {cpiRequired && !cpiFile ? "העלה קובץ זיהוי כדי להוסיף לסל" : "הוסף לסל"}
                   </Button>
                 </div>
@@ -342,7 +342,7 @@ function ProductPage() {
                 <h2 className="mb-2 text-lg font-semibold">תיאור המוצר</h2>
                 {/^\s*<\w+/.test(product.description) ? (
                   <div
-                    className="prose prose-sm max-w-none text-sm leading-relaxed [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_ul]:list-disc [&_ul]:pr-5 [&_ol]:list-decimal [&_ol]:pr-5 [&_a]:text-primary [&_a]:underline"
+                    className="prose prose-sm max-w-none text-sm leading-relaxed [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_ul]:list-disc [&_ul]:pe-5 [&_ol]:list-decimal [&_ol]:pe-5 [&_a]:text-primary [&_a]:underline"
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.description) }}
                   />
                 ) : (
@@ -380,7 +380,7 @@ function ProductPage() {
             <span className="text-base font-bold text-primary">{formatILS(finalPrice * qty)}</span>
           </div>
           <Button size="lg" className="flex-1 h-11" onClick={addToCart} disabled={!canAddToCart}>
-            <ShoppingBag className="ml-2 h-4 w-4" />
+            <ShoppingBag className="ms-2 h-4 w-4" />
             {cpiRequired && !cpiFile ? "נדרש קובץ זיהוי" : "הוסף לסל"}
           </Button>
         </div>

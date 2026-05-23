@@ -97,7 +97,7 @@ function ResetPasswordPage() {
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@example.com" />
               </div>
               <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-                {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                {loading && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
                 שלח לי קוד
               </Button>
             </form>
@@ -112,7 +112,7 @@ function ResetPasswordPage() {
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="לפחות 6 תווים" />
               </div>
               <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-                {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                {loading && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
                 החלף סיסמה
               </Button>
               <button type="button" onClick={() => setStep("email")} className="w-full text-sm text-muted-foreground hover:text-foreground">

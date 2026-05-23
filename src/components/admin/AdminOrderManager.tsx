@@ -117,7 +117,7 @@ export function AdminOrderManager() {
                     <TableCell><StatusBadge status={o.status} /></TableCell>
                     <TableCell>
                       <Button size="sm" variant="outline" onClick={() => void downloadInfo(o)} disabled={!o.info_file_path && !o.info_file_url}>
-                        <Download className="ml-1 h-4 w-4" />הורד .n27
+                        <Download className="ms-1 h-4 w-4" />הורד .n27
                       </Button>
                     </TableCell>
                     <TableCell>

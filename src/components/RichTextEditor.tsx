@@ -92,14 +92,14 @@ export function RichTextEditor({ value, onChange, placeholder, rows = 6, classNa
           className={cn(
             "prose prose-sm max-w-none p-3 text-sm outline-none",
             "[&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2",
-            "[&_ul]:list-disc [&_ul]:pr-5 [&_ol]:list-decimal [&_ol]:pr-5",
+            "[&_ul]:list-disc [&_ul]:pe-5 [&_ol]:list-decimal [&_ol]:pe-5",
             "[&_a]:text-primary [&_a]:underline",
           )}
           style={{ minHeight: `${rows * 1.5}rem` }}
           suppressContentEditableWarning
         />
         {isEmpty && !focused && (
-          <div className="pointer-events-none absolute right-3 top-3 text-sm text-muted-foreground">
+          <div className="pointer-events-none absolute end-3 top-3 text-sm text-muted-foreground">
             {placeholder ?? "הקלד תיאור..."}
           </div>
         )}

@@ -140,7 +140,7 @@ export function ShopProductImporter() {
           disabled={loading}
         />
         <Button onClick={importUrls} disabled={loading}>
-          {loading ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Download className="ml-1 h-4 w-4" />}
+          {loading ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Download className="ms-1 h-4 w-4" />}
           ייבא וחלץ נתונים
         </Button>
       </div>
@@ -163,7 +163,7 @@ export function ShopProductImporter() {
           <div className="flex items-center justify-between">
             <h3 className="font-bold">סקירה ועריכה ({drafts.length})</h3>
             <Button onClick={publishAll} disabled={publishing} size="lg">
-              {publishing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <CheckCircle2 className="ml-1 h-4 w-4" />}
+              {publishing ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <CheckCircle2 className="ms-1 h-4 w-4" />}
               אשר והעלה הכל לחנות
             </Button>
           </div>
@@ -238,12 +238,12 @@ export function ShopProductImporter() {
                       <button
                         type="button"
                         onClick={() => removeImage(i, x)}
-                        className="absolute -top-2 -left-2 h-5 w-5 rounded-full bg-destructive text-white text-xs"
+                        className="absolute -top-2 -start-2 h-5 w-5 rounded-full bg-destructive text-white text-xs"
                       >
                         ×
                       </button>
                       {d.main_image === img && (
-                        <Badge className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[9px]">ראשית</Badge>
+                        <Badge className="absolute -bottom-2 start-1/2 -translate-x-1/2 text-[9px]">ראשית</Badge>
                       )}
                     </div>
                   ))}

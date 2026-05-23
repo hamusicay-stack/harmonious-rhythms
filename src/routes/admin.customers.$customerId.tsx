@@ -270,7 +270,7 @@ function CustomerProfilePage() {
       <section className="border-b border-border/40 bg-hero">
         <div className="container mx-auto px-4 py-8 md:px-8">
           <Button asChild variant="ghost" size="sm" className="mb-4">
-            <Link to="/admin"><ArrowRight className="ml-2 h-4 w-4" />חזרה ללוח הבקרה</Link>
+            <Link to="/admin"><ArrowRight className="ms-2 h-4 w-4" />חזרה ללוח הבקרה</Link>
           </Button>
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <Avatar className="h-24 w-24 border-2 border-primary/40">
@@ -286,14 +286,14 @@ function CustomerProfilePage() {
                     ?? tierOptions.find((t) => t.slug === (profile.subscription_tier ?? "free").toLowerCase());
                   return currentTier?.is_vip ? (
                     <Badge className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                      <Crown className="ml-1 h-3 w-3" /> VIP גלובלי · {currentTier.name}
+                      <Crown className="ms-1 h-3 w-3" /> VIP גלובלי · {currentTier.name}
                     </Badge>
                   ) : (
                     <Badge variant="secondary">{currentTier?.name ?? profile.subscription_tier}</Badge>
                   );
                 })()}
                 {profile.has_whatsapp && <Badge variant="outline" className="gap-1"><MessageSquare className="h-3 w-3" />WhatsApp פעיל</Badge>}
-                {profile.organ_model && <Badge variant="outline"><Music className="ml-1 h-3 w-3" />{profile.organ_model}</Badge>}
+                {profile.organ_model && <Badge variant="outline"><Music className="ms-1 h-3 w-3" />{profile.organ_model}</Badge>}
               </div>
               <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 {profile.email && <span className="flex items-center gap-1"><Mail className="h-4 w-4" />{profile.email}</span>}
@@ -411,13 +411,13 @@ function CustomerProfilePage() {
         <Tabs defaultValue="timeline">
           <div className="overflow-x-auto">
             <TabsList>
-              <TabsTrigger value="timeline"><Calendar className="ml-2 h-4 w-4" />ציר זמן</TabsTrigger>
-              <TabsTrigger value="details"><FileText className="ml-2 h-4 w-4" />פרטים</TabsTrigger>
-              <TabsTrigger value="orders"><ShoppingCart className="ml-2 h-4 w-4" />הזמנות ({totalOrdersCount})</TabsTrigger>
-              <TabsTrigger value="courses"><BookOpen className="ml-2 h-4 w-4" />קורסים ({enrollments.length})</TabsTrigger>
-              <TabsTrigger value="marketplace"><Store className="ml-2 h-4 w-4" />יד שנייה ({listingsCount})</TabsTrigger>
-              <TabsTrigger value="cart"><ShoppingBag className="ml-2 h-4 w-4" />עגלה ({cartItems.length})</TabsTrigger>
-              <TabsTrigger value="crm"><Sparkles className="ml-2 h-4 w-4" />CRM ({proInquiries.length + customerDeals.length})</TabsTrigger>
+              <TabsTrigger value="timeline"><Calendar className="ms-2 h-4 w-4" />ציר זמן</TabsTrigger>
+              <TabsTrigger value="details"><FileText className="ms-2 h-4 w-4" />פרטים</TabsTrigger>
+              <TabsTrigger value="orders"><ShoppingCart className="ms-2 h-4 w-4" />הזמנות ({totalOrdersCount})</TabsTrigger>
+              <TabsTrigger value="courses"><BookOpen className="ms-2 h-4 w-4" />קורסים ({enrollments.length})</TabsTrigger>
+              <TabsTrigger value="marketplace"><Store className="ms-2 h-4 w-4" />יד שנייה ({listingsCount})</TabsTrigger>
+              <TabsTrigger value="cart"><ShoppingBag className="ms-2 h-4 w-4" />עגלה ({cartItems.length})</TabsTrigger>
+              <TabsTrigger value="crm"><Sparkles className="ms-2 h-4 w-4" />CRM ({proInquiries.length + customerDeals.length})</TabsTrigger>
             </TabsList>
           </div>
 
@@ -744,7 +744,7 @@ function AddInteractionCard({ customerId, userId, onAdded }: { customerId: strin
           <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
         <Button onClick={save} disabled={saving} size="sm">
-          {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}הוסף
+          {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Plus className="ms-2 h-4 w-4" />}הוסף
         </Button>
       </CardContent>
     </Card>
@@ -902,7 +902,7 @@ function ManualPointsPanel({ customerId }: { customerId: string }) {
           </div>
           <div className="flex items-end">
             <Button onClick={submit} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}
+              {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Plus className="ms-2 h-4 w-4" />}
               עדכן יתרה
             </Button>
           </div>

@@ -220,7 +220,7 @@ function ListingDetailPage() {
                   </CarouselContent>
                   {listing.images.length > 1 && <><CarouselPrevious /><CarouselNext /></>}
                 </Carousel>
-                <Button size="sm" variant="secondary" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} className="absolute bottom-3 right-3 gap-1 shadow-lg">
+                <Button size="sm" variant="secondary" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} className="absolute bottom-3 end-3 gap-1 shadow-lg">
                   <Images className="h-4 w-4" />כל התמונות ({listing.images.length})
                 </Button>
               </div>

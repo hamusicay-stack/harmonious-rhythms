@@ -244,7 +244,7 @@ export function DealsKanban() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="ml-1 h-4 w-4" />עסקה חדשה</Button>
+            <Button size="sm"><Plus className="ms-1 h-4 w-4" />עסקה חדשה</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>עסקה חדשה</DialogTitle></DialogHeader>
@@ -264,7 +264,7 @@ export function DealsKanban() {
             </div>
             <DialogFooter>
               <Button onClick={createDeal} disabled={saving}>
-                {saving && <Loader2 className="ml-1 h-4 w-4 animate-spin" />}שמור
+                {saving && <Loader2 className="ms-1 h-4 w-4 animate-spin" />}שמור
               </Button>
             </DialogFooter>
           </DialogContent>

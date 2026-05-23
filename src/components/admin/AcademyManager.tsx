@@ -56,12 +56,12 @@ export function AcademyManager() {
   return (
     <Tabs defaultValue="courses" className="space-y-4">
       <TabsList className="flex w-full h-auto gap-1 overflow-x-auto md:grid md:grid-cols-6">
-        <TabsTrigger value="courses"><GraduationCap className="ml-1 h-4 w-4" />קורסים</TabsTrigger>
-        <TabsTrigger value="codes"><Key className="ml-1 h-4 w-4" />קודי גישה</TabsTrigger>
-        <TabsTrigger value="broadcasts"><Megaphone className="ml-1 h-4 w-4" />ברודקאסט</TabsTrigger>
-        <TabsTrigger value="podcasts"><Mic className="ml-1 h-4 w-4" />פודקאסטים</TabsTrigger>
-        <TabsTrigger value="quizzes"><ClipboardCheck className="ml-1 h-4 w-4" />מבחנים</TabsTrigger>
-        <TabsTrigger value="analytics"><BarChart3 className="ml-1 h-4 w-4" />אנליטיקס</TabsTrigger>
+        <TabsTrigger value="courses"><GraduationCap className="ms-1 h-4 w-4" />קורסים</TabsTrigger>
+        <TabsTrigger value="codes"><Key className="ms-1 h-4 w-4" />קודי גישה</TabsTrigger>
+        <TabsTrigger value="broadcasts"><Megaphone className="ms-1 h-4 w-4" />ברודקאסט</TabsTrigger>
+        <TabsTrigger value="podcasts"><Mic className="ms-1 h-4 w-4" />פודקאסטים</TabsTrigger>
+        <TabsTrigger value="quizzes"><ClipboardCheck className="ms-1 h-4 w-4" />מבחנים</TabsTrigger>
+        <TabsTrigger value="analytics"><BarChart3 className="ms-1 h-4 w-4" />אנליטיקס</TabsTrigger>
       </TabsList>
       <TabsContent value="courses"><CoursesManager /></TabsContent>
       <TabsContent value="codes"><AccessCodesManager /></TabsContent>
@@ -96,10 +96,10 @@ function CoursesManager() {
       <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5 text-primary" />קורסים</CardTitle>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => setGiftOpen(true)}><Gift className="ml-1 h-4 w-4" />מתנה</Button>
+          <Button size="sm" variant="outline" onClick={() => setGiftOpen(true)}><Gift className="ms-1 h-4 w-4" />מתנה</Button>
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus className="ml-1 h-4 w-4" />קורס חדש</Button>
+              <Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus className="ms-1 h-4 w-4" />קורס חדש</Button>
             </DialogTrigger>
             <CourseDialog course={editing} onSaved={() => { setOpen(false); setEditing(null); load(); }} />
           </Dialog>
@@ -132,7 +132,7 @@ function CoursesManager() {
                   </div>
                   <div className="flex gap-2 pt-1">
                     <Button size="sm" variant="outline" onClick={() => setBuilderCourse(c)}>
-                      <Layers className="ml-1 h-3.5 w-3.5" />עריכת תוכן
+                      <Layers className="ms-1 h-3.5 w-3.5" />עריכת תוכן
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => { setEditing(c); setOpen(true); }}>
                       <Pencil className="h-3.5 w-3.5" />
@@ -261,7 +261,7 @@ function CourseDialog({ course, onSaved }: { course: Course | null; onSaved: () 
         </div>
       </div>
       <DialogFooter>
-        <Button onClick={save} disabled={saving || !form.title || !form.slug}>{saving && <Loader2 className="ml-1 h-4 w-4 animate-spin" />}שמירה</Button>
+        <Button onClick={save} disabled={saving || !form.title || !form.slug}>{saving && <Loader2 className="ms-1 h-4 w-4 animate-spin" />}שמירה</Button>
       </DialogFooter>
     </DialogContent>
   );
@@ -308,7 +308,7 @@ function CourseBuilder({ course, onChange }: { course: Course; onChange: () => v
     <div className="space-y-4">
       <div className="flex gap-2">
         <Input placeholder="שם פרק חדש" value={newModuleTitle} onChange={(e) => setNewModuleTitle(e.target.value)} />
-        <Button onClick={addModule}><Plus className="ml-1 h-4 w-4" />פרק</Button>
+        <Button onClick={addModule}><Plus className="ms-1 h-4 w-4" />פרק</Button>
       </div>
       {modules.map((m) => (
         <ModuleSection
@@ -382,7 +382,7 @@ function ModuleSection({ module, lessons, courseId, onChange }: { module: Module
           </div>
         </div>
       ) : (
-        <Button size="sm" variant="outline" onClick={() => setAdding(true)}><Plus className="ml-1 h-3.5 w-3.5" />הוסף שיעור</Button>
+        <Button size="sm" variant="outline" onClick={() => setAdding(true)}><Plus className="ms-1 h-3.5 w-3.5" />הוסף שיעור</Button>
       )}
     </div>
   );
@@ -431,7 +431,7 @@ function AccessCodesManager() {
           </Select>
           <Input type="number" placeholder="שימושים" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: Number(e.target.value) })} />
           <Input placeholder="הערות" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-          <Button onClick={create}><Plus className="ml-1 h-4 w-4" />צור</Button>
+          <Button onClick={create}><Plus className="ms-1 h-4 w-4" />צור</Button>
         </div>
         {loading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : codes.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">אין קודים פעילים.</p>
@@ -529,8 +529,8 @@ function BroadcastsManager() {
             </Select>
           </div>
           <Button onClick={send} disabled={sending} className="w-full">
-            {sending && <Loader2 className="ml-1 h-4 w-4 animate-spin" />}
-            <Megaphone className="ml-1 h-4 w-4" />שלח עכשיו
+            {sending && <Loader2 className="ms-1 h-4 w-4 animate-spin" />}
+            <Megaphone className="ms-1 h-4 w-4" />שלח עכשיו
           </Button>
         </div>
         <div>
@@ -726,8 +726,8 @@ function PodcastsManager() {
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <h3 className="font-semibold">פודקאסטים וסדרות</h3>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => setSeriesOpen(true)}><FolderOpen className="ml-1 h-4 w-4" />סדרה חדשה</Button>
-          <Button size="sm" className="flex-1 sm:flex-none" onClick={startNew}><Plus className="ml-1 h-4 w-4" />פרק חדש</Button>
+          <Button size="sm" variant="outline" className="flex-1 sm:flex-none" onClick={() => setSeriesOpen(true)}><FolderOpen className="ms-1 h-4 w-4" />סדרה חדשה</Button>
+          <Button size="sm" className="flex-1 sm:flex-none" onClick={startNew}><Plus className="ms-1 h-4 w-4" />פרק חדש</Button>
         </div>
       </div>
       {loading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : (
@@ -748,7 +748,7 @@ function PodcastsManager() {
                           <button
                             type="button"
                             onClick={() => setExpandedSeriesId(isExpanded ? null : s.id)}
-                            className="flex min-w-0 items-center gap-3 flex-1 text-right"
+                            className="flex min-w-0 items-center gap-3 flex-1 text-end"
                           >
                             {isExpanded ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronLeft className="h-4 w-4 shrink-0" />}
                             {s.cover_url ? <img src={s.cover_url} alt={s.title} className="h-12 w-12 rounded-md object-cover shrink-0" /> : <FolderOpen className="h-10 w-10 text-primary shrink-0" />}
@@ -897,7 +897,7 @@ function PodcastsManager() {
                   disabled={extractingId === editing.id || !form.source_url}
                   onClick={() => handleExtractMp3(editing)}
                 >
-                  {extractingId === editing.id ? <><Loader2 className="ml-1 h-4 w-4 animate-spin" />ממיר...</> : <><Music className="ml-1 h-4 w-4" />המר אוטומטית מ-YouTube ל-MP3</>}
+                  {extractingId === editing.id ? <><Loader2 className="ms-1 h-4 w-4 animate-spin" />ממיר...</> : <><Music className="ms-1 h-4 w-4" />המר אוטומטית מ-YouTube ל-MP3</>}
                 </Button>
               )}
               <p className="text-[11px] text-muted-foreground">אחרי שמירת פרק YouTube ניתן להעלות MP3 ידנית או להפיק אוטומטית מהווידאו.</p>
@@ -983,11 +983,11 @@ function QuizzesManager() {
 
       {courseId && (
         <>
-          <div className="flex justify-between"><h4 className="font-semibold">מבחנים בקורס</h4><Button size="sm" onClick={addQuiz}><Plus className="ml-1 h-4 w-4" />מבחן</Button></div>
+          <div className="flex justify-between"><h4 className="font-semibold">מבחנים בקורס</h4><Button size="sm" onClick={addQuiz}><Plus className="ms-1 h-4 w-4" />מבחן</Button></div>
           {quizzes.map((q) => (
             <Card key={q.id} className={activeQuiz?.id === q.id ? "border-primary" : ""}>
               <CardContent className="p-3 flex items-center justify-between">
-                <button onClick={() => loadQuestions(q)} className="text-right flex-1">{q.title}</button>
+                <button onClick={() => loadQuestions(q)} className="text-end flex-1">{q.title}</button>
                 <Button size="sm" variant="ghost" onClick={async () => {
                   if (!confirm("למחוק מבחן?")) return;
                   await supabase.from("academy_quizzes").delete().eq("id", q.id);
@@ -1002,7 +1002,7 @@ function QuizzesManager() {
               <CardContent className="p-3 space-y-2">
                 <div className="flex justify-between">
                   <h5 className="font-semibold">שאלות ({questions.length})</h5>
-                  <Button size="sm" onClick={addQuestion}><Plus className="ml-1 h-4 w-4" />שאלה</Button>
+                  <Button size="sm" onClick={addQuestion}><Plus className="ms-1 h-4 w-4" />שאלה</Button>
                 </div>
                 {questions.map((q, i) => (
                   <div key={q.id} className="flex justify-between border-t pt-2 text-sm">

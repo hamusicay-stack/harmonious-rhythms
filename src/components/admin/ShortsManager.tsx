@@ -135,13 +135,13 @@ function ApprovalQueue() {
                   <video src={v.video_url} className="w-full h-full object-cover" muted />
                 )}
                 {v.is_premium && (
-                  <Badge className="absolute top-2 right-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                    <Crown className="ml-1 h-3 w-3" />Premium
+                  <Badge className="absolute top-2 end-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
+                    <Crown className="ms-1 h-3 w-3" />Premium
                   </Badge>
                 )}
                 {v.status === "scheduled" && v.scheduled_for && (
-                  <Badge className="absolute top-2 left-2 bg-blue-500 text-white text-[10px]">
-                    <Calendar className="ml-1 h-3 w-3" />
+                  <Badge className="absolute top-2 start-2 bg-blue-500 text-white text-[10px]">
+                    <Calendar className="ms-1 h-3 w-3" />
                     {new Date(v.scheduled_for).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                   </Badge>
                 )}

@@ -186,7 +186,7 @@ function CouponsManager() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>ביטול</Button>
               <Button onClick={() => editing && upsert.mutate(editing)} disabled={upsert.isPending}>
-                {upsert.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                {upsert.isPending && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
                 שמור
               </Button>
             </DialogFooter>

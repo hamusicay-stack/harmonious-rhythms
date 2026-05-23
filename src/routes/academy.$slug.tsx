@@ -260,13 +260,13 @@ function CoursePage() {
                 <button
                   type="button"
                   onClick={() => setTheater(false)}
-                  className="fixed top-4 left-4 z-[60] flex items-center gap-2 rounded-full bg-white/95 px-4 py-2.5 text-sm font-bold text-black shadow-2xl backdrop-blur-sm transition-all hover:scale-105 hover:bg-white"
+                  className="fixed top-4 start-4 z-[60] flex items-center gap-2 rounded-full bg-white/95 px-4 py-2.5 text-sm font-bold text-black shadow-2xl backdrop-blur-sm transition-all hover:scale-105 hover:bg-white"
                   aria-label="יציאה ממצב מסך מלא"
                 >
                   <X className="h-5 w-5" />
                   <span>יציאה</span>
                 </button>
-                <div className="pointer-events-none fixed bottom-4 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[11px] text-white/80 backdrop-blur-sm">
+                <div className="pointer-events-none fixed bottom-4 start-1/2 z-[60] -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[11px] text-white/80 backdrop-blur-sm">
                   לחץ ESC או "יציאה" כדי לחזור
                 </div>
               </>
@@ -421,7 +421,7 @@ function CoursePage() {
 
             {/* Sidebar */}
             <aside className={theater
-              ? "fixed inset-y-0 right-0 z-50 w-[320px] max-w-[85vw] overflow-y-auto border-s border-white/10 bg-black/85 p-3 backdrop-blur-xl space-y-3"
+              ? "fixed inset-y-0 end-0 z-50 w-[320px] max-w-[85vw] overflow-y-auto border-s border-white/10 bg-black/85 p-3 backdrop-blur-xl space-y-3"
               : "space-y-3"}>
               {!enrollment && (
                 <Card className="border-primary/40">
@@ -434,7 +434,7 @@ function CoursePage() {
                             <span className="text-sm text-muted-foreground line-through">₪{originalPrice}</span>
                           </div>
                           <Badge className="border-amber-500/40 bg-gradient-to-r from-amber-500 to-yellow-400 text-white">
-                            <Crown className="ml-1 h-3 w-3" />
+                            <Crown className="ms-1 h-3 w-3" />
                             {effectiveDiscount === 100 ? "מנוי VIP — חינם" : `הנחת VIP ${effectiveDiscount}%`}
                           </Badge>
                         </div>
@@ -500,7 +500,7 @@ function CoursePage() {
                               key={l.id}
                               onClick={() => !locked && setActiveLessonId(l.id)}
                               disabled={locked}
-                              className={`w-full flex items-center gap-2 px-3 py-2 text-right text-sm transition-colors ${
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-end text-sm transition-colors ${
                                 theater
                                   ? `hover:bg-white/10 ${active ? "bg-primary/20 text-white" : "text-white/80"}`
                                   : `hover:bg-muted/30 ${active ? "bg-primary/10" : ""}`
@@ -768,7 +768,7 @@ function SecureVideoPlayer({ src, watermark, initialPosition = 0, onProgress, on
           {watermark}
         </div>
       )}
-      <div className="absolute bottom-14 left-2 flex items-center gap-1 rounded-md bg-black/60 p-1 backdrop-blur-sm">
+      <div className="absolute bottom-14 start-2 flex items-center gap-1 rounded-md bg-black/60 p-1 backdrop-blur-sm">
         <button
           onClick={() => setAudioMode((v) => !v)}
           className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs ${audioMode ? "bg-primary text-primary-foreground" : "text-white hover:bg-white/10"}`}

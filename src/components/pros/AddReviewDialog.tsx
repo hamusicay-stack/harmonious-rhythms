@@ -51,13 +51,13 @@ export function AddReviewDialog({ open, onOpenChange, proId, proName, onSubmitte
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-right">דירוג ל-{proName}</DialogTitle>
-          <DialogDescription className="text-right">
+          <DialogTitle className="text-end">דירוג ל-{proName}</DialogTitle>
+          <DialogDescription className="text-end">
             הביקורת תוצג לאחר אישור ידני של המוזיקאי.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 text-right">
+        <div className="space-y-4 text-end">
           <div>
             <p className="mb-2 text-sm font-medium">דירוג</p>
             <div className="flex flex-row-reverse justify-end gap-1">
@@ -94,7 +94,7 @@ export function AddReviewDialog({ open, onOpenChange, proId, proName, onSubmitte
           </div>
 
           <Button onClick={submit} disabled={submitting} className="w-full" size="lg">
-            {submitting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+            {submitting ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : null}
             שלח ביקורת
           </Button>
         </div>

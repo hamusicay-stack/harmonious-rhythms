@@ -40,7 +40,7 @@ function MessagesPage() {
                     <div className="text-xs text-muted-foreground truncate">{t.last_message_preview ?? "—"}</div>
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground text-left shrink-0">
+                <div className="text-xs text-muted-foreground text-start shrink-0">
                   {t.unread > 0 && <span className="inline-block bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs mb-1">{t.unread}</span>}
                   <div>{formatDistanceToNow(new Date(t.last_message_at), { addSuffix: true, locale: he })}</div>
                 </div>

@@ -118,11 +118,11 @@ export function AiPromptsManager() {
             <div className="flex gap-2 justify-end">
               {dirty && (
                 <Button variant="ghost" onClick={() => setEdits((e) => { const n = { ...e }; delete n[p.id]; return n; })}>
-                  <RotateCcw className="ml-1 h-4 w-4" /> בטל
+                  <RotateCcw className="ms-1 h-4 w-4" /> בטל
                 </Button>
               )}
               <Button onClick={() => save(p)} disabled={!dirty || savingId === p.id}>
-                {savingId === p.id ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Save className="ml-1 h-4 w-4" />}
+                {savingId === p.id ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Save className="ms-1 h-4 w-4" />}
                 שמור פרומפט
               </Button>
             </div>

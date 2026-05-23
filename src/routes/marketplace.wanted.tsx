@@ -149,7 +149,7 @@ function WantedBoardPage() {
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle className="text-right">בקשת קנייה חדשה</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle className="text-end">בקשת קנייה חדשה</DialogTitle></DialogHeader>
               <div className="space-y-3 py-2">
                 <div className="space-y-1">
                   <Label>מה מחפש? *</Label>
@@ -194,12 +194,12 @@ function WantedBoardPage() {
         </div>
 
         <div className="relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="חפש בקשות..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pr-9"
+            className="pe-9"
           />
         </div>
 

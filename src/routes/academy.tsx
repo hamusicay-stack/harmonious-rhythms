@@ -238,7 +238,7 @@ function AcademyPage() {
 
   return (
     <SiteLayout>
-      <section className="container mx-auto px-4 py-6 md:px-8 md:py-10 text-right">
+      <section className="container mx-auto px-4 py-6 md:px-8 md:py-10 text-end">
         {/* Header */}
         <header className="mb-6 flex items-center gap-3">
           <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-3">
@@ -249,7 +249,7 @@ function AcademyPage() {
             <p className="text-sm text-muted-foreground">הקורסים המעמיקים ביותר על הכלים המובילים בשוק, מפי המומחים הגדולים ביותר.</p>
           </div>
           <Link to="/academy/podcasts" className="hidden md:block">
-            <Button variant="outline" size="sm"><Mic className="ml-1 h-4 w-4" />כל הפודקאסטים</Button>
+            <Button variant="outline" size="sm"><Mic className="ms-1 h-4 w-4" />כל הפודקאסטים</Button>
           </Link>
         </header>
 
@@ -299,12 +299,12 @@ function AcademyPage() {
         {/* Search + access code */}
         <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center">
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="חיפוש קורסים, פודקאסטים..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pr-9"
+              className="pe-9"
             />
           </div>
           {user && (
@@ -316,7 +316,7 @@ function AcademyPage() {
                 className="md:max-w-[180px]"
               />
               <Button onClick={redeemCode} disabled={redeeming}>
-                {redeeming && <Loader2 className="ml-1 h-4 w-4 animate-spin" />}פתח
+                {redeeming && <Loader2 className="ms-1 h-4 w-4 animate-spin" />}פתח
               </Button>
             </div>
           )}
@@ -518,7 +518,7 @@ function CourseCard({ course, progress, likes = 0 }: { course: Course; progress?
           ) : (
             <div className="flex h-full items-center justify-center"><PlayCircle className="h-12 w-12 text-primary/40" /></div>
           )}
-          {course.is_featured && <Badge className="absolute top-2 right-2">מומלץ</Badge>}
+          {course.is_featured && <Badge className="absolute top-2 end-2">מומלץ</Badge>}
         </div>
         <CardContent className="p-4 space-y-2">
           <h3 className="font-semibold line-clamp-1">{course.title}</h3>
@@ -562,7 +562,7 @@ function PodcastSeriesCard({ series, count }: { series: PodcastSeries; count: nu
           ) : (
             <div className="flex h-full items-center justify-center"><FolderOpen className="h-10 w-10 text-primary/50" /></div>
           )}
-          <div className="absolute bottom-2 right-2 rounded-full bg-background/90 p-2 shadow-sm">
+          <div className="absolute bottom-2 end-2 rounded-full bg-background/90 p-2 shadow-sm">
             <FolderOpen className="h-4 w-4 text-primary" />
           </div>
         </div>
@@ -585,7 +585,7 @@ function PodcastCard({ podcast, likes = 0 }: { podcast: Podcast; likes?: number 
           ) : (
             <div className="flex h-full items-center justify-center"><Headphones className="h-10 w-10 text-primary/50" /></div>
           )}
-          <div className="absolute bottom-2 right-2 rounded-full bg-white/90 p-2">
+          <div className="absolute bottom-2 end-2 rounded-full bg-white/90 p-2">
             <Play className="h-4 w-4 text-primary fill-primary" />
           </div>
         </div>

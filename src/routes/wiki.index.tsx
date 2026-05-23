@@ -156,7 +156,7 @@ function WikiIndexPage() {
       <section className="relative border-b border-amber-500/20 bg-gradient-to-b from-amber-500/5 via-background to-background">
         <div className="container mx-auto px-4 py-14 md:py-20 text-center">
           <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 mb-4">
-            <BookOpen className="h-3.5 w-3.5 ml-1" />
+            <BookOpen className="h-3.5 w-3.5 ms-1" />
             ויזיקאי · האנציקלופדיה של המוזיקאי
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-3">
@@ -168,12 +168,12 @@ function WikiIndexPage() {
 
           {/* Search */}
           <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-amber-400/70" />
+            <Search className="absolute end-4 top-1/2 -translate-y-1/2 h-5 w-5 text-amber-400/70" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="חפש מושג, כלי או אמן..."
-              className="h-14 pr-12 text-lg bg-card border-amber-500/30 focus-visible:ring-amber-500/40"
+              className="h-14 pe-12 text-lg bg-card border-amber-500/30 focus-visible:ring-amber-500/40"
             />
           </div>
 
@@ -182,7 +182,7 @@ function WikiIndexPage() {
               onClick={() => setOpenCreate(true)}
               className="bg-amber-500 text-black hover:bg-amber-400"
             >
-              <FileText className="h-4 w-4 ml-1" />
+              <FileText className="h-4 w-4 ms-1" />
               📄 הצע ערך חדש
             </Button>
           </div>
@@ -285,7 +285,7 @@ function WikiIndexPage() {
         <section id="wiki-results">
           <h2 className="text-2xl md:text-3xl font-bold mb-6">
             {query || letter ? "תוצאות חיפוש" : "כל הערכים"}
-            <span className="text-muted-foreground text-base font-normal mr-3">({filtered.length})</span>
+            <span className="text-muted-foreground text-base font-normal me-3">({filtered.length})</span>
           </h2>
           {loading ? (
             <div className="text-center text-muted-foreground py-12">טוען...</div>

@@ -127,11 +127,11 @@ export function DealConfirmationPrompt({ listingId, onResolved, variant = "inlin
                   disabled={busyId === it.id}
                   className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
                 >
-                  {busyId === it.id ? <Loader2 className="ml-1 h-3.5 w-3.5 animate-spin" /> : <BadgeCheck className="ml-1 h-3.5 w-3.5" />}
+                  {busyId === it.id ? <Loader2 className="ms-1 h-3.5 w-3.5 animate-spin" /> : <BadgeCheck className="ms-1 h-3.5 w-3.5" />}
                   כן, רכשתי!
                 </Button>
                 <Button size="sm" variant="outline" onClick={(e) => respond(e, it, "rejected")} disabled={busyId === it.id}>
-                  <X className="ml-1 h-3.5 w-3.5" />לא, לא קניתי
+                  <X className="ms-1 h-3.5 w-3.5" />לא, לא קניתי
                 </Button>
               </div>
             </div>

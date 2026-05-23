@@ -143,7 +143,7 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
         <div className="space-y-2">
           {loadingPrices && options.length === 0 ? (
             <div className="flex items-center justify-center text-muted-foreground p-3">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />טוען מחירים…
+              <Loader2 className="h-4 w-4 animate-spin me-2" />טוען מחירים…
             </div>
           ) : null}
           {options.map((opt: BoostOption) => (
@@ -173,7 +173,7 @@ export function BoostListingDialog({ listingId, listingTitle, open, onOpenChange
           <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground flex items-start gap-2">
             <Crown className="h-4 w-4 text-primary shrink-0 mt-0.5" />
             <div>
-              משתמשי VIP מקבלים הקפצות חודשיות ללא עלות. <Badge variant="secondary" className="ml-1">שדרג ל-VIP</Badge>
+              משתמשי VIP מקבלים הקפצות חודשיות ללא עלות. <Badge variant="secondary" className="ms-1">שדרג ל-VIP</Badge>
             </div>
           </div>
         )}

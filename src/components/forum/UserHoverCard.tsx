@@ -132,7 +132,7 @@ function HoverCardBody({ user, name, initials }: { user: MiniUser; name: string;
         <Button asChild size="sm" variant="outline" className="w-full mt-3 min-h-[36px]">
           {user.username ? (
             <Link to="/u/$username" params={{ username: user.username }}>
-              <ExternalLink className="h-3.5 w-3.5 ml-1" />
+              <ExternalLink className="h-3.5 w-3.5 ms-1" />
               פרופיל מלא
             </Link>
           ) : (

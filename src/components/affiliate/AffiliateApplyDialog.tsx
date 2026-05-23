@@ -65,7 +65,7 @@ export function AffiliateApplyDialog({ children, onApplied }: { children: React.
         </div>
         <DialogFooter>
           <Button onClick={submit} disabled={submitting} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-            {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            {submitting && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
             שלח בקשה
           </Button>
         </DialogFooter>

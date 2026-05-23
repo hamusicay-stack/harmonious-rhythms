@@ -44,7 +44,7 @@ export function FollowButton({ targetType, targetId, targetName, size = "sm", cl
         disabled={loading}
         className={cn(!following && "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground", className)}
       >
-        {following ? <><UserCheck className="ml-1 h-4 w-4" />עוקב</> : <><UserPlus className="ml-1 h-4 w-4" />עקוב</>}
+        {following ? <><UserCheck className="ms-1 h-4 w-4" />עוקב</> : <><UserPlus className="ms-1 h-4 w-4" />עקוב</>}
       </Button>
       <FollowActivityDialog open={showActivityDialog} onOpenChange={setShowActivityDialog} targetName={targetName} />
     </>

@@ -206,7 +206,7 @@ function CategoryDialog({ open, onOpenChange, editing, maxOrder, onSaved }: {
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
               {subs.map((s) => (
-                <Badge key={s} variant="secondary" className="gap-1 pr-1">
+                <Badge key={s} variant="secondary" className="gap-1 pe-1">
                   {s}
                   <button onClick={() => setSubs(subs.filter((x) => x !== s))} className="hover:text-destructive">
                     <X className="h-3 w-3" />

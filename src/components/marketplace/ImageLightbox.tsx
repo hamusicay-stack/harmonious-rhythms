@@ -35,10 +35,10 @@ export function ImageLightbox({ images, open, initialIndex = 0, onOpenChange, al
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[100vw] w-screen h-screen p-0 bg-black/95 border-0 sm:rounded-none flex flex-col">
-        <button onClick={() => onOpenChange(false)} className="absolute top-4 left-4 z-50 bg-white/10 hover:bg-white/20 rounded-full p-2 text-white">
+        <button onClick={() => onOpenChange(false)} className="absolute top-4 start-4 z-50 bg-white/10 hover:bg-white/20 rounded-full p-2 text-white">
           <X className="h-5 w-5" />
         </button>
-        <div className="absolute top-4 right-4 z-50 bg-white/10 text-white rounded-full px-3 py-1 text-sm">
+        <div className="absolute top-4 end-4 z-50 bg-white/10 text-white rounded-full px-3 py-1 text-sm">
           {index + 1} / {images.length}
         </div>
 
@@ -60,10 +60,10 @@ export function ImageLightbox({ images, open, initialIndex = 0, onOpenChange, al
           />
           {images.length > 1 && (
             <>
-              <button onClick={prev} className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 rounded-full p-3 text-white">
+              <button onClick={prev} className="absolute end-2 sm:end-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 rounded-full p-3 text-white">
                 <ChevronRight className="h-6 w-6" />
               </button>
-              <button onClick={next} className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 rounded-full p-3 text-white">
+              <button onClick={next} className="absolute start-2 sm:start-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 rounded-full p-3 text-white">
                 <ChevronLeft className="h-6 w-6" />
               </button>
             </>

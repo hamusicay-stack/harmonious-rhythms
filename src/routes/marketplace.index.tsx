@@ -343,12 +343,12 @@ function MarketplacePage() {
       <div className="mb-4 flex flex-col sm:flex-row gap-3">
         <form onSubmit={(e) => { e.preventDefault(); applySearch(); }} className="flex flex-1 gap-3">
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="חפש לפי שם, מותג או דגם... (Enter לחיפוש)"
-              className="pr-10"
+              className="pe-10"
             />
           </div>
           <Button type="submit" variant="secondary" className="hidden sm:inline-flex">חפש</Button>
@@ -513,7 +513,7 @@ function FilterGroup({ label, children }: { label: string; children: React.React
 
 function ScrollList({ children, tall = false }: { children: React.ReactNode; tall?: boolean }) {
   return (
-    <div className={`space-y-1.5 overflow-y-auto pr-1 ${tall ? "max-h-56" : "max-h-44"}`}>
+    <div className={`space-y-1.5 overflow-y-auto pe-1 ${tall ? "max-h-56" : "max-h-44"}`}>
       {children}
     </div>
   );
@@ -612,7 +612,7 @@ function SellerTypeChip({ value, onChange }: { value: "all" | "private" | "busin
       <PopoverContent className="w-44 p-2" align="end">
         {[{ v: "all" as const, label: "הכל" }, { v: "private" as const, label: "פרטי" }, { v: "business" as const, label: "עסקי" }].map((o) => (
           <button key={o.v} type="button" onClick={() => onChange(o.v)}
-            className={`w-full text-right rounded-md px-3 py-2 text-sm hover:bg-muted transition ${value === o.v ? "bg-primary/10 text-primary font-medium" : ""}`}>
+            className={`w-full text-end rounded-md px-3 py-2 text-sm hover:bg-muted transition ${value === o.v ? "bg-primary/10 text-primary font-medium" : ""}`}>
             {o.label}
           </button>
         ))}
@@ -686,7 +686,7 @@ function ViewToggle({ value, onChange }: { value: "grid" | "list"; onChange: (v:
         >
           <LayoutGrid className="h-4 w-4" />
           <span>תצוגת קוביות</span>
-          {value === "grid" && <Check className="h-4 w-4 mr-auto" />}
+          {value === "grid" && <Check className="h-4 w-4 me-auto" />}
         </button>
         <button
           type="button"
@@ -695,7 +695,7 @@ function ViewToggle({ value, onChange }: { value: "grid" | "list"; onChange: (v:
         >
           <ListIcon className="h-4 w-4" />
           <span>תצוגת רשימה</span>
-          {value === "list" && <Check className="h-4 w-4 mr-auto" />}
+          {value === "list" && <Check className="h-4 w-4 me-auto" />}
         </button>
       </PopoverContent>
     </Popover>

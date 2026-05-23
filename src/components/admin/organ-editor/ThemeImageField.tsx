@@ -52,7 +52,7 @@ export function ThemeImageField({
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="absolute top-0 right-0 bg-destructive text-white rounded-bl px-1"
+              className="absolute top-0 end-0 bg-destructive text-white rounded-es px-1"
               aria-label="הסר"
             >
               <X className="h-3 w-3" />
@@ -81,7 +81,7 @@ export function ThemeImageField({
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
         >
-          {uploading ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}
+          {uploading ? <Loader2 className="h-3 w-3 animate-spin ms-1" /> : <Upload className="h-3 w-3 ms-1" />}
           העלה
         </Button>
       </div>

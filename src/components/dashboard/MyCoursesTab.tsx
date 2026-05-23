@@ -106,7 +106,7 @@ export function MyCoursesTab({ userId }: { userId: string }) {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               {isDone && (
-                <Badge className="absolute top-2 right-2 bg-emerald-600 hover:bg-emerald-600">
+                <Badge className="absolute top-2 end-2 bg-emerald-600 hover:bg-emerald-600">
                   הושלם
                 </Badge>
               )}

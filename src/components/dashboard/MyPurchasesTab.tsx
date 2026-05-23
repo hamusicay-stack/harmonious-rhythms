@@ -170,11 +170,11 @@ export function MyPurchasesTab({ userId, autoOpenReviewForListing }: Props) {
                     disabled={busyId === r.id}
                     className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
                   >
-                    {busyId === r.id ? <Loader2 className="ml-1 h-3.5 w-3.5 animate-spin" /> : <BadgeCheck className="ml-1 h-3.5 w-3.5" />}
+                    {busyId === r.id ? <Loader2 className="ms-1 h-3.5 w-3.5 animate-spin" /> : <BadgeCheck className="ms-1 h-3.5 w-3.5" />}
                     כן, רכשתי!
                   </Button>
                   <Button size="sm" variant="outline" onClick={(e) => respond(e, r.id, "rejected")} disabled={busyId === r.id}>
-                    <X className="ml-1 h-3.5 w-3.5" />לא קניתי
+                    <X className="ms-1 h-3.5 w-3.5" />לא קניתי
                   </Button>
                 </>
               ) : r.status === "confirmed" && !r.already_reviewed ? (
@@ -183,9 +183,9 @@ export function MyPurchasesTab({ userId, autoOpenReviewForListing }: Props) {
                   onClick={(e) => { e.stopPropagation(); setReviewTarget(r); }}
                   className="relative bg-gradient-to-r from-primary via-primary to-primary/70 text-primary-foreground shadow-[0_0_28px_-6px_hsl(var(--primary))] hover:shadow-[0_0_36px_-4px_hsl(var(--primary))]"
                 >
-                  <PenSquare className="ml-1 h-3.5 w-3.5" />
+                  <PenSquare className="ms-1 h-3.5 w-3.5" />
                   ✍️ כתוב חוות דעת מקצועית
-                  <Sparkles className="mr-1 h-3.5 w-3.5" />
+                  <Sparkles className="me-1 h-3.5 w-3.5" />
                 </Button>
               ) : r.status === "confirmed" ? (
                 <div className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">

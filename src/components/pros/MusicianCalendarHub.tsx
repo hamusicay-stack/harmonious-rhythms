@@ -213,7 +213,7 @@ export function MusicianCalendarHub() {
               )}
               title={canAddManual ? "הוסף אירוע ידני" : "דורש מנוי פרימיום / VIP"}
             >
-              {canAddManual ? <Plus className="ml-1 h-4 w-4" /> : <Crown className="ml-1 h-4 w-4 text-amber-300" />}
+              {canAddManual ? <Plus className="ms-1 h-4 w-4" /> : <Crown className="ms-1 h-4 w-4 text-amber-300" />}
               הוסף אירוע ידני
             </Button>
           </div>
@@ -236,7 +236,7 @@ export function MusicianCalendarHub() {
               {currentTier.is_vip ? <Crown className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
               דרגה: {currentTier.name}
               {!currentTier.is_vip && (
-                <button onClick={() => setPaywallOpen(true)} className="underline-offset-2 hover:underline text-amber-300 mr-1">
+                <button onClick={() => setPaywallOpen(true)} className="underline-offset-2 hover:underline text-amber-300 me-1">
                   שדרג
                 </button>
               )}
@@ -262,7 +262,7 @@ export function MusicianCalendarHub() {
                 key={cell.key}
                 onClick={() => openAddDialog(key)}
                 className={cn(
-                  "group relative aspect-square rounded-lg border p-1.5 text-right transition-all overflow-hidden",
+                  "group relative aspect-square rounded-lg border p-1.5 text-end transition-all overflow-hidden",
                   "bg-gradient-to-br from-background/60 to-background/30",
                   isToday ? "border-amber-400/60 ring-1 ring-amber-400/40" : "border-border/50 hover:border-border",
                   dayEvents.length > 0 && "shadow-sm",
@@ -343,9 +343,9 @@ export function MusicianCalendarHub() {
       <Dialog open={addOpen} onOpenChange={(v) => !saving && setAddOpen(v)}>
         <DialogContent dir="rtl" className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-right">הוספת אירוע ידני · {new Date(addingDate).toLocaleDateString("he-IL")}</DialogTitle>
+            <DialogTitle className="text-end">הוספת אירוע ידני · {new Date(addingDate).toLocaleDateString("he-IL")}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 text-right">
+          <div className="space-y-3 text-end">
             <div className="space-y-1.5">
               <Label>כותרת *</Label>
               <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="חתונה פרטית / חזרה / לא זמין" />
@@ -371,7 +371,7 @@ export function MusicianCalendarHub() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddOpen(false)} disabled={saving}>ביטול</Button>
             <Button onClick={saveManualEvent} disabled={saving} className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
-              {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}
+              {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Plus className="ms-2 h-4 w-4" />}
               שמור ביומן
             </Button>
           </DialogFooter>

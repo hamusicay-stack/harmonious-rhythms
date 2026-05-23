@@ -43,7 +43,7 @@ export function StickyCart() {
         <div className="flex items-center gap-3 min-w-0">
           <div className="relative">
             <ShoppingCart className="h-6 w-6 text-primary" />
-            <span className="absolute -top-2 -right-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+            <span className="absolute -top-2 -end-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
               {count}
             </span>
           </div>

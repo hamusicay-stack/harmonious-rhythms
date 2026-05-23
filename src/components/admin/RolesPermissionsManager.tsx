@@ -139,9 +139,9 @@ function MatrixEditor() {
         </div>
         <div className="flex items-center gap-2">
           <Input value={newKey} onChange={e => setNewKey(e.target.value)} placeholder="permission.key חדש" className="w-48" />
-          <Button variant="outline" size="sm" onClick={addKey}><Plus className="ml-1 h-4 w-4" />הוסף</Button>
+          <Button variant="outline" size="sm" onClick={addKey}><Plus className="ms-1 h-4 w-4" />הוסף</Button>
           <Button size="sm" onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Save className="ml-1 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Save className="ms-1 h-4 w-4" />}
             שמור
           </Button>
         </div>
@@ -375,7 +375,7 @@ function PointsRulesEditor() {
             <Input type="number" value={newRule.points} onChange={e => setNewRule(s => ({ ...s, points: Number(e.target.value) || 0 }))} />
           </div>
           <div className="flex items-end">
-            <Button onClick={addRule} className="w-full"><Plus className="ml-1 h-4 w-4" />הוסף</Button>
+            <Button onClick={addRule} className="w-full"><Plus className="ms-1 h-4 w-4" />הוסף</Button>
           </div>
         </CardContent>
       </Card>
@@ -384,7 +384,7 @@ function PointsRulesEditor() {
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle>כללי נקודות ({rules.length})</CardTitle>
           <Button onClick={saveAll} disabled={saving} size="sm">
-            {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Save className="ml-1 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Save className="ms-1 h-4 w-4" />}
             שמור הכל
           </Button>
         </CardHeader>

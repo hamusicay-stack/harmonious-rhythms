@@ -46,10 +46,10 @@ export function AnalysisCategory() {
           <Label className="text-xs">קישור YouTube (לא נתמך מהדפדפן)</Label>
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Youtube className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Youtube className="absolute end-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="https://youtube.com/..."
-                className="pr-8"
+                className="pe-8"
                 value={ytUrl}
                 onChange={(e) => setYtUrl(e.target.value)}
                 disabled
@@ -184,7 +184,7 @@ export function AnalysisCategory() {
             };
           })}>צור מחדש</Button>
           <Button onClick={progGen.download} disabled={!progGen.result?.download}>
-            <Download className="ml-2 h-4 w-4" /> הורד
+            <Download className="ms-2 h-4 w-4" /> הורד
           </Button>
         </div>
         <ProcessingPanel {...progGen} onDownload={progGen.download} onReset={progGen.reset} />

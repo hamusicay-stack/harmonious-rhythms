@@ -114,7 +114,7 @@ export function CustomerEditDialog({ customer, onSaved }: { customer: Customer; 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
           <Button onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}שמור
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}שמור
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -187,7 +187,7 @@ export function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier;
       <DialogTrigger asChild>
         {supplier
           ? <Button size="sm" variant="outline">עריכה</Button>
-          : <Button size="sm"><Plus className="ml-2 h-4 w-4" />ספק חדש</Button>}
+          : <Button size="sm"><Plus className="ms-2 h-4 w-4" />ספק חדש</Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>{supplier ? "עריכת ספק" : "ספק חדש"}</DialogTitle></DialogHeader>
@@ -227,7 +227,7 @@ export function SupplierEditDialog({ supplier, onSaved }: { supplier?: Supplier;
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
           <Button onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}שמור
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}שמור
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -282,7 +282,7 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (v) loadRelated(); }}>
-      <DialogTrigger asChild><Button size="sm"><Plus className="ml-2 h-4 w-4" />משימה חדשה</Button></DialogTrigger>
+      <DialogTrigger asChild><Button size="sm"><Plus className="ms-2 h-4 w-4" />משימה חדשה</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>משימה חדשה</DialogTitle></DialogHeader>
         <div className="space-y-3">
@@ -355,7 +355,7 @@ export function TaskEditDialog({ customers, onSaved }: { customers: Customer[]; 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
           <Button onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}שמור
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}שמור
           </Button>
         </DialogFooter>
       </DialogContent>

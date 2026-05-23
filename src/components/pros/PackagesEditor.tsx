@@ -67,7 +67,7 @@ export function PackagesEditor({ value, onChange }: Props) {
         </div>
       ))}
       <Button type="button" variant="outline" onClick={add} className="w-full">
-        <Plus className="ml-2 h-4 w-4" /> הוסף חבילה
+        <Plus className="ms-2 h-4 w-4" /> הוסף חבילה
       </Button>
     </div>
   );

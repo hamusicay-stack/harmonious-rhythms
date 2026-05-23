@@ -162,13 +162,13 @@ function OrganRow({
               }}
             >
               <span
-                className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full transition-all"
+                className="absolute end-1.5 top-1.5 h-1.5 w-1.5 rounded-full transition-all"
                 style={{
                   background: isOn ? ledColor(b.led) : "#3f3f46",
                   boxShadow: isOn ? LED_GLOW[b.led] : undefined,
                 }}
               />
-              <Play className={cn("absolute left-1.5 top-1.5 h-3 w-3 opacity-50", isOn && "opacity-90")} />
+              <Play className={cn("absolute start-1.5 top-1.5 h-3 w-3 opacity-50", isOn && "opacity-90")} />
               <span className="block pt-3">{b.label}</span>
             </button>
           );

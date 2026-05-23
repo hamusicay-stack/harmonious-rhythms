@@ -75,10 +75,10 @@ function ForumIndexPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm" className="min-h-[40px]">
-                <Link to="/forum/notifications"><Bell className="h-4 w-4 ml-1" />התראות</Link>
+                <Link to="/forum/notifications"><Bell className="h-4 w-4 ms-1" />התראות</Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="min-h-[40px]">
-                <Link to="/forum/messages"><Mail className="h-4 w-4 ml-1" />הודעות</Link>
+                <Link to="/forum/messages"><Mail className="h-4 w-4 ms-1" />הודעות</Link>
               </Button>
             </div>
           </header>
@@ -86,12 +86,12 @@ function ForumIndexPage() {
           {!!user && (
             <form onSubmit={submitSearch} className="mb-6 flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="חיפוש בפורום: מילות מפתח, תגיות (#Yamaha, #Korg, #Mixing)…"
-                  className="pr-10 min-h-[44px]"
+                  className="pe-10 min-h-[44px]"
                 />
               </div>
               <Button type="submit" className="min-h-[44px]">חיפוש</Button>
@@ -136,7 +136,7 @@ function ForumIndexPage() {
                   <div className="px-4 py-3 border-b border-border bg-muted/20 flex items-center gap-2">
                     <Activity className="h-4 w-4 text-primary" />
                     <h2 className="font-semibold">פעילות אחרונה</h2>
-                    <span className="ml-auto h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-label="חי" />
+                    <span className="ms-auto h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-label="חי" />
                   </div>
                   <div className="divide-y divide-border">
                     {activity.isLoading && <div className="px-4 py-4 text-sm text-muted-foreground">טוען…</div>}

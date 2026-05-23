@@ -112,11 +112,11 @@ export function MarketplaceSettings() {
 
         <div className="flex gap-2">
           <Button onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
             שמירה
           </Button>
           <Button variant="outline" onClick={runNow} disabled={running || !enabled}>
-            {running ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <PlayCircle className="ml-2 h-4 w-4" />}
+            {running ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <PlayCircle className="ms-2 h-4 w-4" />}
             הפעלה ידנית עכשיו
           </Button>
         </div>

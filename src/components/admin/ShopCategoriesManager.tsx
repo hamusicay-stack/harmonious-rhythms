@@ -48,7 +48,7 @@ export function ShopCategoriesManager() {
     <Card className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2"><Tags className="h-5 w-5 text-primary" /><h2 className="text-lg font-bold">קטגוריות חנות</h2></div>
-        <Button onClick={() => { setEditing({ display_order: 0, is_active: true }); setOpen(true); }}><Plus className="ml-1 h-4 w-4" /> חדש</Button>
+        <Button onClick={() => { setEditing({ display_order: 0, is_active: true }); setOpen(true); }}><Plus className="ms-1 h-4 w-4" /> חדש</Button>
       </div>
       {loading ? <Loader2 className="mx-auto animate-spin" /> : (
         <div className="grid gap-2 sm:grid-cols-2">

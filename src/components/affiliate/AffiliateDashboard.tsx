@@ -91,11 +91,11 @@ export function AffiliateDashboard() {
             </p>
             {pendingApp?.status === "pending" ? (
               <Badge className="bg-amber-500/15 text-amber-600 border border-amber-500/30">
-                <Clock className="ml-1 h-3 w-3" />הבקשה שלך ממתינה לאישור
+                <Clock className="ms-1 h-3 w-3" />הבקשה שלך ממתינה לאישור
               </Badge>
             ) : pendingApp?.status === "rejected" ? (
               <div className="space-y-2">
-                <Badge variant="destructive"><XCircle className="ml-1 h-3 w-3" />הבקשה לא אושרה הפעם</Badge>
+                <Badge variant="destructive"><XCircle className="ms-1 h-3 w-3" />הבקשה לא אושרה הפעם</Badge>
                 <AffiliateApplyDialog onApplied={load}>
                   <Button size="sm" variant="outline">הגישו בקשה מעודכנת</Button>
                 </AffiliateApplyDialog>
@@ -103,7 +103,7 @@ export function AffiliateDashboard() {
             ) : (
               <AffiliateApplyDialog onApplied={load}>
                 <Button className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-                  <Sparkles className="ml-1 h-4 w-4" />אני רוצה להיות שגריר
+                  <Sparkles className="ms-1 h-4 w-4" />אני רוצה להיות שגריר
                 </Button>
               </AffiliateApplyDialog>
             )}

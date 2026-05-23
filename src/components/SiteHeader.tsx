@@ -151,7 +151,7 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 glass-z3 border-white/40">
-                  <DropdownMenuLabel className="text-right">
+                  <DropdownMenuLabel className="text-end">
                     <div className="font-semibold flex items-center gap-1.5 flex-wrap">
                       <span>{profile?.display_name ?? "משתמש"}</span>
                       <UserBadges userId={user.id} />
@@ -160,30 +160,30 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate({ to: "/profile" })} className="cursor-pointer">
-                    <UserIcon className="ml-2 h-4 w-4" />
+                    <UserIcon className="ms-2 h-4 w-4" />
                     הפרופיל שלי
                   </DropdownMenuItem>
                   {profile?.username && (
                     <DropdownMenuItem onClick={() => navigate({ to: "/u/$username", params: { username: profile.username! } })} className="cursor-pointer">
-                      <Globe className="ml-2 h-4 w-4" />
+                      <Globe className="ms-2 h-4 w-4" />
                       הפרופיל הציבורי שלי
                     </DropdownMenuItem>
                   )}
                   {isPro && (
                     <DropdownMenuItem onClick={() => navigate({ to: "/pros/calendar" })} className="cursor-pointer">
-                      <Calendar className="ml-2 h-4 w-4 text-amber-400" />
+                      <Calendar className="ms-2 h-4 w-4 text-amber-400" />
                       היומן שלי
                     </DropdownMenuItem>
                   )}
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate({ to: "/admin" })} className="cursor-pointer">
-                      <Shield className="ml-2 h-4 w-4 text-primary" />
+                      <Shield className="ms-2 h-4 w-4 text-primary" />
                       ניהול המערכת
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
-                    <LogOut className="ml-2 h-4 w-4" />
+                    <LogOut className="ms-2 h-4 w-4" />
                     סוף סשן
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -236,14 +236,14 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                   <>
                     <Link to="/profile" onClick={() => setOpen(false)}>
                       <Button variant="outline" className="w-full rounded-full">
-                        <UserIcon className="ml-2 h-4 w-4" />
+                        <UserIcon className="ms-2 h-4 w-4" />
                         הפרופיל שלי
                       </Button>
                     </Link>
                     {profile?.username && (
                       <Link to="/u/$username" params={{ username: profile.username }} onClick={() => setOpen(false)}>
                         <Button variant="outline" className="w-full rounded-full">
-                          <Globe className="ml-2 h-4 w-4" />
+                          <Globe className="ms-2 h-4 w-4" />
                           הפרופיל הציבורי שלי
                         </Button>
                       </Link>
@@ -251,13 +251,13 @@ export function SiteHeader({ onCommandPalette }: Props = {}) {
                     {isAdmin && (
                       <Link to="/admin" onClick={() => setOpen(false)}>
                         <Button variant="outline" className="w-full rounded-full border-primary/40 text-primary">
-                          <Shield className="ml-2 h-4 w-4" />
+                          <Shield className="ms-2 h-4 w-4" />
                           ניהול המערכת
                         </Button>
                       </Link>
                     )}
                     <Button onClick={() => { handleSignOut(); setOpen(false); }} variant="ghost" className="w-full rounded-full text-destructive">
-                      <LogOut className="ml-2 h-4 w-4" />
+                      <LogOut className="ms-2 h-4 w-4" />
                       סוף סשן
                     </Button>
                   </>

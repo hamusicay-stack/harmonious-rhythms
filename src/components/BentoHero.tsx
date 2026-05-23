@@ -53,7 +53,7 @@ export function BentoHero({ onOpenCommand }: BentoHeroProps) {
             <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
               <Link to="/auth" onClick={handleNavClick}>
                 <Button size="lg" className="bg-brand text-primary-foreground shadow-card hover:opacity-90">
-                  הצטרפו עכשיו <ArrowLeft className="mr-2 h-4 w-4" />
+                  הצטרפו עכשיו <ArrowLeft className="me-2 h-4 w-4" />
                 </Button>
               </Link>
               <button
@@ -61,7 +61,7 @@ export function BentoHero({ onOpenCommand }: BentoHeroProps) {
                 className="glass-z1 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-foreground/80 transition-smooth hover:text-foreground"
               >
                 <Command className="h-4 w-4" /> חיפוש מהיר
-                <kbd className="ml-2 rounded bg-foreground/10 px-1.5 py-0.5 text-[10px]">⌘K</kbd>
+                <kbd className="ms-2 rounded bg-foreground/10 px-1.5 py-0.5 text-[10px]">⌘K</kbd>
               </button>
             </div>
           </GlassCard>
