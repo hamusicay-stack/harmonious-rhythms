@@ -208,7 +208,7 @@ export function ShopProductsManager() {
         </div>
         <div className="flex gap-2">
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="חפש לפי שם / מותג / SKU" className="w-64" />
-          <Button onClick={openNew}><Plus className="ml-1 h-4 w-4" /> מוצר חדש</Button>
+          <Button onClick={openNew}><Plus className="ms-1 h-4 w-4" /> מוצר חדש</Button>
         </div>
       </div>
 
@@ -293,7 +293,7 @@ export function ShopProductsManager() {
                 <div className="flex items-center justify-between mb-1">
                   <Label>תיאור מלא</Label>
                   <Button type="button" size="sm" variant="outline" onClick={enhanceDescription} disabled={enhancing || !editing.title}>
-                    {enhancing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Sparkles className="ml-1 h-4 w-4" />}
+                    {enhancing ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Sparkles className="ms-1 h-4 w-4" />}
                     שדרג עם AI
                   </Button>
                 </div>
@@ -451,7 +451,7 @@ export function ShopProductsManager() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="ml-1 h-4 w-4 animate-spin" />} שמור</Button>
+            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="ms-1 h-4 w-4 animate-spin" />} שמור</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

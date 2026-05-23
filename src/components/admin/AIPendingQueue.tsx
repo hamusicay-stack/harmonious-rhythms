@@ -184,9 +184,9 @@ export function AIPendingQueue() {
             className="bg-gradient-to-r from-gold to-amber-400 text-gold-foreground hover:from-gold/90 hover:to-amber-400/90 shadow-[0_0_20px_-5px_hsl(var(--gold)/0.5)]"
           >
             {isSyncing ? (
-              <Loader2 className="h-4 w-4 animate-spin ml-2" />
+              <Loader2 className="h-4 w-4 animate-spin ms-2" />
             ) : (
-              <RefreshCw className="h-4 w-4 ml-2" />
+              <RefreshCw className="h-4 w-4 ms-2" />
             )}
             🔄 סרוק מקורות עכשיו
           </Button>
@@ -220,7 +220,7 @@ export function AIPendingQueue() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Badge className="bg-purple-500/15 text-purple-300 border-purple-500/40 text-[10px]">
-                    <Bot className="h-3 w-3 ml-1" />
+                    <Bot className="h-3 w-3 ms-1" />
                     🤖 נכתב ע"י בינה מלאכותית
                   </Badge>
                   {a.source_url && (
@@ -253,7 +253,7 @@ export function AIPendingQueue() {
                     disabled={busyId === a.id}
                     className="border-gold/30 hover:bg-gold/10 hover:text-gold"
                   >
-                    <Pencil className="h-3.5 w-3.5 ml-1" />
+                    <Pencil className="h-3.5 w-3.5 ms-1" />
                     🔍 ערוך טקסט
                   </Button>
                   <Button
@@ -263,9 +263,9 @@ export function AIPendingQueue() {
                     className="bg-gold text-gold-foreground hover:bg-gold/90"
                   >
                     {busyId === a.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin ml-1" />
+                      <Loader2 className="h-3.5 w-3.5 animate-spin ms-1" />
                     ) : (
-                      <Check className="h-3.5 w-3.5 ml-1" />
+                      <Check className="h-3.5 w-3.5 ms-1" />
                     )}
                     ✅ אשר ופרסם
                   </Button>
@@ -276,7 +276,7 @@ export function AIPendingQueue() {
                     disabled={busyId === a.id}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
-                    <X className="h-3.5 w-3.5 ml-1" />
+                    <X className="h-3.5 w-3.5 ms-1" />
                     🗑️ דחה
                   </Button>
                 </div>
@@ -356,7 +356,7 @@ export function AIPendingQueue() {
               disabled={saving}
               className="bg-gold text-gold-foreground hover:bg-gold/90"
             >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin ms-2" /> : null}
               שמור שינויים
             </Button>
           </DialogFooter>

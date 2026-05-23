@@ -66,8 +66,8 @@ export function ConversationListItem({
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-right px-3 py-3 border-b border-border/40 hover:bg-accent/40 transition-colors flex gap-3 items-start",
-        active && "bg-primary/10 border-r-2 border-r-primary",
+        "w-full text-end px-3 py-3 border-b border-border/40 hover:bg-accent/40 transition-colors flex gap-3 items-start",
+        active && "bg-primary/10 border-e-2 border-e-primary",
       )}
     >
       <Avatar className="h-11 w-11 shrink-0">

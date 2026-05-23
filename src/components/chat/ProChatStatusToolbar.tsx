@@ -198,7 +198,7 @@ export function ProChatStatusToolbar({ proId, clientUserId, enabled }: Props) {
               </span>
               {isActive && (
                 <span
-                  className="absolute -top-1 -left-1 h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse"
+                  className="absolute -top-1 -start-1 h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse"
                   aria-hidden
                 />
               )}

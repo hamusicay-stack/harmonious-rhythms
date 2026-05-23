@@ -165,9 +165,9 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
                 {models.map((m) => <SelectItem key={m.id} value={m.id}>{m.model_name}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" onClick={reset}><RotateCcw className="ml-1 h-4 w-4" />איפוס</Button>
+            <Button variant="outline" size="sm" onClick={reset}><RotateCcw className="ms-1 h-4 w-4" />איפוס</Button>
             <Button size="sm" onClick={save} disabled={saving || !modelId}>
-              {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Save className="ml-1 h-4 w-4" />}
+              {saving ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Save className="ms-1 h-4 w-4" />}
               שמור
             </Button>
           </div>
@@ -224,7 +224,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
                     </div>
                   ))}
                   <Button size="sm" variant="outline" onClick={() => setTheme((s) => ({ ...s, tabs: [...s.tabs, { label: "NEW" }] }))}>
-                    <Plus className="ml-1 h-3 w-3" />טאב חדש
+                    <Plus className="ms-1 h-3 w-3" />טאב חדש
                   </Button>
                   <ColorField label="רקע סרגל טאבים" value={theme.tabsBar.bg} onChange={(v) => update("tabsBar", { bg: v })} />
                   <ColorField label="רקע טאב פעיל" value={theme.tabsBar.activeBg} onChange={(v) => update("tabsBar", { activeBg: v })} />
@@ -279,7 +279,7 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
                     </div>
                   ))}
                   <Button size="sm" variant="outline" onClick={() => update("toolbar", { items: [...theme.toolbar.items, { id: `t_${Date.now()}`, label: "NEW", icon: "FileText" }] })}>
-                    <Plus className="ml-1 h-3 w-3" />כלי חדש
+                    <Plus className="ms-1 h-3 w-3" />כלי חדש
                   </Button>
                   <p className="text-[10px] text-muted-foreground">אייקונים זמינים: FileText, Scissors, Copy, ClipboardPaste, Trash2, Save, FolderOpen, MenuSquare</p>
                 </div>
@@ -306,9 +306,9 @@ export function OrganUIThemeEditor({ initialModelId }: { initialModelId?: string
                 <div className="border-t pt-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-semibold">רשימת כפתורים פיזיים ({theme.buttons.list.length})</Label>
-                    <Button size="sm" variant="outline" onClick={addBtn}><Plus className="ml-1 h-3 w-3" />כפתור</Button>
+                    <Button size="sm" variant="outline" onClick={addBtn}><Plus className="ms-1 h-3 w-3" />כפתור</Button>
                   </div>
-                  <div className="max-h-[400px] overflow-y-auto space-y-2 pr-1">
+                  <div className="max-h-[400px] overflow-y-auto space-y-2 pe-1">
                     {theme.buttons.list.map((b) => (
                       <div key={b.id} className="grid grid-cols-[1fr_1fr_90px_90px_auto] gap-1 items-center text-xs">
                         <Input value={b.label} onChange={(e) => updateBtn(b.id, { label: e.target.value })} placeholder="תווית" />

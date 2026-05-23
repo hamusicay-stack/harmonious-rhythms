@@ -66,7 +66,7 @@ export function CourseGiftDialog({ open, onOpenChange }: { open: boolean; onOpen
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>ביטול</Button>
           <Button onClick={grant} disabled={busy}>
-            {busy && <Loader2 className="ml-1 h-4 w-4 animate-spin" />}העניק גישה
+            {busy && <Loader2 className="ms-1 h-4 w-4 animate-spin" />}העניק גישה
           </Button>
         </DialogFooter>
       </DialogContent>

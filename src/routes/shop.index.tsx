@@ -119,7 +119,7 @@ function ShopHomePage() {
                 <button
                   key={c.id}
                   onClick={() => setCategoryFilter(active ? "all" : c.id)}
-                  className={`group relative aspect-[4/3] overflow-hidden rounded-2xl border bg-gradient-to-br from-card to-card/50 p-4 text-right transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-elegant ${active ? "border-primary shadow-elegant ring-1 ring-primary/40" : "border-border/60"}`}
+                  className={`group relative aspect-[4/3] overflow-hidden rounded-2xl border bg-gradient-to-br from-card to-card/50 p-4 text-end transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-elegant ${active ? "border-primary shadow-elegant ring-1 ring-primary/40" : "border-border/60"}`}
                 >
                   {c.image_url ? (
                     <img src={c.image_url} alt={c.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity group-hover:opacity-50" />
@@ -155,12 +155,12 @@ function ShopHomePage() {
         <Card className="mb-6 p-4">
           <div className="grid gap-3 md:grid-cols-4">
             <div className="relative md:col-span-2">
-              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="חפש מוצר, מותג..."
-                className="pr-10"
+                className="pe-10"
               />
             </div>
             <Select value={brandFilter} onValueChange={setBrandFilter}>
@@ -221,7 +221,7 @@ function ProductCard({ product }: { product: Product }) {
         ) : (
           <div className="flex h-full items-center justify-center"><ShoppingBag className="h-12 w-12 text-muted-foreground/40" /></div>
         )}
-        <div className="absolute right-2 top-2 flex flex-col gap-1">
+        <div className="absolute end-2 top-2 flex flex-col gap-1">
           {(product.status_tags ?? []).map((tag) => {
             const def = STATUS_TAG_OPTIONS.find((t) => t.value === tag);
             if (!def) return null;
@@ -232,7 +232,7 @@ function ProductCard({ product }: { product: Product }) {
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white font-bold">אזל מהמלאי</div>
         )}
-        <div className="absolute bottom-2 left-2 z-10" onClick={(e) => e.preventDefault()}>
+        <div className="absolute bottom-2 start-2 z-10" onClick={(e) => e.preventDefault()}>
           <LikeButton itemType="shop_product" itemId={product.id} className="bg-background/80 backdrop-blur hover:bg-background h-8 w-8" />
         </div>
       </div>

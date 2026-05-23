@@ -101,15 +101,15 @@ export function ProCard({ pro, onRequestQuote }: Props) {
       />
 
       {/* Top badges */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+      <div className="absolute top-3 end-3 z-10 flex flex-col items-end gap-1.5">
         {isVip && (
           <Badge className="border-primary/30 bg-primary/15 text-primary shadow-md">
-            <Crown className="ml-1 h-3 w-3" /> VIP
+            <Crown className="ms-1 h-3 w-3" /> VIP
           </Badge>
         )}
         {pro.is_verified && (
           <Badge className="border-blue-500/40 bg-blue-500/15 text-blue-600 dark:text-blue-300">
-            <ShieldCheck className="ml-1 h-3 w-3" /> מאומת
+            <ShieldCheck className="ms-1 h-3 w-3" /> מאומת
           </Badge>
         )}
       </div>
@@ -118,7 +118,7 @@ export function ProCard({ pro, onRequestQuote }: Props) {
       {previewTrack && (
         <button
           onClick={onPlay}
-          className="absolute top-3 left-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-background/90 text-primary shadow-lg backdrop-blur transition-transform hover:scale-110"
+          className="absolute top-3 start-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-background/90 text-primary shadow-lg backdrop-blur transition-transform hover:scale-110"
           aria-label="נגן דמו"
         >
           <Play className="h-5 w-5" />
@@ -143,9 +143,9 @@ export function ProCard({ pro, onRequestQuote }: Props) {
       </div>
 
       {/* Body */}
-      <div className="relative px-5 pb-5 pt-4 text-right">
+      <div className="relative px-5 pb-5 pt-4 text-end">
         {/* Avatar floating */}
-        <div className="absolute -top-9 right-5 h-16 w-16 overflow-hidden rounded-full border-4 border-card bg-muted shadow-lg">
+        <div className="absolute -top-9 end-5 h-16 w-16 overflow-hidden rounded-full border-4 border-card bg-muted shadow-lg">
           {pro.profile_image ? (
             <img src={pro.profile_image} alt={pro.display_name} className="h-full w-full object-cover" />
           ) : (
@@ -218,10 +218,10 @@ export function ProCard({ pro, onRequestQuote }: Props) {
                     navigate({ to: "/pros/$proId/edit", params: { proId: pro.id } });
                   }}
                 >
-                  <Pencil className="ml-1.5 h-4 w-4" /> ערוך פרופיל
+                  <Pencil className="ms-1.5 h-4 w-4" /> ערוך פרופיל
                 </Button>
                 <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); open(); }}>
-                  <Eye className="ml-1.5 h-4 w-4" /> צפה
+                  <Eye className="ms-1.5 h-4 w-4" /> צפה
                 </Button>
               </>
             ) : (
@@ -234,10 +234,10 @@ export function ProCard({ pro, onRequestQuote }: Props) {
                     onRequestQuote?.(pro.id);
                   }}
                 >
-                  <MessageCircle className="ml-1.5 h-4 w-4" /> הצעת מחיר
+                  <MessageCircle className="ms-1.5 h-4 w-4" /> הצעת מחיר
                 </Button>
                 <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); open(); }}>
-                  <Eye className="ml-1.5 h-4 w-4" /> פרופיל
+                  <Eye className="ms-1.5 h-4 w-4" /> פרופיל
                 </Button>
                 <FollowButton targetType="music_pro" targetId={pro.id} />
               </>

@@ -50,7 +50,7 @@ export function CartDrawer() {
         <Button variant="ghost" size="icon" className="relative" aria-label="עגלת קניות">
           <ShoppingBag className="h-4 w-4" />
           {count > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 min-w-5 rounded-full bg-primary px-1 text-[10px] text-primary-foreground border-0">
+            <Badge className="absolute -top-1 -end-1 h-5 min-w-5 rounded-full bg-primary px-1 text-[10px] text-primary-foreground border-0">
               {count}
             </Badge>
           )}
@@ -106,7 +106,7 @@ export function CartDrawer() {
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
-                        <Button size="icon" variant="ghost" className="h-10 w-10 -mr-1" onClick={() => remove(it.id)} aria-label="הסר מוצר">
+                        <Button size="icon" variant="ghost" className="h-10 w-10 -me-1" onClick={() => remove(it.id)} aria-label="הסר מוצר">
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>

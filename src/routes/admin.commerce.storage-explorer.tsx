@@ -103,7 +103,7 @@ function StorageExplorerPage() {
             onClick={() => qc.invalidateQueries({ queryKey: ["storage"] })}
             disabled={objectsQ.isFetching || orphansQ.isFetching}
           >
-            <RefreshCw className={`ml-2 h-4 w-4 ${objectsQ.isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw className={`ms-2 h-4 w-4 ${objectsQ.isFetching ? "animate-spin" : ""}`} />
             רענן
           </Button>
         </CardHeader>
@@ -127,8 +127,8 @@ function StorageExplorerPage() {
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">חיפוש</label>
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="חיפוש בשם הקובץ..." className="pr-10" />
+                <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="חיפוש בשם הקובץ..." className="pe-10" />
               </div>
             </div>
           </div>
@@ -136,14 +136,14 @@ function StorageExplorerPage() {
           {objectsQ.data && (
             <div className="flex flex-wrap gap-2 text-xs">
               <Badge variant="outline" className="border-border bg-muted text-muted-foreground">
-                <FolderOpen className="ml-1 h-3 w-3" /> {objectsQ.data.count} קבצים
+                <FolderOpen className="ms-1 h-3 w-3" /> {objectsQ.data.count} קבצים
               </Badge>
               <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
                 סה״כ: {formatBytes(objectsQ.data.totalBytes)}
               </Badge>
               {orphansQ.data?.hasScanner ? (
                 <Badge variant="outline" className="border-destructive/40 bg-destructive/10 text-destructive">
-                  <FileWarning className="ml-1 h-3 w-3" />
+                  <FileWarning className="ms-1 h-3 w-3" />
                   יתומים: {orphansQ.data.orphanCount} ({formatBytes(orphansQ.data.orphanBytes)})
                 </Badge>
               ) : orphansQ.data ? (
@@ -160,7 +160,7 @@ function StorageExplorerPage() {
         <TabsList>
           <TabsTrigger value="all">כל הקבצים</TabsTrigger>
           <TabsTrigger value="orphans">
-            <AlertTriangle className="ml-2 h-4 w-4" />
+            <AlertTriangle className="ms-2 h-4 w-4" />
             יתומים ({orphansQ.data?.orphanCount ?? 0})
           </TabsTrigger>
         </TabsList>
@@ -208,11 +208,11 @@ function FileTable({ rows, onDelete, deletingPath, highlight }: { rows: Row[]; o
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="text-right">נתיב</TableHead>
-            <TableHead className="text-right">סוג</TableHead>
-            <TableHead className="text-right">גודל</TableHead>
-            <TableHead className="text-right">עודכן</TableHead>
-            <TableHead className="text-right w-12"></TableHead>
+            <TableHead className="text-end">נתיב</TableHead>
+            <TableHead className="text-end">סוג</TableHead>
+            <TableHead className="text-end">גודל</TableHead>
+            <TableHead className="text-end">עודכן</TableHead>
+            <TableHead className="text-end w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

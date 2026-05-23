@@ -238,7 +238,7 @@ function ThreadViewer({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg p-0 flex flex-col h-[80vh] sm:h-[600px]">
         <DialogHeader className="px-4 pt-4 pb-2 border-b">
-          <DialogTitle className="flex items-center gap-2 text-right text-base">
+          <DialogTitle className="flex items-center gap-2 text-end text-base">
             <MessageCircle className="h-4 w-4" /> {title}
           </DialogTitle>
         </DialogHeader>

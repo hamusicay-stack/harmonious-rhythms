@@ -112,12 +112,12 @@ function RecursiveNode({
     depth === 0
       ? ""
       : effectiveDepth === 1
-      ? "mr-3 sm:mr-6 border-r-2 border-border/60 pr-3 sm:pr-4"
+      ? "me-3 sm:me-6 border-e-2 border-border/60 pe-3 sm:pe-4"
       : effectiveDepth === 2
-      ? "mr-4 sm:mr-8 border-r-2 border-amber-500/30 pr-3 sm:pr-4"
+      ? "me-4 sm:me-8 border-e-2 border-amber-500/30 pe-3 sm:pe-4"
       : effectiveDepth === 3
-      ? "mr-4 sm:mr-10 border-r border-border/50 pr-3 sm:pr-4"
-      : "mr-3 sm:mr-6 border-r border-dashed border-border/40 pr-3 sm:pr-4";
+      ? "me-4 sm:me-10 border-e border-border/50 pe-3 sm:pe-4"
+      : "me-3 sm:me-6 border-e border-dashed border-border/40 pe-3 sm:pe-4";
 
   const kids = childrenByParent.get(post.id) ?? [];
 

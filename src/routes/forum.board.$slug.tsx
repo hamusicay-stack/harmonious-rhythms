@@ -89,7 +89,7 @@ function BoardPage() {
           ) : (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button><Plus className="h-4 w-4 ml-1" />אשכול חדש</Button>
+                <Button><Plus className="h-4 w-4 ms-1" />אשכול חדש</Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader><DialogTitle>פתיחת אשכול חדש</DialogTitle></DialogHeader>
@@ -122,7 +122,7 @@ function BoardPage() {
                     </div>
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground text-left shrink-0">
+                <div className="text-xs text-muted-foreground text-start shrink-0">
                   <div>{t.reply_count} תגובות · {t.view_count} צפיות</div>
                   <div>אחרון: {formatDistanceToNow(new Date(t.last_post_at), { addSuffix: true, locale: he })}</div>
                 </div>

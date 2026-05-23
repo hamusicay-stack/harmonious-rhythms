@@ -156,7 +156,7 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
           <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
         </div>
         <SheetHeader className="border-b border-border/40 px-4 py-2">
-          <SheetTitle className="text-right text-base">
+          <SheetTitle className="text-end text-base">
             תגובות {comments.length > 0 && <span className="text-muted-foreground font-normal">· {comments.length}</span>}
           </SheetTitle>
         </SheetHeader>
@@ -226,13 +226,13 @@ export function CommentsSheet({ open, onOpenChange, videoId, onCountChange }: Pr
                   onChange={(e) => setText(e.target.value.slice(0, MAX))}
                   placeholder="הוסף תגובה..."
                   rows={1}
-                  className="resize-none min-h-[40px] max-h-[140px] py-2 pr-3 pl-12 rounded-2xl"
+                  className="resize-none min-h-[40px] max-h-[140px] py-2 pe-3 ps-12 rounded-2xl"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
                   }}
                 />
                 {text.length > 0 && (
-                  <span className="absolute -bottom-4 right-2 text-[10px] text-muted-foreground">
+                  <span className="absolute -bottom-4 end-2 text-[10px] text-muted-foreground">
                     {text.length}/{MAX}
                   </span>
                 )}

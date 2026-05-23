@@ -123,14 +123,14 @@ function WikiApprovalsPanel() {
                 <div className="flex shrink-0 gap-2">
                   <Button asChild size="sm" variant="outline">
                     <Link to="/wiki/$slug" params={{ slug: r.slug }} target="_blank">
-                      <ExternalLink className="ml-1 h-3 w-3" /> תצוגה
+                      <ExternalLink className="ms-1 h-3 w-3" /> תצוגה
                     </Link>
                   </Button>
                   <Button size="sm" disabled={busy === r.id} onClick={() => act(r.id, "approved")}>
-                    <Check className="ml-1 h-3 w-3" /> אישור
+                    <Check className="ms-1 h-3 w-3" /> אישור
                   </Button>
                   <Button size="sm" variant="destructive" disabled={busy === r.id} onClick={() => act(r.id, "rejected")}>
-                    <X className="ml-1 h-3 w-3" /> דחייה
+                    <X className="ms-1 h-3 w-3" /> דחייה
                   </Button>
                 </div>
               </li>
@@ -230,7 +230,7 @@ function UserTagsPanel() {
             {TAG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
           <Button disabled={busy} onClick={assign}>
-            <Plus className="ml-1 h-4 w-4" /> שייך
+            <Plus className="ms-1 h-4 w-4" /> שייך
           </Button>
         </CardContent>
       </Card>

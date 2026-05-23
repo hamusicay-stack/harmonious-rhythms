@@ -246,7 +246,7 @@ function AbandonedCartSettings() {
           <Zap className="h-5 w-5 text-primary" />הגדרות אוטומציה גלובליות
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 text-right" dir="rtl">
+      <CardContent className="space-y-4 text-end" dir="rtl">
         {loading ? (
           <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : (
@@ -277,7 +277,7 @@ function AbandonedCartSettings() {
             </div>
             <div className="flex justify-end">
               <Button onClick={save} disabled={saving}>
-                {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+                {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
                 שמור הגדרות
               </Button>
             </div>
@@ -355,14 +355,14 @@ function RuleEditDialog({ rule, onSaved }: { rule?: Rule; onSaved: () => void })
         {rule ? (
           <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
         ) : (
-          <Button size="sm"><Plus className="ml-2 h-4 w-4" />אוטומציה חדשה</Button>
+          <Button size="sm"><Plus className="ms-2 h-4 w-4" />אוטומציה חדשה</Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg text-right">
+      <DialogContent className="max-w-lg text-end">
         <DialogHeader>
           <DialogTitle>{rule ? "עריכת אוטומציה" : "אוטומציה חדשה"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 max-h-[70vh] overflow-y-auto pl-1">
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto ps-1">
           <div>
             <Label>שם האוטומציה *</Label>
             <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="למשל: שליחת מייל ברוכים הבאים" />
@@ -460,7 +460,7 @@ function RuleEditDialog({ rule, onSaved }: { rule?: Rule; onSaved: () => void })
         </div>
         <DialogFooter>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
             שמירה
           </Button>
         </DialogFooter>

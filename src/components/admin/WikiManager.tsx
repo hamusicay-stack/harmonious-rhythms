@@ -106,7 +106,7 @@ function ActiveArticles() {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">{rows.length} ערכים מאושרים</h3>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-          <RefreshCw className={`h-4 w-4 ml-1 ${loading ? "animate-spin" : ""}`} /> רענן
+          <RefreshCw className={`h-4 w-4 ms-1 ${loading ? "animate-spin" : ""}`} /> רענן
         </Button>
       </div>
       {loading ? (
@@ -139,11 +139,11 @@ function ActiveArticles() {
               </div>
               <Button asChild variant="outline" size="sm" className="border-amber-500/30">
                 <Link to="/wiki/$slug" params={{ slug: r.slug }}>
-                  <ExternalLink className="h-4 w-4 ml-1" /> צפה
+                  <ExternalLink className="h-4 w-4 ms-1" /> צפה
                 </Link>
               </Button>
               <Button variant="destructive" size="sm" onClick={() => handleDelete(r.id, r.title)}>
-                <Trash2 className="h-4 w-4 ml-1" /> מחק
+                <Trash2 className="h-4 w-4 ms-1" /> מחק
               </Button>
             </div>
           ))}
@@ -192,7 +192,7 @@ function PendingArticles() {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">{rows.length} ערכים בהמתנה לאישור</h3>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-          <RefreshCw className={`h-4 w-4 ml-1 ${loading ? "animate-spin" : ""}`} /> רענן
+          <RefreshCw className={`h-4 w-4 ms-1 ${loading ? "animate-spin" : ""}`} /> רענן
         </Button>
       </div>
       {loading ? (
@@ -210,7 +210,7 @@ function PendingArticles() {
                 <Badge variant="outline" className="border-amber-500/30 text-amber-300 text-xs">
                   {CATEGORY_LABEL[r.category] ?? r.category}
                 </Badge>
-                <span className="text-xs text-muted-foreground mr-auto">
+                <span className="text-xs text-muted-foreground me-auto">
                   {new Date(r.created_at).toLocaleString("he-IL")}
                 </span>
               </div>
@@ -221,10 +221,10 @@ function PendingArticles() {
               />
               <div className="flex gap-2 mt-3 justify-end">
                 <Button variant="destructive" size="sm" onClick={() => reject(r.id)}>
-                  <X className="h-4 w-4 ml-1" /> דחה
+                  <X className="h-4 w-4 ms-1" /> דחה
                 </Button>
                 <Button size="sm" onClick={() => approve(r.id)} className="bg-amber-500 text-black hover:bg-amber-400">
-                  <Check className="h-4 w-4 ml-1" /> אשר ופרסם
+                  <Check className="h-4 w-4 ms-1" /> אשר ופרסם
                 </Button>
               </div>
             </div>
@@ -303,7 +303,7 @@ function PendingRevisions() {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">{rows.length} הצעות עריכה ממתינות</h3>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}>
-          <RefreshCw className={`h-4 w-4 ml-1 ${loading ? "animate-spin" : ""}`} /> רענן
+          <RefreshCw className={`h-4 w-4 ms-1 ${loading ? "animate-spin" : ""}`} /> רענן
         </Button>
       </div>
       {loading ? (
@@ -323,7 +323,7 @@ function PendingRevisions() {
                 <div className="font-semibold truncate">
                   {r.article?.title ?? "ערך נמחק"}
                   {r.suggested_title && r.suggested_title !== r.article?.title && (
-                    <span className="text-amber-300 text-sm mr-2">→ {r.suggested_title}</span>
+                    <span className="text-amber-300 text-sm me-2">→ {r.suggested_title}</span>
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -331,13 +331,13 @@ function PendingRevisions() {
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => setViewing(r)}>
-                <Eye className="h-4 w-4 ml-1" /> השווה
+                <Eye className="h-4 w-4 ms-1" /> השווה
               </Button>
               <Button variant="destructive" size="sm" onClick={() => reject(r)}>
-                <X className="h-4 w-4 ml-1" /> דחה
+                <X className="h-4 w-4 ms-1" /> דחה
               </Button>
               <Button size="sm" onClick={() => approve(r)} className="bg-amber-500 text-black hover:bg-amber-400">
-                <Check className="h-4 w-4 ml-1" /> אשר
+                <Check className="h-4 w-4 ms-1" /> אשר
               </Button>
             </div>
           ))}
@@ -371,13 +371,13 @@ function PendingRevisions() {
           )}
           <DialogFooter>
             <Button variant="destructive" onClick={() => viewing && reject(viewing)}>
-              <X className="h-4 w-4 ml-1" /> דחה הצעה
+              <X className="h-4 w-4 ms-1" /> דחה הצעה
             </Button>
             <Button
               onClick={() => viewing && approve(viewing)}
               className="bg-amber-500 text-black hover:bg-amber-400"
             >
-              <Check className="h-4 w-4 ml-1" /> אשר והחל על הערך
+              <Check className="h-4 w-4 ms-1" /> אשר והחל על הערך
             </Button>
           </DialogFooter>
         </DialogContent>

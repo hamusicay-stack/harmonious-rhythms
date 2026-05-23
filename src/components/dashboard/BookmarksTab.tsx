@@ -120,7 +120,7 @@ export function BookmarksTab({ userId }: { userId: string }) {
                 {row.forum_topics?.slug && (
                   <Button asChild size="sm" variant="ghost">
                     <Link to="/forum/topic/$slug" params={{ slug: row.forum_topics.slug }}>
-                      פתח <ExternalLink className="mr-1 h-3.5 w-3.5" />
+                      פתח <ExternalLink className="me-1 h-3.5 w-3.5" />
                     </Link>
                   </Button>
                 )}
@@ -156,7 +156,7 @@ export function BookmarksTab({ userId }: { userId: string }) {
                 </div>
                 <Button asChild size="sm" variant="ghost">
                   <Link to="/shop">
-                    פתח <ExternalLink className="mr-1 h-3.5 w-3.5" />
+                    פתח <ExternalLink className="me-1 h-3.5 w-3.5" />
                   </Link>
                 </Button>
               </Card>
@@ -185,7 +185,7 @@ export function BookmarksTab({ userId }: { userId: string }) {
                     to="/marketplace/$listingId"
                     params={{ listingId: row.listing_id }}
                   >
-                    פתח <ExternalLink className="mr-1 h-3.5 w-3.5" />
+                    פתח <ExternalLink className="me-1 h-3.5 w-3.5" />
                   </Link>
                 </Button>
               </Card>

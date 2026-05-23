@@ -74,7 +74,7 @@ export function NotificationsList({ compact }: { compact?: boolean }) {
           </div>
           {unreadCount > 0 && (
             <Button size="sm" variant="ghost" onClick={markAllRead}>
-              <CheckCheck className="ml-1 h-4 w-4" />סמן הכל כנקרא
+              <CheckCheck className="ms-1 h-4 w-4" />סמן הכל כנקרא
             </Button>
           )}
         </div>

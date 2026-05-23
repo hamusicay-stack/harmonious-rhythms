@@ -102,12 +102,12 @@ export function WikiGenerator() {
           >
             {loading ? (
               <>
-                <Loader2 className="h-5 w-5 ml-2 animate-spin" />
+                <Loader2 className="h-5 w-5 ms-2 animate-spin" />
                 מחולל ערך... (עד 30 שניות)
               </>
             ) : (
               <>
-                <Sparkles className="h-5 w-5 ml-2" />
+                <Sparkles className="h-5 w-5 ms-2" />
                 ✨ חולל ערך ויקיפדיה באמצעות AI
               </>
             )}
@@ -121,7 +121,7 @@ export function WikiGenerator() {
               </div>
               <Button asChild variant="outline" className="border-amber-500/30">
                 <Link to="/wiki/$slug" params={{ slug: lastCreated.slug }}>
-                  <ExternalLink className="h-4 w-4 ml-1" />
+                  <ExternalLink className="h-4 w-4 ms-1" />
                   צפה בערך
                 </Link>
               </Button>

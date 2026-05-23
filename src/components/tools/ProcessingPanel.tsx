@@ -45,7 +45,7 @@ export function ProcessingPanel({ state, progress, result, onDownload, onReset }
         <div className="flex gap-2">
           {result?.download && (
             <Button size="sm" className="flex-1" onClick={onDownload}>
-              <Download className="ml-2 h-4 w-4" /> הורד תוצאה
+              <Download className="ms-2 h-4 w-4" /> הורד תוצאה
             </Button>
           )}
           <Button size="sm" variant="outline" onClick={onReset}>

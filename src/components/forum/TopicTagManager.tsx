@@ -88,7 +88,7 @@ export function TopicTagManager({
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button type="button" size="sm" variant="outline">
-              <TagIcon className="h-3.5 w-3.5 ml-1" />
+              <TagIcon className="h-3.5 w-3.5 ms-1" />
               בחר תגיות
             </Button>
           </PopoverTrigger>
@@ -107,7 +107,7 @@ export function TopicTagManager({
                       </span>
                       {parent.is_staff_only && (
                         <Badge variant="outline" className="border-red-500/50 text-red-400 text-[10px] px-1 py-0">
-                          <ShieldAlert className="h-2.5 w-2.5 ml-0.5" />
+                          <ShieldAlert className="h-2.5 w-2.5 ms-0.5" />
                           צוות
                         </Badge>
                       )}
@@ -149,7 +149,7 @@ export function TopicTagManager({
                     </>
                   )}
                   <Button type="button" size="sm" className="w-full" onClick={submitNewTag} disabled={newName.trim().length < 2}>
-                    <Plus className="h-3.5 w-3.5 ml-1" />
+                    <Plus className="h-3.5 w-3.5 ms-1" />
                     הוסף
                   </Button>
                 </div>
@@ -205,7 +205,7 @@ function TagToggle({ tag, active, onClick }: { tag: ForumTagRow; active: boolean
           : "border-border text-foreground/80 hover:bg-accent")
       }
     >
-      {tag.is_staff_only && <ShieldAlert className="inline h-3 w-3 ml-1" />}
+      {tag.is_staff_only && <ShieldAlert className="inline h-3 w-3 ms-1" />}
       {tag.name}
     </button>
   );

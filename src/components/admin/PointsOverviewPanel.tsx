@@ -91,7 +91,7 @@ export function PointsOverviewPanel({ customerId }: { customerId: string }) {
         <div className="rounded-lg border border-border/60">
           {loading ? (
             <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
-              <Loader2 className="ml-2 h-4 w-4 animate-spin" /> טוען...
+              <Loader2 className="ms-2 h-4 w-4 animate-spin" /> טוען...
             </div>
           ) : rows.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">אין עדיין תנועות נקודות</div>

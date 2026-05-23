@@ -105,9 +105,9 @@ export function AddressBook({ refreshProfile }: { refreshProfile: () => Promise<
             className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold"
           >
             {saving ? (
-              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              <Loader2 className="ms-2 h-4 w-4 animate-spin" />
             ) : (
-              <Save className="ml-2 h-4 w-4" />
+              <Save className="ms-2 h-4 w-4" />
             )}
             שמור כתובת
           </Button>

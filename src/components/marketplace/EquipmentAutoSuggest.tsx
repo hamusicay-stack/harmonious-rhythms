@@ -105,7 +105,7 @@ export function EquipmentAutoSuggest({
         <div className="flex items-center justify-between">
           <Label>יצרן ודגם</Label>
           <Button type="button" size="sm" variant="ghost" onClick={() => { setManual(false); onBrandChange(""); }}>
-            <Search className="ml-1 h-3.5 w-3.5" /> חזור לחיפוש בקטלוג
+            <Search className="ms-1 h-3.5 w-3.5" /> חזור לחיפוש בקטלוג
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -127,21 +127,21 @@ export function EquipmentAutoSuggest({
       <Label className="flex items-center gap-2">
         יצרן ודגם <span className="text-destructive">*</span>
         <Badge variant="outline" className="border-primary/40 text-[10px] text-primary">
-          <Sparkles className="ml-1 h-3 w-3" /> קטלוג מאומת
+          <Sparkles className="ms-1 h-3 w-3" /> קטלוג מאומת
         </Badge>
       </Label>
 
       <div className="relative">
-        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         <Input
           value={query}
           onChange={(e) => { setQuery(e.target.value); if (matched) { setMatched(null); onCatalogMatch(null); } setOpen(true); }}
           onFocus={() => setOpen(true)}
           placeholder="התחל להקליד יצרן או דגם (לדוגמה: Fender Stratocaster)"
-          className="pr-9"
+          className="pe-9"
         />
         {matched && (
-          <button type="button" onClick={clearMatch} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-muted">
+          <button type="button" onClick={clearMatch} className="absolute start-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-muted">
             <X className="h-3.5 w-3.5" />
           </button>
         )}
@@ -161,7 +161,7 @@ export function EquipmentAutoSuggest({
                 key={r.id}
                 type="button"
                 onClick={() => handlePick(r)}
-                className="flex w-full items-center justify-between gap-2 border-b px-3 py-2 text-right text-sm last:border-b-0 hover:bg-muted"
+                className="flex w-full items-center justify-between gap-2 border-b px-3 py-2 text-end text-sm last:border-b-0 hover:bg-muted"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 font-semibold">
@@ -177,7 +177,7 @@ export function EquipmentAutoSuggest({
             <button
               type="button"
               onClick={switchToManual}
-              className="block w-full border-t bg-muted/30 px-3 py-2 text-right text-sm font-medium text-primary hover:bg-muted"
+              className="block w-full border-t bg-muted/30 px-3 py-2 text-end text-sm font-medium text-primary hover:bg-muted"
             >
               אחר / דגם מותאם אישית
             </button>
@@ -190,7 +190,7 @@ export function EquipmentAutoSuggest({
           <button
             type="button"
             onClick={() => setSpecsOpen((v) => !v)}
-            className="flex w-full items-center justify-between text-right"
+            className="flex w-full items-center justify-between text-end"
           >
             <span className="flex items-center gap-2 text-sm font-semibold text-primary">
               <BadgeCheck className="h-4 w-4" /> מפרט טכני רשמי מאומת

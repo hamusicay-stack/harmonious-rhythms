@@ -40,13 +40,13 @@ export function QuickViewDialog({ listing, open, onOpenChange }: Props) {
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">אין תמונה</div>
           )}
           {listing.is_urgent && (
-            <Badge className="absolute top-3 right-3 gap-1 shadow-lg bg-rose-500 hover:bg-rose-600">
+            <Badge className="absolute top-3 end-3 gap-1 shadow-lg bg-rose-500 hover:bg-rose-600">
               <Flame className="h-3 w-3" />מכירה דחופה
             </Badge>
           )}
         </div>
         <div className="p-6 space-y-4">
-          <DialogHeader className="text-right">
+          <DialogHeader className="text-end">
             <DialogTitle className="text-2xl font-display">{listing.title}</DialogTitle>
             {(listing.brand || listing.model) && (
               <div className="text-sm text-muted-foreground">

@@ -100,7 +100,7 @@ export function MakeOfferDialog({ listingId, sellerId, listingTitle, listingPric
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-right">הגשת הצעת מחיר</DialogTitle>
+          <DialogTitle className="text-end">הגשת הצעת מחיר</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="rounded-lg bg-muted/50 p-3 text-sm">

@@ -70,7 +70,7 @@ function GatewaysCard() {
     return (
       <Card className="border-amber-500/20 bg-gradient-to-br from-zinc-950 to-zinc-900">
         <CardContent className="p-6 flex items-center justify-center text-zinc-400">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />טוען הגדרות תשלום…
+          <Loader2 className="h-4 w-4 animate-spin me-2" />טוען הגדרות תשלום…
         </CardContent>
       </Card>
     );
@@ -103,9 +103,9 @@ function GatewaysCard() {
               <div className="font-semibold text-zinc-100">
                 מצב Sandbox / Test
                 {data.test_mode ? (
-                  <Badge variant="secondary" className="ml-2 bg-amber-500/20 text-amber-200 border-amber-500/40">פעיל</Badge>
+                  <Badge variant="secondary" className="ms-2 bg-amber-500/20 text-amber-200 border-amber-500/40">פעיל</Badge>
                 ) : (
-                  <Badge variant="secondary" className="ml-2 bg-emerald-500/20 text-emerald-200 border-emerald-500/40">LIVE</Badge>
+                  <Badge variant="secondary" className="ms-2 bg-emerald-500/20 text-emerald-200 border-emerald-500/40">LIVE</Badge>
                 )}
               </div>
               <div className="text-xs text-zinc-400">
@@ -195,7 +195,7 @@ function PricingCard() {
       <CardContent>
         {isLoading ? (
           <div className="flex items-center justify-center text-zinc-400 p-6">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />טוען מחירים…
+            <Loader2 className="h-4 w-4 animate-spin me-2" />טוען מחירים…
           </div>
         ) : (
           <Table>
@@ -262,7 +262,7 @@ function PricingRow({ row, onSaved }: { row: ServicePricing; onSaved: () => void
       <TableCell>
         <Switch checked={active} onCheckedChange={setActive} />
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-end">
         <Button size="sm" onClick={save} disabled={!dirty || saving}
           className="gap-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 border border-amber-500/40">
           {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}

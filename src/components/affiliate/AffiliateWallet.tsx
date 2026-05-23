@@ -212,11 +212,11 @@ function PayoutRequestDialog({
           disabled={!canRequest}
           className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md disabled:opacity-50"
         >
-          <Plus className="ml-1 h-3.5 w-3.5" />
+          <Plus className="ms-1 h-3.5 w-3.5" />
           בקש משיכה
         </Button>
       </DialogTrigger>
-      <DialogContent className="text-right">
+      <DialogContent className="text-end">
         <DialogHeader>
           <DialogTitle>בקשת משיכת רווחים</DialogTitle>
         </DialogHeader>
@@ -267,7 +267,7 @@ function PayoutRequestDialog({
         </div>
         <DialogFooter>
           <Button onClick={submit} disabled={submitting} className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
-            {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            {submitting && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
             שלח בקשה
           </Button>
         </DialogFooter>

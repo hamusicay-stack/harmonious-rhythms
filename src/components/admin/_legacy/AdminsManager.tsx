@@ -76,7 +76,7 @@ export function AdminsManager() {
               onKeyDown={(e) => { if (e.key === "Enter") grant(); }}
             />
             <Button onClick={grant} disabled={adding || !email.trim()}>
-              {adding ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Plus className="ml-2 h-4 w-4" />}
+              {adding ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Plus className="ms-2 h-4 w-4" />}
               הענק הרשאה
             </Button>
           </div>
@@ -105,7 +105,7 @@ export function AdminsManager() {
                         <Badge variant="outline">אתה</Badge>
                       ) : (
                         <Button size="sm" variant="ghost" className="text-destructive" onClick={() => revoke(a.email)}>
-                          <Trash2 className="ml-1 h-4 w-4" />הסר
+                          <Trash2 className="ms-1 h-4 w-4" />הסר
                         </Button>
                       )}
                     </TableCell>

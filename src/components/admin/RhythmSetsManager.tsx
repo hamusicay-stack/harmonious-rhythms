@@ -57,11 +57,11 @@ export function RhythmSetsManager() {
       <Tabs defaultValue="sets" className="w-full">
         <div className="overflow-x-auto touch-pan-x -mx-2 px-2">
           <TabsList className="inline-flex w-max h-auto gap-1">
-            <TabsTrigger value="brands" className="shrink-0"><Music className="ml-1 h-4 w-4" />מותגים</TabsTrigger>
-            <TabsTrigger value="models" className="shrink-0"><Piano className="ml-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
-            <TabsTrigger value="sets" className="shrink-0"><Package className="ml-1 h-4 w-4" />סטי BEAT</TabsTrigger>
-            <TabsTrigger value="folders" className="shrink-0"><FolderTree className="ml-1 h-4 w-4" />תיקיות ופריטים</TabsTrigger>
-            <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ml-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
+            <TabsTrigger value="brands" className="shrink-0"><Music className="ms-1 h-4 w-4" />מותגים</TabsTrigger>
+            <TabsTrigger value="models" className="shrink-0"><Piano className="ms-1 h-4 w-4" />דגמי קלידים</TabsTrigger>
+            <TabsTrigger value="sets" className="shrink-0"><Package className="ms-1 h-4 w-4" />סטי BEAT</TabsTrigger>
+            <TabsTrigger value="folders" className="shrink-0"><FolderTree className="ms-1 h-4 w-4" />תיקיות ופריטים</TabsTrigger>
+            <TabsTrigger value="samples" className="shrink-0"><AudioLines className="ms-1 h-4 w-4" />דגימות אודיו</TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="brands" className="mt-6"><BrandsSection /></TabsContent>
@@ -112,14 +112,14 @@ function BrandsSection() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>מותגים</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button size="sm"><Plus className="ml-1 h-4 w-4" />מותג חדש</Button></DialogTrigger>
+          <DialogTrigger asChild><Button size="sm"><Plus className="ms-1 h-4 w-4" />מותג חדש</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>הוספת מותג</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div><Label>שם מותג</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Yamaha / Korg / Medeli" /></div>
               <div><Label>Logo URL</Label><Input value={logo} onChange={(e) => setLogo(e.target.value)} placeholder="https://..." /></div>
             </div>
-            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
+            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ms-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -189,7 +189,7 @@ function ModelsSection() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>דגמי קלידים</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button size="sm"><Plus className="ml-1 h-4 w-4" />דגם חדש</Button></DialogTrigger>
+          <DialogTrigger asChild><Button size="sm"><Plus className="ms-1 h-4 w-4" />דגם חדש</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>הוספת דגם</DialogTitle></DialogHeader>
             <div className="space-y-3">
@@ -203,7 +203,7 @@ function ModelsSection() {
               <div><Label>שם דגם</Label><Input value={modelName} onChange={(e) => setModelName(e.target.value)} placeholder="Genos / Tyros 5 / Pa4X" /></div>
               <div><Label>UI Image URL</Label><Input value={img} onChange={(e) => setImg(e.target.value)} placeholder="https://..." /></div>
             </div>
-            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
+            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ms-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -352,7 +352,7 @@ function SetsSection() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>סטי BEAT</CardTitle>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditingId(null); setForm(emptyForm); } }}>
-          <DialogTrigger asChild><Button size="sm" onClick={openNew}><Plus className="ml-1 h-4 w-4" />סט חדש</Button></DialogTrigger>
+          <DialogTrigger asChild><Button size="sm" onClick={openNew}><Plus className="ms-1 h-4 w-4" />סט חדש</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>{editingId ? "עריכת" : "הוספת"} סט BEAT</DialogTitle></DialogHeader>
             <div className="space-y-3 max-h-[70vh] overflow-y-auto">
@@ -375,7 +375,7 @@ function SetsSection() {
                   <div className="flex-1 space-y-1">
                     <input ref={coverFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); e.target.value = ""; }} />
                     <Button type="button" variant="outline" size="sm" onClick={() => coverFileRef.current?.click()} disabled={uploadingCover}>
-                      {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת תמונה
+                      {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin ms-1" /> : <Upload className="h-3 w-3 ms-1" />}העלאת תמונה
                     </Button>
                     <Input value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} placeholder="או הזן URL" />
                   </div>
@@ -400,7 +400,7 @@ function SetsSection() {
                   <TabsContent value="direct" className="mt-2 space-y-2">
                     <input ref={videoFileRef} type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleVideoUpload(f); e.target.value = ""; }} />
                     <Button type="button" variant="outline" size="sm" onClick={() => videoFileRef.current?.click()} disabled={uploadingVideo}>
-                      {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}העלאת MP4
+                      {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin ms-1" /> : <Upload className="h-3 w-3 ms-1" />}העלאת MP4
                     </Button>
                     <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="URL ישיר לקובץ" />
                   </TabsContent>
@@ -418,7 +418,7 @@ function SetsSection() {
                 <Switch checked={form.is_automated} onCheckedChange={(v) => setForm({ ...form, is_automated: v })} />
               </div>
             </div>
-            <DialogFooter><Button onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
+            <DialogFooter><Button onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ms-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -551,7 +551,7 @@ function SamplesSection() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>דגימות אודיו לכפתורים</CardTitle>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button size="sm"><Plus className="ml-1 h-4 w-4" />דגימה חדשה</Button></DialogTrigger>
+          <DialogTrigger asChild><Button size="sm"><Plus className="ms-1 h-4 w-4" />דגימה חדשה</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>הוספת דגימת אודיו</DialogTitle></DialogHeader>
             <div className="space-y-3">
@@ -588,14 +588,14 @@ function SamplesSection() {
                 <div className="flex gap-2 mb-1">
                   <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ""; }} />
                   <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                    {uploading ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <Upload className="h-3 w-3 ml-1" />}
+                    {uploading ? <Loader2 className="h-3 w-3 animate-spin ms-1" /> : <Upload className="h-3 w-3 ms-1" />}
                     העלאת קובץ
                   </Button>
                 </div>
                 <Input value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="https://... או קישור Google Drive (יומר אוטומטית)" />
               </div>
             </div>
-            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
+            <DialogFooter><Button onClick={create} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ms-1 h-4 w-4" />שמור</>}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -708,7 +708,7 @@ function FoldersItemsSection() {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
                 <div className="flex flex-wrap gap-2">
                   {folders.map((f) => (
-                    <Badge key={f.id} variant="outline" className="gap-1 pr-1">
+                    <Badge key={f.id} variant="outline" className="gap-1 pe-1">
                       {f.name}
                       <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => delFolder(f.id)}>
                         <Trash2 className="h-3 w-3 text-destructive" />
@@ -738,7 +738,7 @@ function FoldersItemsSection() {
                     <div className="mb-1 text-xs font-semibold text-muted-foreground">{f.name}</div>
                     <div className="flex flex-wrap gap-1">
                       {its.map((it) => (
-                        <Badge key={it.id} variant="secondary" className="gap-1 pr-1">
+                        <Badge key={it.id} variant="secondary" className="gap-1 pe-1">
                           {it.name}
                           <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => delItem(it.id)}>
                             <Trash2 className="h-3 w-3 text-destructive" />

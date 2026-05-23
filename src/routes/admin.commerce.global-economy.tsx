@@ -341,8 +341,8 @@ function UsersOverridesTab() {
             <p className="mt-1 text-xs text-muted-foreground">שדרג דרגות והפעל/כבה גישות פר משתמש.</p>
           </div>
           <div className="relative w-full max-w-xs">
-            <Search className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="חיפוש לפי שם או אימייל" className="pr-8" />
+            <Search className="absolute end-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="חיפוש לפי שם או אימייל" className="pe-8" />
           </div>
         </div>
       </CardHeader>
@@ -570,7 +570,7 @@ function CouponsTab() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
               <Button onClick={() => editing && upsert.mutate(editing)} disabled={upsert.isPending}>
-                {upsert.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />} שמור
+                {upsert.isPending && <Loader2 className="ms-2 h-4 w-4 animate-spin" />} שמור
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -781,7 +781,7 @@ function PointsTab() {
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
                 <Button onClick={() => editing && upsert.mutate(editing)} disabled={upsert.isPending}>
-                  {upsert.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />} שמור
+                  {upsert.isPending && <Loader2 className="ms-2 h-4 w-4 animate-spin" />} שמור
                 </Button>
               </DialogFooter>
             </DialogContent>

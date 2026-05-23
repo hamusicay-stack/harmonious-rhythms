@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DirectionProvider } from "@radix-ui/react-direction";
 import { useEffect, useState } from "react";
 import "@/i18n";
 import { Toaster } from "@/components/ui/sonner";
@@ -91,28 +92,30 @@ function RootComponent() {
   useEffect(() => { void captureAffiliateRef(); }, []);
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ImpersonationProvider>
-          <NotificationsProvider>
-            <CartProvider>
-              <AudioPlayerProvider>
-                <FloatingShortProvider>
-                  <KeyboardSelectionProvider>
-                    <DeviceGuardInner />
-                    <ImpersonationBanner />
-                    <SharedCartHydrator />
-                    <Outlet />
-                    <FloatingAudioPlayer />
-                    <FloatingShortPlayer />
-                    <StickyCart />
-                    <Toaster richColors position="top-center" />
-                  </KeyboardSelectionProvider>
-                </FloatingShortProvider>
-              </AudioPlayerProvider>
-            </CartProvider>
-          </NotificationsProvider>
-        </ImpersonationProvider>
-      </AuthProvider>
+      <DirectionProvider dir="rtl">
+        <AuthProvider>
+          <ImpersonationProvider>
+            <NotificationsProvider>
+              <CartProvider>
+                <AudioPlayerProvider>
+                  <FloatingShortProvider>
+                    <KeyboardSelectionProvider>
+                      <DeviceGuardInner />
+                      <ImpersonationBanner />
+                      <SharedCartHydrator />
+                      <Outlet />
+                      <FloatingAudioPlayer />
+                      <FloatingShortPlayer />
+                      <StickyCart />
+                      <Toaster richColors position="top-center" />
+                    </KeyboardSelectionProvider>
+                  </FloatingShortProvider>
+                </AudioPlayerProvider>
+              </CartProvider>
+            </NotificationsProvider>
+          </ImpersonationProvider>
+        </AuthProvider>
+      </DirectionProvider>
     </QueryClientProvider>
   );
 }

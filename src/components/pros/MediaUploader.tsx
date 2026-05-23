@@ -77,7 +77,7 @@ export function MediaUploader({
           disabled={uploading}
           className="w-full"
         >
-          {uploading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Upload className="ml-2 h-4 w-4" />}
+          {uploading ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Upload className="ms-2 h-4 w-4" />}
           {label}
         </Button>
       )}

@@ -86,16 +86,16 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
         )}
       </div>
 
-      <div className="min-w-0 flex-1 text-right">
+      <div className="min-w-0 flex-1 text-end">
         <div className="flex flex-wrap items-center justify-end gap-1.5">
           {isVip && (
             <Badge className="border-primary/30 bg-primary/15 text-primary">
-              <Crown className="ml-1 h-3 w-3" />VIP
+              <Crown className="ms-1 h-3 w-3" />VIP
             </Badge>
           )}
           {pro.is_verified && (
             <Badge className="border-blue-500/40 bg-blue-500/15 text-blue-600 dark:text-blue-300">
-              <ShieldCheck className="ml-1 h-3 w-3" />מאומת
+              <ShieldCheck className="ms-1 h-3 w-3" />מאומת
             </Badge>
           )}
           <h3 className="font-display text-base font-bold sm:text-lg">{pro.display_name}</h3>
@@ -136,7 +136,7 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
           className="shrink-0"
           onClick={(e) => { e.stopPropagation(); navigate({ to: "/pros/$proId/edit", params: { proId: pro.id } }); }}
         >
-          <Pencil className="ml-1.5 h-4 w-4" />ערוך
+          <Pencil className="ms-1.5 h-4 w-4" />ערוך
         </Button>
       ) : (
         <Button
@@ -144,7 +144,7 @@ export function ProListItem({ pro, onRequestQuote }: Props) {
           className="shrink-0"
           onClick={(e) => { e.stopPropagation(); onRequestQuote?.(pro.id); }}
         >
-          <MessageCircle className="ml-1.5 h-4 w-4" />הצעה
+          <MessageCircle className="ms-1.5 h-4 w-4" />הצעה
         </Button>
       )}
     </div>

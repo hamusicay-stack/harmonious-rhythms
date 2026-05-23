@@ -200,8 +200,8 @@ export function UsersManager() {
   return (
     <Tabs defaultValue="users" className="space-y-4" dir="rtl">
       <TabsList>
-        <TabsTrigger value="users"><UserCog className="ml-2 h-4 w-4" />משתמשים</TabsTrigger>
-        <TabsTrigger value="roles"><ShieldCheck className="ml-2 h-4 w-4" />תפקידים והרשאות</TabsTrigger>
+        <TabsTrigger value="users"><UserCog className="ms-2 h-4 w-4" />משתמשים</TabsTrigger>
+        <TabsTrigger value="roles"><ShieldCheck className="ms-2 h-4 w-4" />תפקידים והרשאות</TabsTrigger>
       </TabsList>
       <TabsContent value="roles" className="mt-4">
         <RolesPermissionsManager />
@@ -217,12 +217,12 @@ export function UsersManager() {
       <CardContent className="space-y-4">
         <form onSubmit={onSearch} className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="חפש לפי שם, שם משתמש או אימייל..."
-              className="pr-10"
+              className="pe-10"
             />
           </div>
           <Button type="submit" variant="secondary">חיפוש</Button>
@@ -241,12 +241,12 @@ export function UsersManager() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-right">משתמש</TableHead>
-                <TableHead className="text-right">אימייל</TableHead>
-                <TableHead className="text-right">הרשאות</TableHead>
-                <TableHead className="text-right">סטטוס</TableHead>
-                <TableHead className="text-right">נרשם</TableHead>
-                <TableHead className="text-right w-12"></TableHead>
+                <TableHead className="text-end">משתמש</TableHead>
+                <TableHead className="text-end">אימייל</TableHead>
+                <TableHead className="text-end">הרשאות</TableHead>
+                <TableHead className="text-end">סטטוס</TableHead>
+                <TableHead className="text-end">נרשם</TableHead>
+                <TableHead className="text-end w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -281,7 +281,7 @@ export function UsersManager() {
                   <TableCell>
                     {u.is_banned ? (
                       <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/40">
-                        <Ban className="ml-1 h-3 w-3" />מושעה
+                        <Ban className="ms-1 h-3 w-3" />מושעה
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-emerald-500/15 text-emerald-600 border-emerald-500/40">
@@ -305,18 +305,18 @@ export function UsersManager() {
                         {u.username && (
                           <DropdownMenuItem asChild>
                             <a href={`/u/${u.username}`} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="ml-2 h-4 w-4" />צפה בפרופיל
+                              <ExternalLink className="ms-2 h-4 w-4" />צפה בפרופיל
                             </a>
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem onClick={() => openRoles(u)}>
-                          <KeyRound className="ml-2 h-4 w-4" />נהל הרשאות
+                          <KeyRound className="ms-2 h-4 w-4" />נהל הרשאות
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openSubscription(u)}>
-                          <Crown className="ml-2 h-4 w-4 text-primary" />ניהול מנוי
+                          <Crown className="ms-2 h-4 w-4 text-primary" />ניהול מנוי
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => impersonate(u)} disabled={u.id === currentUser?.id}>
-                          <UserCheck className="ml-2 h-4 w-4" />התחזה למשתמש
+                          <UserCheck className="ms-2 h-4 w-4" />התחזה למשתמש
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -324,7 +324,7 @@ export function UsersManager() {
                           disabled={u.id === currentUser?.id}
                           className={u.is_banned ? "" : "text-destructive focus:text-destructive"}
                         >
-                          {u.is_banned ? (<><UserCheck className="ml-2 h-4 w-4" />בטל השעיה</>) : (<><Ban className="ml-2 h-4 w-4" />השעה משתמש</>)}
+                          {u.is_banned ? (<><UserCheck className="ms-2 h-4 w-4" />בטל השעיה</>) : (<><Ban className="ms-2 h-4 w-4" />השעה משתמש</>)}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -362,7 +362,7 @@ export function UsersManager() {
               onClick={confirmBan}
               disabled={banSaving}
             >
-              {banSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              {banSaving && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
               {banTarget?.is_banned ? "שחרר" : "השעה"}
             </Button>
           </DialogFooter>
@@ -401,7 +401,7 @@ export function UsersManager() {
           <DialogFooter>
             <Button variant="ghost" onClick={() => setRolesTarget(null)}>ביטול</Button>
             <Button onClick={saveRoles} disabled={rolesSaving}>
-              {rolesSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              {rolesSaving && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
               שמור
             </Button>
           </DialogFooter>
@@ -412,15 +412,15 @@ export function UsersManager() {
       <Dialog open={!!subTarget} onOpenChange={(o) => !o && setSubTarget(null)}>
         <DialogContent dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-right">
+            <DialogTitle className="flex items-center gap-2 text-end">
               <Crown className="h-5 w-5 text-primary" />
               ניהול מנוי
             </DialogTitle>
-            <DialogDescription className="text-right">
+            <DialogDescription className="text-end">
               עדכון דרגת המנוי הגלובלית של {subTarget?.display_name || subTarget?.email}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 text-right">
+          <div className="space-y-3 text-end">
             <Label>בחר דרגה</Label>
             <Select value={subDraftTierId} onValueChange={setSubDraftTierId}>
               <SelectTrigger><SelectValue placeholder="בחר דרגה" /></SelectTrigger>
@@ -445,7 +445,7 @@ export function UsersManager() {
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSubTarget(null)}>ביטול</Button>
             <Button onClick={saveSubscription} disabled={subSaving} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {subSaving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              {subSaving && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
               שמור מנוי
             </Button>
           </DialogFooter>

@@ -133,8 +133,8 @@ export function MusicProsManager() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {p.is_verified && <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary"><ShieldCheck className="ml-1 h-3 w-3" />מאומת</Badge>}
-                        {p.tier_is_vip && <Badge className="bg-primary text-primary-foreground"><Crown className="ml-1 h-3 w-3" />{p.tier_name ?? "VIP"}</Badge>}
+                        {p.is_verified && <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary"><ShieldCheck className="ms-1 h-3 w-3" />מאומת</Badge>}
+                        {p.tier_is_vip && <Badge className="bg-primary text-primary-foreground"><Crown className="ms-1 h-3 w-3" />{p.tier_name ?? "VIP"}</Badge>}
                         {!p.tier_is_vip && p.tier_name && <Badge variant="outline" className="text-muted-foreground">{p.tier_name}</Badge>}
                         {p.is_featured && <Badge variant="outline">Featured</Badge>}
                       </div>
@@ -143,18 +143,18 @@ export function MusicProsManager() {
                       <div className="flex flex-wrap justify-end gap-1">
                         {p.status !== "approved" ? (
                           <Button size="sm" variant="outline" onClick={() => update(p.id, { status: "approved" })}>
-                            <Check className="ml-1 h-3 w-3" />אשר
+                            <Check className="ms-1 h-3 w-3" />אשר
                           </Button>
                         ) : (
                           <Button size="sm" variant="outline" onClick={() => update(p.id, { status: "suspended" })}>
-                            <X className="ml-1 h-3 w-3" />הקפא
+                            <X className="ms-1 h-3 w-3" />הקפא
                           </Button>
                         )}
                         <Button size="sm" variant="outline" onClick={() => update(p.id, { is_verified: !p.is_verified })}>
-                          <ShieldCheck className="ml-1 h-3 w-3" />{p.is_verified ? "בטל אימות" : "אמת"}
+                          <ShieldCheck className="ms-1 h-3 w-3" />{p.is_verified ? "בטל אימות" : "אמת"}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => toggleVipGlobal(p)}>
-                          <Crown className="ml-1 h-3 w-3" />{p.tier_is_vip ? "הסר VIP" : "הענק VIP"}
+                          <Crown className="ms-1 h-3 w-3" />{p.tier_is_vip ? "הסר VIP" : "הענק VIP"}
                         </Button>
                         <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove(p.id)}>
                           <Trash2 className="h-3 w-3" />

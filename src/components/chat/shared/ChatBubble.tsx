@@ -23,8 +23,8 @@ export function ChatBubble({
         className={cn(
           "max-w-[78%] sm:max-w-[70%] rounded-2xl px-3.5 py-2 shadow-sm relative",
           isOwn
-            ? "bg-gradient-to-br from-primary to-amber-500/90 text-primary-foreground rounded-bl-md"
-            : "bg-muted/80 text-foreground rounded-br-md border border-border/40",
+            ? "bg-gradient-to-br from-primary to-amber-500/90 text-primary-foreground rounded-es-md"
+            : "bg-muted/80 text-foreground rounded-ee-md border border-border/40",
         )}
       >
         <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">

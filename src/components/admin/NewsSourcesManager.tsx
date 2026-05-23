@@ -139,7 +139,7 @@ export function NewsSourcesManager() {
             disabled={adding}
             className="w-full md:w-auto bg-gold text-gold-foreground hover:bg-gold/90"
           >
-            {adding ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Plus className="h-4 w-4 ml-1" />}
+            {adding ? <Loader2 className="h-4 w-4 animate-spin ms-1" /> : <Plus className="h-4 w-4 ms-1" />}
             הוסף מקור
           </Button>
         </div>

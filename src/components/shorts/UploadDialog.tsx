@@ -149,7 +149,7 @@ export function UploadDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle className="text-right">העלאת סרטון שורטס</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-end">העלאת סרטון שורטס</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (!uploading) submit(); }}>
           <div className="space-y-2">
             <Label>כותרת *</Label>
@@ -220,8 +220,8 @@ export function UploadDialog({
           </p>
           <DialogFooter>
             <Button type="submit" disabled={uploading} className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground">
-              {uploading && <span className="ml-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />}
-              <Upload className="ml-1 h-4 w-4" />העלה
+              {uploading && <span className="ms-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />}
+              <Upload className="ms-1 h-4 w-4" />העלה
             </Button>
           </DialogFooter>
         </form>
@@ -243,7 +243,7 @@ export function UploadDialog({
               <h3 className="font-display text-lg font-bold">העלאות ללא הגבלה?</h3>
               <Button asChild className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold w-full">
                 <Link to="/profile" onClick={() => setShowUpsell(false)}>
-                  <Crown className="ml-1 h-4 w-4" />הצטרף לפרימיום
+                  <Crown className="ms-1 h-4 w-4" />הצטרף לפרימיום
                 </Link>
               </Button>
             </div>

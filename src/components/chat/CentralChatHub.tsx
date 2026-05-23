@@ -332,19 +332,19 @@ export function CentralChatHub() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "w-full md:w-80 lg:w-96 shrink-0 border-l border-border/60 flex flex-col bg-card/30 backdrop-blur",
+          "w-full md:w-80 lg:w-96 shrink-0 border-s border-border/60 flex flex-col bg-card/30 backdrop-blur",
           active && "hidden md:flex",
         )}
       >
         <div className="p-3 border-b border-border/60">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="חיפוש שיחות..."
-                className="pr-9 bg-background/60"
+                className="pe-9 bg-background/60"
               />
             </div>
             <Link

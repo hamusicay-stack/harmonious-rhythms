@@ -147,7 +147,7 @@ function NewsIndexPage() {
                   variant="outline"
                   className="mb-3 border-gold/60 text-gold bg-black/40 backdrop-blur-sm"
                 >
-                  <Sparkles className="h-3 w-3 ml-1" />
+                  <Sparkles className="h-3 w-3 ms-1" />
                   כתבה נבחרת · {labelFor(featured.category)}
                 </Badge>
                 <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-gradient-gold leading-tight max-w-3xl">
@@ -198,7 +198,7 @@ function NewsIndexPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <Badge
                     variant="outline"
-                    className="absolute top-3 right-3 border-gold/60 text-gold bg-black/50 backdrop-blur-sm text-[10px]"
+                    className="absolute top-3 end-3 border-gold/60 text-gold bg-black/50 backdrop-blur-sm text-[10px]"
                   >
                     {labelFor(r.category)}
                   </Badge>

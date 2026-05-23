@@ -91,7 +91,7 @@ export function VerifiedReviewDialog({ open, onOpenChange, listingId, sellerId, 
               disabled={busy}
               className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-[0_0_24px_-6px_hsl(var(--primary))]"
             >
-              {busy ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <ShieldCheck className="ml-1 h-4 w-4" />}
+              {busy ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <ShieldCheck className="ms-1 h-4 w-4" />}
               פרסם חוות דעת מאומתת
             </Button>
           </div>

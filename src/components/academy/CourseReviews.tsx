@@ -72,7 +72,7 @@ export function CourseReviews({ courseId, isEnrolled }: { courseId: string; isEn
             </div>
             <Textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="מה דעתך על הקורס?" rows={2} />
             <Button onClick={submit} disabled={submitting} size="sm">
-              {submitting && <Loader2 className="ml-1 h-4 w-4 animate-spin" />}
+              {submitting && <Loader2 className="ms-1 h-4 w-4 animate-spin" />}
               {myReview ? "עדכן" : "פרסם"}
             </Button>
           </div>

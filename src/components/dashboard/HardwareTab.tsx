@@ -178,7 +178,7 @@ export function HardwareTab({ userId }: Props) {
                       )}
                     </div>
                     {isPicked && !isCurrent && (
-                      <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-zinc-950">
+                      <div className="absolute end-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-zinc-950">
                         <Check className="h-3 w-3" />
                         נבחר
                       </div>

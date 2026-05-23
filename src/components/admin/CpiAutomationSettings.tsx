@@ -77,7 +77,7 @@ export function CpiAutomationSettings() {
         </div>
 
         <Button onClick={save} disabled={saving} className="w-full">
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ml-1 h-4 w-4" />שמור</>}
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Save className="ms-1 h-4 w-4" />שמור</>}
         </Button>
       </CardContent>
     </Card>

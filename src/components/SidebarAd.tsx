@@ -75,8 +75,8 @@ export function SidebarAd({ side, position }: Props) {
   // Position: hidden below xl (1280px), narrow column on the side, vertically centered.
   const sideClass =
     side === "right"
-      ? "right-2 2xl:right-4"
-      : "left-2 2xl:left-4";
+      ? "end-2 2xl:end-4"
+      : "start-2 2xl:start-4";
 
   return (
     <aside
@@ -87,14 +87,14 @@ export function SidebarAd({ side, position }: Props) {
         className={`pointer-events-auto group relative w-fit h-fit max-w-[200px] flex flex-col items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-card/80 backdrop-blur shadow-soft transition-all duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
       >
         {/* Sponsored badge */}
-        <span className="absolute right-1.5 top-1.5 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+        <span className="absolute end-1.5 top-1.5 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
           פרסומת
         </span>
         {/* Dismiss button */}
         <button
           type="button"
           onClick={onDismiss}
-          className="absolute left-1.5 top-1.5 z-10 rounded-full bg-background/90 p-0.5 text-muted-foreground opacity-0 transition group-hover:opacity-100 hover:text-foreground"
+          className="absolute start-1.5 top-1.5 z-10 rounded-full bg-background/90 p-0.5 text-muted-foreground opacity-0 transition group-hover:opacity-100 hover:text-foreground"
           aria-label="סגור פרסומת"
         >
           <X className="h-3 w-3" />

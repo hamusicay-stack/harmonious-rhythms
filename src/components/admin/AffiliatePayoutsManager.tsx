@@ -118,8 +118,8 @@ export function AffiliatePayoutsManager() {
         <Tabs defaultValue="pending">
           <TabsList className="grid grid-cols-5">
             <TabsTrigger value="pending">
-              <Clock className="ml-1 h-3.5 w-3.5" /> ממתינות
-              {counts.pending > 0 && <Badge variant="default" className="mr-1">{counts.pending}</Badge>}
+              <Clock className="ms-1 h-3.5 w-3.5" /> ממתינות
+              {counts.pending > 0 && <Badge variant="default" className="me-1">{counts.pending}</Badge>}
             </TabsTrigger>
             <TabsTrigger value="approved">אושרו {counts.approved > 0 && `(${counts.approved})`}</TabsTrigger>
             <TabsTrigger value="paid">שולמו {counts.paid > 0 && `(${counts.paid})`}</TabsTrigger>
@@ -160,7 +160,7 @@ function PayoutRow({ payout, onClick }: { payout: Payout; onClick: () => void })
     <button
       type="button"
       onClick={onClick}
-      className="w-full rounded-lg border bg-card p-3 text-right hover:border-primary/50 transition-colors"
+      className="w-full rounded-lg border bg-card p-3 text-end hover:border-primary/50 transition-colors"
     >
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ function PayoutReviewDialog({
 
   return (
     <Dialog open={true} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="text-right max-w-md">
+      <DialogContent className="text-end max-w-md">
         <DialogHeader>
           <DialogTitle>בקשת משיכה — ₪{Number(payout.amount).toLocaleString("he-IL")}</DialogTitle>
         </DialogHeader>
@@ -225,13 +225,13 @@ function PayoutReviewDialog({
                 className="text-rose-600 hover:bg-rose-500/10"
                 onClick={() => onAction(payout.id, "rejected", notes || undefined)}
               >
-                <XCircle className="ml-1 h-4 w-4" /> דחה
+                <XCircle className="ms-1 h-4 w-4" /> דחה
               </Button>
               <Button
                 variant="outline"
                 onClick={() => onAction(payout.id, "approved", notes || undefined)}
               >
-                <CheckCircle2 className="ml-1 h-4 w-4" /> אשר (לא משולם)
+                <CheckCircle2 className="ms-1 h-4 w-4" /> אשר (לא משולם)
               </Button>
             </>
           )}
@@ -240,7 +240,7 @@ function PayoutReviewDialog({
               className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
               onClick={() => onAction(payout.id, "paid", notes || undefined)}
             >
-              <Banknote className="ml-1 h-4 w-4" /> סמן כשולם
+              <Banknote className="ms-1 h-4 w-4" /> סמן כשולם
             </Button>
           )}
         </DialogFooter>

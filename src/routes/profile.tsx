@@ -371,7 +371,7 @@ function ProfileForm({ refreshProfile }: { refreshProfile: () => Promise<void> }
       <div className="flex justify-end gap-3 border-t border-border/40 pt-6">
         <Button type="submit" disabled={saving}
           className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-          {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+          {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
           שמירת שינויים
         </Button>
       </div>
@@ -444,10 +444,10 @@ function MyProIndex({ userId }: { userId: string }) {
         )}
         <div className="flex gap-2 pt-2">
           <Link to="/pros/$proId/edit" params={{ proId: pro.id }}>
-            <Button size="sm"><Pencil className="ml-1 h-3.5 w-3.5" />ערוך פרופיל</Button>
+            <Button size="sm"><Pencil className="ms-1 h-3.5 w-3.5" />ערוך פרופיל</Button>
           </Link>
           <Link to="/pros/$proId" params={{ proId: pro.id }}>
-            <Button size="sm" variant="outline"><Eye className="ml-1 h-3.5 w-3.5" />צפה בפרופיל</Button>
+            <Button size="sm" variant="outline"><Eye className="ms-1 h-3.5 w-3.5" />צפה בפרופיל</Button>
           </Link>
         </div>
       </div>

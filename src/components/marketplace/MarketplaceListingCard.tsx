@@ -103,7 +103,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">אין תמונה</div>
               )}
               {listing.is_urgent && (
-                <Badge className="absolute top-2 right-2 gap-1 shadow-lg bg-rose-500 hover:bg-rose-600 text-[10px]"><Flame className="h-3 w-3" />דחוף</Badge>
+                <Badge className="absolute top-2 end-2 gap-1 shadow-lg bg-rose-500 hover:bg-rose-600 text-[10px]"><Flame className="h-3 w-3" />דחוף</Badge>
               )}
               {listing.is_sold && <SoldOverlay />}
             </div>
@@ -147,7 +147,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
                     <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
                   </button>
                   {(listing.city || listing.region) && (
-                    <div className="text-xs text-muted-foreground flex items-center gap-1 mr-1">
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 me-1">
                       <MapPin className="h-3 w-3" />{listing.city || listing.region}
                     </div>
                   )}
@@ -189,14 +189,14 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
             {/* Carousel arrows (desktop hover) */}
             {images.length > 1 && (
               <>
-                <button type="button" onClick={prevImg} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md hover:bg-background">
+                <button type="button" onClick={prevImg} className="absolute end-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md hover:bg-background">
                   <ChevronRight className="h-4 w-4" />
                 </button>
-                <button type="button" onClick={nextImg} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md hover:bg-background">
+                <button type="button" onClick={nextImg} className="absolute start-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md hover:bg-background">
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 {/* Dots */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                <div className="absolute bottom-2 start-1/2 -translate-x-1/2 flex gap-1.5">
                   {images.map((_, i) => (
                     <span key={i} className={`h-1.5 rounded-full transition-all ${i === imgIdx ? "bg-white w-4" : "bg-white/50 w-1.5"}`} />
                   ))}
@@ -205,7 +205,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
             )}
 
             {/* Floating badges - top right (seller type) */}
-            <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+            <div className="absolute top-2 end-2 flex flex-col gap-1 items-end">
               <Badge variant={isBusiness ? "default" : "secondary"} className="gap-1 text-[10px] shadow-md backdrop-blur">
                 {isBusiness ? <><Briefcase className="h-3 w-3" />עסקי</> : "פרטי"}
               </Badge>
@@ -215,7 +215,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
             </div>
 
             {/* Floating badges - top left (urgent / sponsored) */}
-            <div className="absolute top-2 left-2 flex flex-col gap-1">
+            <div className="absolute top-2 start-2 flex flex-col gap-1">
               {listing.is_urgent && (
                 <Badge className="gap-1 shadow-lg bg-rose-500 hover:bg-rose-600 text-[10px]"><Flame className="h-3 w-3" />דחוף</Badge>
               )}
@@ -228,7 +228,7 @@ export function MarketplaceListingCard({ listing, variant = "grid", isBusiness, 
 
             {/* Quick actions - bottom (always on mobile, hover on desktop) — hidden when sold */}
             {!listing.is_sold && (
-              <div className="absolute bottom-2 right-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute bottom-2 end-2 flex gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                 <div onClick={stop}>
                   <ChatThreadDialog
                     listingId={listing.id}

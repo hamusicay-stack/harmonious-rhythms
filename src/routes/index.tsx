@@ -73,7 +73,7 @@ function HomePage() {
             <Link to="/auth">
               <Button size="lg" className="mt-8 bg-brand text-primary-foreground shadow-card hover:opacity-90">
                 מתחילים ליצור עכשיו
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="me-2 h-4 w-4" />
               </Button>
             </Link>
           </GlassCard>

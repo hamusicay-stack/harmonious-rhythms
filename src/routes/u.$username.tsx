@@ -151,7 +151,7 @@ function PublicProfilePage() {
                     {isOwner && (
                       <Link to="/profile">
                         <Button size="sm" className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold">
-                          <Pencil className="ml-1 h-4 w-4" />ערוך פרופיל
+                          <Pencil className="ms-1 h-4 w-4" />ערוך פרופיל
                         </Button>
                       </Link>
                     )}
@@ -181,7 +181,7 @@ function PublicProfilePage() {
                 </div>
                 <Link to="/auth">
                   <Button size="lg" className="bg-gradient-to-r from-amber-500 to-amber-600 text-amber-950 hover:from-amber-600 hover:to-amber-700">
-                    <LogIn className="ml-1 h-4 w-4" />התחבר / הירשם
+                    <LogIn className="ms-1 h-4 w-4" />התחבר / הירשם
                   </Button>
                 </Link>
               </CardContent>
@@ -191,10 +191,10 @@ function PublicProfilePage() {
           {/* Tabs */}
           <Tabs defaultValue="forum" className="mt-6">
             <TabsList className="w-full sm:w-auto flex-wrap h-auto">
-              <TabsTrigger value="forum"><MessageSquare className="h-4 w-4 ml-1" />קהילה ({data.topics.length + data.posts.length})</TabsTrigger>
-              <TabsTrigger value="listings"><Tag className="h-4 w-4 ml-1" />יד 2 ({data.listings.length})</TabsTrigger>
-              <TabsTrigger value="shorts"><Video className="h-4 w-4 ml-1" />שורטס ({data.shorts.length})</TabsTrigger>
-              <TabsTrigger value="pro"><Briefcase className="h-4 w-4 ml-1" />כרטיס מקצועי</TabsTrigger>
+              <TabsTrigger value="forum"><MessageSquare className="h-4 w-4 ms-1" />קהילה ({data.topics.length + data.posts.length})</TabsTrigger>
+              <TabsTrigger value="listings"><Tag className="h-4 w-4 ms-1" />יד 2 ({data.listings.length})</TabsTrigger>
+              <TabsTrigger value="shorts"><Video className="h-4 w-4 ms-1" />שורטס ({data.shorts.length})</TabsTrigger>
+              <TabsTrigger value="pro"><Briefcase className="h-4 w-4 ms-1" />כרטיס מקצועי</TabsTrigger>
             </TabsList>
 
             <TabsContent value="forum" className="mt-4 space-y-6">
@@ -261,7 +261,7 @@ function PublicProfilePage() {
                       <Card className="overflow-hidden hover:border-primary/50 transition-colors">
                         <div className="aspect-[9/16] bg-muted relative overflow-hidden">
                           {s.thumbnail_url && <img src={s.thumbnail_url} alt={s.title} className="w-full h-full object-cover" />}
-                          <div className="absolute bottom-1 left-1 text-xs text-white bg-black/60 rounded px-1.5">{s.views_count} צפיות</div>
+                          <div className="absolute bottom-1 start-1 text-xs text-white bg-black/60 rounded px-1.5">{s.views_count} צפיות</div>
                         </div>
                         <CardContent className="p-2">
                           <p className="text-xs line-clamp-2">{s.title}</p>

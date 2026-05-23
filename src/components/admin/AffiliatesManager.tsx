@@ -107,8 +107,8 @@ function Applications() {
               {a.audience && <p className="text-xs text-muted-foreground">קהל: {a.audience}</p>}
               {filter === "pending" && (
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => approve(a.id)}><CheckCircle2 className="ml-1 h-3 w-3" />אשר</Button>
-                  <Button size="sm" variant="outline" onClick={() => reject(a.id)}><XCircle className="ml-1 h-3 w-3" />דחה</Button>
+                  <Button size="sm" onClick={() => approve(a.id)}><CheckCircle2 className="ms-1 h-3 w-3" />אשר</Button>
+                  <Button size="sm" variant="outline" onClick={() => reject(a.id)}><XCircle className="ms-1 h-3 w-3" />דחה</Button>
                 </div>
               )}
             </div>
@@ -330,7 +330,7 @@ function Settings() {
         <Label>חלון cookie (ימים)</Label>
         <Input type="number" min={1} max={365} value={days} onChange={(e) => setDays(Number(e.target.value))} />
       </div>
-      <Button onClick={save} className="w-full"><Save className="ml-1 h-4 w-4" />שמור</Button>
+      <Button onClick={save} className="w-full"><Save className="ms-1 h-4 w-4" />שמור</Button>
     </div>
   );
 }
@@ -425,7 +425,7 @@ function LotteryReport() {
           </div>
           <div className="flex items-end">
             <Button onClick={exportCsv} disabled={filtered.length === 0} className="w-full">
-              <Download className="ml-1 h-4 w-4" />ייצא לאקסל ({filtered.length})
+              <Download className="ms-1 h-4 w-4" />ייצא לאקסל ({filtered.length})
             </Button>
           </div>
         </div>

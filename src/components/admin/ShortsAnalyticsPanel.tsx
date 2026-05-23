@@ -199,7 +199,7 @@ export function ShortsAnalyticsPanel() {
               <button
                 key={v.id}
                 onClick={() => setSelectedId(v.id === selectedId ? null : v.id)}
-                className={`w-full text-right rounded-lg border p-3 transition hover:bg-amber-500/5 ${
+                className={`w-full text-end rounded-lg border p-3 transition hover:bg-amber-500/5 ${
                   selectedId === v.id ? "border-amber-500/60 bg-amber-500/5" : "border-border/40"
                 }`}
               >

@@ -55,7 +55,7 @@ export function AiShortsManager() {
           </p>
         </div>
         <Button onClick={runIngest} disabled={ingesting} className="bg-amber-500 text-black hover:bg-amber-400">
-          <RefreshCw className={`h-4 w-4 ml-1 ${ingesting ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-4 w-4 ms-1 ${ingesting ? "animate-spin" : ""}`} />
           {ingesting ? "מושך תוכן..." : "הרץ הזנה עכשיו"}
         </Button>
       </div>
@@ -141,7 +141,7 @@ function SourcesPanel() {
           </div>
         </div>
         <Button onClick={add} className="bg-amber-500 text-black hover:bg-amber-400">
-          <Plus className="h-4 w-4 ml-1" /> הוסף ערוץ
+          <Plus className="h-4 w-4 ms-1" /> הוסף ערוץ
         </Button>
       </div>
 
@@ -242,10 +242,10 @@ function PendingQueue() {
             </div>
             <div className="flex gap-2 pt-1">
               <Button size="sm" variant="destructive" className="flex-1" onClick={() => reject(r.id)}>
-                <X className="h-4 w-4 ml-1" /> דחה
+                <X className="h-4 w-4 ms-1" /> דחה
               </Button>
               <Button size="sm" className="flex-1 bg-amber-500 text-black hover:bg-amber-400" onClick={() => approve(r.id)}>
-                <Check className="h-4 w-4 ml-1" /> אשר
+                <Check className="h-4 w-4 ms-1" /> אשר
               </Button>
             </div>
           </div>
@@ -297,7 +297,7 @@ function ApprovedList() {
           </div>
           <Button asChild variant="outline" size="sm">
             <a href={`https://www.youtube.com/watch?v=${r.youtube_video_id}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-4 w-4 ml-1" /> צפה
+              <ExternalLink className="h-4 w-4 ms-1" /> צפה
             </a>
           </Button>
           <Button variant="destructive" size="sm" onClick={() => remove(r.id)}>

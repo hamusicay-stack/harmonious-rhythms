@@ -60,7 +60,7 @@ export function UserRhythmsDashboard() {
   return (
     <Tabs defaultValue="rhythms" className="w-full">
       <TabsList>
-        <TabsTrigger value="rhythms"><Music className="ml-1 h-4 w-4" />הקצבים שלי</TabsTrigger>
+        <TabsTrigger value="rhythms"><Music className="ms-1 h-4 w-4" />הקצבים שלי</TabsTrigger>
       </TabsList>
       <TabsContent value="rhythms" className="mt-6 space-y-4">
         {loading ? (

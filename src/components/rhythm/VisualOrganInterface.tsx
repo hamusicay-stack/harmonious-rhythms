@@ -804,7 +804,7 @@ export function VisualOrganInterface({ onBack, presetSetId }: { onBack?: () => v
                   <History className="h-3.5 w-3.5" style={{ color: "var(--sr-text-mute)" }} />
                   <SrLabel>היסטוריית נגינה</SrLabel>
                 </div>
-                <ul className="space-y-1 max-h-[180px] overflow-auto pr-1">
+                <ul className="space-y-1 max-h-[180px] overflow-auto pe-1">
                   {history.map((h) => (
                     <li
                       key={h.key + h.ts}

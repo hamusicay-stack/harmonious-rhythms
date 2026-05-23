@@ -190,7 +190,7 @@ function OrderConfirmationPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <FulfillmentAction item={it} />
-                  <div className="min-w-[80px] text-right font-bold">{formatILS(it.total_price)}</div>
+                  <div className="min-w-[80px] text-end font-bold">{formatILS(it.total_price)}</div>
                 </div>
               </li>
             ))}

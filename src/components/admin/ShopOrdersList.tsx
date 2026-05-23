@@ -59,8 +59,8 @@ export function ShopOrdersList() {
       </CardHeader>
       <CardContent>
         <div className="relative mb-4">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="חיפוש לפי מספר הזמנה / לקוח / מייל" value={q} onChange={(e) => setQ(e.target.value)} className="pr-9" />
+          <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="חיפוש לפי מספר הזמנה / לקוח / מייל" value={q} onChange={(e) => setQ(e.target.value)} className="pe-9" />
         </div>
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>
@@ -95,7 +95,7 @@ export function ShopOrdersList() {
                     <TableCell>
                       <Button asChild size="sm" variant="outline">
                         <Link to="/admin/commerce/orders/$orderId" params={{ orderId: r.id }}>
-                          פרטים <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+                          פרטים <ArrowLeft className="me-1 h-3.5 w-3.5" />
                         </Link>
                       </Button>
                     </TableCell>

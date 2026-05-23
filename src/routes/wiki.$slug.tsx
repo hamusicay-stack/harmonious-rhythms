@@ -311,7 +311,7 @@ function WikiArticlePage() {
             חזרה לוויזיקאי
           </Link>
           <Badge className="bg-amber-500/15 text-amber-300 border border-amber-500/30 mb-2">
-            <BookOpen className="h-3.5 w-3.5 ml-1" />
+            <BookOpen className="h-3.5 w-3.5 ms-1" />
             {CATEGORY_LABELS[article.category]}
           </Badge>
           <h1 className="text-3xl md:text-5xl font-bold drop-shadow-lg">{article.title}</h1>
@@ -329,7 +329,7 @@ function WikiArticlePage() {
                 onClick={openEditDialog}
                 className="bg-amber-500 text-black hover:bg-amber-400"
               >
-                <Edit3 className="h-4 w-4 ml-1" />
+                <Edit3 className="h-4 w-4 ms-1" />
                 ✍️ ערוך או הוסף מידע
               </Button>
             )}
@@ -362,7 +362,7 @@ function WikiArticlePage() {
                 {product.image_url && (
                   <img src={product.image_url} alt={product.name} className="w-32 h-32 object-cover rounded-xl border border-amber-500/30" />
                 )}
-                <div className="flex-1 text-center md:text-right">
+                <div className="flex-1 text-center md:text-end">
                   <div className="text-amber-300 text-sm mb-1">🛒 מחפש את הציוד הזה?</div>
                   <h3 className="text-xl font-bold">{product.name}</h3>
                   <p className="text-muted-foreground text-sm mt-1">
@@ -376,7 +376,7 @@ function WikiArticlePage() {
                 </div>
                 <Button asChild className="bg-amber-500 text-black hover:bg-amber-400">
                   <Link to="/shop/$slug" params={{ slug: product.slug }}>
-                    <ShoppingBag className="h-4 w-4 ml-1" />
+                    <ShoppingBag className="h-4 w-4 ms-1" />
                     לרכישה בחנות
                   </Link>
                 </Button>
@@ -441,7 +441,7 @@ function WikiArticlePage() {
               <Dialog open={openProposal} onOpenChange={setOpenProposal}>
                 <DialogTrigger asChild>
                   <Button className="bg-amber-500 text-black hover:bg-amber-400">
-                    <Edit3 className="h-4 w-4 ml-1" />
+                    <Edit3 className="h-4 w-4 ms-1" />
                     📄 הצע עריכה או ערך חדש
                   </Button>
                 </DialogTrigger>
@@ -500,7 +500,7 @@ function WikiArticlePage() {
                 <List className="h-4 w-4" />
                 תוכן עניינים
               </div>
-              <nav className="space-y-1 text-sm max-h-[70vh] overflow-y-auto pr-1">
+              <nav className="space-y-1 text-sm max-h-[70vh] overflow-y-auto pe-1">
                 {sections.map((s) => (
                   <a
                     key={s.id}
@@ -509,11 +509,11 @@ function WikiArticlePage() {
                       e.preventDefault();
                       document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
-                    className={`block border-r-2 pr-3 py-1 transition-colors ${
+                    className={`block border-e-2 pe-3 py-1 transition-colors ${
                       activeId === s.id
                         ? "border-amber-400 text-amber-300 font-medium"
                         : "border-transparent text-muted-foreground hover:text-amber-200 hover:border-amber-500/40"
-                    } ${s.level === 3 ? "pr-6 text-xs" : ""}`}
+                    } ${s.level === 3 ? "pe-6 text-xs" : ""}`}
                   >
                     {s.text}
                   </a>

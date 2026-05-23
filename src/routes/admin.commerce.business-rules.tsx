@@ -78,7 +78,7 @@ function BusinessRulesPage() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr>
-                    <th className="text-right p-2 sticky right-0 bg-card">דרגה / סוג</th>
+                    <th className="text-end p-2 sticky end-0 bg-card">דרגה / סוג</th>
                     {types.map(p => (
                       <th key={p.id} className="p-2 text-center min-w-[140px]">{p.name}</th>
                     ))}
@@ -87,7 +87,7 @@ function BusinessRulesPage() {
                 <tbody>
                   {matrix.map(row => (
                     <tr key={row.tier.id} className="border-t border-border">
-                      <td className="p-2 sticky right-0 bg-card">
+                      <td className="p-2 sticky end-0 bg-card">
                         <span className="inline-flex items-center gap-2">
                           <span className="h-2 w-2 rounded-full" style={{ background: row.tier.color ?? "var(--muted)" }} />
                           <span className="font-medium">{row.tier.name}</span>

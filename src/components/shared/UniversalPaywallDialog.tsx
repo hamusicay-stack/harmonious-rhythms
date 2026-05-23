@@ -103,9 +103,9 @@ export function UniversalPaywallDialog({
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-amber-600 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/30">
               <Crown className="h-6 w-6 text-black" />
             </div>
-            <div className="text-right flex-1">
-              <DialogTitle className="text-right text-xl">{title}</DialogTitle>
-              <DialogDescription className="text-right text-xs mt-1">
+            <div className="text-end flex-1">
+              <DialogTitle className="text-end text-xl">{title}</DialogTitle>
+              <DialogDescription className="text-end text-xs mt-1">
                 {description}
               </DialogDescription>
             </div>
@@ -133,7 +133,7 @@ export function UniversalPaywallDialog({
                   )}
                 >
                   {isCurrent && (
-                    <span className="absolute top-2 left-2 rounded-full bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5">
+                    <span className="absolute top-2 start-2 rounded-full bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5">
                       הדרגה שלך
                     </span>
                   )}
@@ -147,7 +147,7 @@ export function UniversalPaywallDialog({
                   {t.description && (
                     <p className="mt-1.5 text-[11px] text-muted-foreground line-clamp-2">{t.description}</p>
                   )}
-                  <ul className="mt-3 space-y-1.5 text-[12px] text-right flex-1">
+                  <ul className="mt-3 space-y-1.5 text-[12px] text-end flex-1">
                     {benefits.map((b, i) => (
                       <li key={i} className="flex items-start gap-1.5 justify-end">
                         <span className="leading-tight">{b}</span>
@@ -165,7 +165,7 @@ export function UniversalPaywallDialog({
           <Button variant="outline" onClick={onClose}>סגור</Button>
           <Button asChild className="bg-gradient-to-br from-amber-400 to-amber-600 text-black hover:brightness-110">
             <Link to={ctaHref}>
-              <Crown className="ml-2 h-4 w-4" /> {ctaLabel}
+              <Crown className="ms-2 h-4 w-4" /> {ctaLabel}
             </Link>
           </Button>
         </DialogFooter>

@@ -458,15 +458,15 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
             <p className="text-sm text-muted-foreground">בחרו את סוג החשבון שמתאים לכם — תמיד אפשר לשדרג מאוחר יותר:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button type="button" onClick={() => setSellerType("private")}
-                className={`relative rounded-xl border-2 p-5 text-right transition ${sellerType === "private" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-                {sellerType === "private" && <Check className="absolute top-3 left-3 h-5 w-5 text-primary" />}
+                className={`relative rounded-xl border-2 p-5 text-end transition ${sellerType === "private" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                {sellerType === "private" && <Check className="absolute top-3 start-3 h-5 w-5 text-primary" />}
                 <User className="h-8 w-8 text-primary mb-2" />
                 <div className="font-semibold">מוכר פרטי</div>
                 <div className="text-xs text-muted-foreground mt-1">פרסום חינם. הקפצות בתשלום חד-פעמי.</div>
               </button>
               <button type="button" onClick={() => setSellerType("business")}
-                className={`relative rounded-xl border-2 p-5 text-right transition ${sellerType === "business" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-                {sellerType === "business" && <Check className="absolute top-3 left-3 h-5 w-5 text-primary" />}
+                className={`relative rounded-xl border-2 p-5 text-end transition ${sellerType === "business" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                {sellerType === "business" && <Check className="absolute top-3 start-3 h-5 w-5 text-primary" />}
                 <Building2 className="h-8 w-8 text-primary mb-2" />
                 <div className="font-semibold">מוכר עסקי</div>
                 <div className="text-xs text-muted-foreground mt-1">תג "עסקי" על המודעה. דורש רישום קצר.</div>
@@ -588,7 +588,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
               <div className="flex items-center justify-between">
                 <Label>תיאור מפורט</Label>
                 <Button type="button" size="sm" variant="outline" onClick={enhanceWithAI} disabled={enhancing}>
-                  {enhancing ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <Sparkles className="ml-1 h-4 w-4" />}
+                  {enhancing ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <Sparkles className="ms-1 h-4 w-4" />}
                   כתוב לי עם AI
                 </Button>
               </div>
@@ -626,7 +626,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                   <div key={url} className="relative aspect-square rounded-lg overflow-hidden border">
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => setImages(images.filter((_, idx) => idx !== i))}
-                      className="absolute top-1 left-1 bg-background/90 rounded-full p-1">
+                      className="absolute top-1 start-1 bg-background/90 rounded-full p-1">
                       <X className="h-3 w-3" />
                     </button>
                   </div>
@@ -731,7 +731,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                         type="button"
                         disabled={disabled}
                         onClick={() => !disabled && setPromoOption(opt.value as "none" | "bump24" | "bump48")}
-                        className={`w-full relative rounded-lg border-2 p-3 text-right transition ${
+                        className={`w-full relative rounded-lg border-2 p-3 text-end transition ${
                           disabled
                             ? "border-border opacity-60 cursor-not-allowed"
                             : promoOption === opt.value
@@ -809,7 +809,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
 
             {/* Image strip */}
             <div className="rounded-xl border bg-muted/30 p-3 relative">
-              <button type="button" onClick={() => setStep(3)} className="absolute top-2 left-2 p-1.5 rounded-full bg-background border hover:bg-muted" aria-label="ערוך תמונות">
+              <button type="button" onClick={() => setStep(3)} className="absolute top-2 start-2 p-1.5 rounded-full bg-background border hover:bg-muted" aria-label="ערוך תמונות">
                 <Pencil className="h-3.5 w-3.5" />
               </button>
               {images.length > 0 ? (
@@ -859,7 +859,7 @@ export function ListingFormWizard({ mode, initial, prefillCategory }: Props) {
                 <div className="border-t pt-3 relative">
                   <div className="text-xs text-muted-foreground mb-1">תיאור</div>
                   <p className="text-sm whitespace-pre-wrap line-clamp-4">{form.description}</p>
-                  <button type="button" onClick={() => setStep(2)} className="absolute top-2 left-0 p-1.5 rounded-full hover:bg-muted" aria-label="ערוך תיאור">
+                  <button type="button" onClick={() => setStep(2)} className="absolute top-2 start-0 p-1.5 rounded-full hover:bg-muted" aria-label="ערוך תיאור">
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                 </div>

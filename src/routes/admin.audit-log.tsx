@@ -73,12 +73,12 @@ function AuditLogPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">תאריך</TableHead>
-                  <TableHead className="text-right">פעולה</TableHead>
-                  <TableHead className="text-right">ישות</TableHead>
-                  <TableHead className="text-right">מזהה</TableHead>
-                  <TableHead className="text-right">משתמש</TableHead>
-                  <TableHead className="text-right">פרטים</TableHead>
+                  <TableHead className="text-end">תאריך</TableHead>
+                  <TableHead className="text-end">פעולה</TableHead>
+                  <TableHead className="text-end">ישות</TableHead>
+                  <TableHead className="text-end">מזהה</TableHead>
+                  <TableHead className="text-end">משתמש</TableHead>
+                  <TableHead className="text-end">פרטים</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

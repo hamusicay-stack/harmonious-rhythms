@@ -131,7 +131,7 @@ function NewProPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8 text-right md:py-12">
+    <div className="container mx-auto max-w-3xl px-4 py-8 text-end md:py-12">
       <div className="mb-6">
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
           <Sparkles className="h-3.5 w-3.5" /> הצטרף לאינדקס
@@ -220,7 +220,7 @@ function NewProPage() {
           </div>
 
           <Button onClick={submit} disabled={saving} size="lg" className="w-full">
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
             שלח לאישור
           </Button>
         </CardContent>

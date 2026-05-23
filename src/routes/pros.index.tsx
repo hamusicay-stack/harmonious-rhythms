@@ -130,7 +130,7 @@ function ProsIndex() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8 md:py-12">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 text-right">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 text-end">
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
             <Sparkles className="h-3.5 w-3.5" /> חדש בלוח
@@ -147,7 +147,7 @@ function ProsIndex() {
           size="lg"
           className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold"
         >
-          <Plus className="ml-2 h-4 w-4" /> הצג את עצמי כמוזיקאי
+          <Plus className="ms-2 h-4 w-4" /> הצג את עצמי כמוזיקאי
         </Button>
       </div>
 

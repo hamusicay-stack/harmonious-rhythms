@@ -27,7 +27,7 @@ function NotificationsPage() {
         <header className="flex items-center justify-between my-4">
           <h1 className="text-2xl font-bold flex items-center gap-2"><Bell className="h-6 w-6" />התראות פורום</h1>
           <Button variant="outline" size="sm" onClick={() => markAllRead()}>
-            <Check className="h-4 w-4 ml-1" />סמן הכל כנקרא
+            <Check className="h-4 w-4 ms-1" />סמן הכל כנקרא
           </Button>
         </header>
         <p className="text-xs text-muted-foreground mb-3">כל התראות הפורום מסונכרנות עם פעמון ההתראות הראשי באתר.</p>

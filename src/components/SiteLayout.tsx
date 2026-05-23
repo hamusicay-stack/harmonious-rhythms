@@ -40,7 +40,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const playerPad = currentTrack ? "pb-24 md:pb-28" : "";
 
   return (
-    <div className={`relative flex min-h-screen flex-col text-right ${playerPad}`}>
+    <div dir="rtl" className={`relative flex min-h-screen flex-col text-end ${playerPad}`}>
       <BackgroundMesh />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
 

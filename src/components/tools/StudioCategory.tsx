@@ -165,7 +165,7 @@ export function StudioCategory() {
               ref={audioRef}
               src={previewUrl}
               onEnded={() => setIsPlaying(false)}
-              className="ml-auto h-8 flex-1"
+              className="ms-auto h-8 flex-1"
               controls
             />
           </div>

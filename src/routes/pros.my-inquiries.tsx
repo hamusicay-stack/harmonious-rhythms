@@ -135,7 +135,7 @@ function MyInquiriesPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8 text-right">
+    <div className="container mx-auto max-w-4xl px-4 py-8 text-end">
       <div className="mb-6 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-glow shadow-gold">
           <Inbox className="h-5 w-5 text-primary-foreground" />
@@ -152,7 +152,7 @@ function MyInquiriesPage() {
             <TabsTrigger value="received" className="gap-1.5">
               <Inbox className="h-4 w-4" /> בקשות שקיבלתי
               {received.filter((i) => i.status === "new").length > 0 && (
-                <Badge variant="default" className="ml-1 h-5 min-w-5 rounded-full px-1.5 text-[10px]">
+                <Badge variant="default" className="ms-1 h-5 min-w-5 rounded-full px-1.5 text-[10px]">
                   {received.filter((i) => i.status === "new").length}
                 </Badge>
               )}
@@ -297,14 +297,14 @@ function ReceivedCard({
           <div className="flex flex-wrap gap-2 border-t pt-3">
             {inquiry.status === "new" && (
               <Button size="sm" variant="outline" onClick={() => onUpdateStatus(inquiry.id, "in_progress")}>
-                <PlayCircle className="ml-1 h-4 w-4" /> סמן כבטיפול
+                <PlayCircle className="ms-1 h-4 w-4" /> סמן כבטיפול
               </Button>
             )}
             <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => onUpdateStatus(inquiry.id, "completed")}>
-              <CheckCircle2 className="ml-1 h-4 w-4" /> סגור כבוצע
+              <CheckCircle2 className="ms-1 h-4 w-4" /> סגור כבוצע
             </Button>
             <Button size="sm" variant="outline" className="text-rose-600 hover:bg-rose-500/10" onClick={() => onUpdateStatus(inquiry.id, "cancelled")}>
-              <XCircle className="ml-1 h-4 w-4" /> בטל
+              <XCircle className="ms-1 h-4 w-4" /> בטל
             </Button>
           </div>
         )}

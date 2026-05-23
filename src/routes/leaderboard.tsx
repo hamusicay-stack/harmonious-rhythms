@@ -197,7 +197,7 @@ function LeaderboardPage() {
                       </div>
 
                       {/* Points */}
-                      <div className="shrink-0 text-right">
+                      <div className="shrink-0 text-end">
                         <div className="text-lg font-bold tabular-nums text-amber-600 dark:text-amber-400 sm:text-xl">
                           {row.total_points.toLocaleString("he-IL")}
                         </div>

@@ -50,7 +50,7 @@ export function BannerSlot({ position = "home_top", className }: { position?: st
     <div
       className={`relative w-full h-fit flex justify-center items-center overflow-hidden my-4 rounded-lg bg-muted/30 transition-all duration-300 ${loaded ? "opacity-100" : "opacity-0"} ${className ?? ""}`}
     >
-      <span className="absolute right-2 top-2 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground backdrop-blur">
+      <span className="absolute end-2 top-2 z-10 rounded-md bg-background/90 px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground backdrop-blur">
         פרסומת
       </span>
       <a

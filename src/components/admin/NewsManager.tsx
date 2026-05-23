@@ -83,7 +83,7 @@ function ArticleCard({
         )}
         <Badge
           variant="outline"
-          className="absolute top-2 right-2 border-gold/60 text-gold bg-black/60 backdrop-blur-sm text-[10px]"
+          className="absolute top-2 end-2 border-gold/60 text-gold bg-black/60 backdrop-blur-sm text-[10px]"
         >
           {CATEGORY_LABELS[article.category] ?? article.category}
         </Badge>
@@ -103,7 +103,7 @@ function ArticleCard({
           )}
           {article.is_automated && (
             <Badge className="bg-purple-500/15 text-purple-300 border-purple-500/40 text-[10px]">
-              <Bot className="h-3 w-3 ml-1" />AI
+              <Bot className="h-3 w-3 ms-1" />AI
             </Badge>
           )}
           {article.submitted_by_pr && (
@@ -128,7 +128,7 @@ function ArticleCard({
             onClick={onPreview}
             className="border-gold/30 hover:bg-gold/10 hover:text-gold"
           >
-            <Eye className="h-3.5 w-3.5 ml-1" />
+            <Eye className="h-3.5 w-3.5 ms-1" />
             צפייה מקדימה
           </Button>
           <Button
@@ -137,7 +137,7 @@ function ArticleCard({
             onClick={onEdit}
             className="border-gold/30 hover:bg-gold/10 hover:text-gold"
           >
-            <Pencil className="h-3.5 w-3.5 ml-1" />
+            <Pencil className="h-3.5 w-3.5 ms-1" />
             ערוך
           </Button>
 
@@ -149,9 +149,9 @@ function ArticleCard({
               className="bg-gold text-gold-foreground hover:bg-gold/90"
             >
               {approving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin ml-1" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin ms-1" />
               ) : (
-                <Check className="h-3.5 w-3.5 ml-1" />
+                <Check className="h-3.5 w-3.5 ms-1" />
               )}
               אשר לפרסום
             </Button>
@@ -163,7 +163,7 @@ function ArticleCard({
               onClick={onReject}
               className="text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <X className="h-3.5 w-3.5 ml-1" />
+              <X className="h-3.5 w-3.5 ms-1" />
               דחה
             </Button>
           )}
@@ -176,7 +176,7 @@ function ArticleCard({
               disabled={busy}
               className="border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
             >
-              <EyeOff className="h-3.5 w-3.5 ml-1" />
+              <EyeOff className="h-3.5 w-3.5 ms-1" />
               הסר מפרסום
             </Button>
           )}
@@ -189,9 +189,9 @@ function ArticleCard({
               className="text-destructive hover:text-destructive hover:bg-destructive/10"
             >
               {busy ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin ml-1" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin ms-1" />
               ) : (
-                <Trash2 className="h-3.5 w-3.5 ml-1" />
+                <Trash2 className="h-3.5 w-3.5 ms-1" />
               )}
               מחק לצמיתות
             </Button>
@@ -496,7 +496,7 @@ export function NewsManager() {
           size="lg"
           className="bg-gold text-gold-foreground hover:bg-gold/90 shadow-lg shadow-gold/20 font-semibold shrink-0 whitespace-nowrap"
         >
-          <Plus className="h-5 w-5 ml-1" />
+          <Plus className="h-5 w-5 ms-1" />
           ➕ הוסף כתבה חדשה ידנית
         </Button>
       </div>
@@ -507,7 +507,7 @@ export function NewsManager() {
             <Globe className="h-4 w-4" />
             כתבות מפורסמות
             {publishedArticles.length > 0 && (
-              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 ml-1">
+              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 ms-1">
                 {publishedArticles.length}
               </Badge>
             )}
@@ -516,14 +516,14 @@ export function NewsManager() {
             <Megaphone className="h-4 w-4" />
             בקשות PR
             {prArticles.length > 0 && (
-              <Badge className="bg-gold text-gold-foreground ml-1">{prArticles.length}</Badge>
+              <Badge className="bg-gold text-gold-foreground ms-1">{prArticles.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="ai" className="gap-2">
             <Bot className="h-4 w-4" />
             AI ממתינות
             {aiArticles.length > 0 && (
-              <Badge className="bg-gold text-gold-foreground ml-1">{aiArticles.length}</Badge>
+              <Badge className="bg-gold text-gold-foreground ms-1">{aiArticles.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="engine" className="gap-2">
@@ -535,12 +535,12 @@ export function NewsManager() {
         <TabsContent value="published" className="mt-5 space-y-4">
           <div className="w-full flex flex-row flex-nowrap items-center gap-3 overflow-x-auto touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="relative shrink-0 min-w-[220px]">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={publishedSearch}
                 onChange={(e) => setPublishedSearch(e.target.value)}
                 placeholder="חיפוש בכותרות ותקצירים..."
-                className="pr-9 bg-background/60 border-gold/20"
+                className="pe-9 bg-background/60 border-gold/20"
               />
             </div>
             <Select value={publishedCategory} onValueChange={setPublishedCategory}>
@@ -610,7 +610,7 @@ export function NewsManager() {
             />
           )}
           {previewing?.summary && (
-            <p className="text-muted-foreground italic border-r-2 border-gold/40 pr-3">
+            <p className="text-muted-foreground italic border-e-2 border-gold/40 pe-3">
               {previewing.summary}
             </p>
           )}
@@ -693,7 +693,7 @@ export function NewsManager() {
               disabled={savingEdit}
               className="bg-gold text-gold-foreground hover:bg-gold/90 w-full sm:w-auto"
             >
-              {savingEdit ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
+              {savingEdit ? <Loader2 className="h-4 w-4 animate-spin ms-2" /> : null}
               שמור שינויים
             </Button>
           </DialogFooter>
@@ -774,7 +774,7 @@ export function NewsManager() {
               disabled={creating}
               className="bg-gold text-gold-foreground hover:bg-gold/90 w-full sm:w-auto"
             >
-              {creating ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
+              {creating ? <Loader2 className="h-4 w-4 animate-spin ms-2" /> : null}
               פרסם עכשיו
             </Button>
           </DialogFooter>

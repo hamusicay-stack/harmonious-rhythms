@@ -149,9 +149,9 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="text-right">בקשת הצעת מחיר — {proName}</DialogTitle>
+              <DialogTitle className="text-end">בקשת הצעת מחיר — {proName}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-3 text-right">
+            <div className="space-y-3 text-end">
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label>שם מלא *</Label>
@@ -201,7 +201,7 @@ export function RequestQuoteDialog({ open, onOpenChange, proId, proName }: Props
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>ביטול</Button>
               <Button onClick={submit} disabled={saving}>
-                {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Send className="ml-2 h-4 w-4" />}
+                {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Send className="ms-2 h-4 w-4" />}
                 שלח בקשה ופתח שיחה
               </Button>
             </DialogFooter>

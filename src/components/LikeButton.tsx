@@ -25,7 +25,7 @@ export function LikeButton({ itemType, itemId, size = "icon", variant = "ghost",
       className={cn(liked && "text-rose-500 hover:text-rose-600", className)}
     >
       <Heart className={cn("h-4 w-4", liked && "fill-current")} />
-      {showLabel && <span className="mr-1">{liked ? "אהבתי" : "אהבתי"}</span>}
+      {showLabel && <span className="me-1">{liked ? "אהבתי" : "אהבתי"}</span>}
     </Button>
   );
 }

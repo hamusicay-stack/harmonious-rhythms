@@ -109,7 +109,7 @@ export function FloatingAudioPlayer() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[60] border-t border-amber-400/20 bg-background/80 backdrop-blur-xl shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.6)] animate-in fade-in slide-in-from-bottom-2"
+      className="fixed bottom-0 start-0 end-0 z-[60] border-t border-amber-400/20 bg-background/80 backdrop-blur-xl shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.6)] animate-in fade-in slide-in-from-bottom-2"
       role="region"
       aria-label="נגן אודיו גלובלי"
     >
@@ -139,7 +139,7 @@ export function FloatingAudioPlayer() {
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 to-primary/20 text-primary">
             <Music2 className="h-5 w-5" />
           </div>
-          <div className="min-w-0 flex-1 text-right">
+          <div className="min-w-0 flex-1 text-end">
             <div className="truncate text-sm font-semibold">{current.title}</div>
             <div className="truncate text-xs text-muted-foreground">{current.artist}</div>
           </div>
@@ -175,7 +175,7 @@ export function FloatingAudioPlayer() {
           </button>
           <button
             onClick={stop}
-            className="ml-1 flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+            className="ms-1 flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
             aria-label="סגור נגן"
             title="סגור נגן"
           >

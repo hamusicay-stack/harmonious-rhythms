@@ -588,7 +588,7 @@ function CheckoutPage() {
                 <div className="flex items-center justify-between rounded border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm">
                   <div>
                     <code className="font-bold">{coupon.code}</code>
-                    <span className="mr-2 text-xs text-emerald-700 dark:text-emerald-300">הופעל</span>
+                    <span className="me-2 text-xs text-emerald-700 dark:text-emerald-300">הופעל</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => { removeCoupon(); setPromoInput(""); setPromoError(null); }}>הסר</Button>
                 </div>

@@ -43,11 +43,11 @@ export function ProFilters({ value, onChange }: Props) {
   const reset = () => onChange(DEFAULT_FILTERS);
 
   return (
-    <div className="rounded-2xl border border-border/40 bg-card p-4 text-right">
+    <div className="rounded-2xl border border-border/40 bg-card p-4 text-end">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-display text-sm font-bold">סינון</h3>
         <Button variant="ghost" size="sm" onClick={reset}>
-          <X className="ml-1 h-3.5 w-3.5" /> נקה הכל
+          <X className="ms-1 h-3.5 w-3.5" /> נקה הכל
         </Button>
       </div>
 

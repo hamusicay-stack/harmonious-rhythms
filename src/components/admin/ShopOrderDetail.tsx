@@ -119,7 +119,7 @@ export function ShopOrderDetail({ orderId }: { orderId: string }) {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <Button asChild variant="ghost" size="sm" className="mb-2">
-            <Link to="/admin/commerce/orders"><ArrowRight className="ml-1 h-4 w-4" />חזרה להזמנות</Link>
+            <Link to="/admin/commerce/orders"><ArrowRight className="ms-1 h-4 w-4" />חזרה להזמנות</Link>
           </Button>
           <h1 className="text-2xl font-bold flex items-center gap-3">
             הזמנה <span className="font-mono text-base text-muted-foreground">#{order.order_number}</span>
@@ -177,7 +177,7 @@ export function ShopOrderDetail({ orderId }: { orderId: string }) {
               {order.customer_id && (
                 <Button asChild variant="link" size="sm" className="px-0">
                   <Link to="/admin/customers/$customerId" params={{ customerId: order.customer_id }}>
-                    פתח פרופיל לקוח <ExternalLink className="mr-1 h-3 w-3" />
+                    פתח פרופיל לקוח <ExternalLink className="me-1 h-3 w-3" />
                   </Link>
                 </Button>
               )}
@@ -266,21 +266,21 @@ export function ShopOrderDetail({ orderId }: { orderId: string }) {
                   {(rhythmOrder?.info_file_url || order.info_file_url) && (
                     <Button asChild variant="outline" size="sm">
                       <a href={rhythmOrder?.info_file_url ?? order.info_file_url} target="_blank" rel="noreferrer">
-                        <Download className="ml-1 h-4 w-4" />הורד קובץ .n27 / .info
+                        <Download className="ms-1 h-4 w-4" />הורד קובץ .n27 / .info
                       </a>
                     </Button>
                   )}
                   {rhythmOrder?.cpi_file_url && (
-                    <Button asChild variant="outline" size="sm" className="mr-2">
+                    <Button asChild variant="outline" size="sm" className="me-2">
                       <a href={rhythmOrder.cpi_file_url} target="_blank" rel="noreferrer">
-                        <Download className="ml-1 h-4 w-4" />הורד CPI מוכן
+                        <Download className="ms-1 h-4 w-4" />הורד CPI מוכן
                       </a>
                     </Button>
                   )}
                 </div>
                 {rhythmOrder && (
                   <Button onClick={() => void retriggerCpi()} disabled={retrigBusy} className="bg-amber-600 hover:bg-amber-700 text-white">
-                    {retrigBusy ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <RefreshCcw className="ml-1 h-4 w-4" />}
+                    {retrigBusy ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <RefreshCcw className="ms-1 h-4 w-4" />}
                     🔄 סנכרן והפעל קידוד מחדש
                   </Button>
                 )}
@@ -423,7 +423,7 @@ function RefundDialog({ order, onDone, disabled }: { order: Order; onDone: () =>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive" className="w-full" disabled={disabled}>
-          <Ban className="ml-1 h-4 w-4" />🔴 בטל הזמנה ובצע החזר
+          <Ban className="ms-1 h-4 w-4" />🔴 בטל הזמנה ובצע החזר
         </Button>
       </DialogTrigger>
       <DialogContent dir="rtl">
@@ -453,14 +453,14 @@ function RefundDialog({ order, onDone, disabled }: { order: Order; onDone: () =>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" disabled={busy || !reason.trim()}>
-                {busy ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : <ShieldCheck className="ml-1 h-4 w-4" />}
+                {busy ? <Loader2 className="ms-1 h-4 w-4 animate-spin" /> : <ShieldCheck className="ms-1 h-4 w-4" />}
                 בצע החזר
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent dir="rtl">
               <AlertDialogHeader>
                 <AlertDialogTitle>לאשר את הפעולה?</AlertDialogTitle>
-                <AlertDialogDescription className="space-y-2 text-right">
+                <AlertDialogDescription className="space-y-2 text-end">
                   <span className="block">⚠️ שים לב: ביצוע החזר יחסום מיידית את גישת המשתמש לקורסים או לדרגות הפרימיום הכלולות בהזמנה זו.</span>
                   <span className="block text-muted-foreground">ההזמנה תסומן כ-refunded, ההרשמות לאקדמיה יבוטלו, דרגת ה-VIP תאופס ל-Free, ועמלות שותפים תלויות יידחו. הפעולה אינה הפיכה.</span>
                 </AlertDialogDescription>

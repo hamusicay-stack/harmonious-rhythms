@@ -127,9 +127,9 @@ export function AccountSettingsTab({ refreshProfile }: { refreshProfile: () => P
               className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-gold"
             >
               {saving ? (
-                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                <Loader2 className="ms-2 h-4 w-4 animate-spin" />
               ) : (
-                <Save className="ml-2 h-4 w-4" />
+                <Save className="ms-2 h-4 w-4" />
               )}
               שמור הגדרות
             </Button>
@@ -215,7 +215,7 @@ function SecuritySection({ email }: { email: string | null }) {
             onClick={sendReset}
             disabled={sending}
           >
-            {sending ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+            {sending ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : null}
             שלח לי קישור
           </Button>
         </div>
@@ -317,7 +317,7 @@ function DataPrivacySection({ userId }: { userId: string | null }) {
             </div>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={exportData}>
-            <Download className="ml-2 h-4 w-4" />
+            <Download className="ms-2 h-4 w-4" />
             ייצא
           </Button>
         </div>
@@ -335,7 +335,7 @@ function DataPrivacySection({ userId }: { userId: string | null }) {
             className="border-destructive/30 text-destructive hover:bg-destructive/10"
             onClick={() => toast.info("מחיקת חשבון דורשת אישור ידני — פנה לתמיכה")}
           >
-            <Trash2 className="ml-2 h-4 w-4" />
+            <Trash2 className="ms-2 h-4 w-4" />
             בקש מחיקה
           </Button>
         </div>

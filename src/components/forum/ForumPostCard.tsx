@@ -281,7 +281,7 @@ export function ForumPostCard({
               size="sm"
               variant={myVote === 1 ? "default" : "ghost"}
               onClick={() => onVote(myVote === 1 ? 0 : 1)}
-              className="min-h-[36px] h-9 rounded-r-full rounded-l-none px-2"
+              className="min-h-[36px] h-9 rounded-e-full rounded-s-none px-2"
               aria-label="הצבע חיובי"
             >
               <ArrowUp className="h-4 w-4" />
@@ -293,7 +293,7 @@ export function ForumPostCard({
               size="sm"
               variant={myVote === -1 ? "default" : "ghost"}
               onClick={() => onVote(myVote === -1 ? 0 : -1)}
-              className="min-h-[36px] h-9 rounded-l-full rounded-r-none px-2"
+              className="min-h-[36px] h-9 rounded-s-full rounded-e-none px-2"
               aria-label="הצבע שלילי"
             >
               <ArrowDown className="h-4 w-4" />
@@ -302,13 +302,13 @@ export function ForumPostCard({
 
           {!isLocked && (
             <Button size="sm" variant="ghost" onClick={onReply}>
-              <Reply className="h-4 w-4 ml-1" />
+              <Reply className="h-4 w-4 ms-1" />
               השב
             </Button>
           )}
           {!isLocked && !p.is_op && (
             <Button size="sm" variant="ghost" onClick={onQuote}>
-              <Quote className="h-4 w-4 ml-1" />
+              <Quote className="h-4 w-4 ms-1" />
               ציטוט
             </Button>
           )}
@@ -318,19 +318,19 @@ export function ForumPostCard({
               variant={isSolution ? "default" : "ghost"}
               onClick={onToggleSolution}
             >
-              <CheckCircle2 className="h-4 w-4 ml-1" />
+              <CheckCircle2 className="h-4 w-4 ms-1" />
               {isSolution ? "בטל פתרון" : "סמן כפתרון"}
             </Button>
           )}
-          <div className="ml-auto flex items-center gap-1 flex-wrap">
+          <div className="ms-auto flex items-center gap-1 flex-wrap">
             {!isMine && (
               <>
                 <Button size="sm" variant="ghost" onClick={onMessage}>
-                  <MessageCircle className="h-4 w-4 ml-1" />
+                  <MessageCircle className="h-4 w-4 ms-1" />
                   הודעה
                 </Button>
                 <Button size="sm" variant="ghost" onClick={onReport}>
-                  <Flag className="h-4 w-4 ml-1" />
+                  <Flag className="h-4 w-4 ms-1" />
                   דווח
                 </Button>
               </>
@@ -338,11 +338,11 @@ export function ForumPostCard({
             {isMine && (
               <>
                 <Button size="sm" variant="ghost" onClick={onStartEdit}>
-                  <Pencil className="h-4 w-4 ml-1" />
+                  <Pencil className="h-4 w-4 ms-1" />
                   ערוך
                 </Button>
                 <Button size="sm" variant="ghost" onClick={onDelete}>
-                  <Trash2 className="h-4 w-4 ml-1" />
+                  <Trash2 className="h-4 w-4 ms-1" />
                   מחק
                 </Button>
               </>

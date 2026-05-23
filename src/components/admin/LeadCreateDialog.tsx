@@ -70,11 +70,11 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
-          <Plus className="ml-2 h-4 w-4" />
+          <Plus className="ms-2 h-4 w-4" />
           ליד חדש
         </Button>
       </DialogTrigger>
-      <DialogContent className="text-right">
+      <DialogContent className="text-end">
         <DialogHeader>
           <DialogTitle>הוספת ליד חדש</DialogTitle>
         </DialogHeader>
@@ -117,7 +117,7 @@ export function LeadCreateDialog({ onSaved }: { onSaved: () => void }) {
         </div>
         <DialogFooter>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+            {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
             שמירה
           </Button>
         </DialogFooter>

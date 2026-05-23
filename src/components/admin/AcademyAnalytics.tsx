@@ -109,11 +109,11 @@ export function AcademyAnalytics() {
                   {item.itemType === "lesson" ? "שיעור" : "פודקאסט"} · {item.starts} התחלות · {item.completes} השלמות
                 </div>
               </div>
-              <div className="text-right shrink-0">
+              <div className="text-end shrink-0">
                 <div className="text-sm font-bold text-primary">{item.completionRate}%</div>
                 <div className="text-[10px] text-muted-foreground">השלמה</div>
               </div>
-              <div className="text-right shrink-0 w-14">
+              <div className="text-end shrink-0 w-14">
                 <div className="text-sm font-bold">{item.avgPercent}%</div>
                 <div className="text-[10px] text-muted-foreground">צפייה ממוצעת</div>
               </div>

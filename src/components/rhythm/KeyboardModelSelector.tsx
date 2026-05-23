@@ -165,7 +165,7 @@ function ModelCard({
       {/* Top reflection line */}
       <span
         aria-hidden
-        className="pointer-events-none absolute left-[8%] right-[8%] top-0 h-px"
+        className="pointer-events-none absolute start-[8%] end-[8%] top-0 h-px"
         style={{ background: "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.22), transparent)" }}
       />
 
@@ -190,7 +190,7 @@ function ModelCard({
         {/* Selected LED */}
         {isSelected && (
           <span
-            className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest"
+            className="absolute end-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest"
             style={{
               background: "oklch(0 0 0 / 0.55)",
               color: "var(--sr-led-green)",

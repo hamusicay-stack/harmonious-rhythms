@@ -127,11 +127,11 @@ export function MultiStepCheckout({ product, items, onComplete }: Props) {
 
       <div className="flex items-center justify-between gap-3">
         <Button variant="outline" onClick={prev} disabled={stepIdx === 0 || paying}>
-          <ArrowRight className="ml-1 h-4 w-4" /> חזרה
+          <ArrowRight className="ms-1 h-4 w-4" /> חזרה
         </Button>
         {step !== "payment" ? (
           <Button onClick={next} disabled={!canProceed()}>
-            הבא <ArrowLeft className="mr-1 h-4 w-4" />
+            הבא <ArrowLeft className="me-1 h-4 w-4" />
           </Button>
         ) : null}
       </div>
@@ -432,7 +432,7 @@ function PaymentStep({ total, paying, onPay }: { total: number; paying: boolean;
       <div className="flex items-center gap-2">
         <CreditCard className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-semibold">תשלום מאובטח</h3>
-        <Badge variant="secondary" className="text-[10px]"><Lock className="ml-1 h-3 w-3" />SSL</Badge>
+        <Badge variant="secondary" className="text-[10px]"><Lock className="ms-1 h-3 w-3" />SSL</Badge>
       </div>
 
       <div className="space-y-3">
@@ -468,7 +468,7 @@ function PaymentStep({ total, paying, onPay }: { total: number; paying: boolean;
       </div>
 
       <Button className="w-full h-12 text-base" onClick={onPay} disabled={!valid || paying}>
-        {paying ? <><Loader2 className="ml-2 h-4 w-4 animate-spin" />מעבד תשלום...</> : <><Lock className="ml-2 h-4 w-4" />שלם עכשיו ₪{total.toFixed(2)}</>}
+        {paying ? <><Loader2 className="ms-2 h-4 w-4 animate-spin" />מעבד תשלום...</> : <><Lock className="ms-2 h-4 w-4" />שלם עכשיו ₪{total.toFixed(2)}</>}
       </Button>
       <p className="text-center text-xs text-muted-foreground">התשלום מאובטח בתקן PCI-DSS · הפרטים מוצפנים</p>
     </div>

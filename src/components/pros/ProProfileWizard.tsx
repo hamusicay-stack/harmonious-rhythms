@@ -75,7 +75,7 @@ export function ProProfileWizard({
   };
 
   return (
-    <div className="space-y-6 text-right">
+    <div className="space-y-6 text-end">
       {/* Stepper */}
       <Card>
         <CardContent className="p-4">
@@ -283,7 +283,7 @@ export function ProProfileWizard({
               </div>
               {extraSlot}
               <Button onClick={onSave} disabled={saving} size="lg" className="w-full">
-                {saving ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Save className="ml-2 h-4 w-4" />}
+                {saving ? <Loader2 className="ms-2 h-4 w-4 animate-spin" /> : <Save className="ms-2 h-4 w-4" />}
                 שמור את הפרופיל
               </Button>
             </div>
@@ -294,13 +294,13 @@ export function ProProfileWizard({
       {/* Nav */}
       <div className="flex items-center justify-between">
         <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
-          <ChevronRight className="ml-1 h-4 w-4" />
+          <ChevronRight className="ms-1 h-4 w-4" />
           הקודם
         </Button>
         {step < STEPS.length - 1 ? (
           <Button onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))} disabled={!canNext()}>
             הבא
-            <ChevronLeft className="mr-1 h-4 w-4" />
+            <ChevronLeft className="me-1 h-4 w-4" />
           </Button>
         ) : (
           <span className="text-xs text-muted-foreground">סיום השלב האחרון</span>

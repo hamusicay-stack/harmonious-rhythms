@@ -162,7 +162,7 @@ function CategoryPage() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">אין תמונה</div>
                     )}
-                    {bumped && <Badge className="absolute top-2 right-2 gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>}
+                    {bumped && <Badge className="absolute top-2 end-2 gap-1 shadow-md"><ArrowUp className="h-3 w-3" />מוקפץ</Badge>}
                   </div>
                   <div className="p-4 space-y-2">
                     <div className="flex items-start justify-between gap-2">

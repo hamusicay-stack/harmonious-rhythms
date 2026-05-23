@@ -118,7 +118,7 @@ export function MarkAsSoldDialog({ open, onOpenChange, listingId, listingTitle, 
             <PartyPopper className="h-5 w-5 text-primary" />
             מזל טוב על המכירה! 🎉
           </DialogTitle>
-          <DialogDescription className="text-right">
+          <DialogDescription className="text-end">
             בחר את הקונה כדי לאמת את העסקה ולאפשר לו לכתוב ביקורת רוכש מאומת על: <span className="font-semibold text-foreground">{listingTitle}</span>
           </DialogDescription>
         </DialogHeader>
@@ -126,7 +126,7 @@ export function MarkAsSoldDialog({ open, onOpenChange, listingId, listingTitle, 
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : (
-          <div className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[55vh] overflow-y-auto pe-1">
             {candidates.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-3">לא נמצאו פניות פעילות לפריט זה.</p>
             ) : (
@@ -137,7 +137,7 @@ export function MarkAsSoldDialog({ open, onOpenChange, listingId, listingTitle, 
                     key={c.user_id}
                     type="button"
                     onClick={() => setSelected(c.user_id)}
-                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-right transition ${
+                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-end transition ${
                       isPicked ? "border-primary bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary))]" : "border-border hover:border-primary/50 hover:bg-muted/50"
                     }`}
                   >
@@ -163,14 +163,14 @@ export function MarkAsSoldDialog({ open, onOpenChange, listingId, listingTitle, 
             <button
               type="button"
               onClick={() => setSelected(ANON)}
-              className={`flex w-full items-center gap-3 rounded-xl border-2 border-dashed p-3 text-right transition ${
+              className={`flex w-full items-center gap-3 rounded-xl border-2 border-dashed p-3 text-end transition ${
                 selected === ANON ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
               }`}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
                 <Sparkles className="h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="flex-1 text-right">
+              <div className="flex-1 text-end">
                 <div className="font-semibold">מכרתי מחוץ לאתר / לקונה אנונימי</div>
                 <div className="text-xs text-muted-foreground">לא ייפתח אימות רוכש</div>
               </div>
@@ -186,7 +186,7 @@ export function MarkAsSoldDialog({ open, onOpenChange, listingId, listingTitle, 
             disabled={!selected || submitting}
             className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
           >
-            {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            {submitting && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
             {selected === ANON ? "סמן כנמכר" : "שלח בקשת אישור לקונה"}
           </Button>
         </div>
