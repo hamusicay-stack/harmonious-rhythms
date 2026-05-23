@@ -5,7 +5,7 @@ import { SiteFooter } from "./SiteFooter";
 import { BannerSlot } from "./BannerSlot";
 import { SidebarAd } from "./SidebarAd";
 import { BackgroundMesh } from "./BackgroundMesh";
-import { CustomCursor } from "./CustomCursor";
+
 import { CommandPalette } from "./CommandPalette";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
@@ -42,7 +42,6 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <div className={`relative flex min-h-screen flex-col text-right ${playerPad}`}>
       <BackgroundMesh />
-      <CustomCursor />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
 
       <SiteHeader onCommandPalette={() => setPaletteOpen(true)} />

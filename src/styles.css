@@ -464,10 +464,6 @@
     box-shadow: 0 0 8px oklch(0.78 0.13 215 / 0.65);
   }
 
-  /* Custom cursor */
-  .cursor-none-strict, .cursor-none-strict * {
-    cursor: none !important;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
