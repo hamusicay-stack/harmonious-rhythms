@@ -22,11 +22,16 @@ function ContentManagerPage() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-8" dir="rtl">
-        <div>
-          <h1 className="text-2xl font-bold md:text-3xl">מנהל תוכן ותיוג דינמי</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            אישור ערכי ויקי, ניהול תגיות משתמשים, ואוטומציות תוכן.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold md:text-3xl">מנהל תוכן ותיוג דינמי</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              אישור ערכי ויקי, ניהול תגיות משתמשים, ואוטומציות תוכן.
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/admin/content/pages">ניהול דפי אתר →</Link>
+          </Button>
         </div>
         <Tabs defaultValue="wiki" className="w-full">
           <TabsList>
