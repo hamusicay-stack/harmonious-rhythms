@@ -88,6 +88,7 @@ import { Route as AdminCrmLeadsRouteImport } from './routes/admin.crm.leads'
 import { Route as AdminCrmDealsRouteImport } from './routes/admin.crm.deals'
 import { Route as AdminCrmCustomersRouteImport } from './routes/admin.crm.customers'
 import { Route as AdminCrmAdminsRouteImport } from './routes/admin.crm.admins'
+import { Route as AdminContentPagesRouteImport } from './routes/admin.content.pages'
 import { Route as AdminCommerceStorageExplorerRouteImport } from './routes/admin.commerce.storage-explorer'
 import { Route as AdminCommerceShortsRouteImport } from './routes/admin.commerce.shorts'
 import { Route as AdminCommerceShopRouteImport } from './routes/admin.commerce.shop'
@@ -112,6 +113,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicMarketplaceMatchSearchesRouteImport } from './routes/api/public/marketplace.match-searches'
 import { Route as ApiPublicMarketplaceFollowupRouteImport } from './routes/api/public/marketplace.followup'
 import { Route as ApiPublicMarketplaceAutoBumpRouteImport } from './routes/api/public/marketplace.auto-bump'
+import { Route as AdminContentPagesIdRouteImport } from './routes/admin.content.pages.$id'
 import { Route as AdminCommerceOrdersOrderIdRouteImport } from './routes/admin.commerce.orders.$orderId'
 
 const YtShortsRoute = YtShortsRouteImport.update({
@@ -512,6 +514,11 @@ const AdminCrmAdminsRoute = AdminCrmAdminsRouteImport.update({
   path: '/admins',
   getParentRoute: () => AdminCrmRoute,
 } as any)
+const AdminContentPagesRoute = AdminContentPagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
+  getParentRoute: () => AdminContentRoute,
+} as any)
 const AdminCommerceStorageExplorerRoute =
   AdminCommerceStorageExplorerRouteImport.update({
     id: '/storage-explorer',
@@ -642,6 +649,11 @@ const ApiPublicMarketplaceAutoBumpRoute =
     path: '/api/public/marketplace/auto-bump',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminContentPagesIdRoute = AdminContentPagesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminContentPagesRoute,
+} as any)
 const AdminCommerceOrdersOrderIdRoute =
   AdminCommerceOrdersOrderIdRouteImport.update({
     id: '/$orderId',
@@ -675,7 +687,7 @@ export interface FileRoutesByFullPath {
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
-  '/admin/content': typeof AdminContentRoute
+  '/admin/content': typeof AdminContentRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
@@ -731,6 +743,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/commerce/storage-explorer': typeof AdminCommerceStorageExplorerRoute
+  '/admin/content/pages': typeof AdminContentPagesRouteWithChildren
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -750,6 +763,7 @@ export interface FileRoutesByFullPath {
   '/admin/commerce/': typeof AdminCommerceIndexRoute
   '/admin/crm/': typeof AdminCrmIndexRoute
   '/admin/commerce/orders/$orderId': typeof AdminCommerceOrdersOrderIdRoute
+  '/admin/content/pages/$id': typeof AdminContentPagesIdRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -775,7 +789,7 @@ export interface FileRoutesByTo {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
-  '/admin/content': typeof AdminContentRoute
+  '/admin/content': typeof AdminContentRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
   '/admin/forum': typeof AdminForumRoute
@@ -830,6 +844,7 @@ export interface FileRoutesByTo {
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/commerce/storage-explorer': typeof AdminCommerceStorageExplorerRoute
+  '/admin/content/pages': typeof AdminContentPagesRouteWithChildren
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -849,6 +864,7 @@ export interface FileRoutesByTo {
   '/admin/commerce': typeof AdminCommerceIndexRoute
   '/admin/crm': typeof AdminCrmIndexRoute
   '/admin/commerce/orders/$orderId': typeof AdminCommerceOrdersOrderIdRoute
+  '/admin/content/pages/$id': typeof AdminContentPagesIdRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -881,7 +897,7 @@ export interface FileRoutesById {
   '/admin/automations': typeof AdminAutomationsRoute
   '/admin/chat-oversight': typeof AdminChatOversightRoute
   '/admin/commerce': typeof AdminCommerceRouteWithChildren
-  '/admin/content': typeof AdminContentRoute
+  '/admin/content': typeof AdminContentRouteWithChildren
   '/admin/crm': typeof AdminCrmRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/entitlements-control': typeof AdminEntitlementsControlRoute
@@ -937,6 +953,7 @@ export interface FileRoutesById {
   '/admin/commerce/shop': typeof AdminCommerceShopRoute
   '/admin/commerce/shorts': typeof AdminCommerceShortsRoute
   '/admin/commerce/storage-explorer': typeof AdminCommerceStorageExplorerRoute
+  '/admin/content/pages': typeof AdminContentPagesRouteWithChildren
   '/admin/crm/admins': typeof AdminCrmAdminsRoute
   '/admin/crm/customers': typeof AdminCrmCustomersRoute
   '/admin/crm/deals': typeof AdminCrmDealsRoute
@@ -956,6 +973,7 @@ export interface FileRoutesById {
   '/admin/commerce/': typeof AdminCommerceIndexRoute
   '/admin/crm/': typeof AdminCrmIndexRoute
   '/admin/commerce/orders/$orderId': typeof AdminCommerceOrdersOrderIdRoute
+  '/admin/content/pages/$id': typeof AdminContentPagesIdRoute
   '/api/public/marketplace/auto-bump': typeof ApiPublicMarketplaceAutoBumpRoute
   '/api/public/marketplace/followup': typeof ApiPublicMarketplaceFollowupRoute
   '/api/public/marketplace/match-searches': typeof ApiPublicMarketplaceMatchSearchesRoute
@@ -1045,6 +1063,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/commerce/storage-explorer'
+    | '/admin/content/pages'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -1064,6 +1083,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/'
     | '/admin/crm/'
     | '/admin/commerce/orders/$orderId'
+    | '/admin/content/pages/$id'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1144,6 +1164,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/commerce/storage-explorer'
+    | '/admin/content/pages'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -1163,6 +1184,7 @@ export interface FileRouteTypes {
     | '/admin/commerce'
     | '/admin/crm'
     | '/admin/commerce/orders/$orderId'
+    | '/admin/content/pages/$id'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1250,6 +1272,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/shop'
     | '/admin/commerce/shorts'
     | '/admin/commerce/storage-explorer'
+    | '/admin/content/pages'
     | '/admin/crm/admins'
     | '/admin/crm/customers'
     | '/admin/crm/deals'
@@ -1269,6 +1292,7 @@ export interface FileRouteTypes {
     | '/admin/commerce/'
     | '/admin/crm/'
     | '/admin/commerce/orders/$orderId'
+    | '/admin/content/pages/$id'
     | '/api/public/marketplace/auto-bump'
     | '/api/public/marketplace/followup'
     | '/api/public/marketplace/match-searches'
@@ -1865,6 +1889,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCrmAdminsRouteImport
       parentRoute: typeof AdminCrmRoute
     }
+    '/admin/content/pages': {
+      id: '/admin/content/pages'
+      path: '/pages'
+      fullPath: '/admin/content/pages'
+      preLoaderRoute: typeof AdminContentPagesRouteImport
+      parentRoute: typeof AdminContentRoute
+    }
     '/admin/commerce/storage-explorer': {
       id: '/admin/commerce/storage-explorer'
       path: '/storage-explorer'
@@ -2033,6 +2064,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMarketplaceAutoBumpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/content/pages/$id': {
+      id: '/admin/content/pages/$id'
+      path: '/$id'
+      fullPath: '/admin/content/pages/$id'
+      preLoaderRoute: typeof AdminContentPagesIdRouteImport
+      parentRoute: typeof AdminContentPagesRoute
+    }
     '/admin/commerce/orders/$orderId': {
       id: '/admin/commerce/orders/$orderId'
       path: '/$orderId'
@@ -2119,6 +2157,29 @@ const AdminCommerceRouteWithChildren = AdminCommerceRoute._addFileChildren(
   AdminCommerceRouteChildren,
 )
 
+interface AdminContentPagesRouteChildren {
+  AdminContentPagesIdRoute: typeof AdminContentPagesIdRoute
+}
+
+const AdminContentPagesRouteChildren: AdminContentPagesRouteChildren = {
+  AdminContentPagesIdRoute: AdminContentPagesIdRoute,
+}
+
+const AdminContentPagesRouteWithChildren =
+  AdminContentPagesRoute._addFileChildren(AdminContentPagesRouteChildren)
+
+interface AdminContentRouteChildren {
+  AdminContentPagesRoute: typeof AdminContentPagesRouteWithChildren
+}
+
+const AdminContentRouteChildren: AdminContentRouteChildren = {
+  AdminContentPagesRoute: AdminContentPagesRouteWithChildren,
+}
+
+const AdminContentRouteWithChildren = AdminContentRoute._addFileChildren(
+  AdminContentRouteChildren,
+)
+
 interface AdminCrmRouteChildren {
   AdminCrmAdminsRoute: typeof AdminCrmAdminsRoute
   AdminCrmCustomersRoute: typeof AdminCrmCustomersRoute
@@ -2150,7 +2211,7 @@ interface AdminRouteChildren {
   AdminAutomationsRoute: typeof AdminAutomationsRoute
   AdminChatOversightRoute: typeof AdminChatOversightRoute
   AdminCommerceRoute: typeof AdminCommerceRouteWithChildren
-  AdminContentRoute: typeof AdminContentRoute
+  AdminContentRoute: typeof AdminContentRouteWithChildren
   AdminCrmRoute: typeof AdminCrmRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminEntitlementsControlRoute: typeof AdminEntitlementsControlRoute
@@ -2168,7 +2229,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAutomationsRoute: AdminAutomationsRoute,
   AdminChatOversightRoute: AdminChatOversightRoute,
   AdminCommerceRoute: AdminCommerceRouteWithChildren,
-  AdminContentRoute: AdminContentRoute,
+  AdminContentRoute: AdminContentRouteWithChildren,
   AdminCrmRoute: AdminCrmRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminEntitlementsControlRoute: AdminEntitlementsControlRoute,

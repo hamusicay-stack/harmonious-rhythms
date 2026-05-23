@@ -6214,6 +6214,39 @@ export type Database = {
           },
         ]
       }
+      site_pages: {
+        Row: {
+          content_html: string
+          created_at: string
+          id: string
+          is_published: boolean
+          slug: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content_html?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content_html?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       subscription_tiers: {
         Row: {
           academy_discount_percent: number
@@ -6780,6 +6813,17 @@ export type Database = {
       admin_retrigger_cpi_webhook: {
         Args: { p_rhythm_order_id: string }
         Returns: Json
+      }
+      admin_save_site_page: {
+        Args: {
+          p_content_html: string
+          p_id: string
+          p_is_published: boolean
+          p_reason: string
+          p_slug: string
+          p_title: string
+        }
+        Returns: string
       }
       admin_set_affiliate_conversion_status: {
         Args: { p_conversion_id: string; p_status: string }
