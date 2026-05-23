@@ -38,13 +38,22 @@ function PagesListPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await (supabase as any)
-      .from("site_pages")
-      .select("id, title, slug, is_published, updated_at")
-      .order("updated_at", { ascending: false });
-    if (error) toast.error("שגיאה בטעינת דפים");
-    setRows((data ?? []) as PageRow[]);
-    setLoading(false);
+    try {
+      const { data, error } = await (supabase as any)
+        .from("site_pages")
+        .select("id, title, slug, is_published, updated_at")
+        .order("updated_at", { ascending: false });
+      if (error) {
+        console.error("[site_pages load]", error);
+        toast.error("שגיאה בטעינת דפים: " + error.message);
+      }
+      setRows((data ?? []) as PageRow[]);
+    } catch (e) {
+      console.error("[site_pages load exception]", e);
+      toast.error("שגיאה לא צפויה בטעינת דפים");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
