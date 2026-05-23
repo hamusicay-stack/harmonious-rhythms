@@ -21,6 +21,15 @@ export const Route = createFileRoute("/admin/content/pages")({
   beforeLoad: requireAdmin,
   component: PagesListPage,
   head: () => ({ meta: [{ title: "ניהול דפי אתר | אדמין" }] }),
+  errorComponent: ({ error, reset }) => (
+    <SiteLayout>
+      <div className="mx-auto max-w-3xl p-6 text-center" dir="rtl">
+        <h2 className="text-xl font-bold mb-2">שגיאה בטעינת מנהל הדפים</h2>
+        <pre className="text-xs text-destructive bg-muted p-3 rounded mb-4 whitespace-pre-wrap text-start">{String(error?.message ?? error)}</pre>
+        <Button onClick={() => reset()}>נסה שוב</Button>
+      </div>
+    </SiteLayout>
+  ),
 });
 
 function PagesListPage() {
