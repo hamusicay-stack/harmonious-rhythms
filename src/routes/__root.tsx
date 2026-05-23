@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DirectionProvider } from "@radix-ui/react-direction";
 import { useEffect, useState } from "react";
 import "@/i18n";
 import { Toaster } from "@/components/ui/sonner";
