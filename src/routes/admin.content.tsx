@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { requireAdmin } from "@/lib/routeGuards";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -14,9 +14,15 @@ import { Loader2, Check, X, Trash2, Plus, ExternalLink, Zap } from "lucide-react
 
 export const Route = createFileRoute("/admin/content")({
   beforeLoad: requireAdmin,
-  component: ContentManagerPage,
+  component: ContentRouteShell,
   head: () => ({ meta: [{ title: "מנהל תוכן | אדמין" }] }),
 });
+
+function ContentRouteShell() {
+  const location = useLocation();
+  if (location.pathname !== "/admin/content") return <Outlet />;
+  return <ContentManagerPage />;
+}
 
 function ContentManagerPage() {
   return (
