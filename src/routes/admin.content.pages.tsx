@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { requireAdmin } from "@/lib/routeGuards";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -19,7 +19,7 @@ type PageRow = {
 
 export const Route = createFileRoute("/admin/content/pages")({
   beforeLoad: requireAdmin,
-  component: PagesListPage,
+  component: PagesRouteShell,
   head: () => ({ meta: [{ title: "ניהול דפי אתר | אדמין" }] }),
   errorComponent: ({ error, reset }) => (
     <SiteLayout>
@@ -31,6 +31,12 @@ export const Route = createFileRoute("/admin/content/pages")({
     </SiteLayout>
   ),
 });
+
+function PagesRouteShell() {
+  const location = useLocation();
+  if (location.pathname !== "/admin/content/pages") return <Outlet />;
+  return <PagesListPage />;
+}
 
 function PagesListPage() {
   const [rows, setRows] = useState<PageRow[]>([]);
