@@ -1,4 +1,4 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, redirect } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DirectionProvider } from "@radix-ui/react-direction";
 import { useEffect, useState } from "react";
@@ -50,6 +50,11 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/index") {
+      throw redirect({ to: "/" });
+    }
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },

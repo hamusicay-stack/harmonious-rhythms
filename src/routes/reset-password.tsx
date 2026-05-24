@@ -9,6 +9,15 @@ import { Music2, Loader2, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const withTimeout = <T,>(promise: Promise<T>, ms = 15000): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => reject(new Error("request_timeout")), ms);
+    }),
+  ]);
+};
+
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
@@ -32,14 +41,14 @@ function ResetPasswordPage() {
     if (!email) return;
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke("password-reset-request", {
-        body: { email },
-      });
+      const { error } = await withTimeout(
+        supabase.functions.invoke("password-reset-request", { body: { email } }),
+      );
       if (error) throw error;
       toast.success("שלחנו קוד אימות למייל (אם הוא רשום אצלנו)");
       setStep("otp");
     } catch (err) {
-      toast.error("לא הצלחנו לשלוח קוד. נסו שוב.");
+      toast.error(err instanceof Error && err.message === "request_timeout" ? "הבקשה נמשכה יותר מדי זמן. נסו שוב." : "לא הצלחנו לשלוח קוד. נסו שוב.");
     } finally {
       setLoading(false);
     }
@@ -53,9 +62,9 @@ function ResetPasswordPage() {
     }
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("password-reset-verify", {
-        body: { email, code, new_password: password },
-      });
+      const { data, error } = await withTimeout(
+        supabase.functions.invoke("password-reset-verify", { body: { email, code, new_password: password } }),
+      );
       if (error || (data as { error?: string })?.error) {
         const errKey = (data as { error?: string })?.error;
         const friendly =
@@ -68,7 +77,7 @@ function ResetPasswordPage() {
       toast.success("הסיסמה הוחלפה — ניתן להתחבר");
       navigate({ to: "/auth" });
     } catch (err) {
-      toast.error(friendlyError(err, "שגיאה"));
+      toast.error(err instanceof Error && err.message === "request_timeout" ? "האימות נמשך יותר מדי זמן. נסו שוב." : friendlyError(err, "שגיאה"));
     } finally {
       setLoading(false);
     }
