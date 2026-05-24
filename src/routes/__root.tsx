@@ -22,6 +22,12 @@ import { FloatingShortPlayer } from "@/components/shorts/FloatingShortPlayer";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
+  useEffect(() => {
+    if (window.location.pathname === "/index") {
+      window.location.replace("/");
+    }
+  }, []);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
