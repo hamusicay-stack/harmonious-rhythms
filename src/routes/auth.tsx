@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,9 +39,14 @@ function AuthPage() {
   const [hasWhatsapp, setHasWhatsapp] = useState(true);
   const [emailOptIn, setEmailOptIn] = useState(true);
   const [loading, setLoading] = useState(false);
+  const redirectingRef = useRef(false);
 
   const goToRedirect = useCallback(() => {
-    void navigate({ href: redirectTo, replace: true });
+    if (redirectingRef.current) return;
+    redirectingRef.current = true;
+    void navigate({ href: redirectTo, replace: true }).catch(() => {
+      redirectingRef.current = false;
+    });
   }, [navigate, redirectTo]);
 
   useEffect(() => {
@@ -94,6 +99,16 @@ function AuthPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || user) {
+    return (
+      <SiteLayout>
+        <div className="flex min-h-[80vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </SiteLayout>
+    );
+  }
 
   return (
     <SiteLayout>
