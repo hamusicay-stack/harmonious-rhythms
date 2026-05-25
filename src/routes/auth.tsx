@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,8 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const search = Route.useSearch();
   const redirectTo = normalizeRedirectTarget(search.redirect);
-  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">(search.mode as "login" | "signup");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,12 +39,21 @@ function AuthPage() {
   const [hasWhatsapp, setHasWhatsapp] = useState(true);
   const [emailOptIn, setEmailOptIn] = useState(true);
   const [loading, setLoading] = useState(false);
+  const redirectingRef = useRef(false);
+
+  const goToRedirect = useCallback(() => {
+    if (redirectingRef.current) return;
+    redirectingRef.current = true;
+    void navigate({ href: redirectTo, replace: true }).catch(() => {
+      redirectingRef.current = false;
+    });
+  }, [navigate, redirectTo]);
 
   useEffect(() => {
     if (user && !loading) {
-      window.location.replace(redirectTo);
+      goToRedirect();
     }
-  }, [user, loading, redirectTo]);
+  }, [user, loading, goToRedirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,13 +78,13 @@ function AuthPage() {
           }).eq("id", newUserId);
         }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
-        window.location.replace(redirectTo);
+        goToRedirect();
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("התחברתם בהצלחה");
-        window.location.replace(redirectTo);
+        goToRedirect();
         return;
       }
     } catch (err: unknown) {
@@ -89,6 +99,16 @@ function AuthPage() {
       setLoading(false);
     }
   };
+
+  if (user) {
+    return (
+      <SiteLayout>
+        <div className="flex min-h-[80vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </SiteLayout>
+    );
+  }
 
   return (
     <SiteLayout>
