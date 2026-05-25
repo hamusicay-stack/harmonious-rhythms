@@ -206,13 +206,18 @@ function normalizeRedirectTarget(redirect?: string) {
   try {
     const normalized = redirect.startsWith("/")
       ? redirect
-      : new URL(redirect, window.location.origin);
+      : new URL(redirect, typeof window !== "undefined" ? window.location.origin : "http://localhost");
 
-    const path = typeof normalized === "string"
+    let path = typeof normalized === "string"
       ? normalized
       : `${normalized.pathname}${normalized.search}${normalized.hash}`;
 
-    return path === "/index" ? "/" : path || "/";
+    if (path === "/index") path = "/";
+    // Never redirect back to /auth (would cause an infinite refresh loop)
+    if (path === "/auth" || path.startsWith("/auth?") || path.startsWith("/auth#")) {
+      return "/";
+    }
+    return path || "/";
   } catch {
     return "/";
   }
