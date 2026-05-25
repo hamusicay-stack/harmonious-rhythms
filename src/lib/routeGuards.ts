@@ -1,6 +1,16 @@
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
+function toRedirectPath(href: string) {
+  try {
+    const url = new URL(href, "https://lovable.local");
+    const path = `${url.pathname}${url.search}${url.hash}`;
+    return path === "/index" ? "/" : path || "/";
+  } catch {
+    return "/";
+  }
+}
+
 /**
  * beforeLoad guard: redirects to /auth if no session.
  * Runs before component bundle loads.
@@ -8,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 export async function requireAuth({ location }: { location: { href: string } }) {
   const { data } = await supabase.auth.getSession();
   if (!data.session) {
-    throw redirect({ to: "/auth", search: { redirect: location.href } as never });
+    throw redirect({ to: "/auth", search: { redirect: toRedirectPath(location.href) } as never });
   }
 }
 
@@ -18,7 +28,7 @@ export async function requireAuth({ location }: { location: { href: string } }) 
 export async function requireAdmin({ location }: { location: { href: string } }) {
   const { data: sess } = await supabase.auth.getSession();
   if (!sess.session) {
-    throw redirect({ to: "/auth", search: { redirect: location.href } as never });
+    throw redirect({ to: "/auth", search: { redirect: toRedirectPath(location.href) } as never });
   }
   const { data: roleRow } = await supabase
     .from("user_roles")
