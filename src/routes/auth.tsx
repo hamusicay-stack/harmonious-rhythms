@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const search = Route.useSearch();
   const redirectTo = normalizeRedirectTarget(search.redirect);
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">(search.mode as "login" | "signup");
   const [displayName, setDisplayName] = useState("");
@@ -39,11 +40,15 @@ function AuthPage() {
   const [emailOptIn, setEmailOptIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  const goToRedirect = () => {
+    void navigate({ href: redirectTo, replace: true });
+  };
+
   useEffect(() => {
-    if (user && !loading) {
-      window.location.replace(redirectTo);
+    if (!authLoading && user && !loading) {
+      goToRedirect();
     }
-  }, [user, loading, redirectTo]);
+  }, [authLoading, user, loading, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,13 +73,13 @@ function AuthPage() {
           }).eq("id", newUserId);
         }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
-        window.location.replace(redirectTo);
+        goToRedirect();
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("התחברתם בהצלחה");
-        window.location.replace(redirectTo);
+        goToRedirect();
         return;
       }
     } catch (err: unknown) {
