@@ -50,10 +50,10 @@ function AuthPage() {
   }, [navigate, redirectTo]);
 
   useEffect(() => {
-    if (!authLoading && user && !loading) {
+    if (user && !loading) {
       goToRedirect();
     }
-  }, [authLoading, user, loading, goToRedirect]);
+  }, [user, loading, goToRedirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
