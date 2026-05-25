@@ -100,7 +100,7 @@ function AuthPage() {
     }
   };
 
-  if (authLoading || user) {
+  if (user) {
     return (
       <SiteLayout>
         <div className="flex min-h-[80vh] items-center justify-center">
