@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,15 +40,15 @@ function AuthPage() {
   const [emailOptIn, setEmailOptIn] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const goToRedirect = () => {
+  const goToRedirect = useCallback(() => {
     void navigate({ href: redirectTo, replace: true });
-  };
+  }, [navigate, redirectTo]);
 
   useEffect(() => {
     if (!authLoading && user && !loading) {
       goToRedirect();
     }
-  }, [authLoading, user, loading, redirectTo]);
+  }, [authLoading, user, loading, goToRedirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
