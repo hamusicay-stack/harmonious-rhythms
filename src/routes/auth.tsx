@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "login" | "signup"; redirect?: string } => ({
     mode: (search.mode as string) === "signup" ? "signup" : "login",
-    redirect: typeof search.redirect === "string" && search.redirect.startsWith("/") ? search.redirect : "/",
+    redirect: typeof search.redirect === "string" && search.redirect.length <= 1000 ? search.redirect : "/",
   }),
   head: () => ({
     meta: [
@@ -28,8 +28,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const search = Route.useSearch();
-  const navigate = useNavigate();
-  const redirectTo = (search.redirect ?? "/") as never;
+  const redirectTo = normalizeRedirectTarget(search.redirect);
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">(search.mode as "login" | "signup");
   const [displayName, setDisplayName] = useState("");
@@ -41,8 +40,10 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) navigate({ to: redirectTo });
-  }, [user, authLoading, navigate, redirectTo]);
+    if (user && !loading) {
+      window.location.replace(redirectTo);
+    }
+  }, [user, loading, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,12 +68,14 @@ function AuthPage() {
           }).eq("id", newUserId);
         }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
-        navigate({ to: redirectTo });
+        window.location.replace(redirectTo);
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("התחברתם בהצלחה");
-        navigate({ to: redirectTo });
+        window.location.replace(redirectTo);
+        return;
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "אירעה שגיאה";
@@ -195,4 +198,22 @@ function AuthPage() {
       </div>
     </SiteLayout>
   );
+}
+
+function normalizeRedirectTarget(redirect?: string) {
+  if (!redirect) return "/";
+
+  try {
+    const normalized = redirect.startsWith("/")
+      ? redirect
+      : new URL(redirect, window.location.origin);
+
+    const path = typeof normalized === "string"
+      ? normalized
+      : `${normalized.pathname}${normalized.search}${normalized.hash}`;
+
+    return path === "/index" ? "/" : path || "/";
+  } catch {
+    return "/";
+  }
 }
