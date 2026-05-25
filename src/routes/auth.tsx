@@ -30,7 +30,7 @@ function AuthPage() {
   const search = Route.useSearch();
   const redirectTo = normalizeRedirectTarget(search.redirect);
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">(search.mode as "login" | "signup");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
