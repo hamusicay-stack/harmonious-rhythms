@@ -44,16 +44,35 @@ function AuthPage() {
   const goToRedirect = useCallback(() => {
     if (redirectingRef.current) return;
     redirectingRef.current = true;
-    void navigate({ href: redirectTo, replace: true }).catch(() => {
-      redirectingRef.current = false;
-    });
+    // Try SPA navigation first; fall back to a hard redirect so the user
+    // can never get stuck on the auth page after a successful login.
+    try {
+      void navigate({ href: redirectTo, replace: true }).catch(() => {
+        if (typeof window !== "undefined") {
+          window.location.replace(redirectTo);
+        }
+      });
+    } catch {
+      if (typeof window !== "undefined") {
+        window.location.replace(redirectTo);
+      }
+    }
+    // Safety net: if SPA navigation hasn't unmounted us within 600ms,
+    // force a hard redirect.
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        if (window.location.pathname.startsWith("/auth")) {
+          window.location.replace(redirectTo);
+        }
+      }, 600);
+    }
   }, [navigate, redirectTo]);
 
   useEffect(() => {
-    if (user && !loading) {
+    if (user) {
       goToRedirect();
     }
-  }, [user, loading, goToRedirect]);
+  }, [user, goToRedirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,18 +91,24 @@ function AuthPage() {
         // Persist phone + WhatsApp preference on the new profile (best-effort)
         const newUserId = data.user?.id;
         if (newUserId) {
-          await supabase.from("profiles").update({
-            phone: phone.trim() || null,
-            has_whatsapp: !!phone.trim() && hasWhatsapp,
-          }).eq("id", newUserId);
+          try {
+            await supabase.from("profiles").update({
+              phone: phone.trim() || null,
+              has_whatsapp: !!phone.trim() && hasWhatsapp,
+            }).eq("id", newUserId);
+          } catch (err) {
+            console.error("profile phone update failed (non-fatal)", err);
+          }
         }
         toast.success("ברוכים הבאים! נרשמתם בהצלחה");
+        setLoading(false);
         goToRedirect();
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("התחברתם בהצלחה");
+        setLoading(false);
         goToRedirect();
         return;
       }
@@ -95,20 +120,10 @@ function AuthPage() {
         message.includes("Password") ? "הסיסמה לא תקינה (לפחות 6 תווים)" :
         message;
       toast.error(friendly);
-    } finally {
       setLoading(false);
     }
   };
 
-  if (user) {
-    return (
-      <SiteLayout>
-        <div className="flex min-h-[80vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </SiteLayout>
-    );
-  }
 
   return (
     <SiteLayout>
