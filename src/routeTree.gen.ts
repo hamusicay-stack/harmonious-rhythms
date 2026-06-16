@@ -21,6 +21,7 @@ import { Route as PointsRouteImport } from './routes/points'
 import { Route as OrganRouteImport } from './routes/organ'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -174,6 +175,11 @@ const MarketplaceRoute = MarketplaceRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorRoute = InvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForumRoute = ForumRouteImport.update({
@@ -669,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRouteWithChildren
+  '/investor': typeof InvestorRoute
   '/leaderboard': typeof LeaderboardRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/organ': typeof OrganRoute
@@ -775,6 +782,7 @@ export interface FileRoutesByTo {
   '/academy': typeof AcademyRouteWithChildren
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/investor': typeof InvestorRoute
   '/leaderboard': typeof LeaderboardRoute
   '/organ': typeof OrganRoute
   '/points': typeof PointsRoute
@@ -879,6 +887,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/forum': typeof ForumRouteWithChildren
+  '/investor': typeof InvestorRoute
   '/leaderboard': typeof LeaderboardRoute
   '/marketplace': typeof MarketplaceRouteWithChildren
   '/organ': typeof OrganRoute
@@ -989,6 +998,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/forum'
+    | '/investor'
     | '/leaderboard'
     | '/marketplace'
     | '/organ'
@@ -1095,6 +1105,7 @@ export interface FileRouteTypes {
     | '/academy'
     | '/auth'
     | '/contact'
+    | '/investor'
     | '/leaderboard'
     | '/organ'
     | '/points'
@@ -1198,6 +1209,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/forum'
+    | '/investor'
     | '/leaderboard'
     | '/marketplace'
     | '/organ'
@@ -1307,6 +1319,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForumRoute: typeof ForumRouteWithChildren
+  InvestorRoute: typeof InvestorRoute
   LeaderboardRoute: typeof LeaderboardRoute
   MarketplaceRoute: typeof MarketplaceRouteWithChildren
   OrganRoute: typeof OrganRoute
@@ -1418,6 +1431,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investor': {
+      id: '/investor'
+      path: '/investor'
+      fullPath: '/investor'
+      preLoaderRoute: typeof InvestorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forum': {
@@ -2365,6 +2385,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForumRoute: ForumRouteWithChildren,
+  InvestorRoute: InvestorRoute,
   LeaderboardRoute: LeaderboardRoute,
   MarketplaceRoute: MarketplaceRouteWithChildren,
   OrganRoute: OrganRoute,
