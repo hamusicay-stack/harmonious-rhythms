@@ -1,5 +1,4 @@
-/* Hebrew + English typography — Sonic Glass v5 */
-@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&family=Assistant:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+/* Hebrew + English typography — Sonic Glass v5 (fonts loaded via <link> in __root.tsx) */
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
