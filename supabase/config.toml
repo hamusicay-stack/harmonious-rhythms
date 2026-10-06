@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.ingest-ai-shorts]
 verify_jwt = false
+
+[functions.telegram-file-bot]
+verify_jwt = false

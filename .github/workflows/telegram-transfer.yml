@@ -1,0 +1,45 @@
+# Started by the Supabase function `telegram-file-bot` for every link sent to the bot.
+# Streams the file from the link straight into the Telegram chat (see telegram-bot/transfer.py).
+name: Telegram file transfer
+
+on:
+  repository_dispatch:
+    types: [telegram-transfer]
+
+run-name: "Transfer ${{ github.event.client_payload.link }}"
+
+permissions:
+  contents: read
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    defaults:
+      run:
+        working-directory: telegram-bot
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: telegram-bot
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: telegram-bot/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - run: python transfer.py
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          NITROFLARE_USER: ${{ secrets.NITROFLARE_USER }}
+          NITROFLARE_PREMIUM_KEY: ${{ secrets.NITROFLARE_PREMIUM_KEY }}
+          # Payload goes through env (never inlined into the script) so a crafted link can't inject shell.
+          LINK: ${{ github.event.client_payload.link }}
+          CHAT_ID: ${{ github.event.client_payload.chat_id }}
+          REPLY_TO: ${{ github.event.client_payload.reply_to }}
+          STATUS_ID: ${{ github.event.client_payload.status_id }}
