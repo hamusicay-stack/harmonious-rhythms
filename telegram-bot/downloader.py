@@ -1,18 +1,13 @@
-"""Stream a URL to disk and split files that are too large for Telegram."""
+"""Open a download as a stream that Telethon can upload from directly – nothing is written to disk."""
 
 import os
 import re
-import uuid
-from typing import Awaitable, Callable
 from urllib.parse import unquote, urlparse
 
 import aiohttp
 
 from resolvers import Resolved
 
-ProgressCallback = Callable[[int, int | None], Awaitable[None]]
-
-CHUNK = 1024 * 1024
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
@@ -37,15 +32,61 @@ def _safe(name: str) -> str:
     return name[:200] or "file"
 
 
-async def download(
-    session: aiohttp.ClientSession,
-    resolved: Resolved,
-    dest_dir: str,
-    progress: ProgressCallback,
-) -> str:
+class PartStream:
+    """File-like view over the next `size` bytes of an HTTP response.
+
+    Telethon calls `await read(n)` for every upload chunk, so each chunk is pulled from the
+    source only when Telegram is ready for it: download and upload run together.
+    """
+
+    def __init__(self, content: aiohttp.StreamReader, name: str, size: int):
+        self._content = content
+        self.name = name
+        self.size = size
+        self._left = size
+
+    async def read(self, n: int = -1) -> bytes:
+        if n < 0 or n > self._left:
+            n = self._left
+        buf = bytearray()
+        while len(buf) < n:
+            chunk = await self._content.read(n - len(buf))
+            if not chunk:
+                raise DownloadError("ההורדה מהמקור נקטעה באמצע")
+            buf += chunk
+        self._left -= len(buf)
+        return bytes(buf)
+
+
+class RemoteFile:
+    """An open HTTP download. Use `parts(max_size)` to get streams to hand to Telethon."""
+
+    def __init__(self, resp: aiohttp.ClientResponse, name: str):
+        self._resp = resp
+        self.name = name
+        self.size = resp.content_length
+
+    def parts(self, max_size: int) -> list[PartStream]:
+        """Files over Telegram's limit become name.001, name.002, ... streamed one after another."""
+        if self.size <= max_size:
+            return [PartStream(self._resp.content, self.name, self.size)]
+        parts, offset, index = [], 0, 1
+        while offset < self.size:
+            size = min(max_size, self.size - offset)
+            parts.append(PartStream(self._resp.content, f"{self.name}.{index:03d}", size))
+            offset += size
+            index += 1
+        return parts
+
+    def close(self):
+        self._resp.close()
+
+
+async def open_remote(session: aiohttp.ClientSession, resolved: Resolved) -> RemoteFile:
     headers = {"User-Agent": USER_AGENT, **resolved.headers}
-    timeout = aiohttp.ClientTimeout(total=None, sock_read=120)
-    async with session.get(resolved.url, headers=headers, timeout=timeout, allow_redirects=True) as resp:
+    timeout = aiohttp.ClientTimeout(total=None, sock_read=300)
+    resp = await session.get(resolved.url, headers=headers, timeout=timeout, allow_redirects=True)
+    try:
         if resp.status >= 400:
             raise DownloadError(f"השרת החזיר שגיאה {resp.status}")
         if resp.content_type == "text/html":
@@ -54,6 +95,9 @@ async def download(
                 "התקבל דף אינטרנט במקום קובץ – ייתכן שהקובץ פרטי, נמחק, "
                 "או שחרג ממכסת ההורדות"
             )
+        if not resp.content_length:
+            # Telegram must know the number of parts before the upload starts.
+            raise DownloadError("השרת לא מדווח על גודל הקובץ, ולכן אי אפשר להעביר אותו ישירות")
 
         name = (
             resolved.filename
@@ -61,48 +105,7 @@ async def download(
             or os.path.basename(unquote(urlparse(str(resp.url)).path))
             or "file"
         )
-        name = _safe(name)
-        total = resp.content_length
-
-        job_dir = os.path.join(dest_dir, uuid.uuid4().hex)
-        os.makedirs(job_dir, exist_ok=True)
-        path = os.path.join(job_dir, name)
-
-        done = 0
-        with open(path, "wb") as f:
-            async for chunk in resp.content.iter_chunked(CHUNK):
-                f.write(chunk)
-                done += len(chunk)
-                await progress(done, total)
-
-    if total and done < total:
-        raise DownloadError("ההורדה נקטעה באמצע")
-    return path
-
-
-def split_file(path: str, part_size: int) -> list[str]:
-    """Split into name.001, name.002, ... (rejoin with `cat` / `copy /b` / 7-Zip)."""
-    size = os.path.getsize(path)
-    if size <= part_size:
-        return [path]
-
-    parts = []
-    with open(path, "rb") as src:
-        index = 1
-        while True:
-            part_path = f"{path}.{index:03d}"
-            written = 0
-            with open(part_path, "wb") as dst:
-                while written < part_size:
-                    chunk = src.read(min(CHUNK * 8, part_size - written))
-                    if not chunk:
-                        break
-                    dst.write(chunk)
-                    written += len(chunk)
-            if written == 0:
-                os.remove(part_path)
-                break
-            parts.append(part_path)
-            index += 1
-    os.remove(path)
-    return parts
+        return RemoteFile(resp, _safe(name))
+    except BaseException:
+        resp.close()
+        raise

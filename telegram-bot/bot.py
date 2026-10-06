@@ -1,17 +1,17 @@
-"""Telegram bot: send it a file link (Google Drive, Nitroflare, Dropbox, direct) and it uploads the file to the chat."""
+"""Telegram bot: send it a file link (Google Drive, Nitroflare, Dropbox, direct) and it streams the file
+straight into the chat – downloaded chunks are uploaded as they arrive, nothing is stored on disk."""
 
 import asyncio
 import logging
 import os
 import re
-import shutil
 import time
 
 import aiohttp
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 
-from downloader import DownloadError, download, split_file
+from downloader import DownloadError, open_remote
 from resolvers import ResolveError, resolve
 
 load_dotenv()
@@ -21,7 +21,6 @@ log = logging.getLogger("bot")
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 API_ID = int(os.environ["API_ID"])
 API_HASH = os.environ["API_HASH"]
-DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "./downloads")
 ALLOWED_USERS = {int(u) for u in os.getenv("ALLOWED_USERS", "").replace(" ", "").split(",") if u}
 # Bots can upload up to 2 GB per file; leave a little headroom.
 MAX_PART = int(os.getenv("MAX_PART_SIZE", str(2000 * 1024 * 1024)))
@@ -97,40 +96,44 @@ async def on_message(event):
 async def handle_link(event, link: str):
     status = await event.reply(f"⏳ בתור...\n{link}")
     async with jobs:
-        path = None
         try:
             async with aiohttp.ClientSession() as session:
                 await status.edit("🔍 מאתר את הקובץ...")
                 resolved = await resolve(session, link)
-                path = await download(session, resolved, DOWNLOAD_DIR, Progress(status, "⬇️ מוריד..."))
+                remote = await open_remote(session, resolved)
+                try:
+                    parts = remote.parts(MAX_PART)
+                    for i, part in enumerate(parts, 1):
+                        title = f"🚀 מעביר לטלגרם: {part.name}"
+                        if len(parts) > 1:
+                            title += f" ({i}/{len(parts)})"
+                        uploaded = await client.upload_file(
+                            part,
+                            file_size=part.size,
+                            file_name=part.name,
+                            part_size_kb=512,
+                            progress_callback=Progress(status, title),
+                        )
+                        await client.send_file(
+                            event.chat_id,
+                            uploaded,
+                            caption=part.name,
+                            force_document=True,
+                            reply_to=event.id,
+                        )
+                finally:
+                    remote.close()
 
-            parts = await asyncio.to_thread(split_file, path, MAX_PART)
-            for i, part in enumerate(parts, 1):
-                name = os.path.basename(part)
-                title = f"⬆️ מעלה {name}" + (f" ({i}/{len(parts)})" if len(parts) > 1 else "")
-                await client.send_file(
-                    event.chat_id,
-                    part,
-                    caption=name,
-                    force_document=True,
-                    reply_to=event.id,
-                    progress_callback=Progress(status, title),
-                )
-
-            note = f"\nהקובץ חולק ל-{len(parts)} חלקים – אחד אותם עם 7-Zip / ‎cat‎." if len(parts) > 1 else ""
+            note = f"\nהקובץ חולק ל-{len(parts)} חלקים – אחד אותם עם 7-Zip / \u200ecat\u200e." if len(parts) > 1 else ""
             await status.edit("✅ הסתיים!" + note)
         except (ResolveError, DownloadError) as e:
             await status.edit(f"❌ {e}")
         except Exception as e:
             log.exception("Failed processing %s", link)
             await status.edit(f"❌ שגיאה לא צפויה: {e}")
-        finally:
-            if path:
-                shutil.rmtree(os.path.dirname(path), ignore_errors=True)
 
 
 def main():
-    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     client.start(bot_token=BOT_TOKEN)
     log.info("Bot is running")
     client.run_until_disconnected()
